@@ -29,7 +29,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpCookie;
 import java.net.URI;
@@ -146,7 +148,11 @@ public class AgatteSession {
             //}
             for (Header h: response2.getHeaders("Location")) {
                 //value should be URL("https", server, "/");
-
+                if (h.getValue().contains("login_error=1")) {
+                    this.session_expire = 0;
+                    this.session_id = null;
+                    return false;
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -164,19 +170,27 @@ public class AgatteSession {
             client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
             //http.protocol.handle-redirects
 
-            HttpResponse response1 = client.execute(query_day_rq, context);
-            if (response1.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
-                //302 response :authentication did not succeed...
+            HttpResponse response = client.execute(query_day_rq, context);
+
+
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
 
 
             }
 
-            if (response1.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            BufferedReader rd = new BufferedReader(
+            new InputStreamReader(response.getEntity().getContent()));
 
-            }
+	        StringBuffer result = new StringBuffer();
+	        String line = "";
+	        while ((line = rd.readLine()) != null) {
+		        result.append(line);
+	        }
+
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = factory.newDocumentBuilder();
-            Document doc = db.parse(response1.getEntity().getContent());
+            Document doc = db.parse(response.getEntity().getContent());
+
             //TODO :get element from doc
             Element nl = doc.getElementById("rappelTop");
 
