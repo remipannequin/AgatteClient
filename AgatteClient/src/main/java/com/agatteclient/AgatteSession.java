@@ -15,10 +15,13 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.w3c.dom.Document;
@@ -60,15 +63,14 @@ public class AgatteSession {
     private HttpContext context;
 
 
-    static final String LOGIN_DIR = "/app/login.form";
-    static final String LOGOUT_DIR = "/app/logout.form";
-    static final String AUTH_DIR = "/j_acegi_security_check";
-    static final String EXEC_DIR = "/top/top.form";
-    static final String QUERY_DIR = "/top/top.form";
-    static final String USER = "j_username";
-    static final String PASSWORD = "j_password";
-    static final String AGENT = "Mozilla/5.0 (Linux; U; Android 2.2; en-us; Nexus One Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
-
+    private static final String LOGIN_DIR = "/app/login.form";
+    private static final String LOGOUT_DIR = "/app/logout.form";
+    private static final String AUTH_DIR = "/j_acegi_security_check";
+    private static final String EXEC_DIR = "/top/top.form";
+    private static final String QUERY_DIR = "/top/top.form?numMen=2";
+    private static final String USER = "j_username";
+    private static final String PASSWORD = "j_password";
+    private static final String AGENT = "Mozilla/5.0 (Linux; U; Android 2.2; en-us; Nexus One Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
 
 
     /**
@@ -139,9 +141,9 @@ public class AgatteSession {
             if (!found_id) { return false; }
 
             HttpResponse response2 = client.execute(auth_rq, context);
-            if (response2.getStatusLine().getStatusCode() != HttpStatus.SC_TEMPORARY_REDIRECT) {
-                return false;
-            }
+            //if (response2.getStatusLine().getStatusCode() != HttpStatus.SC_TEMPORARY_REDIRECT) {
+            //    return false;
+            //}
             for (Header h: response2.getHeaders("Location")) {
                 //value should be URL("https", server, "/");
 
@@ -158,7 +160,20 @@ public class AgatteSession {
             return;
         }
         try {
+            client = AndroidHttpClient.newInstance(AGENT);
+            client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
+            //http.protocol.handle-redirects
+
             HttpResponse response1 = client.execute(query_day_rq, context);
+            if (response1.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
+                //302 response :authentication did not succeed...
+
+
+            }
+
+            if (response1.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+
+            }
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = factory.newDocumentBuilder();
             Document doc = db.parse(response1.getEntity().getContent());
