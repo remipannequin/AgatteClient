@@ -2,6 +2,7 @@ package com.agatteclient;
 
 
 import android.net.http.AndroidHttpClient;
+import android.text.Html;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -21,11 +22,14 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -35,6 +39,8 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
+import static android.text.Html.*;
 
 /**
  * Created by Rémi Pannequin on 24/09/13.
@@ -59,7 +65,7 @@ public class AgatteSession {
     private static final String LOGOUT_DIR = "/app/logout.form";
     private static final String AUTH_DIR = "/j_acegi_security_check";
     private static final String EXEC_DIR = "/top/top.form";
-    private static final String QUERY_DIR = "/top/top.form?numMen=2";
+    private static final String QUERY_DIR = "/";
     private static final String USER = "j_username";
     private static final String PASSWORD = "j_password";
     private static final String AGENT = "Mozilla/5.0 (Linux; U; Android 2.2; en-us; Nexus One Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
@@ -182,9 +188,10 @@ public class AgatteSession {
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = factory.newDocumentBuilder();
-            Document doc = db.parse(response.getEntity().getContent());
+            StringReader sr = new StringReader(result.toString());
+            Document doc = db.parse(new InputSource(sr));
 
-            //TODO :get element from doc
+            //get element from doc
             Element nl = doc.getElementById("rappelTop");
 
         } catch (ParserConfigurationException e) {
