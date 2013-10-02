@@ -1,10 +1,7 @@
 package com.agatteclient;
 
 
-import android.app.IntentService;
-import android.content.Intent;
 import android.net.http.AndroidHttpClient;
-import android.preference.PreferenceActivity;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -20,26 +17,19 @@ import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpCookie;
 import java.net.URI;
-
-
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -60,7 +50,7 @@ public class AgatteSession {
     private HttpPost auth_rq;
     private HttpGet query_day_rq;
     private HttpPost exec_rq;
-    private List<NameValuePair> credentials;
+    private final List<NameValuePair> credentials;
     private HttpClient client;
     private HttpContext context;
 
@@ -77,7 +67,8 @@ public class AgatteSession {
 
     /**
      * Create a new Agatte session.
-     * @throws URISyntaxException If server YRL is not correct
+     *
+     * @throws URISyntaxException           If server YRL is not correct
      * @throws UnsupportedEncodingException if username and password include chars unsupported in this encoding
      */
     public AgatteSession() throws URISyntaxException, UnsupportedEncodingException {
@@ -140,13 +131,15 @@ public class AgatteSession {
                     this.session_id = cookie.getValue();
                     found_id = true;
                 }
-            if (!found_id) { return false; }
+            if (!found_id) {
+                return false;
+            }
 
             HttpResponse response2 = client.execute(auth_rq, context);
             //if (response2.getStatusLine().getStatusCode() != HttpStatus.SC_TEMPORARY_REDIRECT) {
             //    return false;
             //}
-            for (Header h: response2.getHeaders("Location")) {
+            for (Header h : response2.getHeaders("Location")) {
                 //value should be URL("https", server, "/");
                 if (h.getValue().contains("login_error=1")) {
                     this.session_expire = 0;
@@ -179,13 +172,13 @@ public class AgatteSession {
             }
 
             BufferedReader rd = new BufferedReader(
-            new InputStreamReader(response.getEntity().getContent()));
+                    new InputStreamReader(response.getEntity().getContent()));
 
-	        StringBuffer result = new StringBuffer();
-	        String line = "";
-	        while ((line = rd.readLine()) != null) {
-		        result.append(line);
-	        }
+            StringBuffer result = new StringBuffer();
+            String line = "";
+            while ((line = rd.readLine()) != null) {
+                result.append(line);
+            }
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = factory.newDocumentBuilder();
@@ -195,9 +188,9 @@ public class AgatteSession {
             Element nl = doc.getElementById("rappelTop");
 
         } catch (ParserConfigurationException e) {
-             e.printStackTrace();
+            e.printStackTrace();
         } catch (SAXException e) {
-             e.printStackTrace();
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -223,10 +216,10 @@ public class AgatteSession {
     public void setServer(String server) throws URISyntaxException {
         this.server = server;
         this.login_rq = new HttpGet(new URI("https", this.getServer(), LOGIN_DIR, null));
-        this.logout_rq= new HttpGet(new URI("https", this.getServer(), LOGOUT_DIR, null));
-        this.auth_rq= new HttpPost(new URI("https", this.getServer(), AUTH_DIR, null));
-        this.exec_rq= new HttpPost(new URI("https", this.getServer(), EXEC_DIR, null));
-        this.query_day_rq= new HttpGet(new URI("https", this.getServer(), QUERY_DIR, null));
+        this.logout_rq = new HttpGet(new URI("https", this.getServer(), LOGOUT_DIR, null));
+        this.auth_rq = new HttpPost(new URI("https", this.getServer(), AUTH_DIR, null));
+        this.exec_rq = new HttpPost(new URI("https", this.getServer(), EXEC_DIR, null));
+        this.query_day_rq = new HttpGet(new URI("https", this.getServer(), QUERY_DIR, null));
     }
 
     public String getUser() {
@@ -242,7 +235,7 @@ public class AgatteSession {
         return credentials.get(1).getValue();
     }
 
-    public void setPassword(String password)  throws UnsupportedEncodingException {
+    public void setPassword(String password) throws UnsupportedEncodingException {
         credentials.add(1, new BasicNameValuePair(PASSWORD, password));
         auth_rq.setEntity(new UrlEncodedFormEntity(credentials));
     }

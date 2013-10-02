@@ -1,15 +1,14 @@
 package com.agatteclient;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.Activity;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
@@ -120,7 +119,6 @@ public class MainActivity extends Activity {
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
-                    return;
                 }
             }
         });
