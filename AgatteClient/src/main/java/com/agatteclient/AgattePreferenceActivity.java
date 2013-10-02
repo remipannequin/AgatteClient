@@ -91,7 +91,9 @@ public class AgattePreferenceActivity extends PreferenceActivity {
 
         // Add 'general' preferences.
         addPreferencesFromResource(R.xml.pref_general);
-
+        bindPreferenceSummaryToValue(findPreference("server"));
+        bindPreferenceSummaryToValue(findPreference("login"));
+        bindPreferenceSummaryToValue(findPreference("password"));
     }
 
     /**

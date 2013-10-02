@@ -203,7 +203,7 @@ public class AgatteSession {
         }
     }
 
-    void exec() {
+    void doPunch() {
         if (!isConnected()) {
             return;
         }

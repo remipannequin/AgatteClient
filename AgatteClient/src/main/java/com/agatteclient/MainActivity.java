@@ -43,14 +43,13 @@ public class MainActivity extends Activity {
         }
     }
 
-    private class AgatteExecTask extends AsyncTask<Void, Void, Void>
-    {
+    private class AgatteDoPunchTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
             if (!session.isConnected()) {
                 session.login();
             }
-            session.exec();
+            session.doPunch();
             return null;
         }
 
