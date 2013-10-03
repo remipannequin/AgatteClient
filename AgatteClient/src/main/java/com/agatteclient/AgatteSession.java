@@ -172,32 +172,7 @@ public class AgatteSession {
             HttpResponse response = client.execute(query_day_rq, context);
 
 
-            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
 
-
-            }
-
-            BufferedReader rd = new BufferedReader(
-                    new InputStreamReader(response.getEntity().getContent()));
-
-            StringBuffer result = new StringBuffer();
-            String line = "";
-            while ((line = rd.readLine()) != null) {
-                result.append(line);
-            }
-
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = factory.newDocumentBuilder();
-            StringReader sr = new StringReader(result.toString());
-            Document doc = db.parse(new InputSource(sr));
-
-            //get element from doc
-            Element nl = doc.getElementById("rappelTop");
-
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

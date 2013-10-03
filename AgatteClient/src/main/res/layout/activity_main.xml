@@ -12,13 +12,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/text"
-        android:text="@string/hello_world" />
-    <Button
-        android:layout_alignParentEnd="true"
-        android:clickable="true"
-        android:id="@+id/connect_button"
+        android:text="@string/hello_world"
+        android:textSize="30sp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="5dp" />
+
+    <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:src="@android:drawable/stat_notify_sync"
+
+        android:id="@+id/imageButton"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:minHeight="50dp"
+        android:minWidth="40dp"
         android:onClick="connect"
-        android:text="@string/connection" />
+        android:clickable="true"
+        android:contentDescription="Refresh" />
+
 </RelativeLayout>
