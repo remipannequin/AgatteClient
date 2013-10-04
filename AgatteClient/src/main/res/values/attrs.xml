@@ -7,6 +7,7 @@
         <attr name="dayStartHour" format="integer" />
         <attr name="dayEndHour" format="integer" />
         <attr name="hourLineColor" format="color" />
+        <attr name="hourLineWidth" format="float"/>
         <attr name="durationColor" format="color" />
         <attr name="timeFormat" format="string" />
     </declare-styleable>

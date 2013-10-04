@@ -18,21 +18,23 @@ import java.util.Set;
  * Created by Rémi Pannequin on 02/10/13.
  */
 public class DayCard {
-    final Set<Date> punches;
+    final List<Date> punches;
 
     final int day;
     final int year;
+    Date last;
 
     /**
      * Crete a new instance of a DayCard with the current day and year
      */
     public DayCard() {
-        this.punches = new HashSet<Date>();
+        this.punches = new ArrayList<Date>(12);
         Calendar cal = Calendar.getInstance();
         Date now = new Date(System.currentTimeMillis());
         cal.setTime(now);
         this.year = cal.get(Calendar.YEAR);
         this.day = cal.get(Calendar.DAY_OF_YEAR);
+        this.last  = null;
     }
 
     /**
@@ -42,9 +44,10 @@ public class DayCard {
      * @param year
      */
     public DayCard(int day, int year) {
-        this.punches = new HashSet<Date>();
+        this.punches = new ArrayList<Date>(12);
         this.year = year;
         this.day = day;
+        this.last  = null;
     }
 
 
@@ -58,15 +61,19 @@ public class DayCard {
         cal.set(Calendar.DAY_OF_YEAR, this.day);
         date = cal.getTime();
         //TODO: verify that date is after last punch
-        this.punches.add(date);
-
+        if (this.last == null){
+            this.last = date;
+            this.punches.add(date);
+        } else if (this.last.before(date)) {
+            this.punches.add(date);
+        }
     }
 
     public int getNumberOfPunches() {
         return punches.size();
     }
 
-    public boolean isEvent() {
+    public boolean isEven() {
         return ((getNumberOfPunches() % 2) == 0);
     }
 

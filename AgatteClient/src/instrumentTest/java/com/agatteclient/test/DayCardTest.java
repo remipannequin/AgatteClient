@@ -4,9 +4,6 @@ import android.test.AndroidTestCase;
 
 import com.agatteclient.DayCard;
 
-import junit.framework.TestCase;
-
-import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -20,7 +17,7 @@ public class DayCardTest extends AndroidTestCase {
         assertNotNull(instance);
         assertEquals(0, instance.getNumberOfPunches());
         assertNotNull(instance.getPunches());
-        assertTrue(instance.isEvent());
+        assertTrue(instance.isEven());
     }
 
     public void testAdd() throws Exception {
