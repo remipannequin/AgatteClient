@@ -34,6 +34,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -160,9 +161,9 @@ public class AgatteSession {
         return true;
     }
 
-    void query_day() {
+    String[] query_day() {
         if (!isConnected()) {
-            return;
+            return new String[0];
         }
         try {
             client = AndroidHttpClient.newInstance(AGENT);
@@ -170,12 +171,13 @@ public class AgatteSession {
             //http.protocol.handle-redirects
 
             HttpResponse response = client.execute(query_day_rq, context);
-
-
+            Collection<String> tops = AgatteParser.getInstance().parse_query_response(response);
+            return tops.toArray(new String[tops.size()]);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return new String[0];
     }
 
     void doPunch() {

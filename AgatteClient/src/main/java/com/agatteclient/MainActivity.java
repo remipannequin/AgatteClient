@@ -12,6 +12,7 @@ import android.view.View;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.text.ParseException;
 
 public class MainActivity extends Activity {
 
@@ -24,21 +25,26 @@ public class MainActivity extends Activity {
     protected static final String PASSWD_DEFAULT = "";
 
     private AgatteSession session;
+    private DayCard cur_card;
 
-    private class AgatteQueryTask extends AsyncTask<Void, Void, Void>
-    {
+    private class AgatteQueryTask extends AsyncTask<Void, Void, String[]> {
         @Override
-        protected Void doInBackground(Void... voids) {
+        protected String[] doInBackground(Void... voids) {
             if (!session.isConnected()) {
                 session.login();
             }
-            session.query_day();
-            return null;
+            return session.query_day();
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-
+        protected void onPostExecute(String[] tops) {
+            for (String top : tops) {
+                try {
+                    cur_card.addPunch(top);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -55,6 +61,7 @@ public class MainActivity extends Activity {
         @Override
         protected void onPostExecute(Void aVoid) {
 
+
         }
     }
 
@@ -62,7 +69,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        cur_card = new DayCard();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor editor = preferences.edit();
         if (!preferences.contains(SERVER_PREF)) {
