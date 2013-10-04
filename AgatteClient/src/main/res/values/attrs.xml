@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="DayCardView">
+        <attr name="textHeight" format="dimension" />
+        <attr name="textEventTimeColor" format="color" />
+        <attr name="textDurationColor" format="color" />
+        <attr name="dayStartHour" format="integer" />
+        <attr name="dayEndHour" format="integer" />
+        <attr name="hourLineColor" format="color" />
+        <attr name="durationColor" format="color" />
+        <attr name="timeFormat" format="string" />
+    </declare-styleable>
+</resources>
