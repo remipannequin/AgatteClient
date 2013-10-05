@@ -6,12 +6,14 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.text.Html;
 import android.util.AttributeSet;
 import android.view.View;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -42,6 +44,7 @@ public class DayCardView extends View {
     private Paint mandatory_paint;
     private Paint event_paint;
     private Paint duration_text_paint;
+    private Paint duration_text_bold_paint;
 
     public DayCardView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -71,17 +74,6 @@ public class DayCardView extends View {
             a.recycle();
         }
         init();
-
-        //Test
-        card = new DayCard();
-        try {
-            card.addPunch("08:35");
-            card.addPunch("12:05");
-            card.addPunch("14:05");
-            card.addPunch("18:52");
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
     }
 
     private void init() {
@@ -118,15 +110,15 @@ public class DayCardView extends View {
         duration_text_paint.setTextSize(text_height);
         duration_text_paint.setColor(text_duration_color);
 
+        duration_text_bold_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        duration_text_bold_paint.setTextSize(text_height);
+        duration_text_bold_paint.setColor(text_duration_color);
+        duration_text_bold_paint.setFlags(Paint.FAKE_BOLD_TEXT_FLAG);
 
 
         mandatory_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mandatory_paint.setStyle(Paint.Style.FILL);
         mandatory_paint.setColor(Color.RED);
-
-
-
-
 
 
         cal.set(Calendar.HOUR, 12);
@@ -154,8 +146,21 @@ public class DayCardView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        //TODO: Draw Card event on the canvas
-
+        //Draw Card event on the canvas
+        float p_min = 100;
+        float p_max = -100;
+        if (card != null) {
+            for (Date punch : card.getPunches()) {
+                cal.setTime(punch);
+                float h = cal.get(Calendar.HOUR_OF_DAY) + cal.get(Calendar.MINUTE)/60f;
+                if (h < p_min) {
+                    p_min = h;
+                }
+                if (h > p_max) {
+                    p_max = h;
+                }
+            }
+        }
         float block = bounds.height() / (max - min + 1);
 
         //Draw mandatory periods
@@ -169,13 +174,16 @@ public class DayCardView extends View {
             canvas.drawLine(bounds.left + text_width + 10f, y, bounds.right, y, line_paint);
         }
         //Draw min and max
-        cal.set(Calendar.HOUR_OF_DAY, min);
-        cal.set(Calendar.MINUTE, 0);
-        canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (bounds.top + 0.5 * block + (text_height)/2f - line_width), line_text_paint);
-        cal.set(Calendar.HOUR_OF_DAY, max);
-        cal.set(Calendar.MINUTE, 0);
-        canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (bounds.top + (max - min +0.5) * block + (text_height)/2f - line_width), line_text_paint);
-
+        if (Math.abs(min - p_min) > 0.5) {
+            cal.set(Calendar.HOUR_OF_DAY, min);
+            cal.set(Calendar.MINUTE, 0);
+            canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (bounds.top + 0.5 * block + (text_height)/2f - line_width), line_text_paint);
+        }
+        if (Math.abs(max - p_max) > 0.5) {
+            cal.set(Calendar.HOUR_OF_DAY, max);
+            cal.set(Calendar.MINUTE, 0);
+            canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (bounds.top + (max - min +0.5) * block + (text_height)/2f - line_width), line_text_paint);
+        }
         //Draw tops
         if (card != null) {
             Date di, df;
@@ -206,15 +214,13 @@ public class DayCardView extends View {
                 //compute hours and minute difference
                 long h = (df.getTime() - di.getTime()) / (1000 * 60 * 60);
                 long m = ((df.getTime() - di.getTime()) / (1000 * 60)) % 60;
-                StringBuilder sb = new StringBuilder().append(h).append("h").append(m);
-                float w = duration_text_paint.measureText(sb.toString());
-                canvas.drawText(sb.toString(), (bounds.width() - text_width - 10f - w) / 2f + text_width + 10f, (bottom - top + text_height) / 2f + top , duration_text_paint);
-
+                StringBuilder sb1 = new StringBuilder().append(h).append("h");
+                float w1 = duration_text_paint.measureText(sb1.toString());
+                StringBuilder sb2 = new StringBuilder().append(m);
+                float w2 = duration_text_paint.measureText(sb2.toString());
+                canvas.drawText(sb1.toString(), (bounds.width() - text_width - 10f - w1 - w2) / 2f + text_width + 10f, (bottom - top + text_height) / 2f + top , duration_text_bold_paint);
+                canvas.drawText(sb2.toString(), (bounds.width() - text_width - 10f - w1 - w2) / 2f + text_width + 10f + w1, (bottom - top + text_height) / 2f + top , duration_text_paint);
             }
-
-
-
-
         }
 
 
