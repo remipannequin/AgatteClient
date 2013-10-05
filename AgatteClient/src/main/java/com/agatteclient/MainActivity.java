@@ -1,11 +1,16 @@
 package com.agatteclient;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,6 +18,7 @@ import android.view.View;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 public class MainActivity extends Activity {
 
@@ -28,6 +34,12 @@ public class MainActivity extends Activity {
     private DayCard cur_card;
 
     private class AgatteQueryTask extends AsyncTask<Void, Void, String[]> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            //TODO: change button, start animation
+        }
+
         @Override
         protected String[] doInBackground(Void... voids) {
             if (!session.isConnected()) {
@@ -45,6 +57,7 @@ public class MainActivity extends Activity {
                     e.printStackTrace();
                 }
             }
+            //TODO: stop animation, restore button
         }
     }
 
@@ -65,11 +78,46 @@ public class MainActivity extends Activity {
         }
     }
 
+    public class ConfirmPunchDialogFragment extends DialogFragment {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the Builder class for convenient dialog construction
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(R.string.dialog_confirm_punch)
+                    .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            //Create Async Task and Send it
+                            AgatteDoPunchTask punchTask = new AgatteDoPunchTask();
+                            punchTask.execute();
+
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // User cancelled the dialog
+                        }
+                    });
+            // Create the AlertDialog object and return it
+            return builder.create();
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         cur_card = new DayCard();
+        //Test
+        try {
+            cur_card.addPunch("08:35");
+            cur_card.addPunch("12:05");
+            cur_card.addPunch("14:05");
+            cur_card.addPunch("18:52");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor editor = preferences.edit();
         if (!preferences.contains(SERVER_PREF)) {
@@ -84,7 +132,11 @@ public class MainActivity extends Activity {
         editor.commit();
 
         setContentView(R.layout.activity_main);
-
+        DayCardView dc_view = (DayCardView) findViewById(R.id.day_card_view);
+        dc_view.setCard(cur_card);
+        SimpleDateFormat fmt = new SimpleDateFormat("E dd MMM yyyy");
+        StringBuilder t = new StringBuilder("Agatte : ").append(fmt.format(cur_card.getDay()));
+        setTitle(t);
         try {
             String server = preferences.getString(SERVER_PREF, SERVER_DEFAULT);
             String login = preferences.getString(LOGIN_PREF, LOGIN_DEFAULT);
@@ -132,14 +184,6 @@ public class MainActivity extends Activity {
 
     }
 
-    public void connect(View view) {
-        //Intent i = new Intent("com.agatteclient.AgatteSession");
-        //view.getContext().startService(i);
-        AgatteQueryTask querytask = new AgatteQueryTask();
-        querytask.execute();
-    }
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -147,6 +191,10 @@ public class MainActivity extends Activity {
         return true;
     }
 
+    public void doPunch(View v) {
+        DialogFragment confirm = new ConfirmPunchDialogFragment();
+        confirm.show(getFragmentManager(), "confirm_punch");
+    }
 
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
@@ -155,6 +203,10 @@ public class MainActivity extends Activity {
                 //display Settings activity
                 Intent intent = new Intent(this, AgattePreferenceActivity.class);
                 startActivity(intent);
+                break;
+            case R.id.action_update:
+                AgatteQueryTask queryTask = new AgatteQueryTask();
+                queryTask.execute();
                 break;
         }
         return true;
