@@ -60,7 +60,7 @@ public class DayCard {
         cal.set(Calendar.YEAR, this.year);
         cal.set(Calendar.DAY_OF_YEAR, this.day);
         date = cal.getTime();
-        //TODO: verify that date is after last punch
+        //verify that date is after last punch
         if (this.last == null){
             this.last = date;
             this.punches.add(date);
@@ -83,6 +83,13 @@ public class DayCard {
 
     public boolean isCurrentDay() {
         return isInCardDay(new Date(System.currentTimeMillis()));
+    }
+
+    public Date getDay() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_YEAR, day);
+        cal.set(Calendar.YEAR, year);
+        return cal.getTime();
     }
 
     public boolean isInCardDay(Date to_test) {
