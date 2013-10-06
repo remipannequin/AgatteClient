@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
@@ -50,6 +51,24 @@ public class MainActivity extends Activity {
             //check for status
             if (rsp.isError()) {
                 //TODO: display error (in a Toast)
+                StringBuilder toast = new StringBuilder();
+                switch (rsp.getCode()) {
+                    case IOError:
+                        toast.append(getString(R.string.networl_error_toast));
+                        if (rsp.hasDetail()) {
+                            toast.append(" : ").append(rsp.getDetail());
+                        }
+                        break;
+                    case NetworkNotAuthorized:
+                        toast.append(getString(R.string.unauthorized_network_toast));
+                        break;
+                    case LoginFailed:
+                        toast.append(getString(R.string.login_failed_toast));
+                        break;
+                    case UnknownError:
+                        toast.append(getString(R.string.error_toast));
+                }
+                Toast.makeText(getApplicationContext(), toast, 15).show();
 
             }
             if (rsp.hasTops()) {
