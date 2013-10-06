@@ -33,7 +33,7 @@ public class MainActivity extends Activity {
     private AgatteSession session;
     private DayCard cur_card;
 
-    private class AgatteQueryTask extends AsyncTask<Void, Void, String[]> {
+    private class AgatteQueryTask extends AsyncTask<Void, Void, AgatteResponse> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -41,20 +41,24 @@ public class MainActivity extends Activity {
         }
 
         @Override
-        protected String[] doInBackground(Void... voids) {
-            if (!session.isConnected()) {
-                session.login();
-            }
+        protected AgatteResponse doInBackground(Void... voids) {
             return session.query_day();
         }
 
         @Override
-        protected void onPostExecute(String[] tops) {
-            for (String top : tops) {
-                try {
-                    cur_card.addPunch(top);
-                } catch (ParseException e) {
-                    e.printStackTrace();
+        protected void onPostExecute(AgatteResponse rsp) {
+            //check for status
+            if (rsp.isError()) {
+                //TODO: display error (in a Toast)
+
+            }
+            if (rsp.hasTops()) {
+                for (String top : rsp.getTops()) {
+                    try {
+                        cur_card.addPunch(top);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             //TODO: stop animation, restore button
@@ -64,9 +68,7 @@ public class MainActivity extends Activity {
     private class AgatteDoPunchTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
-            if (!session.isConnected()) {
-                session.login();
-            }
+
             session.doPunch();
             return null;
         }

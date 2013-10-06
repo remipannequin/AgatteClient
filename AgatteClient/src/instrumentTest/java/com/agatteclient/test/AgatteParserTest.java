@@ -3,6 +3,7 @@ package com.agatteclient.test;
 import android.test.AndroidTestCase;
 
 import com.agatteclient.AgatteParser;
+import com.agatteclient.AgatteResponse;
 import com.agatteclient.AgatteSession;
 
 import org.apache.http.HttpResponse;
@@ -32,12 +33,13 @@ public class AgatteParserTest extends AndroidTestCase {
         test_entity.setContent(new ByteArrayInputStream(response_test1.getBytes()));
         test.setEntity(test_entity);
 
-        Iterator<String> actual = instance.parse_query_response(test).iterator();
-        assertTrue(actual.hasNext());
-        assertEquals("12:10", actual.next());
-        assertTrue(actual.hasNext());
-        assertEquals("13:00", actual.next());
-        assertFalse(actual.hasNext());
+        AgatteResponse rsp = instance.parse_query_response(test);
+        assertEquals(AgatteResponse.Code.QueryOK, rsp.getCode());
+        assertTrue(rsp.hasTops());
+        String[] actual = rsp.getTops();
+        assertEquals(2, actual.length);
+        assertEquals("12:10", actual[0]);
+        assertEquals("13:00", actual[1]);
 
     }
 
@@ -47,15 +49,14 @@ public class AgatteParserTest extends AndroidTestCase {
         BasicHttpEntity test_entity = new BasicHttpEntity();
         test_entity.setContent(new ByteArrayInputStream(response_test2.getBytes()));
         test.setEntity(test_entity);
-
-        Iterator<String> actual = instance.parse_query_response(test).iterator();
-        assertTrue(actual.hasNext());
-        assertEquals("09:01", actual.next());
-        assertTrue(actual.hasNext());
-        assertEquals("12:15", actual.next());
-        assertTrue(actual.hasNext());
-        assertEquals("13:00", actual.next());
-        assertFalse(actual.hasNext());
+        AgatteResponse rsp = instance.parse_query_response(test);
+        assertEquals(AgatteResponse.Code.QueryOK, rsp.getCode());
+        assertTrue(rsp.hasTops());
+        String[] actual = rsp.getTops();
+        assertEquals(3, actual.length);
+        assertEquals("09:01", actual[0]);
+        assertEquals("12:15", actual[1]);
+        assertEquals("13:00", actual[2]);
 
     }
 

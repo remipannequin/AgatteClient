@@ -2,7 +2,6 @@ package com.agatteclient;
 
 
 import android.net.http.AndroidHttpClient;
-import android.text.Html;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -20,28 +19,13 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import static android.text.Html.*;
 
 /**
  * Created by Rémi Pannequin on 24/09/13.
@@ -56,6 +40,7 @@ public class AgatteSession {
     private HttpGet logout_rq;
     private HttpPost auth_rq;
     private HttpGet query_day_rq;
+    private HttpGet query_top_ok_rq;
     private HttpPost exec_rq;
     private final List<NameValuePair> credentials;
     private HttpClient client;
@@ -65,7 +50,8 @@ public class AgatteSession {
     private static final String LOGIN_DIR = "/app/login.form";
     private static final String LOGOUT_DIR = "/app/logout.form";
     private static final String AUTH_DIR = "/j_acegi_security_check";
-    private static final String EXEC_DIR = "/top/top.form";
+    private static final String PUNCH_DIR = "/top/top.form";
+    private static final String PUNCH_OK_DIR = "/top/topOk.htm";
     private static final String QUERY_DIR = "/";
     private static final String USER = "j_username";
     private static final String PASSWORD = "j_password";
@@ -116,80 +102,93 @@ public class AgatteSession {
      *
      * @return false if login failed, true if no errors were detected
      */
-    boolean login() {
+    public boolean login() throws IOException {
 
         context = new BasicHttpContext();
         CookieStore cookieStore = new BasicCookieStore();
         context.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
         client = AndroidHttpClient.newInstance(AGENT);
-        try {
-            HttpResponse response1 = client.execute(login_rq, context);
-            //test whether response is OK
-            if (response1.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                return false;
-            }
-            //update sessionID and expiration date
-            boolean found_id = false;
-            for (Cookie cookie : cookieStore.getCookies())
-                if (cookie.getName().equals("JSESSIONID")) {
-                    //this.session_expire = new Date(cookie.getMaxAge());
-                    //compute expiration date according to System.date(); ??
-                    this.session_expire = System.currentTimeMillis();
-                    this.session_id = cookie.getValue();
-                    found_id = true;
-                }
-            if (!found_id) {
-                return false;
-            }
 
-            HttpResponse response2 = client.execute(auth_rq, context);
-            //if (response2.getStatusLine().getStatusCode() != HttpStatus.SC_TEMPORARY_REDIRECT) {
-            //    return false;
-            //}
-            for (Header h : response2.getHeaders("Location")) {
-                //value should be URL("https", server, "/");
-                if (h.getValue().contains("login_error=1")) {
-                    this.session_expire = 0;
-                    this.session_id = null;
-                    return false;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        HttpResponse response1 = client.execute(login_rq, context);
+        //test whether response is OK
+        if (response1.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
             return false;
+        }
+        //update sessionID and expiration date
+        boolean found_id = false;
+        for (Cookie cookie : cookieStore.getCookies())
+            if (cookie.getName().equals("JSESSIONID")) {
+                //this.session_expire = new Date(cookie.getMaxAge());
+                //compute expiration date according to System.date(); ??
+                this.session_expire = System.currentTimeMillis();
+                this.session_id = cookie.getValue();
+                found_id = true;
+            }
+        if (!found_id) {
+            return false;
+        }
+        HttpResponse response2 = client.execute(auth_rq, context);
+        //if (response2.getStatusLine().getStatusCode() != HttpStatus.SC_TEMPORARY_REDIRECT) {
+        //    return false;
+        //}
+        for (Header h : response2.getHeaders("Location")) {
+            //value should be URL("https", server, "/");
+            if (h.getValue().contains("login_error=1")) {
+                this.session_expire = 0;
+                this.session_id = null;
+                return false;
+            }
         }
         return true;
     }
 
-    String[] query_day() {
-        if (!isConnected()) {
-            return new String[0];
-        }
+    /**
+     * Attempt to get the list of tops from the server (doing a login if necessary)
+     * @return
+     */
+    public AgatteResponse query_day() {
         try {
+            if (!isConnected()) {
+                if (!login()) {
+                    return new AgatteResponse(AgatteResponse.Code.LoginFailed);
+                }
+            }
             client = AndroidHttpClient.newInstance(AGENT);
             client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
-            //http.protocol.handle-redirects
-
             HttpResponse response = client.execute(query_day_rq, context);
-            Collection<String> tops = AgatteParser.getInstance().parse_query_response(response);
-            return tops.toArray(new String[tops.size()]);
-
+            return AgatteParser.getInstance().parse_query_response(response);
         } catch (IOException e) {
             e.printStackTrace();
+            return new AgatteResponse(AgatteResponse.Code.IOError, e);
         }
-        return new String[0];
     }
 
-    void doPunch() {
-        if (!isConnected()) {
-            return;
-        }
+    public AgatteResponse doPunch() {
         try {
+            if (!isConnected()) {
+                 if (!login()) {
+                    return new AgatteResponse(AgatteResponse.Code.LoginFailed);
+                 }
+            }
+            client = AndroidHttpClient.newInstance(AGENT);
             HttpResponse response1 = client.execute(exec_rq, context);
-            //verify that response is a redirection to topOk.htm
+
+
+            AgatteResponse.Code code = AgatteParser.getInstance().parse_punch_response(response1, PUNCH_OK_DIR);
+            switch (code) {
+                case TemporaryOK:
+                    HttpResponse response2 = client.execute(query_top_ok_rq, context);
+                    return AgatteParser.getInstance().parse_query_response(response2);
+                case NetworkNotAuthorized:
+                    return new AgatteResponse(code, "Current wifi/3G network is not authorized.");
+                default:
+                    return new AgatteResponse(AgatteResponse.Code.UnknownError);
+            }
+
 
         } catch (IOException e) {
             e.printStackTrace();
+            return new AgatteResponse(AgatteResponse.Code.IOError, e);
         }
     }
 
@@ -202,8 +201,9 @@ public class AgatteSession {
         this.login_rq = new HttpGet(new URI("https", this.getServer(), LOGIN_DIR, null));
         this.logout_rq = new HttpGet(new URI("https", this.getServer(), LOGOUT_DIR, null));
         this.auth_rq = new HttpPost(new URI("https", this.getServer(), AUTH_DIR, null));
-        this.exec_rq = new HttpPost(new URI("https", this.getServer(), EXEC_DIR, null));
+        this.exec_rq = new HttpPost(new URI("https", this.getServer(), PUNCH_DIR, null));
         this.query_day_rq = new HttpGet(new URI("https", this.getServer(), QUERY_DIR, null));
+        this.query_top_ok_rq = new HttpGet(new URI("https", this.getServer(), PUNCH_OK_DIR, null));
     }
 
     public String getUser() {
