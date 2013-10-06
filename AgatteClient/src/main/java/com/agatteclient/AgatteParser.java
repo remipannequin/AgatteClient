@@ -43,12 +43,21 @@ public class AgatteParser {
                 result.append(System.getProperty("line.separator"));
             }
         }
-        //TODO search for Unauthorized network
+        //search for Unauthorized network
+        Pattern unauthorized = Pattern.compile("<legend>Acc\ufffds interdit</legend>");
+        Matcher matcher;
+        matcher = unauthorized.matcher(result);
+        if (matcher.find()) {
+            return new AgatteResponse(AgatteResponse.Code.NetworkNotAuthorized);
+        }
+
         Pattern p = Pattern.compile(".*<li.*([0-9][0-9]:[0-9][0-9])\\s*</li>.*");
-        Matcher matcher = p.matcher(result);
+        matcher = p.matcher(result);
         while (matcher.find()) {
             tops.add(matcher.group(1));
         }
+
+
 
         return new AgatteResponse(AgatteResponse.Code.QueryOK, tops);
     }
