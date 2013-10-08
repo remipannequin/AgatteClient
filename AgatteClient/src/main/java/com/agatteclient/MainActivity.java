@@ -4,16 +4,20 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
@@ -31,14 +35,20 @@ public class MainActivity extends Activity {
     protected static final String LOGIN_DEFAULT = "login";
     protected static final String PASSWD_DEFAULT = "";
 
+    protected MenuItem refreshItem = null;
     private AgatteSession session;
     private DayCard cur_card;
+    private Animation rotation;
+    private LayoutInflater inflater;
+    private ImageView refresh_action_iv;
+    private DayCardView dc_view;
 
     private class AgatteQueryTask extends AsyncTask<Void, Void, AgatteResponse> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            //TODO: change button, start animation
+            //start animation
+            runRefresh();
         }
 
         @Override
@@ -50,7 +60,7 @@ public class MainActivity extends Activity {
         protected void onPostExecute(AgatteResponse rsp) {
             //check for status
             if (rsp.isError()) {
-                //TODO: display error (in a Toast)
+                //display error (in a Toast)
                 StringBuilder toast = new StringBuilder();
                 switch (rsp.getCode()) {
                     case IOError:
@@ -75,12 +85,14 @@ public class MainActivity extends Activity {
                 for (String top : rsp.getTops()) {
                     try {
                         cur_card.addPunch(top);
+                        dc_view.invalidate();
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
                 }
             }
-            //TODO: stop animation, restore button
+            //stop animation, restore button
+            stopRefresh();
         }
     }
 
@@ -128,7 +140,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         cur_card = new DayCard();
-        //Test
+        /*Test
         try {
             cur_card.addPunch("08:35");
             cur_card.addPunch("12:05");
@@ -137,7 +149,7 @@ public class MainActivity extends Activity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
+        */
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor editor = preferences.edit();
@@ -153,7 +165,9 @@ public class MainActivity extends Activity {
         editor.commit();
 
         setContentView(R.layout.activity_main);
-        DayCardView dc_view = (DayCardView) findViewById(R.id.day_card_view);
+
+
+        dc_view = (DayCardView) findViewById(R.id.day_card_view);
         dc_view.setCard(cur_card);
         SimpleDateFormat fmt = new SimpleDateFormat("E dd MMM yyyy");
         StringBuilder t = new StringBuilder("Agatte : ").append(fmt.format(cur_card.getDay()));
@@ -205,10 +219,32 @@ public class MainActivity extends Activity {
 
     }
 
+
+    protected void stopRefresh() {
+        if (refreshItem != null && refreshItem.getActionView() != null) {
+            refreshItem.getActionView().clearAnimation();
+            refreshItem.setActionView(null);
+        }
+    }
+
+    protected void runRefresh() {
+        if (getApplication() != null) {
+            inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            refresh_action_iv = (ImageView) inflater.inflate(R.layout.update_action_view, null);
+            rotation = AnimationUtils.loadAnimation(getApplication(), R.anim.clockwise_refresh);
+            rotation.setRepeatCount(Animation.INFINITE);
+            /* Attach a rotating ImageView to the refresh item as an ActionView */
+            refresh_action_iv.startAnimation(rotation);
+            refreshItem.setActionView(refresh_action_iv);
+        }
+    }
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+
         return true;
     }
 
@@ -227,6 +263,7 @@ public class MainActivity extends Activity {
                 break;
             case R.id.action_update:
                 AgatteQueryTask queryTask = new AgatteQueryTask();
+                refreshItem = item;//menu.getItem(R.id.action_update);
                 queryTask.execute();
                 break;
         }
