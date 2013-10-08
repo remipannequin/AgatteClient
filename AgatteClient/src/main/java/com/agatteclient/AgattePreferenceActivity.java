@@ -91,9 +91,9 @@ public class AgattePreferenceActivity extends PreferenceActivity {
 
         // Add 'general' preferences.
         addPreferencesFromResource(R.xml.pref_general);
-        bindPreferenceSummaryToValue(findPreference("server"));
-        bindPreferenceSummaryToValue(findPreference("login"));
-        bindPreferenceSummaryToValue(findPreference("password"));
+        bindPreferenceSummaryToValue(findPreference(MainActivity.SERVER_PREF));
+        bindPreferenceSummaryToValue(findPreference(MainActivity.LOGIN_PREF));
+        bindPreferenceSummaryToValue(findPreference(MainActivity.PASSWD_PREF));
     }
 
     /**
@@ -156,11 +156,14 @@ public class AgattePreferenceActivity extends PreferenceActivity {
                         index >= 0
                                 ? listPreference.getEntries()[index]
                                 : null);
-
             } else {
                 // For all other preferences, set the summary to the value's
                 // simple string representation.
-                preference.setSummary(stringValue);
+                if (preference.getKey().equals(MainActivity.PASSWD_PREF)) {
+                    //no preference
+                } else {
+                    preference.setSummary(stringValue);
+                }
             }
             return true;
         }
@@ -201,9 +204,9 @@ public class AgattePreferenceActivity extends PreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("server"));
-            bindPreferenceSummaryToValue(findPreference("login"));
-            bindPreferenceSummaryToValue(findPreference("password"));
+            bindPreferenceSummaryToValue(findPreference(MainActivity.SERVER_PREF));
+            bindPreferenceSummaryToValue(findPreference(MainActivity.LOGIN_PREF));
+            bindPreferenceSummaryToValue(findPreference(MainActivity.PASSWD_PREF));
 
         }
     }
