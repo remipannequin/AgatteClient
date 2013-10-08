@@ -85,11 +85,11 @@ public class MainActivity extends Activity {
                 for (String top : rsp.getTops()) {
                     try {
                         cur_card.addPunch(top);
-                        dc_view.invalidate();
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
                 }
+                dc_view.invalidate();
             }
             //stop animation, restore button
             stopRefresh();
