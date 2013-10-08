@@ -10,5 +10,7 @@
         <attr name="hourLineWidth" format="float"/>
         <attr name="durationColor" format="color" />
         <attr name="timeFormat" format="string" />
+        <attr name="mandatoryColor" format="color" />
     </declare-styleable>
+
 </resources>

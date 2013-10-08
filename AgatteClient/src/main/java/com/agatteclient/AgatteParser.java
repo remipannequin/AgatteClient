@@ -57,8 +57,6 @@ public class AgatteParser {
             tops.add(matcher.group(1));
         }
 
-
-
         return new AgatteResponse(AgatteResponse.Code.QueryOK, tops);
     }
 

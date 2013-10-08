@@ -14,10 +14,17 @@
         android:layout_height="wrap_content"
         class="com.agatteclient.DayCardView"
         android:id="@+id/day_card_view"
-        android:layout_alignLeft="@+id/text"
+        android:layout_above="@+id/button_doPunch"
         custom:textHeight="15dp"
-        android:layout_below="@+id/text"
-        android:layout_above="@+id/button_doPunch" />
+        custom:dayStartHour="7"
+        custom:dayEndHour="19"
+        custom:mandatoryColor="#FFBB33"
+        custom:durationColor="#03B5E5"
+        custom:textEventTimeColor="#0099CC"
+        custom:textDurationColor="#FFFFFF"
+        custom:hourLineColor="#AAAAAA"
+        custom:timeFormat="HH:mm" />
+
 
     <Button
         android:layout_width="wrap_content"

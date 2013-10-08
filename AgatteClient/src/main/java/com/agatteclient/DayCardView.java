@@ -29,6 +29,7 @@ public class DayCardView extends View {
     private final int text_duration_color;
     private final int text_event_color;
     private final int duration_color;
+    private final int mandatory_color;
     private final int min;
     private final int max;
     private final String date_fmt;
@@ -45,6 +46,7 @@ public class DayCardView extends View {
     private Paint event_paint;
     private Paint duration_text_paint;
     private Paint duration_text_bold_paint;
+
 
     public DayCardView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -67,6 +69,7 @@ public class DayCardView extends View {
             text_duration_color = a.getColor(R.styleable.DayCardView_textDurationColor, Color.WHITE);
             text_event_color = a.getColor(R.styleable.DayCardView_textEventTimeColor, Color.BLACK);
             duration_color = a.getColor(R.styleable.DayCardView_durationColor, Color.BLUE);
+            mandatory_color = a.getColor(R.styleable.DayCardView_mandatoryColor, Color.RED);
             min = a.getInteger(R.styleable.DayCardView_dayStartHour, 7);
             max = a.getInteger(R.styleable.DayCardView_dayEndHour, 19);
             //TODO: add all style attributes
@@ -118,7 +121,7 @@ public class DayCardView extends View {
 
         mandatory_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mandatory_paint.setStyle(Paint.Style.FILL);
-        mandatory_paint.setColor(Color.RED);
+        mandatory_paint.setColor(mandatory_color);
 
 
         cal.set(Calendar.HOUR, 12);

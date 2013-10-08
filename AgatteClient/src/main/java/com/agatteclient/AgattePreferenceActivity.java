@@ -60,10 +60,9 @@ public class AgattePreferenceActivity extends PreferenceActivity {
                 // more details, see the Navigation pattern on Android Design:
                 //
                 // http://developer.android.com/design/patterns/navigation.html#up-vs-back
-                //
-                // TODO: If Settings has multiple levels, Up should navigate up
-                // that hierarchy.
-                NavUtils.navigateUpFromSameTask(this);
+                //create a crash
+                //NavUtils.navigateUpFromSameTask(this);
+                //NavUtils.getParentActivityIntent(this);
                 return true;
         }
         return super.onOptionsItemSelected(item);
