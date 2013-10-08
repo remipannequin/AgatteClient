@@ -30,7 +30,7 @@ public class AgatteParser {
     public AgatteResponse parse_query_response(HttpResponse response) throws IOException {
         Collection<String> tops = new ArrayList<String>(6);
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            return new AgatteResponse(AgatteResponse.Code.UnknownError);
+            return new AgatteResponse(AgatteResponse.Code.UnknownError, response.getStatusLine().getReasonPhrase());
         }
 
         InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());

@@ -52,7 +52,7 @@ public class AgatteSession {
     private static final String AUTH_DIR = "/j_acegi_security_check";
     private static final String PUNCH_DIR = "/top/top.form";
     private static final String PUNCH_OK_DIR = "/top/topOk.htm";
-    private static final String QUERY_DIR = "/";
+    private static final String QUERY_DIR = "/top/top.form?numMen=2";
     private static final String USER = "j_username";
     private static final String PASSWORD = "j_password";
     private static final String AGENT = "Mozilla/5.0 (Linux; U; Android 2.2; en-us; Nexus One Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
@@ -159,6 +159,7 @@ public class AgatteSession {
                 }
             }
             client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
+            client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
             HttpResponse response = client.execute(query_day_rq, httpContext);
             return AgatteParser.getInstance().parse_query_response(response);
         } catch (IOException e) {
