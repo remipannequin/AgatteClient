@@ -34,6 +34,7 @@ public class MainActivity extends Activity {
     protected static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";
     protected static final String LOGIN_DEFAULT = "login";
     protected static final String PASSWD_DEFAULT = "";
+    private static final String DAY_CARD = "day-card";
 
     protected MenuItem refreshItem = null;
     private AgatteSession session;
@@ -42,6 +43,7 @@ public class MainActivity extends Activity {
     private LayoutInflater inflater;
     private ImageView refresh_action_iv;
     private DayCardView dc_view;
+    private AgattePreferenceListener pref_listener;
 
     private class AgatteQueryTask extends AsyncTask<Void, Void, AgatteResponse> {
         @Override
@@ -135,21 +137,65 @@ public class MainActivity extends Activity {
         }
     }
 
+    protected class AgattePreferenceListener implements SharedPreferences.OnSharedPreferenceChangeListener {
+        private final AgatteSession session;
+
+        protected AgattePreferenceListener(AgatteSession session) {
+            this.session = session;
+        }
+
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+            if (s.equals(SERVER_PREF)) {
+                String value = sharedPreferences.getString(s, SERVER_DEFAULT);
+                try {
+                    session.setServer(value);
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
+            if (s.equals(LOGIN_PREF)) {
+                String value = sharedPreferences.getString(s, LOGIN_DEFAULT);
+                try {
+                    session.setUser(value);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
+            if (s.equals(PASSWD_PREF)) {
+                String value = sharedPreferences.getString(s, PASSWD_DEFAULT);
+                try {
+                    session.setPassword(value);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(DAY_CARD, cur_card);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        cur_card = new DayCard();
-        /*Test
-        try {
-            cur_card.addPunch("08:35");
-            cur_card.addPunch("12:05");
-            cur_card.addPunch("14:05");
-            cur_card.addPunch("18:52");
-        } catch (ParseException e) {
-            e.printStackTrace();
+
+        if (savedInstanceState == null) {
+            cur_card = new DayCard();
+        } else {
+            cur_card = (DayCard) savedInstanceState.getSerializable(DAY_CARD);
         }
-        */
+
+
+        //create a new day card if required
+        if (!cur_card.isCurrentDay()) {
+            cur_card = new DayCard();
+        }
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor editor = preferences.edit();
@@ -177,7 +223,8 @@ public class MainActivity extends Activity {
             String login = preferences.getString(LOGIN_PREF, LOGIN_DEFAULT);
             String passwd = preferences.getString(PASSWD_PREF, PASSWD_DEFAULT);
             session = new AgatteSession(server, login, passwd);
-
+            pref_listener = new AgattePreferenceListener(session);
+            preferences.registerOnSharedPreferenceChangeListener(pref_listener);
 
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -185,37 +232,6 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
 
-        preferences.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-                if (s.equals(SERVER_PREF)) {
-                    String value = sharedPreferences.getString(s, SERVER_DEFAULT);
-                    try {
-                        session.setServer(value);
-                    } catch (URISyntaxException e) {
-                        e.printStackTrace();
-                    }
-                    return;
-                }
-                if (s.equals(LOGIN_PREF)) {
-                    String value = sharedPreferences.getString(s, LOGIN_DEFAULT);
-                    try {
-                        session.setUser(value);
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                    return;
-                }
-                if (s.equals(PASSWD_PREF)) {
-                    String value = sharedPreferences.getString(s, PASSWD_DEFAULT);
-                    try {
-                        session.setPassword(value);
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
 
     }
 
@@ -238,7 +254,6 @@ public class MainActivity extends Activity {
             refreshItem.setActionView(refresh_action_iv);
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -1,5 +1,9 @@
 package com.agatteclient;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,9 +21,9 @@ import java.util.Set;
  * <p/>
  * Created by Rémi Pannequin on 02/10/13.
  */
-public class DayCard {
-    final List<Date> punches;
+public class DayCard implements Serializable {
 
+    final List<Date> punches;
     final int day;
     final int year;
     Date last;
@@ -50,7 +54,10 @@ public class DayCard {
         this.last  = null;
     }
 
-
+    /**
+     * @param time
+     * @throws ParseException
+     */
     public void addPunch(String time) throws ParseException {
         Date date;
         Calendar cal = Calendar.getInstance();
@@ -69,22 +76,42 @@ public class DayCard {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public int getNumberOfPunches() {
         return punches.size();
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isEven() {
         return ((getNumberOfPunches() % 2) == 0);
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isOdd() {
         return ((getNumberOfPunches() % 2) == 1);
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isCurrentDay() {
         return isInCardDay(new Date(System.currentTimeMillis()));
     }
 
+    /**
+     *
+     * @return
+     */
     public Date getDay() {
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.DAY_OF_YEAR, day);
@@ -92,6 +119,11 @@ public class DayCard {
         return cal.getTime();
     }
 
+    /**
+     *
+     * @param to_test
+     * @return
+     */
     public boolean isInCardDay(Date to_test) {
         if (getNumberOfPunches() == 0) {
             return true;
@@ -131,8 +163,11 @@ public class DayCard {
         return result;
     }
 
+    /**
+     *
+     * @return
+     */
     public Collection<Date> getPunches() {
         return punches;
     }
-
 }

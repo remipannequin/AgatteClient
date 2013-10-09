@@ -250,9 +250,11 @@ public class DayCardView extends View {
 
 
     public void setCard(DayCard card) {
-        this.card = card;
-        invalidate();
-        requestLayout();
+        if (card != this.card) {
+            this.card = card;
+            invalidate();
+            requestLayout();
+        }
     }
 
     public DayCard getCard() {
