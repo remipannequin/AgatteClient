@@ -1,5 +1,8 @@
 package com.agatteclient;
 
+import android.preference.PreferenceActivity;
+
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
@@ -18,6 +21,8 @@ import java.util.regex.Pattern;
  */
 public class AgatteParser {
 
+    public static final String PATTERN_TOPS = ".*<li.*([0-9][0-9]:[0-9][0-9])\\s*</li>.*";
+    public static final String PATTERN_NETWORK_NOT_AUTHORIZED = "<legend>Acc\ufffds interdit</legend>";
     private static AgatteParser ourInstance = new AgatteParser();
 
     public static AgatteParser getInstance() {
@@ -27,12 +32,7 @@ public class AgatteParser {
     private AgatteParser() {
     }
 
-    public AgatteResponse parse_query_response(HttpResponse response) throws IOException {
-        Collection<String> tops = new ArrayList<String>(6);
-        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            return new AgatteResponse(AgatteResponse.Code.UnknownError, response.getStatusLine().getReasonPhrase());
-        }
-
+    private String entitytoString(HttpResponse response) throws IOException {
         InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
         BufferedReader rd = new BufferedReader(reader);
         StringBuffer result = new StringBuffer();
@@ -43,30 +43,68 @@ public class AgatteParser {
                 result.append(System.getProperty("line.separator"));
             }
         }
-        //search for Unauthorized network
-        Pattern unauthorized = Pattern.compile("<legend>Acc\ufffds interdit</legend>");
-        Matcher matcher;
-        matcher = unauthorized.matcher(result);
-        if (matcher.find()) {
-            return new AgatteResponse(AgatteResponse.Code.NetworkNotAuthorized);
-        }
+        return result.toString();
+    }
 
-        Pattern p = Pattern.compile(".*<li.*([0-9][0-9]:[0-9][0-9])\\s*</li>.*");
-        matcher = p.matcher(result);
+    private boolean searchNetworkNotAuthorized(String result) {
+        Pattern unauthorized = Pattern.compile(PATTERN_NETWORK_NOT_AUTHORIZED);
+        Matcher matcher = unauthorized.matcher(result);
+        return matcher.find();
+    }
+
+    private Collection<String> searchForTops(String result) {
+        Collection<String> tops = new ArrayList<String>(6);
+        Pattern p = Pattern.compile(PATTERN_TOPS);
+        Matcher matcher = p.matcher(result);
         while (matcher.find()) {
             tops.add(matcher.group(1));
         }
+        return tops;
+    }
 
+    public AgatteResponse parse_query_response(HttpResponse response) throws IOException {
+
+        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            return new AgatteResponse(AgatteResponse.Code.UnknownError, response.getStatusLine().getReasonPhrase());
+        }
+
+        //get response as a string
+        String result = entitytoString(response);
+        //search for Unauthorized network
+        if (searchNetworkNotAuthorized(result)) {
+            return new AgatteResponse(AgatteResponse.Code.NetworkNotAuthorized);
+        }
+        //get tops
+        Collection<String> tops = searchForTops(result);
         return new AgatteResponse(AgatteResponse.Code.QueryOK, tops);
     }
 
-    public AgatteResponse.Code parse_punch_response(HttpResponse response1, String punchOkDir) {
+    public AgatteResponse.Code parse_punch_response(HttpResponse response, String punchOkDir) {
 
         //verify that response is a redirection to topOk.htm (ie punchOkDir)
-
-
-
-
-        return AgatteResponse.Code.TemporaryOK;
+        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
+            boolean found = false;
+            for (Header h : response.getHeaders("Location")) {
+                if (h.getValue().contains(punchOkDir)) {
+                    found = true;
+                }
+            }
+            if (found) {
+                return AgatteResponse.Code.TemporaryOK;
+            }
+        }
+        return AgatteResponse.Code.UnknownError;
     }
+
+/*
+    public AgatteResponse parse_topok_response(HttpResponse response) throws IOException {
+
+
+
+        Pattern p = Pattern.compile("<p>Top pris en compte à [0-9][0-9]:[0-9}][0-9]</p>";
+
+
+    }
+*/
+
 }

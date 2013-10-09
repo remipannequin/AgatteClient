@@ -486,4 +486,236 @@ public class AgatteParserTest extends AndroidTestCase {
             "\t</body>\n" +
             "</html>\n";
 
+
+    private static final String response_test4 = "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "<html>\n" +
+            "\t<head>\n" +
+            "\t\t\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            " \n" +
+            "\n" +
+            "\t<meta http-equiv=\"refresh\" content=\"600;URL=/logout.htm\">\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "<link rel=\"stylesheet\" href=\"/media/css/normalize.css\" type=\"text/css\"/> \n" +
+            "<link rel=\"stylesheet\" href=\"/media/css/agatte.css?Wed Oct 09 12:52:35 CEST 2013\" type=\"text/css\"/>\n" +
+            "<link rel=\"stylesheet\" href=\"/media/css/print.css\" type=\"text/css\" media=\"print\"/>\n" +
+            "<link rel=\"stylesheet\" href=\"/media/css/displaytag.css\" type=\"text/css\"/>\n" +
+            "\n" +
+            "<style type=\"text/css\" media=\"screen\">@import \"/media/css/tabs.css\";</style>\n" +
+            "\n" +
+            "\n" +
+            "<!--[if IE]>\n" +
+            "<link rel=\"stylesheet\" href=\"/media/css/agatteIE.css\" type=\"text/css\"/>\n" +
+            "<![endif]-->\n" +
+            "\n" +
+            "\n" +
+            "<style type='text/css'>@import url(/media/js/jscalendar-1.0/skins/aqua/theme.css);</style>\n" +
+            "\n" +
+            "<title>Agatte</title>\n" +
+            "\n" +
+            "\n" +
+            "\t</head>\n" +
+            "\t<body>\n" +
+            "\t  <div id=page>\n" +
+            "\t\t\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "<div id=\"importJS\">\n" +
+            "\t\n" +
+            "\t<script type='text/javascript' src='/media/js/agatte.js'></script>\n" +
+            "\t\n" +
+            "\t<script type='text/javascript' src='/media/js/jscalendar-1.0/calendar.js'></script>\n" +
+            "\t<script type='text/javascript' src='/media/js/jscalendar-1.0/lang/calendar-fr.js'></script>\n" +
+            "\t<script type='text/javascript' src='/media/js/jscalendar-1.0/calendar-setup.js'></script>\n" +
+            "</div>\n" +
+            "\n" +
+            "\n" +
+            "<script type='text/javascript' src='/media/js/scriptaculous-js-1.6.1/lib/prototype.js'></script>\n" +
+            "<script type='text/javascript' src='/media/js/scriptaculous-js-1.6.1/src/scriptaculous.js'></script>\n" +
+            "<script type='text/javascript' src='/media/js/Tooltip.js'></script>\t\n" +
+            "\n" +
+            "\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/prototype.js\"></script>\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/effects.js\"></script>\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/window.js\"></script>\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/debug.js\"></script>\n" +
+            "\n" +
+            "  \t\t\n" +
+            "<link href=\"/media/js/windows_js_1.3/themes/alert_agatte.css\" rel=\"stylesheet\" type=\"text/css\">\t\n" +
+            "<link href=\"/media/js/windows_js_1.3/themes/default.css\" rel=\"stylesheet\" type=\"text/css\">\n" +
+            "\n" +
+            "<!--[if IE]>\t\n" +
+            "<script language=\"javascript\">function loadInfoDialog() {}</script>\n" +
+            "<![endif]-->\t\n" +
+            "\t\n" +
+            "\n" +
+            "<div id=\"bandeau\">\n" +
+            "\t<div id=\"logo\"></div>\n" +
+            "</div>\t\n" +
+            "\t\t\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\t<div id=\"header\">\n" +
+            "\t\t<ul id=\"primary\">\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t<li><a href=\"/top/top.form?numMen=1\" onclick='loadInfoDialog()' class='current'>Tops</a><ul id=\"secondary\"><li><a href=\"/top/top.form?numMen=2\" onclick='loadInfoDialog()' class='current'>Toper</a></li><li><a href=\"/top/feuille-top.form?numMen=3\" onclick='loadInfoDialog()' >Feuille des tops</a></li><li><a href=\"/top/detail-jour.form?numMen=4\" onclick='loadInfoDialog()' >Détail d'une journée</a></li><li><a href=\"/top/liste-ano.form?numMen=5\" onclick='loadInfoDialog()' >Liste des anomalies</a></li></ul></li>\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t<li><a href=\"/abs/dem-abs.form?numMen=6\" onclick='loadInfoDialog()' >Absences</a></li>\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t<li><a href=\"/planning/planning.form?numMen=607\" onclick='loadInfoDialog()' >Planning</a></li>\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t<li><a href=\"/cet/accueilCET.htm?numMen=613\" onclick='loadInfoDialog()' >CET</a></li>\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t<li><a href=\"/pers/fichePersonnel.htm?numMen=612\" onclick='loadInfoDialog()' >Fiche Personnel</a></li>\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t<li><a href=\"/app/pref.form?numMen=609\" onclick='loadInfoDialog()' >Préférences</a></li>\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t<li><a href=\"/app/aide.htm?numMen=610\" onclick='loadInfoDialog()' >Aide</a></li>\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t<li><a href=\"/logout.htm?numMen=611\" onclick='loadInfoDialog()' >Quitter</a></li>\n" +
+            "\t\t\t\n" +
+            "\t\t</ul>\n" +
+            "\t\t\n" +
+            "\t\t\t\n" +
+            "\t\t\n" +
+            "\t</div>\n" +
+            "\n" +
+            "\t\t<div id=\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t\n" +
+            "\t\t\t\t\n" +
+            "\t\t\t\t\t\n" +
+            "\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t\t\"main-menu\"\n" +
+            "\t\t\t\t\t\n" +
+            "\t\t\t\t\n" +
+            "\t\t\t\t\n" +
+            "\t\t\t\t\n" +
+            "\t\t\t\t\n" +
+            "\t\t >\n" +
+            "\t\t\t<div id=\n" +
+            "\t\t\t\t\n" +
+            "\t\t\t\t\t\n" +
+            "\t\t\t\t\t\"contents-menu\"\n" +
+            "\t\t\t\t\t\n" +
+            "\t\t\t\t\t\n" +
+            "\t\t\t\t\t\n" +
+            "\t\t\t>\n" +
+            "\t\t\t\t\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "<h1>Top</h1>\n" +
+            "\n" +
+            "<p>Top pris en compte à 12:51</p>\n" +
+            "<hr/>\n" +
+            "<div id=\"rappelTop\">\n" +
+            "\tRappel des tops de la journée\n" +
+            "\t<ul>\n" +
+            "\t\t\n" +
+            "\t\t\t<li \n" +
+            "\t\t\t\t\n" +
+            "\t\t\t\t\ttitle=\"Top réel\"\n" +
+            "\t\t\t\t\t\n" +
+            "\t\t\t\t\n" +
+            "\t\t\t>\n" +
+            "\t\t\t\t07:48\n" +
+            "\t\t\t</li>\n" +
+            "\t\t\n" +
+            "\t\t\t<li \n" +
+            "\t\t\t\t\n" +
+            "\t\t\t\t\ttitle=\"Top réel\"\n" +
+            "\t\t\t\t\t\n" +
+            "\t\t\t\t\n" +
+            "\t\t\t>\n" +
+            "\t\t\t\t12:15\n" +
+            "\t\t\t</li>\n" +
+            "\t\t\n" +
+            "\t\t\t<li \n" +
+            "\t\t\t\t\n" +
+            "\t\t\t\t\ttitle=\"Top réel\"\n" +
+            "\t\t\t\t\t\n" +
+            "\t\t\t\t\n" +
+            "\t\t\t>\n" +
+            "\t\t\t\t12:51\n" +
+            "\t\t\t</li>\n" +
+            "\t\t\n" +
+            "\t</ul>\n" +
+            "\t<p>\n" +
+            "\t\t<span>Tops réels</span>\n" +
+            "\t\t<br/>\n" +
+            "\t\t<span class=\"top-absence\">Tops d'absence</span>\n" +
+            "\t</p>\n" +
+            "</div>\n" +
+            "\n" +
+            "<div class=\"spacer\">&nbsp;</div>\n" +
+            "\n" +
+            "\t\t\t</div>\n" +
+            "\t\t</div>\n" +
+            "<div id=\"dhtmltooltip\"></div>\n" +
+            "<div id=\"dhtmltooltipJS\"> \n" +
+            "<script type=\"text/javascript\" src=\"/media/js/dhtmlToolTip.js\"></script> \n" +
+            "</div>\n" +
+            "\n" +
+            "<div id=\"pied\">\n" +
+            "\t\n" +
+            "\t\t<div class=\"info\">Profil : Personnel</div>\n" +
+            "\t\n" +
+            "\t<div>Le logiciel Agatte a fait l'objet d'une déclaration à la Commission Nationale de l'Informatique et des Libertés (CNIL), enregistrée sous le N° 1005966. Selon la loi 78-17 du 6 janvier 1978 sur l'informatique et les libertés, vous bénéficiez d'un droit d'information et de rectification sur les renseignements vous concernant qui sont saisis dans le logiciel. Si vous souhaitez utiliser ce droit, veuillez contacter la DRH - Présidence de l'Université.</div>\n" +
+            "\t<p>&copy; 2013 - Université de Lorraine</p>\t\n" +
+            "</div>\n" +
+            "\n" +
+            "\t  </div>\t\n" +
+            "\t</body>\n" +
+            "</html>";
 }

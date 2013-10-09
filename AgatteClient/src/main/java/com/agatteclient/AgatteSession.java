@@ -182,15 +182,14 @@ public class AgatteSession {
                     return new AgatteResponse(AgatteResponse.Code.LoginFailed);
                  }
             }
-            client = AndroidHttpClient.newInstance(AGENT);
             HttpResponse response1 = client.execute(exec_rq, httpContext);
-
-
+            //should be a redirect to topOk
             AgatteResponse.Code code = AgatteParser.getInstance().parse_punch_response(response1, PUNCH_OK_DIR);
             switch (code) {
                 case TemporaryOK:
                     HttpResponse response2 = client.execute(query_top_ok_rq, httpContext);
                     return AgatteParser.getInstance().parse_query_response(response2);
+
                 case NetworkNotAuthorized:
                     return new AgatteResponse(code, "Current wifi/3G network is not authorized.");
                 default:
