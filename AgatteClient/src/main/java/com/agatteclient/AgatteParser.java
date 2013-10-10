@@ -21,8 +21,8 @@ import java.util.regex.Pattern;
  */
 public class AgatteParser {
 
-    public static final String PATTERN_TOPS = ".*<li.*([0-9][0-9]:[0-9][0-9])\\s*</li>.*";
-    public static final String PATTERN_NETWORK_NOT_AUTHORIZED = "<legend>Acc\ufffds interdit</legend>";
+    private static final String PATTERN_TOPS = ".*<li.*([0-9][0-9]:[0-9][0-9])\\s*</li>.*";
+    private static final String PATTERN_NETWORK_NOT_AUTHORIZED = "<legend>Acc\ufffds interdit</legend>";
     private static AgatteParser ourInstance = new AgatteParser();
 
     public static AgatteParser getInstance() {
@@ -79,13 +79,13 @@ public class AgatteParser {
         return new AgatteResponse(AgatteResponse.Code.QueryOK, tops);
     }
 
-    public AgatteResponse.Code parse_punch_response(HttpResponse response, String punchOkDir) {
+    public AgatteResponse.Code parse_punch_response(HttpResponse response) {
 
         //verify that response is a redirection to topOk.htm (ie punchOkDir)
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
             boolean found = false;
             for (Header h : response.getHeaders("Location")) {
-                if (h.getValue().contains(punchOkDir)) {
+                if (h.getValue().contains(AgatteSession.PUNCH_OK_DIR)) {
                     found = true;
                 }
             }

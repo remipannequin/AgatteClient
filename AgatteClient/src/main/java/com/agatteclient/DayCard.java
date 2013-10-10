@@ -23,10 +23,10 @@ import java.util.Set;
  */
 public class DayCard implements Serializable {
 
-    final List<Date> punches;
-    final int day;
-    final int year;
-    Date last;
+    private final List<Date> punches;
+    private final int day;
+    private final int year;
+    private Date last;
 
     /**
      * Crete a new instance of a DayCard with the current day and year
@@ -44,8 +44,8 @@ public class DayCard implements Serializable {
     /**
      * Create a new instance of a DayCard with the specified year and day (of year)
      *
-     * @param day
-     * @param year
+     * @param day the day of year (i.e. from 1 to 365)
+     * @param year the year
      */
     public DayCard(int day, int year) {
         this.punches = new ArrayList<Date>(12);
@@ -55,7 +55,7 @@ public class DayCard implements Serializable {
     }
 
     /**
-     * @param time
+     * @param time the time of the punch in the form "HH:mm" (e.g. 20:09)
      * @throws ParseException
      */
     public void addPunch(String time) throws ParseException {
@@ -78,7 +78,7 @@ public class DayCard implements Serializable {
 
     /**
      *
-     * @return
+     * @return the number of punch of the day
      */
     public int getNumberOfPunches() {
         return punches.size();
@@ -86,7 +86,7 @@ public class DayCard implements Serializable {
 
     /**
      *
-     * @return
+     * @return return true if the number of punch is even
      */
     public boolean isEven() {
         return ((getNumberOfPunches() % 2) == 0);
@@ -94,7 +94,7 @@ public class DayCard implements Serializable {
 
     /**
      *
-     * @return
+     * @return true if the number of punch is odd
      */
     public boolean isOdd() {
         return ((getNumberOfPunches() % 2) == 1);
@@ -102,10 +102,10 @@ public class DayCard implements Serializable {
 
     /**
      *
-     * @return
+     * @return true if the instance correspond to the current date according to system date
      */
     public boolean isCurrentDay() {
-        return isInCardDay(new Date(System.currentTimeMillis()));
+        return isInCardDay(now());
     }
 
     /**
@@ -124,7 +124,7 @@ public class DayCard implements Serializable {
      * @param to_test
      * @return
      */
-    public boolean isInCardDay(Date to_test) {
+    boolean isInCardDay(Date to_test) {
         if (getNumberOfPunches() == 0) {
             return true;
         }
@@ -169,5 +169,13 @@ public class DayCard implements Serializable {
      */
     public Collection<Date> getPunches() {
         return punches;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Date now() {
+        return new Date(System.currentTimeMillis());
     }
 }

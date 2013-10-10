@@ -3,8 +3,6 @@
 
     <string name="app_name">Agatte</string>
     <string name="action_settings">Paramètres</string>
-    <string name="hello_world">Lun. 1 jan 2013</string>
-    <string name="connection">Connection</string>
     <string name="server_prefs_title">Serveur Agatte</string>
     <string name="server_default_value">agatte.univ-lorraine.fr</string>
     <string name="login_prefs_title">Nom d\'utilisateur</string>
@@ -20,7 +18,8 @@
     <string name="punch_button">Topper</string>
     <string name="networl_error_toast">Erreur réseau</string>
     <string name="unauthorized_network_toast">Réseau non autorisé</string>
-    <string name="login_failed_toast">Conection refusée : nom d\'utilisateur ou mot de passe invalide</string>
+    <string name="login_failed_toast">Connection refusée : nom d\'utilisateur ou mot de passe invalide</string>
     <string name="error_toast">Erreur</string>
+    <string name="updating">Updating…</string>
 
 </resources>

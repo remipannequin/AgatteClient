@@ -7,7 +7,6 @@ import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.CookieStore;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -32,7 +31,7 @@ import java.util.List;
 /**
  * Created by Rémi Pannequin on 24/09/13.
  */
-public class AgatteSession {
+class AgatteSession {
 
     private final BasicCookieStore cookieStore;
     private String session_id;
@@ -47,15 +46,15 @@ public class AgatteSession {
     private final List<NameValuePair> credentials;
     private HttpContext httpContext;
 
-    private static final String LOGIN_DIR = "/app/login.form";
-    private static final String LOGOUT_DIR = "/app/logout.form";
-    private static final String AUTH_DIR = "/j_acegi_security_check";
-    private static final String PUNCH_DIR = "/top/top.form";
-    private static final String PUNCH_OK_DIR = "/top/topOk.htm";
-    private static final String QUERY_DIR = "/";
-    private static final String USER = "j_username";
-    private static final String PASSWORD = "j_password";
-    private static final String AGENT = "Mozilla/5.0 (Linux; U; Android 2.2; en-us; Nexus One Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
+    static final String LOGIN_DIR = "/app/login.form";
+    static final String LOGOUT_DIR = "/app/logout.form";
+    static final String AUTH_DIR = "/j_acegi_security_check";
+    static final String PUNCH_DIR = "/top/top.form";
+    static final String PUNCH_OK_DIR = "/top/topOk.htm";
+    static final String QUERY_DIR = "/";
+    static final String USER = "j_username";
+    static final String PASSWORD = "j_password";
+    static final String AGENT = "Mozilla/5.0 (Linux; U; Android 2.2; en-us; Nexus One Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
     private BasicHttpParams httpParam;
 
 
@@ -65,7 +64,7 @@ public class AgatteSession {
      * @throws URISyntaxException           If server YRL is not correct
      * @throws UnsupportedEncodingException if username and password include chars unsupported in this encoding
      */
-    public AgatteSession() throws URISyntaxException, UnsupportedEncodingException {
+    private AgatteSession() throws URISyntaxException, UnsupportedEncodingException {
         //super ("AgatteConnectionService");
         credentials = new ArrayList<NameValuePair>(2);
         httpContext = new BasicHttpContext();
@@ -144,7 +143,7 @@ public class AgatteSession {
 
     /**
      * Attempt to get the list of tops from the server (doing a login if necessary)
-     * @return
+     * @return an AgatteResponse instance
      */
     public AgatteResponse query_day() {
         AndroidHttpClient client = null;
@@ -153,7 +152,7 @@ public class AgatteSession {
             HttpParams httpParam = client.getParams();
             HttpConnectionParams.setConnectionTimeout(httpParam, 3000);
             HttpConnectionParams.setSoTimeout(httpParam, 5000);
-            if (!isConnected()) {
+            if (!mustLogin()) {
                 if (!login(client)) {
                     return new AgatteResponse(AgatteResponse.Code.LoginFailed);
                 }
@@ -171,20 +170,20 @@ public class AgatteSession {
     }
 
     /**
-     *
-     * @return
+     * Send a "punch" to the server
+     * @return an AgatteResponse instance
      */
     public AgatteResponse doPunch() {
         try {
             AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
-            if (!isConnected()) {
+            if (!mustLogin()) {
                  if (!login(client)) {
                     return new AgatteResponse(AgatteResponse.Code.LoginFailed);
                  }
             }
             HttpResponse response1 = client.execute(exec_rq, httpContext);
             //should be a redirect to topOk
-            AgatteResponse.Code code = AgatteParser.getInstance().parse_punch_response(response1, PUNCH_OK_DIR);
+            AgatteResponse.Code code = AgatteParser.getInstance().parse_punch_response(response1);
             switch (code) {
                 case TemporaryOK:
                     HttpResponse response2 = client.execute(query_top_ok_rq, httpContext);
@@ -195,8 +194,6 @@ public class AgatteSession {
                 default:
                     return new AgatteResponse(AgatteResponse.Code.UnknownError);
             }
-
-
         } catch (IOException e) {
             e.printStackTrace();
             return new AgatteResponse(AgatteResponse.Code.IOError, e);
@@ -204,21 +201,20 @@ public class AgatteSession {
     }
 
     /**
-     *
-     * @return
+     * Return the host name of the agatte server
+     * @return a String like "agatte.univ-lorraine.fr" (without protocol string "https://)
      */
-    public String getServer() {
+    String getServer() {
         return server;
     }
 
     /**
-     *
-     * @param server
+     * Set the hostname of the server to connect
+     * @param server a String like "agatte.univ-lorraine.fr" (without protocol string "https://)
      * @throws URISyntaxException
      */
     public void setServer(String server) throws URISyntaxException {
         this.server = server;
-
 
         this.login_rq = new HttpGet(new URI("https", this.getServer(), LOGIN_DIR, null));
         this.logout_rq = new HttpGet(new URI("https", this.getServer(), LOGOUT_DIR, null));
@@ -226,23 +222,19 @@ public class AgatteSession {
         this.exec_rq = new HttpPost(new URI("https", this.getServer(), PUNCH_DIR, null));
         this.query_day_rq = new HttpGet(new URI("https", this.getServer(), QUERY_DIR, null));
         this.query_top_ok_rq = new HttpGet(new URI("https", this.getServer(), PUNCH_OK_DIR, null));
-
-
-
-
     }
 
     /**
-     *
-     * @return
+     * Return the current user login
+     * @return the login
      */
     public String getUser() {
         return credentials.get(0).getValue();
     }
 
     /**
-     *
-     * @param user
+     * Set the username to use to connect
+     * @param user the username to set
      * @throws UnsupportedEncodingException
      */
     public void setUser(String user) throws UnsupportedEncodingException {
@@ -251,17 +243,17 @@ public class AgatteSession {
     }
 
     /**
-     *
-     * @return
+     * Get the current password
+     * @return the current password
      */
     public String getPassword() {
         return credentials.get(1).getValue();
     }
 
     /**
-     *
-     * @param password
-     * @throws UnsupportedEncodingException
+     * Set the password to use in the connection
+     * @param password the password
+     * @throws UnsupportedEncodingException if password contain invalid
      */
     public void setPassword(String password) throws UnsupportedEncodingException {
         credentials.add(1, new BasicNameValuePair(PASSWORD, password));
@@ -270,10 +262,9 @@ public class AgatteSession {
 
     /**
      * Return the connection status of the agatte session.
-     *
-     * @return
+     * @return false if a login must be made
      */
-    public boolean isConnected() {
+    boolean mustLogin() {
         return ((this.session_id != null) && (this.session_expire < System.currentTimeMillis() + 120000));
     }
 }

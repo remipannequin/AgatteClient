@@ -28,22 +28,18 @@ import java.text.SimpleDateFormat;
 public class MainActivity extends Activity {
 
 
-    protected static final String SERVER_PREF = "server";
-    protected static final String LOGIN_PREF = "login";
-    protected static final String PASSWD_PREF = "password";
-    protected static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";
-    protected static final String LOGIN_DEFAULT = "login";
-    protected static final String PASSWD_DEFAULT = "";
-    private static final String DAY_CARD = "day-card";
+    static final String SERVER_PREF = "server";
+    static final String LOGIN_PREF = "login";
+    static final String PASSWD_PREF = "password";
+    static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";
+    static final String LOGIN_DEFAULT = "login";
+    static final String PASSWD_DEFAULT = "";
+    static final String DAY_CARD = "day-card";
 
     protected MenuItem refreshItem = null;
     private AgatteSession session;
     private DayCard cur_card;
-    private Animation rotation;
-    private LayoutInflater inflater;
-    private ImageView refresh_action_iv;
     private DayCardView dc_view;
-    private AgattePreferenceListener pref_listener;
 
     private class AgatteQueryTask extends AsyncTask<Void, Void, AgatteResponse> {
         @Override
@@ -80,7 +76,7 @@ public class MainActivity extends Activity {
                     case UnknownError:
                         toast.append(getString(R.string.error_toast));
                 }
-                Toast.makeText(getApplicationContext(), toast, 15).show();
+                Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
 
             }
             if (rsp.hasTops()) {
@@ -175,6 +171,7 @@ public class MainActivity extends Activity {
         }
     }
 
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -185,14 +182,14 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Get old instance or create a new one
         if (savedInstanceState == null) {
             cur_card = new DayCard();
         } else {
             cur_card = (DayCard) savedInstanceState.getSerializable(DAY_CARD);
         }
-
-
         //create a new day card if required
+        assert cur_card != null;
         if (!cur_card.isCurrentDay()) {
             cur_card = new DayCard();
         }
@@ -223,7 +220,7 @@ public class MainActivity extends Activity {
             String login = preferences.getString(LOGIN_PREF, LOGIN_DEFAULT);
             String passwd = preferences.getString(PASSWD_PREF, PASSWD_DEFAULT);
             session = new AgatteSession(server, login, passwd);
-            pref_listener = new AgattePreferenceListener(session);
+            AgattePreferenceListener pref_listener = new AgattePreferenceListener(session);
             preferences.registerOnSharedPreferenceChangeListener(pref_listener);
 
         } catch (URISyntaxException e) {
@@ -245,9 +242,9 @@ public class MainActivity extends Activity {
 
     protected void runRefresh() {
         if (getApplication() != null) {
-            inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            refresh_action_iv = (ImageView) inflater.inflate(R.layout.update_action_view, null);
-            rotation = AnimationUtils.loadAnimation(getApplication(), R.anim.clockwise_refresh);
+            LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            ImageView refresh_action_iv = (ImageView) inflater.inflate(R.layout.update_action_view, null);
+            Animation rotation = AnimationUtils.loadAnimation(getApplication(), R.anim.clockwise_refresh);
             rotation.setRepeatCount(Animation.INFINITE);
             /* Attach a rotating ImageView to the refresh item as an ActionView */
             refresh_action_iv.startAnimation(rotation);

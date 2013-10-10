@@ -20,7 +20,7 @@ import java.util.Iterator;
 /**
  * Created by remi on 04/10/13.
  */
-public class DayCardView extends View {
+class DayCardView extends View {
 
     private final float line_width;
     private float text_width = 0;
@@ -35,7 +35,6 @@ public class DayCardView extends View {
     private final String date_fmt;
 
     private DayCard card;
-    private Paint duration_paint;
     private Paint line_paint;
     private RectF bounds;
     private Paint event_text_paint;
@@ -46,6 +45,8 @@ public class DayCardView extends View {
     private Paint event_paint;
     private Paint duration_text_paint;
     private Paint duration_text_bold_paint;
+    private StringBuilder sb1;
+    private StringBuilder sb2;
 
 
     public DayCardView(Context context, AttributeSet attrs) {
@@ -83,9 +84,8 @@ public class DayCardView extends View {
 
         fmt = new SimpleDateFormat(date_fmt);
 
-        duration_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        duration_paint.setColor(duration_color);
-        duration_paint.setStyle(Paint.Style.FILL);
+        sb1 = new StringBuilder();
+        sb2 = new StringBuilder();
 
         line_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         line_paint.setColor(line_color);
@@ -201,7 +201,7 @@ public class DayCardView extends View {
                     df = punches.next();//even
                     odd = false;
                 } else {
-                    df = new Date(System.currentTimeMillis());//odd case
+                    df = card.now();//odd case
                     odd = true;
                 }
                 //If
@@ -217,9 +217,11 @@ public class DayCardView extends View {
                 //compute hours and minute difference
                 long h = (df.getTime() - di.getTime()) / (1000 * 60 * 60);
                 long m = ((df.getTime() - di.getTime()) / (1000 * 60)) % 60;
-                StringBuilder sb1 = new StringBuilder().append(h).append("h");
+                sb1.delete(0, sb1.length());
+                sb1.append(h).append("h");
                 float w1 = duration_text_paint.measureText(sb1.toString());
-                StringBuilder sb2 = new StringBuilder().append(m);
+                sb2.delete(0, sb2.length());
+                sb2.append(m);
                 float w2 = duration_text_paint.measureText(sb2.toString());
                 canvas.drawText(sb1.toString(), (bounds.width() - text_width - 10f - w1 - w2) / 2f + text_width + 10f, (bottom - top + text_height) / 2f + top , duration_text_bold_paint);
                 canvas.drawText(sb2.toString(), (bounds.width() - text_width - 10f - w1 - w2) / 2f + text_width + 10f + w1, (bottom - top + text_height) / 2f + top , duration_text_paint);
