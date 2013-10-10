@@ -76,7 +76,8 @@ public class MainActivity extends Activity {
                     case UnknownError:
                         toast.append(getString(R.string.error_toast));
                 }
-                Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
+                Context context = getApplicationContext();
+                if (context!=null) Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
 
             }
             if (rsp.hasTops()) {
@@ -113,23 +114,28 @@ public class MainActivity extends Activity {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Use the Builder class for convenient dialog construction
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setMessage(R.string.dialog_confirm_punch)
-                    .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            //Create Async Task and Send it
-                            AgatteDoPunchTask punchTask = new AgatteDoPunchTask();
-                            punchTask.execute();
+            Activity activity = getActivity();
+            if (activity != null) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                builder.setMessage(R.string.dialog_confirm_punch)
+                        .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                //Create Async Task and Send it
+                                AgatteDoPunchTask punchTask = new AgatteDoPunchTask();
+                                punchTask.execute();
 
-                        }
-                    })
-                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // User cancelled the dialog
-                        }
-                    });
-            // Create the AlertDialog object and return it
-            return builder.create();
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // User cancelled the dialog
+                            }
+                        });
+                // Create the AlertDialog object and return it
+                return builder.create();
+            } else {
+                return null;
+            }
         }
     }
 
@@ -228,8 +234,6 @@ public class MainActivity extends Activity {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-
-
     }
 
 
@@ -245,6 +249,8 @@ public class MainActivity extends Activity {
             LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             ImageView refresh_action_iv = (ImageView) inflater.inflate(R.layout.update_action_view, null);
             Animation rotation = AnimationUtils.loadAnimation(getApplication(), R.anim.clockwise_refresh);
+            assert rotation != null;
+            assert refresh_action_iv != null;
             rotation.setRepeatCount(Animation.INFINITE);
             /* Attach a rotating ImageView to the refresh item as an ActionView */
             refresh_action_iv.startAnimation(rotation);

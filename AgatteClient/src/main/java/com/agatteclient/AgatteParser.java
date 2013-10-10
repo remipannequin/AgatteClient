@@ -36,7 +36,7 @@ public class AgatteParser {
         InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
         BufferedReader rd = new BufferedReader(reader);
         StringBuffer result = new StringBuffer();
-        String line = "";
+        String line;
         while ((line = rd.readLine()) != null) {
             result.append(line.replace("[\\n\\r\\t]", " "));
             if (line.contains("</")) {

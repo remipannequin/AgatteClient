@@ -1,5 +1,6 @@
 package com.agatteclient;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -46,7 +47,9 @@ class AgattePreferenceActivity extends PreferenceActivity {
     private void setupActionBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             // Show the Up button in the action bar.
-            getActionBar().setDisplayHomeAsUpEnabled(true);
+            ActionBar bar = getActionBar();
+            assert bar != null;
+            bar.setDisplayHomeAsUpEnabled(true);
         }
     }
 
@@ -158,9 +161,7 @@ class AgattePreferenceActivity extends PreferenceActivity {
             } else {
                 // For all other preferences, set the summary to the value's
                 // simple string representation.
-                if (preference.getKey().equals(MainActivity.PASSWD_PREF)) {
-                    //no preference
-                } else {
+                if (!preference.getKey().equals(MainActivity.PASSWD_PREF)) {
                     preference.setSummary(stringValue);
                 }
             }

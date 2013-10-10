@@ -1,19 +1,19 @@
 package com.agatteclient;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
-import android.text.Html;
 import android.util.AttributeSet;
 import android.view.View;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -22,6 +22,7 @@ import java.util.Iterator;
  */
 class DayCardView extends View {
 
+    private static final float ODD_H = 15;
     private final float line_width;
     private float text_width = 0;
     private final float text_height;
@@ -47,17 +48,23 @@ class DayCardView extends View {
     private Paint duration_text_bold_paint;
     private StringBuilder sb1;
     private StringBuilder sb2;
+    private Path odd_path;
+    private float rect_width;
+    private float margin;
+    private Matrix m;
 
 
     public DayCardView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        TypedArray a = context.getTheme().obtainStyledAttributes(
+        Resources.Theme theme = context.getTheme();
+        assert theme != null;
+        TypedArray a = theme.obtainStyledAttributes(
                 attrs,
                 R.styleable.DayCardView,
                 0, 0);
-
-
+        assert a != null;
         try {
+
             text_height = a.getDimension(R.styleable.DayCardView_textHeight, 20);
             String fmt = a.getString(R.styleable.DayCardView_timeFormat);//, "hh:mm");
             if (fmt == null) {
@@ -73,15 +80,16 @@ class DayCardView extends View {
             mandatory_color = a.getColor(R.styleable.DayCardView_mandatoryColor, Color.RED);
             min = a.getInteger(R.styleable.DayCardView_dayStartHour, 7);
             max = a.getInteger(R.styleable.DayCardView_dayEndHour, 19);
-            //TODO: add all style attributes
+
+        //TODO: add all style attributes
         } finally {
             a.recycle();
         }
+
         init();
     }
 
     private void init() {
-
         fmt = new SimpleDateFormat(date_fmt);
 
         sb1 = new StringBuilder();
@@ -100,7 +108,6 @@ class DayCardView extends View {
         line_text_paint.setStrokeJoin(Paint.Join.ROUND);
         line_text_paint.setTextSize(text_height);
 
-
         event_text_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         event_text_paint.setTextSize(text_height);
         event_text_paint.setColor(text_event_color);
@@ -118,17 +125,15 @@ class DayCardView extends View {
         duration_text_bold_paint.setColor(text_duration_color);
         duration_text_bold_paint.setFlags(Paint.FAKE_BOLD_TEXT_FLAG);
 
-
         mandatory_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mandatory_paint.setStyle(Paint.Style.FILL);
         mandatory_paint.setColor(mandatory_color);
-
 
         cal.set(Calendar.HOUR, 12);
         cal.set(Calendar.MINUTE, 22);
         text_width = event_text_paint.measureText(fmt.format(cal.getTime()));
 
-        //TODO: create all the other paints
+        m = new Matrix();
     }
 
     @Override
@@ -143,6 +148,21 @@ class DayCardView extends View {
         float hh = (float) h - ypad;
         bounds = new RectF(xpad, ypad, ww, hh);
 
+        margin = bounds.left + text_width + 10f;
+        rect_width = bounds.width() - text_width - 10f;
+
+        odd_path = new Path();
+
+        float required_h = ODD_H;
+        int num = (int) Math.floor(rect_width / (2 * required_h));
+        float real_h = rect_width / (2 * num);
+        odd_path.rLineTo(0, real_h);
+        for (int i=0; i < num; i++) {
+            odd_path.rLineTo(real_h, -real_h);
+            odd_path.rLineTo(real_h, real_h);
+        }
+        odd_path.rLineTo(0, -real_h);
+        odd_path.close();
 
     }
 
@@ -190,30 +210,27 @@ class DayCardView extends View {
         //Draw tops
         if (card != null) {
             Date di, df;
-            boolean odd;
+            boolean odd = false;
 
             Iterator<Date> punches = card.getPunches().iterator();
+            float top, bottom = 0;
 
             while (punches.hasNext()) {
                 di = punches.next();
-                //TODO : only if even
                 if (punches.hasNext()) {
                     df = punches.next();//even
-                    odd = false;
                 } else {
                     df = card.now();//odd case
                     odd = true;
                 }
-                //If
-                float top = getYFromHour(di, block);
-                float bottom = getYFromHour(df, block);
+                top = getYFromHour(di, block);
+                bottom = getYFromHour(df, block);
                 cal.setTime(di);
                 canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (top + (text_height) / 2f - line_width), event_text_paint);
-                //TODO: change drawing if odd to indicate that the time is running
                 cal.setTime(df);
                 canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (bottom + (text_height)/2f - line_width), event_text_paint);
-
-                canvas.drawRect(bounds.left + text_width + 10f, top, bounds.right, bottom, event_paint);
+                if (odd) bottom -= ODD_H / 2f;
+                canvas.drawRect(margin, top, bounds.right, bottom, event_paint);
                 //compute hours and minute difference
                 long h = (df.getTime() - di.getTime()) / (1000 * 60 * 60);
                 long m = ((df.getTime() - di.getTime()) / (1000 * 60)) % 60;
@@ -223,13 +240,18 @@ class DayCardView extends View {
                 sb2.delete(0, sb2.length());
                 sb2.append(m);
                 float w2 = duration_text_paint.measureText(sb2.toString());
-                canvas.drawText(sb1.toString(), (bounds.width() - text_width - 10f - w1 - w2) / 2f + text_width + 10f, (bottom - top + text_height) / 2f + top , duration_text_bold_paint);
-                canvas.drawText(sb2.toString(), (bounds.width() - text_width - 10f - w1 - w2) / 2f + text_width + 10f + w1, (bottom - top + text_height) / 2f + top , duration_text_paint);
+                canvas.drawText(sb1.toString(), (rect_width - w1 - w2) / 2f + margin, (bottom - top + text_height) / 2f + top , duration_text_bold_paint);
+                canvas.drawText(sb2.toString(), (rect_width - w1 - w2) / 2f + margin + w1, (bottom - top + text_height) / 2f + top , duration_text_paint);
+            }
+            //change drawing if odd to indicate that the time is running
+            if (odd) {
+
+                m.reset();
+                m.setTranslate(margin, bottom);
+                odd_path.transform(m);
+                canvas.drawPath(odd_path, event_paint);
             }
         }
-
-
-
     }
 
     private float getYFromHour(Date d, float block) {

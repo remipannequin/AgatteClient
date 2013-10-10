@@ -110,7 +110,7 @@ public class DayCard implements Serializable {
 
     /**
      *
-     * @return
+     * @return the day of year of the card
      */
     public Date getDay() {
         Calendar cal = Calendar.getInstance();
@@ -121,8 +121,8 @@ public class DayCard implements Serializable {
 
     /**
      *
-     * @param to_test
-     * @return
+     * @param to_test the date to test
+     * @return true if the date To_test is inside the day of the card
      */
     boolean isInCardDay(Date to_test) {
         if (getNumberOfPunches() == 0) {
@@ -165,7 +165,7 @@ public class DayCard implements Serializable {
 
     /**
      *
-     * @return
+     * @return the collection of punches of the card
      */
     public Collection<Date> getPunches() {
         return punches;
@@ -173,7 +173,7 @@ public class DayCard implements Serializable {
 
     /**
      *
-     * @return
+     * @return the date corresponding to the system time
      */
     public Date now() {
         return new Date(System.currentTimeMillis());
