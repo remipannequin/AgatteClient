@@ -80,7 +80,7 @@ public class MainActivity extends Activity {
                 if (context!=null) Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
 
             }
-            if (rsp.hasTops()) {
+            if (rsp.getCode() == AgatteResponse.Code.QueryOK && rsp.hasTops()) {
                 for (String top : rsp.getTops()) {
                     try {
                         cur_card.addPunch(top);
@@ -95,20 +95,55 @@ public class MainActivity extends Activity {
         }
     }
 
-    private class AgatteDoPunchTask extends AsyncTask<Void, Void, Void> {
+    private class AgatteDoPunchTask extends AsyncTask<Void, Void, AgatteResponse> {
         @Override
-        protected Void doInBackground(Void... voids) {
+        protected AgatteResponse doInBackground(Void... voids) {
 
             session.doPunch();
             return null;
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
+        protected void onPostExecute(AgatteResponse rsp) {
+            //check for status
 
+            //display error (in a Toast)
+            StringBuilder toast = new StringBuilder();
+            switch (rsp.getCode()) {
+                case IOError:
+                    toast.append(getString(R.string.networl_error_toast));
+                    if (rsp.hasDetail()) {
+                        toast.append(" : ").append(rsp.getDetail());
+                    }
+                    break;
+                case NetworkNotAuthorized:
+                    toast.append(getString(R.string.unauthorized_network_toast));
+                    break;
+                case LoginFailed:
+                    toast.append(getString(R.string.login_failed_toast));
+                    break;
+                case PunchOK:
+                    if (rsp.hasTops()) {
+                        for (String top : rsp.getTops()) {
+                            try {
+                                cur_card.addPunch(top);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        dc_view.invalidate();
+                    }
+                    toast.append(getString(R.string.punch_ok_toast));
+                    break;
+                case UnknownError:
+                    toast.append(getString(R.string.error_toast));
+            }
+            Context context = getApplicationContext();
+            if (context != null) Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
 
         }
     }
+
 
     public class ConfirmPunchDialogFragment extends DialogFragment {
         @Override

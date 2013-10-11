@@ -21,5 +21,6 @@
     <string name="login_failed_toast">Connection refusée : nom d\'utilisateur ou mot de passe invalide</string>
     <string name="error_toast">Erreur</string>
     <string name="updating">Updating…</string>
+    <string name="punch_ok_toast">Envoi du top effectué</string>
 
 </resources>

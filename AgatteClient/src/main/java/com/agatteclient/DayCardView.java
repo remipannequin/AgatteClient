@@ -228,8 +228,9 @@ class DayCardView extends View {
                 cal.setTime(di);
                 canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (top + (text_height) / 2f - line_width), event_text_paint);
                 cal.setTime(df);
-                canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (bottom + (text_height)/2f - line_width), event_text_paint);
-                if (odd) bottom -= ODD_H / 2f;
+                if (Math.abs(di.getTime() - df.getTime()) > (1000 * 60 * 15)) {//15min
+                    canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (bottom + (text_height) / 2f - line_width), event_text_paint);
+                }
                 canvas.drawRect(margin, top, bounds.right, bottom, event_paint);
                 //compute hours and minute difference
                 long h = (df.getTime() - di.getTime()) / (1000 * 60 * 60);
@@ -245,9 +246,9 @@ class DayCardView extends View {
             }
             //change drawing if odd to indicate that the time is running
             if (odd) {
-
-                m.reset();
-                m.setTranslate(margin, bottom);
+                float[] values = new float[9];
+                m.getValues(values);
+                m.setTranslate(margin - values[Matrix.MTRANS_X], bottom - values[Matrix.MTRANS_Y]);
                 odd_path.transform(m);
                 canvas.drawPath(odd_path, event_paint);
             }
