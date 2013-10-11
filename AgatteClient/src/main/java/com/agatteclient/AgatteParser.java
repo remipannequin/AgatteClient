@@ -23,6 +23,7 @@ public class AgatteParser {
 
     private static final String PATTERN_TOPS = ".*<li.*([0-9][0-9]:[0-9][0-9])\\s*</li>.*";
     private static final String PATTERN_NETWORK_NOT_AUTHORIZED = "<legend>Acc\ufffds interdit</legend>";
+    private static final String PATTERN_TOPOK = "<p>(Top pris en compte à [0-9][0-9]:[0-9}][0-9])</p>";
     private static AgatteParser ourInstance = new AgatteParser();
 
     public static AgatteParser getInstance() {
@@ -62,6 +63,18 @@ public class AgatteParser {
         return tops;
     }
 
+    private boolean searchforTopOk(String result) {
+        String top;
+        Pattern p = Pattern.compile(PATTERN_TOPOK);
+        Matcher matcher = p.matcher(result);
+        if (matcher.find()) {
+            top = matcher.group(1);
+            return true;
+        }
+        return false;
+    }
+
+
     public AgatteResponse parse_query_response(HttpResponse response) throws IOException {
 
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
@@ -96,15 +109,25 @@ public class AgatteParser {
         return AgatteResponse.Code.UnknownError;
     }
 
-/*
-    public AgatteResponse parse_topok_response(HttpResponse response) throws IOException {
 
+    public AgatteResponse parse_topOk_response(HttpResponse response) throws IOException {
+        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            return new AgatteResponse(AgatteResponse.Code.UnknownError, response.getStatusLine().getReasonPhrase());
+        }
+        //get response as a string
+        String result = entitytoString(response);
+        //search for Unauthorized network
+        if (searchNetworkNotAuthorized(result)) {
+            return new AgatteResponse(AgatteResponse.Code.NetworkNotAuthorized);
+        }
 
-
-        Pattern p = Pattern.compile("<p>Top pris en compte à [0-9][0-9]:[0-9}][0-9]</p>";
-
-
+        Pattern p = Pattern.compile(PATTERN_TOPOK);
+        if (!searchforTopOk(result)) {
+            return new AgatteResponse(AgatteResponse.Code.UnknownError);
+        }
+        //get tops
+        Collection<String> tops = searchForTops(result);
+        return new AgatteResponse(AgatteResponse.Code.PunchOK, tops);
     }
-*/
 
 }
