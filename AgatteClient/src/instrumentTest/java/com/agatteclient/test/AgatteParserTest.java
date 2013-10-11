@@ -70,6 +70,33 @@ public class AgatteParserTest extends AndroidTestCase {
         assertEquals(AgatteResponse.Code.NetworkNotAuthorized, rsp.getCode());
     }
 
+    public void testParseResponse4() throws Exception {
+        AgatteParser instance = AgatteParser.getInstance();
+        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
+        BasicHttpEntity test_entity = new BasicHttpEntity();
+        test_entity.setContent(new ByteArrayInputStream(response_test4.getBytes()));
+        test.setEntity(test_entity);
+        AgatteResponse rsp = instance.parse_topOk_response(test);
+        assertEquals(AgatteResponse.Code.PunchOK, rsp.getCode());
+        assertTrue(rsp.hasTops());
+        String[] actual = rsp.getTops();
+        assertEquals(3, actual.length);
+        assertEquals("07:48", actual[0]);
+        assertEquals("12:15", actual[1]);
+        assertEquals("12:51", actual[2]);
+    }
+
+    public void testParseResponse5() throws Exception {
+        AgatteParser instance = AgatteParser.getInstance();
+        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
+        BasicHttpEntity test_entity = new BasicHttpEntity();
+        test_entity.setContent(new ByteArrayInputStream(response_test2.getBytes()));
+        test.setEntity(test_entity);
+        AgatteResponse rsp = instance.parse_topOk_response(test);
+        assertEquals(AgatteResponse.Code.UnknownError, rsp.getCode());
+
+    }
+
 
     private final static String response_test1 = "<html>\n" +
             "<head>\n" +

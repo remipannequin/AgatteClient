@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Created by Rémi Pannequin on 24/09/13.
  */
-class AgatteSession {
+public class AgatteSession {
 
     private final BasicCookieStore cookieStore;
     private String session_id;
@@ -74,6 +74,14 @@ class AgatteSession {
 
     }
 
+    /**
+     *
+     * @param server
+     * @param user
+     * @param passwd
+     * @throws URISyntaxException
+     * @throws UnsupportedEncodingException
+     */
     public AgatteSession(String server, String user, String passwd) throws URISyntaxException, UnsupportedEncodingException {
         //super ("AgatteConnectionService");
         this();
