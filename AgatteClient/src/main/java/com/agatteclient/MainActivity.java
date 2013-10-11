@@ -24,6 +24,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends Activity {
 
@@ -40,6 +42,18 @@ public class MainActivity extends Activity {
     private AgatteSession session;
     private DayCard cur_card;
     private DayCardView dc_view;
+    private UpdateViewTask redraw_task;
+    private Timer timer;
+
+
+    private class UpdateViewTask extends TimerTask {
+        @Override
+        public void run() {
+            if (cur_card.isOdd()) {
+                dc_view.invalidate();
+            }
+        }
+    }
 
     private class AgatteQueryTask extends AsyncTask<Void, Void, AgatteResponse> {
         @Override
@@ -253,6 +267,13 @@ public class MainActivity extends Activity {
 
         dc_view = (DayCardView) findViewById(R.id.day_card_view);
         dc_view.setCard(cur_card);
+
+        //Schedule redraw in 1 minute (60 000 ms)
+        timer = new Timer();
+        redraw_task = new UpdateViewTask();
+        timer.schedule(redraw_task, 60000);
+
+
         SimpleDateFormat fmt = new SimpleDateFormat("E dd MMM yyyy");
         StringBuilder t = new StringBuilder("Agatte : ").append(fmt.format(cur_card.getDay()));
         setTitle(t);
