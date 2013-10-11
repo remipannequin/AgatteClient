@@ -1,0 +1,22 @@
+Milestone 0 : Usable app
+ * new Preferences : min/max hours, ...
+ * day totals
+ * automatic update of DayCardView every minute if odd
+
+Milestone 1: More interaction
+ * Gesture on DayDarcView : zooming (pinch), changing area displayed (vertical move)
+ * create a two-columns layout in landscape orientation
+ * Legend Activity : display the signification of the graphical elements
+ * Gesture on DayDarcView : zooming (pinch), changing area displayed (vertical move)
+
+ Milestone 2 : Automation
+ * manage a list of "authorized" wifi SSID
+ * automatically if authorized SSID is connected between hours
+ * automatically send punches at times
+ * notify user if wifi connection is lost and the day is odd (mean he/she forgot to do a punching)
+ * try to refresh at launch ?
+ * preference for the list of automation rules
+
+ Milestone 3: Weeks
+ * get weekly / yearly totals from the server
+ * display counters
