@@ -46,15 +46,26 @@ public class MainActivity extends Activity {
     private Timer timer;
 
 
+    /**
+     *
+     */
     private class UpdateViewTask extends TimerTask {
         @Override
         public void run() {
             if (cur_card.isOdd()) {
-                dc_view.invalidate();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dc_view.invalidate();
+                    }
+                });
             }
         }
     }
 
+    /**
+     *
+     */
     private class AgatteQueryTask extends AsyncTask<Void, Void, AgatteResponse> {
         @Override
         protected void onPreExecute() {
@@ -109,6 +120,9 @@ public class MainActivity extends Activity {
         }
     }
 
+    /**
+     *
+     */
     private class AgatteDoPunchTask extends AsyncTask<Void, Void, AgatteResponse> {
         @Override
         protected AgatteResponse doInBackground(Void... voids) {
@@ -158,7 +172,9 @@ public class MainActivity extends Activity {
         }
     }
 
-
+    /**
+     *
+     */
     public class ConfirmPunchDialogFragment extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -188,6 +204,9 @@ public class MainActivity extends Activity {
         }
     }
 
+    /**
+     *
+     */
     protected class AgattePreferenceListener implements SharedPreferences.OnSharedPreferenceChangeListener {
         private final AgatteSession session;
 
@@ -226,13 +245,20 @@ public class MainActivity extends Activity {
         }
     }
 
-
+    /**
+     *
+     * @param outState
+     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable(DAY_CARD, cur_card);
     }
 
+    /**
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -271,7 +297,7 @@ public class MainActivity extends Activity {
         //Schedule redraw in 1 minute (60 000 ms)
         timer = new Timer();
         redraw_task = new UpdateViewTask();
-        timer.schedule(redraw_task, 60000);
+        timer.schedule(redraw_task, 0l, 60000l);
 
 
         SimpleDateFormat fmt = new SimpleDateFormat("E dd MMM yyyy");
@@ -290,9 +316,19 @@ public class MainActivity extends Activity {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+        try {
+            cur_card.addPunch("08:02");
+            cur_card.addPunch("10:50");
+            cur_card.addPunch("17:00");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
     }
 
-
+    /**
+     *
+     */
     protected void stopRefresh() {
         if (refreshItem != null && refreshItem.getActionView() != null) {
             refreshItem.getActionView().clearAnimation();
@@ -300,6 +336,9 @@ public class MainActivity extends Activity {
         }
     }
 
+    /**
+     *
+     */
     protected void runRefresh() {
         if (getApplication() != null) {
             LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -314,6 +353,11 @@ public class MainActivity extends Activity {
         }
     }
 
+    /**
+     *
+     * @param menu
+     * @return
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -322,11 +366,21 @@ public class MainActivity extends Activity {
         return true;
     }
 
+    /**
+     *
+     * @param v
+     */
     public void doPunch(View v) {
         DialogFragment confirm = new ConfirmPunchDialogFragment();
         confirm.show(getFragmentManager(), "confirm_punch");
     }
 
+    /**
+     *
+     * @param featureId
+     * @param item
+     * @return
+     */
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         switch (item.getItemId()) {

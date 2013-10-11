@@ -153,16 +153,7 @@ class DayCardView extends View {
 
         odd_path = new Path();
 
-        float required_h = ODD_H;
-        int num = (int) Math.floor(rect_width / (2 * required_h));
-        float real_h = rect_width / (2 * num);
-        odd_path.rLineTo(0, real_h);
-        for (int i=0; i < num; i++) {
-            odd_path.rLineTo(real_h, -real_h);
-            odd_path.rLineTo(real_h, real_h);
-        }
-        odd_path.rLineTo(0, -real_h);
-        odd_path.close();
+
 
     }
 
@@ -246,10 +237,19 @@ class DayCardView extends View {
             }
             //change drawing if odd to indicate that the time is running
             if (odd) {
-                float[] values = new float[9];
-                m.getValues(values);
-                m.setTranslate(margin - values[Matrix.MTRANS_X], bottom - values[Matrix.MTRANS_Y]);
-                odd_path.transform(m);
+
+                odd_path.reset();
+                float required_h = ODD_H;
+                int num = (int) Math.floor(rect_width / (2 * required_h));
+                float real_h = rect_width / (2 * num);
+                odd_path.rLineTo(0, real_h);
+                for (int i=0; i < num; i++) {
+                    odd_path.rLineTo(real_h, -real_h);
+                    odd_path.rLineTo(real_h, real_h);
+                }
+                odd_path.rLineTo(0, -real_h);
+                odd_path.close();
+                odd_path.offset(margin, bottom);
                 canvas.drawPath(odd_path, event_paint);
             }
         }
