@@ -2,6 +2,7 @@ package com.agatteclient;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Pair;
 
 import java.io.Serializable;
 import java.text.ParseException;
@@ -23,22 +24,28 @@ import java.util.Set;
  */
 public class DayCard implements Serializable {
 
-    private final List<Date> punches;
+    private final List<Long> punches;
+    private final List<Long> corrected_punches;
     private final int day;
     private final int year;
-    private Date last;
+    private final long start;
 
     /**
      * Crete a new instance of a DayCard with the current day and year
      */
     public DayCard() {
-        this.punches = new ArrayList<Date>(12);
+        this.punches = new ArrayList<Long>(12);
+        this.corrected_punches = new ArrayList<Long>(12);
         Calendar cal = Calendar.getInstance();
         Date now = new Date(System.currentTimeMillis());
         cal.setTime(now);
         this.year = cal.get(Calendar.YEAR);
         this.day = cal.get(Calendar.DAY_OF_YEAR);
-        this.last  = null;
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        this.start = cal.getTimeInMillis();
     }
 
     /**
@@ -48,17 +55,32 @@ public class DayCard implements Serializable {
      * @param year the year
      */
     public DayCard(int day, int year) {
-        this.punches = new ArrayList<Date>(12);
+        Calendar cal = Calendar.getInstance();
+        this.punches = new ArrayList<Long>(12);
+        this.corrected_punches = new ArrayList<Long>(12);
         this.year = year;
         this.day = day;
-        this.last  = null;
+        cal.set(Calendar.YEAR, year);
+        cal.set(Calendar.DAY_OF_YEAR, day);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        this.start = cal.getTimeInMillis();
     }
 
     /**
+     * Add some punch in the card.
+     *
+     * If a punch is already present in the card, it won't be added twice.
+     *
+     * If a correction must be applied, this method will manage it.
+     *
      * @param time the time of the punch in the form "HH:mm" (e.g. 20:09)
      * @throws ParseException
      */
     public void addPunch(String time) throws ParseException {
+        //1. Parse date
         Date date;
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat df = new SimpleDateFormat("HH:mm");
@@ -67,12 +89,62 @@ public class DayCard implements Serializable {
         cal.set(Calendar.YEAR, this.year);
         cal.set(Calendar.DAY_OF_YEAR, this.day);
         date = cal.getTime();
-        //verify that date is after last punch
-        if (this.last == null){
-            this.last = date;
-            this.punches.add(date);
-        } else if (this.last.before(date)) {
-            this.punches.add(date);
+        Long date_l = date.getTime();
+
+        //2. Check existence, add, and sort
+        if (!this.punches.contains(date_l)) {
+            this.punches.add(date_l);
+            Collections.sort(this.punches);
+        } else {
+            //no need to apply correction
+            return;
+        }
+
+        //3. Apply corrections
+        corrected_punches.clear();
+        //compute non worked time at mid-day
+        long l1 = start + 11 * 60 * 60 * 1000;
+        long l2 = start + 14 * 60 * 60 * 1000;
+        long ti = start;//Doesn't matter
+        long tf = start;
+        long t = start;
+        int last_noon_tf = 0;
+        int i = 0;
+        long noon = l2 - l1;
+        boolean open = true;
+        Iterator<Long> iterator = punches.iterator();
+        while (iterator.hasNext()) {
+            t = iterator.next();
+            if (open) {
+                ti = t;
+            } else {
+                tf = t;
+            }
+            
+            if (!open && tf > l1 && ti < l2) {
+                if (ti < l1 && tf > l2) {
+                    //ti before 11h, tf after 14h
+                    noon -= l2 - l1;
+                } else if (ti < l1 && tf < l2) {
+                    //ti before 11h, tf before 14h
+                    noon -= tf - l1;
+                } else if (ti > l1 && tf < l2) {
+                    //ti and tf between 11h and 14h
+                    noon -= tf - ti;
+                } else {
+                    //ti after 11h, tf after 14h
+                    noon -= l2 - ti;
+                }
+                last_noon_tf = i - 1;
+            }
+            open = !open;
+            i++;
+            this.corrected_punches.add(t);
+        }
+        //apply correction
+        if (noon < (45 * 60 * 1000)) {
+            t = this.corrected_punches.get(last_noon_tf);
+            this.corrected_punches.set(last_noon_tf, t + (45 * 60 * 1000) - noon);
         }
     }
 
@@ -143,32 +215,55 @@ public class DayCard implements Serializable {
      */
     public double getTotalTime() {
         double result = 0.;
-        if (getNumberOfPunches() != 0) {
-            List<Date> sorted = new ArrayList<Date>(punches.size() + 1);
-            sorted.addAll(punches);
+        Long ti, tf;
 
-            if (isOdd()) {
-                Date now = new Date(System.currentTimeMillis());
-                sorted.add(now);
+        Iterator<Long> iterator = punches.iterator();
+        while (iterator.hasNext()) {
+            ti = iterator.next();
+            if (iterator.hasNext()) {
+                tf = iterator.next();
+            } else {
+                tf = System.currentTimeMillis();
             }
-            Collections.sort(sorted);
+            double delta_h = ((double) (tf - ti)) / (1000.0 * 60.0 * 60.0);
+            result += delta_h;
+        }
+        return result;
+    }
 
-            for (int i = 0; i < sorted.size() / 2; i++) {
-                Date ti = sorted.get(2 * i);
-                Date tf = sorted.get(2 * i + 1);
-                double delta_h = ((double) (tf.getTime() - ti.getTime())) / (1000.0 * 60.0 * 60.0);
-                result += delta_h;
+    /**
+     * Return the total time, with correction such as min. 45min at noon, at most 10 hours per day...
+     * @return
+     */
+    public double getCorrectedTotalTime() {
+        double result = 0.;
+        Long ti, tf;
+
+        Iterator<Long> iterator = corrected_punches.iterator();
+        while (iterator.hasNext()) {
+            ti = iterator.next();
+            if (iterator.hasNext()) {
+                tf = iterator.next();
+            } else {
+                tf = System.currentTimeMillis();
             }
+            double delta_h = ((double) (tf - ti)) / (1000.0 * 60.0 * 60.0);
+            result += delta_h;
         }
         return result;
     }
 
     /**
      *
-     * @return the collection of punches of the card
+     * @return the array of punches of the card
      */
-    public Collection<Date> getPunches() {
-        return punches;
+    public Date[] getPunches() {
+        Date[] result = new Date[this.punches.size()];
+        int i = 0;
+        for (Long date_l:this.punches) {
+            result[i++] = new Date(date_l);
+        }
+        return result;
     }
 
     /**
@@ -178,4 +273,18 @@ public class DayCard implements Serializable {
     public Date now() {
         return new Date(System.currentTimeMillis());
     }
+
+    /**
+     *
+     * @return
+     */
+    public Date[] getCorrectedPunches() {
+        Date[] result = new Date[this.corrected_punches.size()];
+        int i = 0;
+        for (Long date_l:this.corrected_punches) {
+            result[i++] = new Date(date_l);
+        }
+        return result;
+    }
+
 }

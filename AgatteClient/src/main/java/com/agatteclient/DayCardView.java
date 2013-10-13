@@ -203,13 +203,15 @@ class DayCardView extends View {
             Date di, df;
             boolean odd = false;
 
-            Iterator<Date> punches = card.getPunches().iterator();
+            Date[] punches = card.getPunches();
+            Date[] corrected_punches = card.getCorrectedPunches();
+
             float top, bottom = 0;
 
-            while (punches.hasNext()) {
-                di = punches.next();
-                if (punches.hasNext()) {
-                    df = punches.next();//even
+            for (int i = 0; i < punches.length / 2; i++) {
+                di = punches[2 * i];
+                if ( i < punches.length) {
+                    df = punches[2 * i + 1];//even
                 } else {
                     df = card.now();//odd case
                     odd = true;

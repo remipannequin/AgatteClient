@@ -1,7 +1,8 @@
 Milestone 0 : Usable app
  * new Preferences : min/max hours, ...
  * day totals
- * automatic update of DayCardView every minute if odd
+ * ceiling / flooring rules (at least 45 min at noon, at most XX Hours in a day...)
+ * about dialog, with disclaimer
 
 Milestone 1: More interaction
  * Gesture on DayDarcView : zooming (pinch), changing area displayed (vertical move)
@@ -20,3 +21,7 @@ Milestone 1: More interaction
  Milestone 3: Weeks
  * get weekly / yearly totals from the server
  * display counters
+
+ Milestone 4: Diversity
+  * get profile from server (normally worked half-day in the week, profile)
+  * apply the rules from the profile
