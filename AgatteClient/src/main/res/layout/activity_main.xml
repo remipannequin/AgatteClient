@@ -23,7 +23,9 @@
         custom:textEventTimeColor="#0099CC"
         custom:textDurationColor="#FFFFFF"
         custom:hourLineColor="#AAAAAA"
-        custom:timeFormat="HH:mm" />
+        custom:timeFormat="HH:mm"
+        android:layout_toLeftOf="@+id/day_progress"
+        android:paddingRight="@dimen/activity_horizontal_margin" />
 
 
     <Button
@@ -34,7 +36,43 @@
         android:onClick="doPunch"
         android:layout_alignParentBottom="true"
         android:layout_alignLeft="@+id/day_card_view"
-        android:layout_alignRight="@+id/day_card_view"
-        android:singleLine="true" />
+        android:singleLine="true"
+        android:layout_alignRight="@+id/day_progress" />
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/day_progress"
+        android:progressDrawable="@drawable/timecounter_progress_bar"
+        android:indeterminate="false"
+        android:indeterminateOnly="false"
+        android:progress="0"
+        android:secondaryProgress="0"
+        android:layout_below="@+id/time_count_textView"
+        android:layout_alignParentRight="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="@string/daily_time_count"
+        android:id="@+id/day_textview"
+        android:layout_alignRight="@+id/day_progress"
+        android:layout_below="@+id/day_progress"
+        android:layout_alignLeft="@+id/day_progress"
+        android:textAlignment="center"
+        android:singleLine="false"
+        android:gravity="center_horizontal|top" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="@string/time_count"
+        android:id="@+id/time_count_textView"
+        android:layout_alignTop="@+id/day_card_view"
+        android:layout_alignRight="@+id/button_doPunch"
+        android:gravity="center_vertical" />
 
 </RelativeLayout>

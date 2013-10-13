@@ -208,9 +208,9 @@ class DayCardView extends View {
 
             float top, bottom = 0;
 
-            for (int i = 0; i < punches.length / 2; i++) {
+            for (int i = 0; i < (punches.length + 1) / 2; i++) {
                 di = punches[2 * i];
-                if ( i < punches.length) {
+                if ((2 * i + 1) < punches.length) {
                     df = punches[2 * i + 1];//even
                 } else {
                     df = card.now();//odd case

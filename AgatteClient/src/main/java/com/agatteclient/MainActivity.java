@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
@@ -44,6 +45,7 @@ public class MainActivity extends Activity {
     private DayCardView dc_view;
     private UpdateViewTask redraw_task;
     private Timer timer;
+    private ProgressBar day_progress;
 
 
     /**
@@ -52,14 +54,13 @@ public class MainActivity extends Activity {
     private class UpdateViewTask extends TimerTask {
         @Override
         public void run() {
-            if (cur_card.isOdd()) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dc_view.invalidate();
-                    }
-                });
-            }
+            if (cur_card.isOdd()) {}
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    updateCard();
+                }
+            });
         }
     }
 
@@ -294,6 +295,10 @@ public class MainActivity extends Activity {
         dc_view = (DayCardView) findViewById(R.id.day_card_view);
         dc_view.setCard(cur_card);
 
+        day_progress = (ProgressBar)findViewById(R.id.day_progress);
+        day_progress.setIndeterminate(false);
+        day_progress.setMax(10 * 60);
+
         //Schedule redraw in 1 minute (60 000 ms)
         timer = new Timer();
         redraw_task = new UpdateViewTask();
@@ -316,15 +321,31 @@ public class MainActivity extends Activity {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+        //Testing...
+        /*
         try {
             cur_card.addPunch("08:02");
             cur_card.addPunch("10:50");
             cur_card.addPunch("17:00");
         } catch (ParseException e) {
             e.printStackTrace();
-        }
+        }*/
+        updateCard();
 
     }
+
+    /**
+     *
+     */
+    private void updateCard() {
+        int p = (int)(cur_card.getTotalTime() * 60);
+        day_progress.setIndeterminate(false);
+        day_progress.setProgress(p);
+        day_progress.invalidate();
+        //day_progress.setSecondaryProgress();
+        dc_view.invalidate();
+    }
+
 
     /**
      *
