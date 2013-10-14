@@ -22,6 +22,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
@@ -56,13 +58,14 @@ public class MainActivity extends Activity {
     private class UpdateViewTask extends TimerTask {
         @Override
         public void run() {
-            if (cur_card.isOdd()) {}
-            runOnUiThread(new Runnable() {
+            if (cur_card.isOdd()) {
+                runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     updateCard();
                 }
             });
+            }
         }
     }
 
@@ -249,18 +252,18 @@ public class MainActivity extends Activity {
     }
 
     /**
-     *
-     * @param outState
+     * Save the state of the activity (the DayCard)
+     * @param outState outState
      */
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NotNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable(DAY_CARD, cur_card);
     }
 
     /**
-     *
-     * @param savedInstanceState
+     * Restore the state of the activity (the DayCard)
+     * @param savedInstanceState saved instance state
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -388,11 +391,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    /**
-     *
-     * @param menu
-     * @return
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -402,22 +400,17 @@ public class MainActivity extends Activity {
     }
 
     /**
-     *
-     * @param v
+     * Send a punch to the server
+     * @param v the current view
      */
     public void doPunch(View v) {
         DialogFragment confirm = new ConfirmPunchDialogFragment();
         confirm.show(getFragmentManager(), "confirm_punch");
     }
 
-    /**
-     *
-     * @param featureId
-     * @param item
-     * @return
-     */
+
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    public boolean onMenuItemSelected(int featureId, @NotNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
                 //display Settings activity

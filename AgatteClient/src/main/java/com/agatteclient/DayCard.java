@@ -1,21 +1,15 @@
 package com.agatteclient;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Pair;
-
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+
 
 /**
  * This class record all the (virtual) "punch" on a daily basis.
@@ -107,20 +101,17 @@ public class DayCard implements Serializable {
         long l2 = start + 14 * 60 * 60 * 1000;
         long ti = start;//Doesn't matter
         long tf = start;
-        long t = start;
         int last_noon_tf = 0;
         int i = 0;
         long noon = l2 - l1;
         boolean open = true;
-        Iterator<Long> iterator = punches.iterator();
-        while (iterator.hasNext()) {
-            t = iterator.next();
+
+        for (long t : punches) {
             if (open) {
                 ti = t;
             } else {
                 tf = t;
             }
-            
             if (!open && tf > l1 && ti < l2) {
                 if (ti < l1 && tf > l2) {
                     //ti before 11h, tf after 14h
@@ -143,7 +134,7 @@ public class DayCard implements Serializable {
         }
         //apply correction
         if (noon < (45 * 60 * 1000)) {
-            t = this.corrected_punches.get(last_noon_tf);
+            long t = this.corrected_punches.get(last_noon_tf);
             this.corrected_punches.set(last_noon_tf, t + (45 * 60 * 1000) - noon);
         }
     }
@@ -233,7 +224,7 @@ public class DayCard implements Serializable {
 
     /**
      * Return the total time, with correction such as min. 45min at noon, at most 10 hours per day...
-     * @return
+     * @return the time, in hours
      */
     public double getCorrectedTotalTime() {
         double result = 0.;
@@ -276,7 +267,7 @@ public class DayCard implements Serializable {
 
     /**
      *
-     * @return
+     * @return the array of corrected punches
      */
     public Date[] getCorrectedPunches() {
         Date[] result = new Date[this.corrected_punches.size()];

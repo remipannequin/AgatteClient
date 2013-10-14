@@ -15,7 +15,6 @@ import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
@@ -29,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * A session with the Agatte server. It can be used multiple times.
+ *
  * Created by Rémi Pannequin on 24/09/13.
  */
 public class AgatteSession {
@@ -55,7 +56,6 @@ public class AgatteSession {
     static final String USER = "j_username";
     static final String PASSWORD = "j_password";
     static final String AGENT = "Mozilla/5.0 (Linux; U; Android 2.2; en-us; Nexus One Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
-    private BasicHttpParams httpParam;
 
 
     /**
@@ -75,10 +75,10 @@ public class AgatteSession {
     }
 
     /**
-     *
-     * @param server
-     * @param user
-     * @param passwd
+     * Create a new session with parameters
+     * @param server the hostname of the server
+     * @param user the username to use
+     * @param passwd the password to use
      * @throws URISyntaxException
      * @throws UnsupportedEncodingException
      */

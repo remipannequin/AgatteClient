@@ -5,7 +5,6 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
@@ -15,10 +14,12 @@ import android.view.View;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
+
 
 /**
- * Created by remi on 04/10/13.
+ * Display a DayCard.
+ *
+ * Created by Rémi Pannequin on 04/10/13.
  */
 class DayCardView extends View {
 
@@ -49,7 +50,6 @@ class DayCardView extends View {
     private Path odd_path;
     private float rect_width;
     private float margin;
-    private Matrix m;
 
 
     public DayCardView(Context context, AttributeSet attrs) {
@@ -127,8 +127,6 @@ class DayCardView extends View {
         cal.set(Calendar.HOUR, 12);
         cal.set(Calendar.MINUTE, 22);
         text_width = event_text_paint.measureText(fmt.format(cal.getTime()));
-
-        m = new Matrix();
     }
 
     @Override
@@ -214,10 +212,10 @@ class DayCardView extends View {
                 top = getYFromHour(di, block);
                 bottom = getYFromHour(df, block);
                 cal.setTime(di);
-                canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (top + (text_height) / 2f - line_width), event_text_paint);
+                canvas.drawText(fmt.format(cal.getTime()), bounds.left, (top + (text_height) / 2f - line_width), event_text_paint);
                 cal.setTime(df);
                 if (Math.abs(di.getTime() - df.getTime()) > (1000 * 60 * 15)) {//15min
-                    canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (bottom + (text_height) / 2f - line_width), event_text_paint);
+                    canvas.drawText(fmt.format(cal.getTime()), bounds.left, (bottom + (text_height) / 2f - line_width), event_text_paint);
                 }
                 canvas.drawRect(margin, top, bounds.right, bottom, event_paint);
                 //compute hours and minute difference
@@ -275,9 +273,5 @@ class DayCardView extends View {
             invalidate();
             requestLayout();
         }
-    }
-
-    public DayCard getCard() {
-        return card;
     }
 }

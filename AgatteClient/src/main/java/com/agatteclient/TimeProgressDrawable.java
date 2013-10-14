@@ -7,27 +7,25 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
-import android.widget.ProgressBar;
 
 /**
- * Created by remi on 14/10/13.
+ * Draw a time in a ProgressBar.
+ *
+ * Created by Rémi Pannequin on 14/10/13.
  */
 public class TimeProgressDrawable extends Drawable {
 
 
     private final Paint paint_empty, paint_goal, paint_done;
-    private final int max;
+
     private final double goal;
     private final int step;
-    private final int fact;
-    private int level;
+
+
 
     public TimeProgressDrawable(int max, double goal, int fact) {
-        this.max = max;
         this.goal = goal;
-        this.fact = fact;
-        this.step = 10000 / (max/100);
-
+        this.step = 10000 / (max/fact);
 
         paint_empty = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint_empty.setStyle(Paint.Style.STROKE);
@@ -61,20 +59,6 @@ public class TimeProgressDrawable extends Drawable {
     public int getOpacity() {
         return 0;
     }
-
-
-
-    @Override
-    protected boolean onStateChange(int[] state) {
-        return super.onStateChange(state);
-    }
-
-    @Override
-    protected boolean onLevelChange(int level) {
-        return super.onLevelChange(level);
-    }
-
-
 
     @Override
     public void draw(Canvas canvas) {

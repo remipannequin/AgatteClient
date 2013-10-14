@@ -24,4 +24,5 @@
     <string name="punch_ok_toast">Envoi du top effectué</string>
     <string name="daily_time_count">Journée</string>
     <string name="time_count">Décomptes</string>
+    <string name="time_test">5h30</string>
 </resources>
