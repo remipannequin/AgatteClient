@@ -1,5 +1,2 @@
- * Password is displayed in clear text in the preference
 
- * modifications in the preferences does not take effect immediately (but after next launch)
-
- *
+ * display 2h instead of 2h0

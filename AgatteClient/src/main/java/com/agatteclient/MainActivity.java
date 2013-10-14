@@ -19,6 +19,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
@@ -46,6 +47,7 @@ public class MainActivity extends Activity {
     private UpdateViewTask redraw_task;
     private Timer timer;
     private ProgressBar day_progress;
+    private TextView day_textView;
 
 
     /**
@@ -296,8 +298,12 @@ public class MainActivity extends Activity {
         dc_view.setCard(cur_card);
 
         day_progress = (ProgressBar)findViewById(R.id.day_progress);
-        day_progress.setIndeterminate(false);
-        day_progress.setMax(10 * 60);
+        day_progress.setProgressDrawable(new TimeProgressDrawable(1200, 7.5, 100));
+        day_progress.setMax(1200);
+
+
+        day_textView = (TextView)findViewById(R.id.day_textView);
+
 
         //Schedule redraw in 1 minute (60 000 ms)
         timer = new Timer();
@@ -322,14 +328,15 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
         //Testing...
-        /*
+
         try {
-            cur_card.addPunch("08:02");
-            cur_card.addPunch("10:50");
-            cur_card.addPunch("17:00");
+            cur_card.addPunch("9:00");
+            cur_card.addPunch("11:05");
+            cur_card.addPunch("16:00");
+
         } catch (ParseException e) {
             e.printStackTrace();
-        }*/
+        }
         updateCard();
 
     }
@@ -338,11 +345,18 @@ public class MainActivity extends Activity {
      *
      */
     private void updateCard() {
-        int p = (int)(cur_card.getTotalTime() * 60);
+        double p = (cur_card.getTotalTime());
+        StringBuilder sb = new StringBuilder();
+        sb.append((int)Math.floor(p)).append("h");
+        int min = (int)(p * 60) % 60;
+        if (min != 0) {
+            sb.append(String.format("%02d", min));
+        }
+        day_textView.setText(sb.toString());
         day_progress.setIndeterminate(false);
-        day_progress.setProgress(p);
+        day_progress.setProgress((int)(p*100));
         day_progress.invalidate();
-        //day_progress.setSecondaryProgress();
+
         dc_view.invalidate();
     }
 

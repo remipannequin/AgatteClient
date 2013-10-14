@@ -44,7 +44,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/day_progress"
-        android:progressDrawable="@drawable/timecounter_progress_bar"
         android:indeterminate="false"
         android:indeterminateOnly="false"
         android:progress="0"
@@ -57,7 +56,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="@string/daily_time_count"
-        android:id="@+id/day_textview"
+        android:id="@+id/day_label_textView"
         android:layout_alignRight="@+id/day_progress"
         android:layout_below="@+id/day_progress"
         android:layout_alignLeft="@+id/day_progress"
@@ -72,7 +71,26 @@
         android:text="@string/time_count"
         android:id="@+id/time_count_textView"
         android:layout_alignTop="@+id/day_card_view"
-        android:layout_alignRight="@+id/button_doPunch"
-        android:gravity="center_vertical" />
+        android:layout_alignRight="@+id/day_progress"
+        android:gravity="center_vertical"
+        android:layout_alignLeft="@+id/day_progress" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="5h30"
+        android:id="@+id/day_textView"
+        android:layout_alignParentRight="false"
+        android:singleLine="true"
+        android:typeface="sans"
+        android:textStyle="bold"
+        android:layout_alignParentTop="false"
+        android:layout_alignParentLeft="false"
+        android:layout_alignTop="@+id/day_progress"
+        android:layout_alignLeft="@+id/day_progress"
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_alignBottom="@+id/day_progress"
+        android:layout_alignRight="@+id/day_progress" />
 
 </RelativeLayout>

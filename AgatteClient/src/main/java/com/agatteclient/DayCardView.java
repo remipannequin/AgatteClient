@@ -46,8 +46,6 @@ class DayCardView extends View {
     private Paint event_paint;
     private Paint duration_text_paint;
     private Paint duration_text_bold_paint;
-    private StringBuilder sb1;
-    private StringBuilder sb2;
     private Path odd_path;
     private float rect_width;
     private float margin;
@@ -91,9 +89,6 @@ class DayCardView extends View {
 
     private void init() {
         fmt = new SimpleDateFormat(date_fmt);
-
-        sb1 = new StringBuilder();
-        sb2 = new StringBuilder();
 
         line_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         line_paint.setColor(line_color);
@@ -228,14 +223,12 @@ class DayCardView extends View {
                 //compute hours and minute difference
                 long h = (df.getTime() - di.getTime()) / (1000 * 60 * 60);
                 long m = ((df.getTime() - di.getTime()) / (1000 * 60)) % 60;
-                sb1.delete(0, sb1.length());
-                sb1.append(h).append("h");
-                float w1 = duration_text_paint.measureText(sb1.toString());
-                sb2.delete(0, sb2.length());
-                sb2.append(m);
-                float w2 = duration_text_paint.measureText(sb2.toString());
-                canvas.drawText(sb1.toString(), (rect_width - w1 - w2) / 2f + margin, (bottom - top + text_height) / 2f + top , duration_text_bold_paint);
-                canvas.drawText(sb2.toString(), (rect_width - w1 - w2) / 2f + margin + w1, (bottom - top + text_height) / 2f + top , duration_text_paint);
+                float w1 = duration_text_paint.measureText(String.format("%dh", h));
+                float w2 = duration_text_paint.measureText(String.format("%02d", m));
+                canvas.drawText(String.format("%dh", h), (rect_width - w1 - w2) / 2f + margin, (bottom - top + text_height) / 2f + top , duration_text_bold_paint);
+                if (m != 0) {
+                    canvas.drawText( String.format("%02d", m), (rect_width - w1 - w2) / 2f + margin + w1, (bottom - top + text_height) / 2f + top , duration_text_paint);
+                }
             }
             //change drawing if odd to indicate that the time is running
             if (odd) {

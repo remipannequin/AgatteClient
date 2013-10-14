@@ -1,5 +1,5 @@
 Milestone 0 : Usable app
- * new Preferences : min/max hours, ...
+ * new Preferences : min/max hours, daily objective, ...
  * day totals
  * ceiling / flooring rules (at least 45 min at noon, at most XX Hours in a day...)
  * about dialog, with disclaimer
