@@ -55,4 +55,14 @@
         android:layout_alignLeft="@+id/author_textView"
         android:singleLine="false" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="@string/about_freesoft"
+        android:id="@+id/freesoft_textView"
+        android:layout_below="@+id/imageView"
+        android:layout_alignLeft="@+id/disclaimer_textView"
+        android:textColorLink="@color/abc_search_url_text_holo" />
+
 </RelativeLayout>

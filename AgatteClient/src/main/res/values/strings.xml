@@ -37,4 +37,6 @@
         aucune garantie. En particulier, les information de décompte de temps peuvent être éronées,
         des tops peuvent être perdus.</string>
     <string name="action_about">À Propos</string>
+    <string name="about_freesoft">Ce logiciel est libre, vous pouvez participer au développement, soumettre de bugs, etc... sur https://github.com/remipannequin/AgatteClient</string>
+
 </resources>
