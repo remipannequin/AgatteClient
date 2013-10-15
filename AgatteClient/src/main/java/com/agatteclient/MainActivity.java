@@ -421,6 +421,10 @@ public class MainActivity extends Activity {
                 refreshItem = item;//menu.getItem(R.id.action_update);
                 queryTask.execute();
                 break;
+            case R.id.action_about:
+                Intent about_intent = new Intent(this, AboutActivity.class);
+                startActivity(about_intent);
+
         }
         return true;
     }
