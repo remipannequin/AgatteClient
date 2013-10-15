@@ -70,10 +70,10 @@ public class AboutActivity extends Activity {
     private String getVersionNumber() {
         String version = "?";
         try {
-                PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
-                version = pi.versionName;
+            PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
+            version = pi.versionName;
         } catch (PackageManager.NameNotFoundException e) {
-
+            e.printStackTrace();
         }
         return version;
     }
@@ -86,10 +86,10 @@ public class AboutActivity extends Activity {
     private String getApplicationName() {
         String name = "?";
         try {
-                PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
-                name = getString(pi.applicationInfo.labelRes);
+            PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
+            name = getString(pi.applicationInfo.labelRes);
         } catch (PackageManager.NameNotFoundException e) {
-
+            e.printStackTrace();
         }
         return name;
     }

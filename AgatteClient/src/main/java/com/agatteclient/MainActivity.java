@@ -48,6 +48,7 @@ public class MainActivity extends Activity {
     private Timer timer;
     private ProgressBar day_progress;
     private TextView day_textView;
+    private AgattePreferenceListener pref_listener;//need to be explicitly declared to avoid garbage collection
 
 
     /**
@@ -320,7 +321,7 @@ public class MainActivity extends Activity {
             String login = preferences.getString(LOGIN_PREF, LOGIN_DEFAULT);
             String passwd = preferences.getString(PASSWD_PREF, PASSWD_DEFAULT);
             session = new AgatteSession(server, login, passwd);
-            AgattePreferenceListener pref_listener = new AgattePreferenceListener(session);
+            pref_listener = new AgattePreferenceListener(session);
             preferences.registerOnSharedPreferenceChangeListener(pref_listener);
 
         } catch (URISyntaxException e) {
