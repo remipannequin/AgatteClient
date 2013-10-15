@@ -22,8 +22,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
@@ -119,7 +117,7 @@ public class MainActivity extends Activity {
                         e.printStackTrace();
                     }
                 }
-                dc_view.invalidate();
+                updateCard();
             }
             //stop animation, restore button
             stopRefresh();
@@ -133,8 +131,8 @@ public class MainActivity extends Activity {
         @Override
         protected AgatteResponse doInBackground(Void... voids) {
 
-            session.doPunch();
-            return null;
+            AgatteResponse rsp = session.doPunch();
+            return rsp;
         }
 
         @Override
@@ -174,7 +172,7 @@ public class MainActivity extends Activity {
             }
             Context context = getApplicationContext();
             if (context != null) Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
-
+            updateCard();
         }
     }
 
@@ -256,7 +254,7 @@ public class MainActivity extends Activity {
      * @param outState outState
      */
     @Override
-    protected void onSaveInstanceState(@NotNull Bundle outState) {
+    protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable(DAY_CARD, cur_card);
     }
@@ -331,7 +329,7 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
         //Testing...
-
+/*
         try {
             cur_card.addPunch("9:00");
             cur_card.addPunch("11:05");
@@ -340,6 +338,7 @@ public class MainActivity extends Activity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+*/
         updateCard();
 
     }
@@ -410,7 +409,7 @@ public class MainActivity extends Activity {
 
 
     @Override
-    public boolean onMenuItemSelected(int featureId, @NotNull MenuItem item) {
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
                 //display Settings activity
