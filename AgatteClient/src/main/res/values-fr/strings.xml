@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Agatte</string>
+    <string name="action_settings">Paramètres</string>
+    <string name="server_prefs_title">Serveur Agatte</string>
+    <string name="server_default_value">agatte.univ-lorraine.fr</string>
+    <string name="login_prefs_title">Nom d\'utilisateur</string>
+    <string name="login_default_value">nom5</string>
+    <string name="password_prefs_title">Mot de passe</string>
+    <string name="password_default_value">******</string>
+    <string name="pref_header_general">Général</string>
+    <string name="title_activity_settings">Paramètres</string>
+    <string name="action_update">Mise à jour</string>
+    <string name="dialog_confirm_punch">Confirmez-vous l\'envoi du top ?</string>
+    <string name="send">Toper</string>
+    <string name="cancel">Annuler</string>
+    <string name="punch_button1">Pointer une arrivée</string>
+    <string name="punch_button2">Pointer un départ</string>
+    <string name="network_error_toast">Erreur réseau</string>
+    <string name="unauthorized_network_toast">Réseau non autorisé</string>
+    <string name="login_failed_toast">Connection refusée : nom d\'utilisateur ou mot de passe invalide</string>
+    <string name="error_toast">Erreur</string>
+    <string name="updating">Updating…</string>
+    <string name="punch_ok_toast">Envoi du top effectué</string>
+    <string name="daily_time_count">Journée</string>
+    <string name="time_count">Décomptes</string>
+    <string name="time_test">5h30</string>
+    <string name="day_goal_prefs_title">Temps Quotidien à réaliser</string>
+    <string name="day_goal_default_value">7:40</string>
+    <string name="connection_preferences">Connexion</string>
+    <string name="profile_preference">Profil</string>
+    <string name="title_activity_about">About</string>
+    <string name="about_description">AgatteClient : topez sur Agatte depuis votre smartphone.</string>
+    <string name="about_author">Auteur : Rémi Pannequin (remi.pannequin@gmail.com)</string>
+    <string name="about_version">Version :</string>
+    <string name="about_disclaimer">Nous ne pouvons garantir un bon fonctionnement du logiciel : en
+        particulier, les informations de décompte de temps peuvent être éronées et des "tops"
+        peuvent être perdus...</string>
+    <string name="action_about">À propos</string>
+    <string name="about_free_soft">Ce logiciel est libre, vous pouvez consulter son code source, participer au développement et soumettre des anomalies ou des souhaits sur\n <link>https://github.com/remipannequin/AgatteClient</link></string>
+
+
+</resources>

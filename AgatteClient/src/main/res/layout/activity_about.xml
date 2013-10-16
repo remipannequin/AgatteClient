@@ -59,7 +59,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="@string/about_freesoft"
+        android:text="@string/about_free_soft"
         android:id="@+id/freesoft_textView"
         android:layout_below="@+id/imageView"
         android:layout_alignLeft="@+id/disclaimer_textView"

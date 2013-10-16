@@ -45,7 +45,7 @@ public class DayCard implements Serializable {
     /**
      * Create a new instance of a DayCard with the specified year and day (of year)
      *
-     * @param day the day of year (i.e. from 1 to 365)
+     * @param day  the day of year (i.e. from 1 to 365)
      * @param year the year
      */
     public DayCard(int day, int year) {
@@ -65,9 +65,9 @@ public class DayCard implements Serializable {
 
     /**
      * Add some punch in the card.
-     *
+     * <p/>
      * If a punch is already present in the card, it won't be added twice.
-     *
+     * <p/>
      * If a correction must be applied, this method will manage it.
      *
      * @param time the time of the punch in the form "HH:mm" (e.g. 20:09)
@@ -140,7 +140,6 @@ public class DayCard implements Serializable {
     }
 
     /**
-     *
      * @return the number of punch of the day
      */
     public int getNumberOfPunches() {
@@ -148,7 +147,6 @@ public class DayCard implements Serializable {
     }
 
     /**
-     *
      * @return return true if the number of punch is even
      */
     public boolean isEven() {
@@ -156,7 +154,6 @@ public class DayCard implements Serializable {
     }
 
     /**
-     *
      * @return true if the number of punch is odd
      */
     public boolean isOdd() {
@@ -164,7 +161,6 @@ public class DayCard implements Serializable {
     }
 
     /**
-     *
      * @return true if the instance correspond to the current date according to system date
      */
     public boolean isCurrentDay() {
@@ -172,7 +168,6 @@ public class DayCard implements Serializable {
     }
 
     /**
-     *
      * @return the day of year of the card
      */
     public Date getDay() {
@@ -183,14 +178,10 @@ public class DayCard implements Serializable {
     }
 
     /**
-     *
      * @param to_test the date to test
      * @return true if the date To_test is inside the day of the card
      */
     boolean isInCardDay(Date to_test) {
-        if (getNumberOfPunches() == 0) {
-            return true;
-        }
         Calendar cal = Calendar.getInstance();
         cal.setTime(to_test);
         int test_y = cal.get(Calendar.YEAR);
@@ -224,6 +215,7 @@ public class DayCard implements Serializable {
 
     /**
      * Return the total time, with correction such as min. 45min at noon, at most 10 hours per day...
+     *
      * @return the time, in hours
      */
     public double getCorrectedTotalTime() {
@@ -245,20 +237,18 @@ public class DayCard implements Serializable {
     }
 
     /**
-     *
      * @return the array of punches of the card
      */
     public Date[] getPunches() {
         Date[] result = new Date[this.punches.size()];
         int i = 0;
-        for (Long date_l:this.punches) {
+        for (Long date_l : this.punches) {
             result[i++] = new Date(date_l);
         }
         return result;
     }
 
     /**
-     *
      * @return the date corresponding to the system time
      */
     public Date now() {
@@ -266,13 +256,12 @@ public class DayCard implements Serializable {
     }
 
     /**
-     *
      * @return the array of corrected punches
      */
     public Date[] getCorrectedPunches() {
         Date[] result = new Date[this.corrected_punches.size()];
         int i = 0;
-        for (Long date_l:this.corrected_punches) {
+        for (Long date_l : this.corrected_punches) {
             result[i++] = new Date(date_l);
         }
         return result;

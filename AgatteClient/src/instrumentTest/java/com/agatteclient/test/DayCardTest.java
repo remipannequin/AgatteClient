@@ -126,6 +126,16 @@ public class DayCardTest extends AndroidTestCase {
         assertEquals(7d, instance.getCorrectedTotalTime());
     }
 
+    public void testIsCurrentDay1() {
+        DayCard instance = new DayCard(200, 2012);
+        boolean b = instance.isCurrentDay();
+        assertFalse(b);
+    }
 
+    public void testIsCurrentDay2() {
+        DayCard instance = new DayCard();
+        boolean b = instance.isCurrentDay();
+        assertTrue(b);
+    }
 
 }

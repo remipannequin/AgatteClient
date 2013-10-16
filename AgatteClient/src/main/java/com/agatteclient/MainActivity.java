@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -49,6 +50,7 @@ public class MainActivity extends Activity {
     private ProgressBar day_progress;
     private TextView day_textView;
     private AgattePreferenceListener pref_listener;//need to be explicitly declared to avoid garbage collection
+    private Button punch_button;
 
 
     /**
@@ -92,7 +94,7 @@ public class MainActivity extends Activity {
                 StringBuilder toast = new StringBuilder();
                 switch (rsp.getCode()) {
                     case IOError:
-                        toast.append(getString(R.string.networl_error_toast));
+                        toast.append(getString(R.string.network_error_toast));
                         if (rsp.hasDetail()) {
                             toast.append(" : ").append(rsp.getDetail());
                         }
@@ -144,7 +146,7 @@ public class MainActivity extends Activity {
             StringBuilder toast = new StringBuilder();
             switch (rsp.getCode()) {
                 case IOError:
-                    toast.append(getString(R.string.networl_error_toast));
+                    toast.append(getString(R.string.network_error_toast));
                     if (rsp.hasDetail()) {
                         toast.append(" : ").append(rsp.getDetail());
                     }
@@ -156,6 +158,7 @@ public class MainActivity extends Activity {
                     toast.append(getString(R.string.login_failed_toast));
                     break;
                 case PunchOK:
+                case QueryOK:
                     if (rsp.hasTops()) {
                         for (String top : rsp.getTops()) {
                             try {
@@ -172,7 +175,9 @@ public class MainActivity extends Activity {
                     toast.append(getString(R.string.error_toast));
             }
             Context context = getApplicationContext();
-            if (context != null) Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
+            if (context != null) {
+                Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
+            }
             updateCard();
         }
     }
@@ -274,11 +279,6 @@ public class MainActivity extends Activity {
         } else {
             cur_card = (DayCard) savedInstanceState.getSerializable(DAY_CARD);
         }
-        //create a new day card if required
-        assert cur_card != null;
-        if (!cur_card.isCurrentDay()) {
-            cur_card = new DayCard();
-        }
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor editor = preferences.edit();
@@ -305,7 +305,7 @@ public class MainActivity extends Activity {
 
 
         day_textView = (TextView)findViewById(R.id.day_textView);
-
+        punch_button = (Button) findViewById(R.id.button_doPunch);
 
         //Schedule redraw in 1 minute (60 000 ms)
         timer = new Timer();
@@ -348,6 +348,18 @@ public class MainActivity extends Activity {
      *
      */
     private void updateCard() {
+
+        if (!cur_card.isCurrentDay()) {
+            cur_card = new DayCard();
+            dc_view.setCard(cur_card);
+        }
+        if (cur_card.isEven()) {
+            punch_button.setText(R.string.punch_button1);
+        } else {
+            punch_button.setText(R.string.punch_button2);
+        }
+
+
         double p = (cur_card.getTotalTime());
         StringBuilder sb = new StringBuilder();
         sb.append((int)Math.floor(p)).append("h");
