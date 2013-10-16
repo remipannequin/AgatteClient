@@ -18,7 +18,7 @@ import java.util.Date;
 
 /**
  * Display a DayCard.
- *
+ * <p/>
  * Created by Rémi Pannequin on 04/10/13.
  */
 class DayCardView extends View {
@@ -79,7 +79,7 @@ class DayCardView extends View {
             min = a.getInteger(R.styleable.DayCardView_dayStartHour, 7);
             max = a.getInteger(R.styleable.DayCardView_dayEndHour, 19);
 
-        //TODO: add all style attributes
+            //TODO: add all style attributes
         } finally {
             a.recycle();
         }
@@ -147,7 +147,6 @@ class DayCardView extends View {
         odd_path = new Path();
 
 
-
     }
 
     @Override
@@ -159,7 +158,7 @@ class DayCardView extends View {
         if (card != null) {
             for (Date punch : card.getPunches()) {
                 cal.setTime(punch);
-                float h = cal.get(Calendar.HOUR_OF_DAY) + cal.get(Calendar.MINUTE)/60f;
+                float h = cal.get(Calendar.HOUR_OF_DAY) + cal.get(Calendar.MINUTE) / 60f;
                 if (h < p_min) {
                     p_min = h;
                 }
@@ -171,8 +170,8 @@ class DayCardView extends View {
         float block = bounds.height() / (max - min + 1);
 
         //Draw mandatory periods
-        canvas.drawRect(bounds.left + text_width + 10f, getYFromHour(9f,block), bounds.right, getYFromHour(11f, block), mandatory_paint);
-        canvas.drawRect(bounds.left + text_width + 10f, getYFromHour(14f,block), bounds.right, getYFromHour(16f, block), mandatory_paint);
+        canvas.drawRect(bounds.left + text_width + 10f, getYFromHour(9f, block), bounds.right, getYFromHour(11f, block), mandatory_paint);
+        canvas.drawRect(bounds.left + text_width + 10f, getYFromHour(14f, block), bounds.right, getYFromHour(16f, block), mandatory_paint);
 
         //Draw hour lines
 
@@ -184,12 +183,12 @@ class DayCardView extends View {
         if (Math.abs(min - p_min) > 0.5) {
             cal.set(Calendar.HOUR_OF_DAY, min);
             cal.set(Calendar.MINUTE, 0);
-            canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (bounds.top + 0.5 * block + (text_height)/2f - line_width), line_text_paint);
+            canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (bounds.top + 0.5 * block + (text_height) / 2f - line_width), line_text_paint);
         }
         if (Math.abs(max - p_max) > 0.5) {
             cal.set(Calendar.HOUR_OF_DAY, max);
             cal.set(Calendar.MINUTE, 0);
-            canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (bounds.top + (max - min +0.5) * block + (text_height)/2f - line_width), line_text_paint);
+            canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (bounds.top + (max - min + 0.5) * block + (text_height) / 2f - line_width), line_text_paint);
         }
         //Draw tops
         if (card != null) {
@@ -240,7 +239,7 @@ class DayCardView extends View {
                 int num = (int) Math.floor(rect_width / (2 * required_h));
                 float real_h = rect_width / (2 * num);
                 odd_path.rLineTo(0, real_h);
-                for (int i=0; i < num; i++) {
+                for (int i = 0; i < num; i++) {
                     odd_path.rLineTo(real_h, -real_h);
                     odd_path.rLineTo(real_h, real_h);
                 }
@@ -254,7 +253,7 @@ class DayCardView extends View {
 
     private float getYFromHour(Date d, float block) {
         cal.setTime(d);
-        float h = cal.get(Calendar.HOUR_OF_DAY) + cal.get(Calendar.MINUTE)/60f;
+        float h = cal.get(Calendar.HOUR_OF_DAY) + cal.get(Calendar.MINUTE) / 60f;
         return getYFromHour(h, block);
     }
 
@@ -263,12 +262,11 @@ class DayCardView extends View {
         if (h <= (min - 0.5)) {
             return 0f;
         }
-        if (h >= (max +0.5)) {
-            return  (max - min + 1) * block;
+        if (h >= (max + 0.5)) {
+            return (max - min + 1) * block;
         }
         return ((h - min) + 0.5f) * block;
     }
-
 
 
     public void setCard(DayCard card) {

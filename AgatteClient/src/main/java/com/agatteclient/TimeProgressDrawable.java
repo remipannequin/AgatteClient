@@ -10,7 +10,7 @@ import android.graphics.drawable.Drawable;
 
 /**
  * Draw a time in a ProgressBar.
- *
+ * <p/>
  * Created by Rémi Pannequin on 14/10/13.
  */
 public class TimeProgressDrawable extends Drawable {
@@ -22,10 +22,9 @@ public class TimeProgressDrawable extends Drawable {
     private final int step;
 
 
-
     public TimeProgressDrawable(int max, double goal, int fact) {
         this.goal = goal;
-        this.step = 10000 / (max/fact);
+        this.step = 10000 / (max / fact);
 
         paint_empty = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint_empty.setStyle(Paint.Style.STROKE);
@@ -74,18 +73,18 @@ public class TimeProgressDrawable extends Drawable {
         }
 
 
-        int h2 = (int)Math.floor(goal);
+        int h2 = (int) Math.floor(goal);
         for (int i = 0; i < h2; i++) {
             canvas.drawArc(oval_bound, 132 + i * 23, 21, false, paint_goal);
         }
-        canvas.drawArc(oval_bound, 132 + h2 * 23, (int)(21 * (goal - h2)), false, paint_goal);
+        canvas.drawArc(oval_bound, 132 + h2 * 23, (int) (21 * (goal - h2)), false, paint_goal);
 
 
         int h = level / (step);
         for (int i = 0; i < h; i++) {
             canvas.drawArc(oval_bound, 132 + i * 23, 21, false, paint_done);
         }
-        canvas.drawArc(oval_bound, 132 + h * 23, (21 * (level % (step)))/(step), false, paint_done);
+        canvas.drawArc(oval_bound, 132 + h * 23, (21 * (level % (step))) / (step), false, paint_done);
 
 
     }

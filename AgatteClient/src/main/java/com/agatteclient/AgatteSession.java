@@ -29,7 +29,7 @@ import java.util.List;
 
 /**
  * A session with the Agatte server. It can be used multiple times.
- *
+ * <p/>
  * Created by Rémi Pannequin on 24/09/13.
  */
 public class AgatteSession {
@@ -76,8 +76,9 @@ public class AgatteSession {
 
     /**
      * Create a new session with parameters
+     *
      * @param server the hostname of the server
-     * @param user the username to use
+     * @param user   the username to use
      * @param passwd the password to use
      * @throws URISyntaxException
      * @throws UnsupportedEncodingException
@@ -92,6 +93,7 @@ public class AgatteSession {
 
     /**
      * Send a logout to the server.
+     *
      * @param client the HttpClient to use
      */
     private void logout(AndroidHttpClient client) {
@@ -151,6 +153,7 @@ public class AgatteSession {
 
     /**
      * Attempt to get the list of tops from the server (doing a login if necessary)
+     *
      * @return an AgatteResponse instance
      */
     public AgatteResponse query_day() {
@@ -173,21 +176,24 @@ public class AgatteSession {
             e.printStackTrace();
             return new AgatteResponse(AgatteResponse.Code.IOError, e);
         } finally {
-            if (client != null) {client.close();}
+            if (client != null) {
+                client.close();
+            }
         }
     }
 
     /**
      * Send a "punch" to the server
+     *
      * @return an AgatteResponse instance
      */
     public AgatteResponse doPunch() {
         AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
         try {
             if (!mustLogin()) {
-                 if (!login(client)) {
+                if (!login(client)) {
                     return new AgatteResponse(AgatteResponse.Code.LoginFailed);
-                 }
+                }
             }
             HttpResponse response1 = client.execute(exec_rq, httpContext);
             //should be a redirect to topOk
@@ -211,6 +217,7 @@ public class AgatteSession {
 
     /**
      * Return the host name of the agatte server
+     *
      * @return a String like "agatte.univ-lorraine.fr" (without protocol string "https://)
      */
     String getServer() {
@@ -219,6 +226,7 @@ public class AgatteSession {
 
     /**
      * Set the hostname of the server to connect
+     *
      * @param server a String like "agatte.univ-lorraine.fr" (without protocol string "https://)
      * @throws URISyntaxException
      */
@@ -235,6 +243,7 @@ public class AgatteSession {
 
     /**
      * Return the current user login
+     *
      * @return the login
      */
     public String getUser() {
@@ -243,6 +252,7 @@ public class AgatteSession {
 
     /**
      * Set the username to use to connect
+     *
      * @param user the username to set
      * @throws UnsupportedEncodingException
      */
@@ -253,6 +263,7 @@ public class AgatteSession {
 
     /**
      * Get the current password
+     *
      * @return the current password
      */
     public String getPassword() {
@@ -261,6 +272,7 @@ public class AgatteSession {
 
     /**
      * Set the password to use in the connection
+     *
      * @param password the password
      * @throws UnsupportedEncodingException if password contain invalid
      */
@@ -271,6 +283,7 @@ public class AgatteSession {
 
     /**
      * Return the connection status of the agatte session.
+     *
      * @return false if a login must be made
      */
     boolean mustLogin() {

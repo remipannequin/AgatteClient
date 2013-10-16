@@ -1,12 +1,12 @@
 package com.agatteclient;
 
+import android.app.Activity;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.app.Activity;
+import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.support.v4.app.NavUtils;
 import android.widget.TextView;
 
 public class AboutActivity extends Activity {
@@ -20,7 +20,7 @@ public class AboutActivity extends Activity {
         String version = getVersionNumber();
         String name = getApplicationName();
 
-        TextView text = (TextView)findViewById(R.id.version_textView);
+        TextView text = (TextView) findViewById(R.id.version_textView);
         StringBuilder sb = new StringBuilder(getString(R.string.about_version));
         sb.append(getApplicationName());
         sb.append(" ");
@@ -41,7 +41,7 @@ public class AboutActivity extends Activity {
         getMenuInflater().inflate(R.menu.about, menu);
         return true;
     }
-    
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -59,7 +59,6 @@ public class AboutActivity extends Activity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 
 
     /**

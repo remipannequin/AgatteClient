@@ -61,11 +61,11 @@ public class MainActivity extends Activity {
         public void run() {
             if (cur_card.isOdd()) {
                 runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    updateCard();
-                }
-            });
+                    @Override
+                    public void run() {
+                        updateCard();
+                    }
+                });
             }
         }
     }
@@ -109,7 +109,7 @@ public class MainActivity extends Activity {
                         toast.append(getString(R.string.error_toast));
                 }
                 Context context = getApplicationContext();
-                if (context!=null) Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
+                if (context != null) Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
 
             }
             if (rsp.getCode() == AgatteResponse.Code.QueryOK && rsp.hasTops()) {
@@ -257,6 +257,7 @@ public class MainActivity extends Activity {
 
     /**
      * Save the state of the activity (the DayCard)
+     *
      * @param outState outState
      */
     @Override
@@ -267,6 +268,7 @@ public class MainActivity extends Activity {
 
     /**
      * Restore the state of the activity (the DayCard)
+     *
      * @param savedInstanceState saved instance state
      */
     @Override
@@ -299,12 +301,12 @@ public class MainActivity extends Activity {
         dc_view = (DayCardView) findViewById(R.id.day_card_view);
         dc_view.setCard(cur_card);
 
-        day_progress = (ProgressBar)findViewById(R.id.day_progress);
+        day_progress = (ProgressBar) findViewById(R.id.day_progress);
         day_progress.setProgressDrawable(new TimeProgressDrawable(1200, 7.5, 100));
         day_progress.setMax(1200);
 
 
-        day_textView = (TextView)findViewById(R.id.day_textView);
+        day_textView = (TextView) findViewById(R.id.day_textView);
         punch_button = (Button) findViewById(R.id.button_doPunch);
 
         //Schedule redraw in 1 minute (60 000 ms)
@@ -362,14 +364,14 @@ public class MainActivity extends Activity {
 
         double p = (cur_card.getTotalTime());
         StringBuilder sb = new StringBuilder();
-        sb.append((int)Math.floor(p)).append("h");
-        int min = (int)(p * 60) % 60;
+        sb.append((int) Math.floor(p)).append("h");
+        int min = (int) (p * 60) % 60;
         if (min != 0) {
             sb.append(String.format("%02d", min));
         }
         day_textView.setText(sb.toString());
         day_progress.setIndeterminate(false);
-        day_progress.setProgress((int)(p*100));
+        day_progress.setProgress((int) (p * 100));
         day_progress.invalidate();
 
         dc_view.invalidate();
@@ -413,6 +415,7 @@ public class MainActivity extends Activity {
 
     /**
      * Send a punch to the server
+     *
      * @param v the current view
      */
     public void doPunch(View v) {

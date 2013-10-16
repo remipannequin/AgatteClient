@@ -1,7 +1,5 @@
 package com.agatteclient;
 
-import android.preference.PreferenceActivity;
-
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
