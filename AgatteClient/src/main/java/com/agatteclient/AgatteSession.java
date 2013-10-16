@@ -182,8 +182,8 @@ public class AgatteSession {
      * @return an AgatteResponse instance
      */
     public AgatteResponse doPunch() {
+        AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
         try {
-            AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
             if (!mustLogin()) {
                  if (!login(client)) {
                     return new AgatteResponse(AgatteResponse.Code.LoginFailed);
@@ -196,15 +196,16 @@ public class AgatteSession {
                 case TemporaryOK:
                     HttpResponse response2 = client.execute(query_top_ok_rq, httpContext);
                     return AgatteParser.getInstance().parse_query_response(response2);
-
                 case NetworkNotAuthorized:
-                    return new AgatteResponse(code, "Current wifi/3G network is not authorized.");
+                    return new AgatteResponse(code);
                 default:
                     return new AgatteResponse(AgatteResponse.Code.UnknownError);
             }
         } catch (IOException e) {
             e.printStackTrace();
             return new AgatteResponse(AgatteResponse.Code.IOError, e);
+        } finally {
+            client.close();
         }
     }
 
