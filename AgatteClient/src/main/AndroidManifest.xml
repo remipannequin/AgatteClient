@@ -24,14 +24,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!--
-        <service android:name="com.agatteclient.AgatteSession">
-            <intent-filter>
-                <action android:name="com.agatteclient.AgatteSession" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </service>
-        -->
         <activity
             android:name="com.agatteclient.AgattePreferenceActivity"
             android:label="@string/title_activity_settings"
