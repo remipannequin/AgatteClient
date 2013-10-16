@@ -8,7 +8,6 @@ Milestone 1: More interaction
  * Gesture on DayDarcView : zooming (pinch), changing area displayed (vertical move)
  * create a two-columns layout in landscape orientation
  * Legend Activity : display the signification of the graphical elements
- * Gesture on DayDarcView : zooming (pinch), changing area displayed (vertical move)
 
  Milestone 2 : Automation
  * manage a list of "authorized" wifi SSID
