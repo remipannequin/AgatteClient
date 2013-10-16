@@ -17,15 +17,7 @@
         android:textStyle="italic"
         android:gravity="center_horizontal"
         android:layout_alignParentBottom="true"
-        android:layout_alignLeft="@+id/version_textView" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView"
-        android:background="@drawable/icon"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignLeft="@+id/freesoft_textView" />
 
     <TextView
         android:layout_width="fill_parent"
@@ -43,10 +35,11 @@
         android:text="@string/about_author"
         android:id="@+id/author_textView"
         android:layout_below="@+id/description_textView"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:gravity="center_horizontal" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="@string/about_version"
@@ -61,8 +54,9 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="@string/about_free_soft"
         android:id="@+id/freesoft_textView"
-        android:layout_below="@+id/imageView"
-        android:layout_alignLeft="@+id/disclaimer_textView"
-        android:textColorLink="@color/abc_search_url_text_holo" />
+        android:textColorLink="@color/abc_search_url_text_holo"
+        android:layout_centerVertical="true"
+        android:layout_alignLeft="@+id/version_textView"
+        android:gravity="center_horizontal" />
 
 </RelativeLayout>

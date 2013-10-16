@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">Agatte</string>
     <string name="action_settings">Paramètres</string>
     <string name="server_prefs_title">Serveur Agatte</string>
@@ -31,14 +30,8 @@
     <string name="connection_preferences">Connexion</string>
     <string name="profile_preference">Profil</string>
     <string name="title_activity_about">About</string>
-    <string name="about_description">AgatteClient : topez sur Agatte depuis votre smartphone.</string>
-    <string name="about_author">Auteur : Rémi Pannequin (remi.pannequin@gmail.com)</string>
-    <string name="about_version">Version :</string>
-    <string name="about_disclaimer">Nous ne pouvons garantir un bon fonctionnement du logiciel : en
-        particulier, les informations de décompte de temps peuvent être éronées et des "tops"
-        peuvent être perdus...</string>
+    <string name="about_description">AgatteClient : utilisez Agatte depuis votre smartphone.</string>
+    <string name="about_disclaimer">AgatteClient est distribué dans l\'espoir qu\'il sera utile, mais SANS AUCUNE GARANTIE ; pas même la garantie implicite de COMMERCIABILISABILITÉ ni d\'ADÉQUATION à UN OBJECTIF PARTICULIER. Consultez la GNU General Public License pour plus de détails.\n<b>Soyez conscients que les informations de décompte de temps peuvent être éronées et des \"tops\" peuvent être perdus...</b></string>
     <string name="action_about">À propos</string>
-    <string name="about_free_soft">Ce logiciel est libre, vous pouvez consulter son code source, participer au développement et soumettre des anomalies ou des souhaits sur\n <link>https://github.com/remipannequin/AgatteClient</link></string>
-
-
+    <string name="about_free_soft">Ce logiciel est libre ; vous pouvez le redistribuer ou le modifier suivant les termes de la GNU General Public License telle que publiée par la Free Software Foundation ; soit la version 3 de la licence, soit (à votre gré) toute version ultérieure.\n\n Vous devez avoir reçu une copie de la GNU General Public License en même temps que AgatteClient ; si ce n\'est pas le cas, consultez <link>http://www.gnu.org/licenses</link>.\n\n Vous pouvez suivre le développement, soumettre des anomalies ou des souhaits sur\n<link>https://github.com/remipannequin/AgatteClient</link></string>
 </resources>
