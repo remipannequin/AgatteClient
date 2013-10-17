@@ -36,7 +36,7 @@ public class AgatteParser {
 
     private static final String PATTERN_TOPS = ".*<li.*([0-9][0-9]:[0-9][0-9])\\s*</li>.*";
     private static final String PATTERN_NETWORK_NOT_AUTHORIZED = "<legend>Acc\ufffds interdit</legend>";
-    private static final String PATTERN_TOPOK = "<p>(Top pris en compte à [0-9][0-9]:[0-9}][0-9])</p>";
+    private static final String PATTERN_TOP_OK = "<p>(Top pris en compte à [0-9][0-9]:[0-9}][0-9])</p>";
     private static AgatteParser ourInstance = new AgatteParser();
 
     public static AgatteParser getInstance() {
@@ -78,7 +78,7 @@ public class AgatteParser {
 
     private boolean searchforTopOk(String result) {
         String top;
-        Pattern p = Pattern.compile(PATTERN_TOPOK);
+        Pattern p = Pattern.compile(PATTERN_TOP_OK);
         Matcher matcher = p.matcher(result);
         if (matcher.find()) {
             top = matcher.group(1);
@@ -134,7 +134,7 @@ public class AgatteParser {
             return new AgatteResponse(AgatteResponse.Code.NetworkNotAuthorized);
         }
 
-        Pattern p = Pattern.compile(PATTERN_TOPOK);
+        Pattern p = Pattern.compile(PATTERN_TOP_OK);
         if (!searchforTopOk(result)) {
             return new AgatteResponse(AgatteResponse.Code.UnknownError);
         }
