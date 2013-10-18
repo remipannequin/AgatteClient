@@ -105,11 +105,13 @@ public class MainActivity extends Activity {
             if (rsp.isError()) {
                 //display error (in a Toast)
                 StringBuilder toast = new StringBuilder();
+                toast.append(getString(R.string.update_error_toast));
+                toast.append(" ");
                 switch (rsp.getCode()) {
                     case IOError:
                         toast.append(getString(R.string.network_error_toast));
                         if (rsp.hasDetail()) {
-                            toast.append(" : ").append(rsp.getDetail());
+                            toast.append(": ").append(rsp.getDetail());
                         }
                         break;
                     case NetworkNotAuthorized:
@@ -133,8 +135,8 @@ public class MainActivity extends Activity {
                         e.printStackTrace();
                     }
                 }
-                updateCard();
             }
+            updateCard();
             //stop animation, restore button
             stopRefresh();
         }
@@ -159,15 +161,18 @@ public class MainActivity extends Activity {
             StringBuilder toast = new StringBuilder();
             switch (rsp.getCode()) {
                 case IOError:
+                    toast.append(getString(R.string.punch_error_toast)).append(" ");
                     toast.append(getString(R.string.network_error_toast));
                     if (rsp.hasDetail()) {
                         toast.append(" : ").append(rsp.getDetail());
                     }
                     break;
                 case NetworkNotAuthorized:
+                    toast.append(getString(R.string.punch_error_toast)).append(" ");
                     toast.append(getString(R.string.unauthorized_network_toast));
                     break;
                 case LoginFailed:
+                    toast.append(getString(R.string.punch_error_toast)).append(" ");
                     toast.append(getString(R.string.login_failed_toast));
                     break;
                 case PunchOK:
@@ -180,18 +185,18 @@ public class MainActivity extends Activity {
                                 e.printStackTrace();
                             }
                         }
-                        dc_view.invalidate();
                     }
                     toast.append(getString(R.string.punch_ok_toast));
                     break;
                 case UnknownError:
+                    toast.append(getString(R.string.punch_error_toast)).append(" ");
                     toast.append(getString(R.string.error_toast));
             }
             Context context = getApplicationContext();
+            updateCard();
             if (context != null) {
                 Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
             }
-            updateCard();
         }
     }
 

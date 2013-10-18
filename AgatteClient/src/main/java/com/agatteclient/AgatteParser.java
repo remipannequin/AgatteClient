@@ -105,18 +105,17 @@ public class AgatteParser {
         return new AgatteResponse(AgatteResponse.Code.QueryOK, tops);
     }
 
-    public AgatteResponse.Code parse_punch_response(HttpResponse response) {
-
+    public AgatteResponse.Code parse_punch_response(HttpResponse response) throws IOException {
+        response.getEntity().consumeContent();
         //verify that response is a redirection to topOk.htm (ie punchOkDir)
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
             boolean found = false;
             for (Header h : response.getHeaders("Location")) {
                 if (h.getValue().contains(AgatteSession.PUNCH_OK_DIR)) {
-                    found = true;
+                    return AgatteResponse.Code.TemporaryOK;
+                } else if (h.getValue().contains("app/accesInterdit.htm")) {
+                    return AgatteResponse.Code.NetworkNotAuthorized;
                 }
-            }
-            if (found) {
-                return AgatteResponse.Code.TemporaryOK;
             }
         }
         return AgatteResponse.Code.UnknownError;
