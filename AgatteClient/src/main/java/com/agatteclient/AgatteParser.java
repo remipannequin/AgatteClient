@@ -118,7 +118,7 @@ public class AgatteParser {
                 }
             }
         }
-        return AgatteResponse.Code.UnknownError;
+        return AgatteResponse.Code.TemporaryOK;
     }
 
 

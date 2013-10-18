@@ -18,7 +18,7 @@
     <string name="punch_button2">Pointer un départ</string>
     <string name="network_error_toast">Erreur réseau</string>
     <string name="unauthorized_network_toast">Réseau non autorisé</string>
-    <string name="login_failed_toast">Connection refusée : nom d\'utilisateur ou mot de passe invalide</string>
+    <string name="login_failed_toast">Connection refusée: nom d\'utilisateur ou mot de passe invalide</string>
     <string name="error_toast">Erreur</string>
     <string name="updating">Mise à jour…</string>
     <string name="punch_ok_toast">Pointage effectué</string>
