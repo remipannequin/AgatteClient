@@ -74,7 +74,11 @@ public class AgatteResponse {
 
     public AgatteResponse(Code code, Exception cause) {
         this(code);
-        this.detail = cause.getCause().getLocalizedMessage();
+        if (cause.getCause() != null) {
+            this.detail = cause.getCause().getLocalizedMessage();
+        } else {
+            this.detail = cause.getLocalizedMessage();
+        }
     }
 
     public AgatteResponse(Code code, String s) {

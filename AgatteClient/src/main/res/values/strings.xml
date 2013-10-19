@@ -49,5 +49,7 @@
     along with this program.  If not, see <link>http://www.gnu.org/licenses</link>>\n
     \n
     Follow development, submit bugs or wishes at\n <link>https://github.com/remipannequin/AgatteClient</link></string>
+    <string name="punch_error_toast">Error while punching:</string>
+    <string name="update_error_toast">Error while updating:</string>
 
 </resources>

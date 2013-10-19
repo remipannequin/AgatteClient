@@ -23,7 +23,7 @@
         android:layout_above="@+id/button_doPunch"
         custom:textHeight="15dp"
         custom:dayStartHour="7"
-        custom:dayEndHour="23"
+        custom:dayEndHour="19"
         custom:mandatoryColor="#FFBB33"
         custom:durationColor="#03B5E5"
         custom:textEventTimeColor="#0099CC"

@@ -11,17 +11,17 @@
     <string name="pref_header_general">Général</string>
     <string name="title_activity_settings">Paramètres</string>
     <string name="action_update">Mise à jour</string>
-    <string name="dialog_confirm_punch">Confirmez-vous l\'envoi du top ?</string>
-    <string name="send">Toper</string>
+    <string name="dialog_confirm_punch">Confirmez-vous le pointage ?</string>
+    <string name="send">Pointer</string>
     <string name="cancel">Annuler</string>
     <string name="punch_button1">Pointer une arrivée</string>
     <string name="punch_button2">Pointer un départ</string>
     <string name="network_error_toast">Erreur réseau</string>
     <string name="unauthorized_network_toast">Réseau non autorisé</string>
-    <string name="login_failed_toast">Connection refusée : nom d\'utilisateur ou mot de passe invalide</string>
+    <string name="login_failed_toast">Connection refusée: nom d\'utilisateur ou mot de passe invalide</string>
     <string name="error_toast">Erreur</string>
-    <string name="updating">Updating…</string>
-    <string name="punch_ok_toast">Envoi du top effectué</string>
+    <string name="updating">Mise à jour…</string>
+    <string name="punch_ok_toast">Pointage effectué</string>
     <string name="daily_time_count">Journée</string>
     <string name="time_count">Décomptes</string>
     <string name="time_test">5h30</string>
@@ -29,9 +29,11 @@
     <string name="day_goal_default_value">7:40</string>
     <string name="connection_preferences">Connexion</string>
     <string name="profile_preference">Profil</string>
-    <string name="title_activity_about">About</string>
+    <string name="title_activity_about">À propos</string>
     <string name="about_description">AgatteClient : utilisez Agatte depuis votre smartphone.</string>
     <string name="about_disclaimer">AgatteClient est distribué dans l\'espoir qu\'il sera utile, mais SANS AUCUNE GARANTIE ; pas même la garantie implicite de COMMERCIABILISABILITÉ ni d\'ADÉQUATION à UN OBJECTIF PARTICULIER. Consultez la GNU General Public License pour plus de détails.\n<b>Soyez conscients que les informations de décompte de temps peuvent être éronées et des \"tops\" peuvent être perdus...</b></string>
     <string name="action_about">À propos</string>
     <string name="about_free_soft">Ce logiciel est libre ; vous pouvez le redistribuer ou le modifier suivant les termes de la GNU General Public License telle que publiée par la Free Software Foundation ; soit la version 3 de la licence, soit (à votre gré) toute version ultérieure.\n\n Vous devez avoir reçu une copie de la GNU General Public License en même temps que AgatteClient ; si ce n\'est pas le cas, consultez <link>http://www.gnu.org/licenses</link>.\n\n Vous pouvez suivre le développement, soumettre des anomalies ou des souhaits sur\n<link>https://github.com/remipannequin/AgatteClient</link></string>
+    <string name="punch_error_toast">Erreur pendant le pointage:</string>
+    <string name="update_error_toast">Erreur pendant la mise à jour:</string>
 </resources>
