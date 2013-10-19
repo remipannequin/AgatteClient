@@ -12,26 +12,27 @@
     <ScrollView
         android:scrollbars="none"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="fill_parent"
         android:id="@+id/day_scrollview"
-        >
-    <view
-        android:layout_width="wrap_content"
-        android:layout_height="200dp"
-        class="com.agatteclient.DayCardView"
-        android:id="@+id/day_card_view"
         android:layout_above="@+id/button_doPunch"
-        custom:textHeight="15dp"
-        custom:dayStartHour="7"
-        custom:dayEndHour="19"
-        custom:mandatoryColor="#FFBB33"
-        custom:durationColor="#03B5E5"
-        custom:textEventTimeColor="#0099CC"
-        custom:textDurationColor="#FFFFFF"
-        custom:hourLineColor="#AAAAAA"
-        custom:timeFormat="HH:mm"
         android:layout_toLeftOf="@+id/day_progress"
-        android:paddingRight="@dimen/activity_horizontal_margin" />
+        android:paddingRight="@dimen/activity_horizontal_margin">
+
+        <view
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            class="com.agatteclient.DayCardView"
+            android:id="@+id/day_card_view"
+            custom:textHeight="15dp"
+            custom:dayStartHour="7"
+            custom:dayEndHour="19"
+            custom:mandatoryColor="#FFBB33"
+            custom:durationColor="#03B5E5"
+            custom:textEventTimeColor="#0099CC"
+            custom:textDurationColor="#FFFFFF"
+            custom:hourLineColor="#AAAAAA"
+            custom:timeFormat="HH:mm"/>
+
     </ScrollView>
 
     <Button
