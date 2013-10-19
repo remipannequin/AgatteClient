@@ -343,6 +343,13 @@ public class MainActivity extends Activity {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+        try {
+            cur_card.addPunch("08:45");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+
         updateCard();
     }
 

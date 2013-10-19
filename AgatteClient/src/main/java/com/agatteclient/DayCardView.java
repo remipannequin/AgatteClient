@@ -147,8 +147,8 @@ class DayCardView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int desiredWidth = 100;
-        int desiredHeight = 900;
+        int desiredWidth = 200;
+        int desiredHeight = 1800;
 
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
@@ -237,17 +237,31 @@ class DayCardView extends View {
             float y = block * (i + 0.5f) + bounds.top;
             canvas.drawLine(bounds.left + text_width + 10f, y, bounds.right, y, line_paint);
         }
-        //Draw min and max
-        if (Math.abs(min - p_min) > 0.5) {
-            cal.set(Calendar.HOUR_OF_DAY, min);
-            cal.set(Calendar.MINUTE, 0);
-            canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (bounds.top + 0.5 * block + (text_height) / 2f - line_width), line_text_paint);
+        //Draw hour every 3h
+        //Manage "collisions" i.e. don't draw hour if a punch is near
+        //TODO: set "increment" as a parameter
+        for (int h = 0; h <= 24; h+=3) {
+            float min_diff = 25;
+            //Get the punch date nearest from h
+            if (card != null) {
+                for (Date punch_d : card.getPunches()) {
+                    cal.setTime(punch_d);
+                    float d_h = cal.get(Calendar.HOUR_OF_DAY) + cal.get(Calendar.MINUTE) / 60f;
+                    float diff = Math.abs(d_h - h);
+                    if (diff < min_diff) {
+                        min_diff = diff;
+                    }
+                }
+            }
+            //Draw only if there is more than 30 min between
+            if (min_diff > 0.5) {
+                cal.set(Calendar.HOUR_OF_DAY, h);
+                cal.set(Calendar.MINUTE, 0);
+                float y = getYFromHour(h, block);
+                canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (y + (text_height) / 2f - line_width), line_text_paint);
+            }
         }
-        if (Math.abs(max - p_max) > 0.5) {
-            cal.set(Calendar.HOUR_OF_DAY, max);
-            cal.set(Calendar.MINUTE, 0);
-            canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (bounds.top + (max - min + 0.5) * block + (text_height) / 2f - line_width), line_text_paint);
-        }
+
         //Draw tops
         if (card != null) {
             Date di, df;
@@ -268,6 +282,7 @@ class DayCardView extends View {
                 }
                 top = getYFromHour(di, block);
                 bottom = getYFromHour(df, block);
+
                 cal.setTime(di);
                 canvas.drawText(fmt.format(cal.getTime()), bounds.left, (top + (text_height) / 2f - line_width), event_text_paint);
                 cal.setTime(df);
