@@ -26,9 +26,12 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -57,6 +60,7 @@ public class MainActivity extends Activity {
     static final String PASSWD_DEFAULT = "";
     static final String DAY_CARD = "day-card";
 
+    private ScaleGestureDetector mScaleDetector;
     protected MenuItem refreshItem = null;
     private AgatteSession session;
     private DayCard cur_card;
@@ -275,6 +279,20 @@ public class MainActivity extends Activity {
         }
     }
 
+
+    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            float mScaleFactor = detector.getScaleFactor();
+            float center = detector.getFocusY();
+            //TODO : scroll view to maintain center
+            dc_view.applyScale(mScaleFactor);
+            dc_view.invalidate();
+            return true;
+        }
+    }
+
+
     /**
      * Save the state of the activity (the DayCard)
      *
@@ -285,6 +303,7 @@ public class MainActivity extends Activity {
         super.onSaveInstanceState(outState);
         outState.putSerializable(DAY_CARD, cur_card);
     }
+
 
     /**
      * Restore the state of the activity (the DayCard)
@@ -314,6 +333,11 @@ public class MainActivity extends Activity {
             editor.putString(PASSWD_PREF, PASSWD_DEFAULT); // value to store
         }
         editor.commit();
+
+
+        mScaleDetector = new ScaleGestureDetector(getApplicationContext(), new ScaleListener());
+
+
 
         setContentView(R.layout.activity_main);
 
@@ -403,11 +427,13 @@ public class MainActivity extends Activity {
         SimpleDateFormat fmt = new SimpleDateFormat("E dd MMM yyyy");
         StringBuilder t = new StringBuilder("Agatte : ").append(fmt.format(cur_card.getDay()));
         setTitle(t);
-
-        int top = dc_view.getFirstPunchY();
-        day_sv.scrollTo(0,top);
     }
 
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        super.dispatchTouchEvent(ev);
+        return mScaleDetector.onTouchEvent(ev);
+    }
 
     /**
      * Stop refresh image animation
