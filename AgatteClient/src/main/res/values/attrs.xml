@@ -5,7 +5,6 @@
         <attr name="textEventTimeColor" format="color" />
         <attr name="textDurationColor" format="color" />
         <attr name="dayStartHour" format="integer" />
-        <attr name="dayEndHour" format="integer" />
         <attr name="hourLineColor" format="color" />
         <attr name="hourLineWidth" format="float"/>
         <attr name="durationColor" format="color" />

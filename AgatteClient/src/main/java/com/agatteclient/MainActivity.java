@@ -285,9 +285,11 @@ public class MainActivity extends Activity {
         public boolean onScale(ScaleGestureDetector detector) {
             float mScaleFactor = detector.getScaleFactor();
             float center = detector.getFocusY();
-            //TODO : scroll view to maintain center
+            //scroll view to maintain center
+            day_sv.smoothScrollBy(0, (int)(center * (mScaleFactor - 1)));
             dc_view.applyScale(mScaleFactor);
             dc_view.invalidate();
+
             return true;
         }
     }

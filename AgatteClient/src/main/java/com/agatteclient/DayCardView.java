@@ -45,6 +45,7 @@ class DayCardView extends View {
     private final float line_width;
     private final int hourIncrement;
     private final float hourHeight;
+    private final float min;
     private float text_width = 0;
     private final float text_height;
     private final int line_color;
@@ -52,8 +53,8 @@ class DayCardView extends View {
     private final int text_event_color;
     private final int duration_color;
     private final int mandatory_color;
-    private final int min;
-    private final int max;
+
+
     private final String date_fmt;
 
     private DayCard card;
@@ -98,8 +99,7 @@ class DayCardView extends View {
             text_event_color = a.getColor(R.styleable.DayCardView_textEventTimeColor, Color.BLACK);
             duration_color = a.getColor(R.styleable.DayCardView_durationColor, Color.BLUE);
             mandatory_color = a.getColor(R.styleable.DayCardView_mandatoryColor, Color.RED);
-            min = a.getInteger(R.styleable.DayCardView_dayStartHour, 0);
-            max = a.getInteger(R.styleable.DayCardView_dayEndHour, 24);
+            min = a.getInteger(R.styleable.DayCardView_dayStartHour, 8);
             hourIncrement = a.getInteger(R.styleable.DayCardView_hourIncrement, 3);
             hourHeight = a.getDimension(R.styleable.DayCardView_hourHeight, 25);
 
@@ -162,7 +162,7 @@ class DayCardView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        float desiredHeight_dip = hourHeight * (max -min +1);
+        float desiredHeight_dip = hourHeight * 25 * MAX_SCALE;//take max scaling into account
         Resources r = getResources();
         int desiredWidth = 200;
         int desiredHeight = dpToPx(desiredHeight_dip);
@@ -220,7 +220,6 @@ class DayCardView extends View {
         rect_width = bounds.width() - text_width - 10f;
 
         odd_path = new Path();
-
         updateBlock();
     }
 
@@ -232,7 +231,7 @@ class DayCardView extends View {
         if (card != null) {
             float y_dp;
             if (card.getNumberOfPunches() == 0) {
-                y_dp = getYFromHour(card.now());
+                y_dp = getYFromHour(min);
             } else {
                 y_dp = getYFromHour(card.getPunches()[0]);
             }
@@ -244,7 +243,7 @@ class DayCardView extends View {
     }
 
     float getRequestedHeight() {
-        return hourHeight * (max - min + 1);
+        return hourHeight * 25;
     }
 
     /**
@@ -276,7 +275,7 @@ class DayCardView extends View {
         canvas.drawRect(bounds.left + text_width + 10f, getYFromHour(14f), bounds.right, getYFromHour(16f), mandatory_paint);
 
         //Draw hour lines
-        for (int i = 0; i <= max - min; i++) {
+        for (int i = 0; i <= 24; i++) {
             float y = block * (i + 0.5f) + bounds.top;
             canvas.drawLine(bounds.left + text_width + 10f, y, bounds.right, y, line_paint);
         }
@@ -386,13 +385,13 @@ class DayCardView extends View {
      */
     private float getYFromHour(float h) {
 
-        if (h <= (min - 0.5)) {
+        if (h <= - 0.5) {
             return 0f;
         }
-        if (h >= (max + 0.5)) {
-            return (max - min + 1) * block;
+        if (h >= (24 + 0.5)) {
+            return 25 * block;
         }
-        return ((h - min) + 0.5f) * block;
+        return (h + 0.5f) * block;
     }
 
     /**
@@ -419,7 +418,7 @@ class DayCardView extends View {
     }
 
     private void updateBlock() {
-        block = bounds.height() * scale / (max - min + 1);
+        block = bounds.height() * scale / (MAX_SCALE* 25f);
     }
 
     /**
