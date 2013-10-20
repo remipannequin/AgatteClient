@@ -35,6 +35,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,6 +67,7 @@ public class MainActivity extends Activity {
     private TextView day_textView;
     private AgattePreferenceListener pref_listener;//need to be explicitly declared to avoid garbage collection
     private Button punch_button;
+    private ScrollView day_sv;
 
 
     /**
@@ -324,7 +326,7 @@ public class MainActivity extends Activity {
 
         day_textView = (TextView) findViewById(R.id.day_textView);
         punch_button = (Button) findViewById(R.id.button_doPunch);
-
+        day_sv = (ScrollView)findViewById(R.id.day_scrollview);
         //Schedule redraw in 1 minute (60 000 ms)
         timer = new Timer();
         redraw_task = new UpdateViewTask();
@@ -343,11 +345,13 @@ public class MainActivity extends Activity {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+        /*TESTING !
         try {
-            cur_card.addPunch("08:45");
+            cur_card.addPunch("8:00");
+            cur_card.addPunch("9:00");
         } catch (ParseException e) {
             e.printStackTrace();
-        }
+        }*/
 
 
         updateCard();
@@ -359,6 +363,15 @@ public class MainActivity extends Activity {
         updateCard();
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        if (hasFocus) {
+            //get Y position from dc_view
+            int top = dc_view.getFirstPunchY();
+            day_sv.scrollTo(0,top);
+            super.onWindowFocusChanged(hasFocus);
+        }
+    }
     /**
      * Update view to reflect the current state of the card
      */
@@ -390,6 +403,9 @@ public class MainActivity extends Activity {
         SimpleDateFormat fmt = new SimpleDateFormat("E dd MMM yyyy");
         StringBuilder t = new StringBuilder("Agatte : ").append(fmt.format(cur_card.getDay()));
         setTitle(t);
+
+        int top = dc_view.getFirstPunchY();
+        day_sv.scrollTo(0,top);
     }
 
 

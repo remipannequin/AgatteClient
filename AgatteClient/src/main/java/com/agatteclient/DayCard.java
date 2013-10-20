@@ -282,4 +282,22 @@ public class DayCard implements Serializable {
         return result;
     }
 
+    /**
+     *
+     * @return
+     */
+    public Date[] getPunchesWithNow() {
+        int s = this.punches.size();
+        Date[] result = new Date[s + s % 2];
+        int i = 0;
+        for (Long date_l : this.punches) {
+            result[i++] = new Date(date_l);
+        }
+        if (isOdd()) {
+            result[i++] = now();
+        }
+        return result;
+
+
+    }
 }

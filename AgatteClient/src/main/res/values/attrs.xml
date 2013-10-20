@@ -11,6 +11,8 @@
         <attr name="durationColor" format="color" />
         <attr name="timeFormat" format="string" />
         <attr name="mandatoryColor" format="color" />
+        <attr name="hourIncrement" format="integer" />
+        <attr name="hourHeight" format="dimension"/>
     </declare-styleable>
 
 </resources>

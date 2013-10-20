@@ -24,14 +24,14 @@
             class="com.agatteclient.DayCardView"
             android:id="@+id/day_card_view"
             custom:textHeight="15dp"
-            custom:dayStartHour="0"
-            custom:dayEndHour="24"
             custom:mandatoryColor="#FFBB33"
             custom:durationColor="#03B5E5"
             custom:textEventTimeColor="#0099CC"
             custom:textDurationColor="#FFFFFF"
             custom:hourLineColor="#AAAAAA"
-            custom:timeFormat="HH:mm"/>
+            custom:timeFormat="HH:mm"
+            custom:hourIncrement="2"
+            custom:hourHeight="20dp"/>
 
     </ScrollView>
 

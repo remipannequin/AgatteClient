@@ -24,6 +24,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 
 import java.text.SimpleDateFormat;
@@ -40,6 +41,8 @@ class DayCardView extends View {
 
     private static final float ODD_H = 15;
     private final float line_width;
+    private final int hourIncrement;
+    private final float hourHeight;
     private float text_width = 0;
     private final float text_height;
     private final int line_color;
@@ -65,6 +68,7 @@ class DayCardView extends View {
     private Path odd_path;
     private float rect_width;
     private float margin;
+    private float block;
 
 
     public DayCardView(Context context, AttributeSet attrs) {
@@ -91,10 +95,11 @@ class DayCardView extends View {
             text_event_color = a.getColor(R.styleable.DayCardView_textEventTimeColor, Color.BLACK);
             duration_color = a.getColor(R.styleable.DayCardView_durationColor, Color.BLUE);
             mandatory_color = a.getColor(R.styleable.DayCardView_mandatoryColor, Color.RED);
-            min = a.getInteger(R.styleable.DayCardView_dayStartHour, 7);
-            max = a.getInteger(R.styleable.DayCardView_dayEndHour, 19);
+            min = a.getInteger(R.styleable.DayCardView_dayStartHour, 0);
+            max = a.getInteger(R.styleable.DayCardView_dayEndHour, 24);
+            hourIncrement = a.getInteger(R.styleable.DayCardView_hourIncrement, 3);
+            hourHeight = a.getDimension(R.styleable.DayCardView_hourHeight, 25);
 
-            //TODO: add all style attributes
         } finally {
             a.recycle();
         }
@@ -144,11 +149,18 @@ class DayCardView extends View {
         text_width = event_text_paint.measureText(fmt.format(cal.getTime()));
     }
 
+    private int dpToPx(float dp) {
+        Resources r = getResources();
+        return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
+    }
+
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        float desiredHeight_dip = hourHeight * (max -min +1);
+        Resources r = getResources();
         int desiredWidth = 200;
-        int desiredHeight = 1800;
+        int desiredHeight = dpToPx(desiredHeight_dip);
 
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
@@ -204,8 +216,32 @@ class DayCardView extends View {
 
         odd_path = new Path();
 
-
+        block = bounds.height() / (max - min + 1);
     }
+
+    /**
+     * Return the Y coordinate (in pixel) of the first punch or now
+     * @return
+     */
+    int getFirstPunchY() {
+        if (card != null) {
+            float y_dp;
+            if (card.getNumberOfPunches() == 0) {
+                y_dp = getYFromHour(card.now());
+            } else {
+                y_dp = getYFromHour(card.getPunches()[0]);
+            }
+            return (int)(y_dp - block /2);
+
+        } else {
+            return 0;
+        }
+    }
+
+    float getRequestedHeight() {
+        return hourHeight * (max - min + 1);
+    }
+
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -225,26 +261,27 @@ class DayCardView extends View {
                 }
             }
         }
-        float block = bounds.height() / (max - min + 1);
+
 
         //Draw mandatory periods
-        canvas.drawRect(bounds.left + text_width + 10f, getYFromHour(9f, block), bounds.right, getYFromHour(11f, block), mandatory_paint);
-        canvas.drawRect(bounds.left + text_width + 10f, getYFromHour(14f, block), bounds.right, getYFromHour(16f, block), mandatory_paint);
+        canvas.drawRect(bounds.left + text_width + 10f, getYFromHour(9f), bounds.right, getYFromHour(11f), mandatory_paint);
+        canvas.drawRect(bounds.left + text_width + 10f, getYFromHour(14f), bounds.right, getYFromHour(16f), mandatory_paint);
 
         //Draw hour lines
-
         for (int i = 0; i <= max - min; i++) {
             float y = block * (i + 0.5f) + bounds.top;
             canvas.drawLine(bounds.left + text_width + 10f, y, bounds.right, y, line_paint);
         }
+
         //Draw hour every 3h
         //Manage "collisions" i.e. don't draw hour if a punch is near
         //TODO: set "increment" as a parameter
-        for (int h = 0; h <= 24; h+=3) {
+        for (int h = 0; h <= 24; h+=hourIncrement) {
             float min_diff = 25;
             //Get the punch date nearest from h
             if (card != null) {
-                for (Date punch_d : card.getPunches()) {
+                //using this method, if odd, now is added the list of punches
+                for (Date punch_d : card.getPunchesWithNow()) {
                     cal.setTime(punch_d);
                     float d_h = cal.get(Calendar.HOUR_OF_DAY) + cal.get(Calendar.MINUTE) / 60f;
                     float diff = Math.abs(d_h - h);
@@ -257,7 +294,7 @@ class DayCardView extends View {
             if (min_diff > 0.5) {
                 cal.set(Calendar.HOUR_OF_DAY, h);
                 cal.set(Calendar.MINUTE, 0);
-                float y = getYFromHour(h, block);
+                float y = getYFromHour(h);
                 canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (y + (text_height) / 2f - line_width), line_text_paint);
             }
         }
@@ -280,8 +317,8 @@ class DayCardView extends View {
                     df = card.now();//odd case
                     odd = true;
                 }
-                top = getYFromHour(di, block);
-                bottom = getYFromHour(df, block);
+                top = getYFromHour(di);
+                bottom = getYFromHour(df);
 
                 cal.setTime(di);
                 canvas.drawText(fmt.format(cal.getTime()), bounds.left, (top + (text_height) / 2f - line_width), event_text_paint);
@@ -324,13 +361,13 @@ class DayCardView extends View {
         }
     }
 
-    private float getYFromHour(Date d, float block) {
+    private float getYFromHour(Date d) {
         cal.setTime(d);
         float h = cal.get(Calendar.HOUR_OF_DAY) + cal.get(Calendar.MINUTE) / 60f;
-        return getYFromHour(h, block);
+        return getYFromHour(h);
     }
 
-    private float getYFromHour(float h, float block) {
+    private float getYFromHour(float h) {
 
         if (h <= (min - 0.5)) {
             return 0f;
