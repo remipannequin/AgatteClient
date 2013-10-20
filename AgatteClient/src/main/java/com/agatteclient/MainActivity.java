@@ -290,7 +290,6 @@ public class MainActivity extends Activity {
             day_sv.smoothScrollBy(0, (int)((center + delta_scroll) * (mScaleFactor - 1)));
             dc_view.applyScale(mScaleFactor);
             dc_view.invalidate();
-
             return true;
         }
     }
