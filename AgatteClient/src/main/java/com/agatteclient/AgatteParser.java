@@ -108,6 +108,7 @@ public class AgatteParser {
     public AgatteResponse.Code parse_punch_response(HttpResponse response) throws IOException {
         response.getEntity().consumeContent();
         //verify that response is a redirection to topOk.htm (ie punchOkDir)
+        //This is actually a chain of redirection that should lead there...
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
             boolean found = false;
             for (Header h : response.getHeaders("Location")) {
@@ -118,6 +119,7 @@ public class AgatteParser {
                 }
             }
         }
+        //SO, BE LAZY, AND DON'T REALLY TEST
         return AgatteResponse.Code.TemporaryOK;
     }
 

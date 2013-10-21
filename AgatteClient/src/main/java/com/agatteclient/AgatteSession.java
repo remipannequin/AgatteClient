@@ -216,6 +216,9 @@ public class AgatteSession {
             AgatteResponse.Code code = AgatteParser.getInstance().parse_punch_response(response1);
             switch (code) {
                 case TemporaryOK:
+                    //Make sure to follow redirection
+                    client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
+                    client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
                     HttpResponse response2 = client.execute(query_top_ok_rq, httpContext);
                     return AgatteParser.getInstance().parse_query_response(response2);
                 case NetworkNotAuthorized:
