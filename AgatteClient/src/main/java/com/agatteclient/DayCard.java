@@ -130,6 +130,8 @@ public class DayCard implements Serializable {
             } else {
                 tf = t;
             }
+            //TODO: what happen if odd day ?
+            //e.g. 9h 12h 12h30 ??
             if (!open && tf > l1 && ti < l2) {
                 if (ti < l1 && tf > l2) {
                     //ti before 11h, tf after 14h

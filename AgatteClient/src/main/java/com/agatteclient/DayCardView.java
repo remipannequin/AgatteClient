@@ -172,7 +172,7 @@ class DayCardView extends View {
         Canvas c = new Canvas(bm);
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         p.setColor(Color.WHITE);
-        p.setAlpha(0xCC);
+        p.setAlpha(0x88);
         p.setStrokeWidth(8f);
         float[] pts = new float[4];
         pts[0] = -8;
@@ -196,7 +196,7 @@ class DayCardView extends View {
 
     private int dpToPx(float dp) {
         Resources r = getResources();
-        return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
     }
 
 
@@ -265,6 +265,7 @@ class DayCardView extends View {
 
     /**
      * Return the Y coordinate (in pixel) of the first punch or now
+     *
      * @return
      */
     int getFirstPunchY() {
@@ -275,7 +276,7 @@ class DayCardView extends View {
             } else {
                 y_dp = getYFromHour(card.getPunches()[0]);
             }
-            return (int)(y_dp - block /2);
+            return (int) (y_dp - block / 2);
 
         } else {
             return 0;
@@ -288,6 +289,7 @@ class DayCardView extends View {
 
     /**
      * Draw the view
+     *
      * @param canvas where to draw
      */
     @Override
@@ -322,7 +324,7 @@ class DayCardView extends View {
 
         //Draw hour every 3h
         //Manage "collisions" i.e. don't draw hour if a punch is near
-        for (int h = 0; h <= 24; h+=hourIncrement) {
+        for (int h = 0; h <= 24; h += hourIncrement) {
             float min_diff = 25;
             //Get the punch date nearest from h
             if (card != null) {
@@ -351,7 +353,7 @@ class DayCardView extends View {
             boolean odd = false;
 
             Date[] punches = card.getPunches();
-            Pair<Date,Date>[] corrected_punches = card.getCorrectedPunches();
+            Pair<Date, Date>[] corrected_punches = card.getCorrectedPunches();
 
             float top, bottom = 0;
 
@@ -420,6 +422,7 @@ class DayCardView extends View {
 
     /**
      * Return the Y coordinate corresponding to a hour
+     *
      * @param d a Date instance
      * @return the Y coordinate corresponding to the date
      */
@@ -431,12 +434,13 @@ class DayCardView extends View {
 
     /**
      * Return the Y coordinate corresponding to a hour
+     *
      * @param h the hour
      * @returnthe Y coordinate corresponding to the date
      */
     private float getYFromHour(float h) {
 
-        if (h <= - 0.5) {
+        if (h <= -0.5) {
             return 0f;
         }
         if (h >= (24 + 0.5)) {
@@ -447,6 +451,7 @@ class DayCardView extends View {
 
     /**
      * Set the day card to display. invalidate the view if the card has changed
+     *
      * @param card
      */
     public void setCard(DayCard card) {
@@ -459,6 +464,7 @@ class DayCardView extends View {
 
     /**
      * Change the scale of the view according to factor
+     *
      * @param mScaleFactor
      */
     public void applyScale(float mScaleFactor) {
@@ -469,7 +475,7 @@ class DayCardView extends View {
     }
 
     private void updateBlock() {
-        block = bounds.height() * scale / (MAX_SCALE* 25f);
+        block = bounds.height() * scale / (MAX_SCALE * 25f);
     }
 
     /**

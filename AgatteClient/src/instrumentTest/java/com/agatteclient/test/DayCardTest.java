@@ -81,10 +81,8 @@ public class DayCardTest extends AndroidTestCase {
         assertTrue(instance.isEven());
         assertEquals(6.5d, instance.getTotalTime());
         assertEquals(6.25d, instance.getCorrectedTotalTime());
-        Pair<Date,Date>[] cp = instance.getCorrectedPunches();
+        Pair<Date, Date>[] cp = instance.getCorrectedPunches();
         assertEquals(1, cp.length);
-
-
 
 
     }
@@ -141,6 +139,20 @@ public class DayCardTest extends AndroidTestCase {
         assertTrue(instance.isEven());
         assertEquals(8d, instance.getTotalTime());
         assertEquals(5.5d, instance.getCorrectedTotalTime());
+    }
+
+    public void testCorrectedTotalTime6() throws Exception {
+        DayCard instance = new DayCard(200, 2012);
+        instance.addPunch("09:00");
+        instance.addPunch("12:10");
+        instance.addPunch("12:43");
+        instance.addPunch("14:43");
+        assertEquals(4, instance.getNumberOfPunches());
+        Date[] c = instance.getPunches();
+        assertEquals(4, c.length);
+        assertTrue(instance.isEven());
+        assertEquals(6d, instance.getTotalTime());
+        assertEquals(5.8d, instance.getCorrectedTotalTime());
     }
 
 
