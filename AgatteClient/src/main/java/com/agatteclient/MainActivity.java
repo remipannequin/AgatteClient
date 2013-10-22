@@ -413,7 +413,7 @@ public class MainActivity extends Activity {
             punch_button.setText(R.string.punch_button2);
         }
 
-        double p = (cur_card.getTotalTime());
+        double p = (cur_card.getCorrectedTotalTime());
         StringBuilder sb = new StringBuilder();
         sb.append((int) Math.floor(p)).append("h");
         int min = (int) (p * 60) % 60;
