@@ -1,6 +1,7 @@
 package com.agatteclient.test;
 
 import android.test.AndroidTestCase;
+import android.util.Pair;
 
 import com.agatteclient.DayCard;
 
@@ -80,8 +81,12 @@ public class DayCardTest extends AndroidTestCase {
         assertTrue(instance.isEven());
         assertEquals(6.5d, instance.getTotalTime());
         assertEquals(6.25d, instance.getCorrectedTotalTime());
-        Date[] cp = instance.getCorrectedPunches();
-        assertEquals(4, cp.length);
+        Pair<Date,Date>[] cp = instance.getCorrectedPunches();
+        assertEquals(1, cp.length);
+
+
+
+
     }
 
     public void testCorrectedTotalTime3() throws Exception {
@@ -125,6 +130,19 @@ public class DayCardTest extends AndroidTestCase {
         assertEquals(7.1d, instance.getTotalTime());
         assertEquals(7d, instance.getCorrectedTotalTime());
     }
+
+    public void testCorrectedTotalTime5() throws Exception {
+        DayCard instance = new DayCard(200, 2012);
+        instance.addPunch("08:00");
+        instance.addPunch("16:00");
+        assertEquals(2, instance.getNumberOfPunches());
+        Date[] c = instance.getPunches();
+        assertEquals(2, c.length);
+        assertTrue(instance.isEven());
+        assertEquals(8d, instance.getTotalTime());
+        assertEquals(5.5d, instance.getCorrectedTotalTime());
+    }
+
 
     public void testIsCurrentDay1() {
         DayCard instance = new DayCard(200, 2012);
