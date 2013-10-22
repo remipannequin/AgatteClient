@@ -74,14 +74,12 @@ public class MainActivity extends Activity {
     private class UpdateViewTask extends TimerTask {
         @Override
         public void run() {
-            if (cur_card.isOdd()) {
-                runOnUiThread(new Runnable() {
+            runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         updateCard();
                     }
                 });
-            }
         }
     }
 
@@ -107,11 +105,13 @@ public class MainActivity extends Activity {
             if (rsp.isError()) {
                 //display error (in a Toast)
                 StringBuilder toast = new StringBuilder();
+                toast.append(getString(R.string.update_error_toast));
+                toast.append(" ");
                 switch (rsp.getCode()) {
                     case IOError:
                         toast.append(getString(R.string.network_error_toast));
                         if (rsp.hasDetail()) {
-                            toast.append(" : ").append(rsp.getDetail());
+                            toast.append(": ").append(rsp.getDetail());
                         }
                         break;
                     case NetworkNotAuthorized:
@@ -135,8 +135,8 @@ public class MainActivity extends Activity {
                         e.printStackTrace();
                     }
                 }
-                updateCard();
             }
+            updateCard();
             //stop animation, restore button
             stopRefresh();
         }
@@ -161,15 +161,18 @@ public class MainActivity extends Activity {
             StringBuilder toast = new StringBuilder();
             switch (rsp.getCode()) {
                 case IOError:
+                    toast.append(getString(R.string.punch_error_toast)).append(" ");
                     toast.append(getString(R.string.network_error_toast));
                     if (rsp.hasDetail()) {
                         toast.append(" : ").append(rsp.getDetail());
                     }
                     break;
                 case NetworkNotAuthorized:
+                    toast.append(getString(R.string.punch_error_toast)).append(" ");
                     toast.append(getString(R.string.unauthorized_network_toast));
                     break;
                 case LoginFailed:
+                    toast.append(getString(R.string.punch_error_toast)).append(" ");
                     toast.append(getString(R.string.login_failed_toast));
                     break;
                 case PunchOK:
@@ -182,18 +185,18 @@ public class MainActivity extends Activity {
                                 e.printStackTrace();
                             }
                         }
-                        dc_view.invalidate();
                     }
                     toast.append(getString(R.string.punch_ok_toast));
                     break;
                 case UnknownError:
+                    toast.append(getString(R.string.punch_error_toast)).append(" ");
                     toast.append(getString(R.string.error_toast));
             }
             Context context = getApplicationContext();
+            updateCard();
             if (context != null) {
                 Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
             }
-            updateCard();
         }
     }
 
@@ -312,14 +315,12 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.activity_main);
 
-
         dc_view = (DayCardView) findViewById(R.id.day_card_view);
         dc_view.setCard(cur_card);
 
         day_progress = (ProgressBar) findViewById(R.id.day_progress);
         day_progress.setProgressDrawable(new TimeProgressDrawable(1200, 7.5, 100));
         day_progress.setMax(1200);
-
 
         day_textView = (TextView) findViewById(R.id.day_textView);
         punch_button = (Button) findViewById(R.id.button_doPunch);
@@ -329,15 +330,11 @@ public class MainActivity extends Activity {
         redraw_task = new UpdateViewTask();
         timer.schedule(redraw_task, 0l, 60000l);
 
-
-        SimpleDateFormat fmt = new SimpleDateFormat("E dd MMM yyyy");
-        StringBuilder t = new StringBuilder("Agatte : ").append(fmt.format(cur_card.getDay()));
-        setTitle(t);
         try {
             String server = preferences.getString(SERVER_PREF, SERVER_DEFAULT);
             String login = preferences.getString(LOGIN_PREF, LOGIN_DEFAULT);
-            String passwd = preferences.getString(PASSWD_PREF, PASSWD_DEFAULT);
-            session = new AgatteSession(server, login, passwd);
+            String password = preferences.getString(PASSWD_PREF, PASSWD_DEFAULT);
+            session = new AgatteSession(server, login, password);
             pref_listener = new AgattePreferenceListener(session);
             preferences.registerOnSharedPreferenceChangeListener(pref_listener);
 
@@ -346,23 +343,17 @@ public class MainActivity extends Activity {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        //Testing...
-/*
-        try {
-            cur_card.addPunch("9:00");
-            cur_card.addPunch("11:05");
-            cur_card.addPunch("16:00");
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-*/
         updateCard();
+    }
 
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        updateCard();
     }
 
     /**
-     *
+     * Update view to reflect the current state of the card
      */
     private void updateCard() {
 
@@ -376,7 +367,6 @@ public class MainActivity extends Activity {
             punch_button.setText(R.string.punch_button2);
         }
 
-
         double p = (cur_card.getTotalTime());
         StringBuilder sb = new StringBuilder();
         sb.append((int) Math.floor(p)).append("h");
@@ -388,13 +378,16 @@ public class MainActivity extends Activity {
         day_progress.setIndeterminate(false);
         day_progress.setProgress((int) (p * 100));
         day_progress.invalidate();
-
         dc_view.invalidate();
+
+        SimpleDateFormat fmt = new SimpleDateFormat("E dd MMM yyyy");
+        StringBuilder t = new StringBuilder("Agatte : ").append(fmt.format(cur_card.getDay()));
+        setTitle(t);
     }
 
 
     /**
-     *
+     * Stop refresh image animation
      */
     protected void stopRefresh() {
         if (refreshItem != null && refreshItem.getActionView() != null) {
@@ -404,7 +397,7 @@ public class MainActivity extends Activity {
     }
 
     /**
-     *
+     * Animate the refresh icon
      */
     protected void runRefresh() {
         if (getApplication() != null) {

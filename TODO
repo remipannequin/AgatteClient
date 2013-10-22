@@ -1,14 +1,15 @@
-Milestone 0 : Usable app
+Milestone 0 : Usable app (1.0 v1 -> 4)
  * new Preferences : min/max hours, daily objective, ...
  * day totals
  * ceiling / flooring rules (at least 45 min at noon, at most XX Hours in a day...)
  * about dialog, with disclaimer
 
+
 Milestone 1: More interaction
  * Gesture on DayDarcView : zooming (pinch), changing area displayed (vertical move)
- * create a two-columns layout in landscape orientation
  * Legend Activity : display the signification of the graphical elements
- * Gesture on DayDarcView : zooming (pinch), changing area displayed (vertical move)
+ * "Tops d'absence" in another color
+
 
  Milestone 2 : Automation
  * manage a list of "authorized" wifi SSID
@@ -18,10 +19,17 @@ Milestone 1: More interaction
  * try to refresh at launch ?
  * preference for the list of automation rules
 
+
  Milestone 3: Weeks
  * get weekly / yearly totals from the server
  * display counters
 
+
  Milestone 4: Diversity
-  * get profile from server (normally worked half-day in the week, profile)
-  * apply the rules from the profile
+ * get profile from server (normally worked half-day in the week, profile)
+ * apply the rules from the profile
+
+
+ Milestone 5: Eye candy
+ * App Widget with day counter, and punch button.
+ * create a two-columns layout in landscape orientation
