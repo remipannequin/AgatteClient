@@ -13,62 +13,41 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.IBinder;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by remi on 22/10/13.
  */
-public class CheckNetworkStateService extends Service {
+public class NetworkChangeReceiver extends BroadcastReceiver {
 
-    private class Receiver extends BroadcastReceiver {
+    Set<String> authorized_ssid;
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
+    public NetworkChangeReceiver() {
+        super();
+        authorized_ssid = new HashSet<String>();
+        //TODO: get the list of authorized network from preference
+        authorized_ssid.add("eduroam");
 
-
-            getCurrentSsid(context);
-
-
-        }
-    }
-
-    private Receiver receiver;
-    private boolean receiver_registered = false;
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        //intent is null
-        if (!receiver_registered) {
-            final IntentFilter filters = new IntentFilter();
-            filters.addAction("android.net.wifi.WIFI_STATE_CHANGED");
-            filters.addAction("android.net.wifi.STATE_CHANGE");
-            receiver = new Receiver();
-            //ConnectivityAction ?
-            super.registerReceiver(receiver, filters);
-            receiver_registered = true;
-        }
-        return Service.START_STICKY;
     }
 
     @Override
-    public void onDestroy() {
-        if (receiver_registered) {
-            super.unregisterReceiver(receiver);
-            receiver_registered = false;
+    public void onReceive(Context context, Intent intent) {
+        if (intent.getAction() != null && intent.getAction().equals("android.net.wifi.WIFI_STATE_CHANGED")) {
+
         }
-        super.onDestroy();
-    }
 
-    @Override
-    public IBinder onBind(Intent intent) {
+        String ssid = getCurrentSsid(context);
+        if (authorized_ssid.contains(ssid)) {
 
-
-        return null;
+        }
     }
 
     /**
      * Return the current SSID
      *
      * @param context
-     * @return
+     * @return the currently connected SSID, or null if no wifi network is connected
      */
     private static String getCurrentSsid(Context context) {
         String ssid = null;
@@ -79,6 +58,8 @@ public class CheckNetworkStateService extends Service {
             final WifiInfo connectionInfo = wifiManager.getConnectionInfo();
             if (connectionInfo != null && connectionInfo.getSSID().length() != 0) {
                 ssid = connectionInfo.getSSID();
+                //TODO: remove quotes
+                ssid = ssid.replaceAll("\"", "");
             }
         }
         return ssid;

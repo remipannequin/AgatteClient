@@ -26,7 +26,6 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -81,11 +80,11 @@ public class MainActivity extends Activity {
         @Override
         public void run() {
             runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateCard();
-                    }
-                });
+                @Override
+                public void run() {
+                    updateCard();
+                }
+            });
         }
     }
 
@@ -287,7 +286,7 @@ public class MainActivity extends Activity {
             float center = detector.getFocusY();
             float delta_scroll = day_sv.getScrollY();
             //scroll view to maintain center
-            day_sv.smoothScrollBy(0, (int)((center + delta_scroll) * (mScaleFactor - 1)));
+            day_sv.smoothScrollBy(0, (int) ((center + delta_scroll) * (mScaleFactor - 1)));
             dc_view.applyScale(mScaleFactor);
             dc_view.invalidate();
             return true;
@@ -339,8 +338,6 @@ public class MainActivity extends Activity {
 
         mScaleDetector = new ScaleGestureDetector(getApplicationContext(), new ScaleListener());
 
-
-
         setContentView(R.layout.activity_main);
 
         dc_view = (DayCardView) findViewById(R.id.day_card_view);
@@ -352,7 +349,7 @@ public class MainActivity extends Activity {
 
         day_textView = (TextView) findViewById(R.id.day_textView);
         punch_button = (Button) findViewById(R.id.button_doPunch);
-        day_sv = (ScrollView)findViewById(R.id.day_scrollview);
+        day_sv = (ScrollView) findViewById(R.id.day_scrollview);
         //Schedule redraw in 1 minute (60 000 ms)
         timer = new Timer();
         redraw_task = new UpdateViewTask();
@@ -394,10 +391,11 @@ public class MainActivity extends Activity {
         if (hasFocus) {
             //get Y position from dc_view
             int top = dc_view.getFirstPunchY();
-            day_sv.scrollTo(0,top);
+            day_sv.scrollTo(0, top);
             super.onWindowFocusChanged(hasFocus);
         }
     }
+
     /**
      * Update view to reflect the current state of the card
      */
