@@ -34,7 +34,8 @@ import java.util.regex.Pattern;
  */
 public class AgatteParser {
 
-    private static final String PATTERN_TOPS = ".*<li.*([0-9][0-9]:[0-9][0-9])\\s*</li>.*";
+    private static final String PATTERN_TOPS = ".*<li.*Top r.el.*([0-9][0-9]:[0-9][0-9])\\s*</li>.*";
+    private static final String PATTERN_VIRTUAL_TOPS = ".*<li.*Tops d\'absence.*([0-9][0-9]:[0-9][0-9])\\s*</li>.*";
     private static final String PATTERN_NETWORK_NOT_AUTHORIZED = "<legend>Acc\ufffds interdit</legend>";
     private static final String PATTERN_TOP_OK = "<p>(Top pris en compte à [0-9][0-9]:[0-9}][0-9])</p>";
     private static AgatteParser ourInstance = new AgatteParser();
@@ -46,7 +47,7 @@ public class AgatteParser {
     private AgatteParser() {
     }
 
-    private String entitytoString(HttpResponse response) throws IOException {
+    private String entityToString(HttpResponse response) throws IOException {
         InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
         BufferedReader rd = new BufferedReader(reader);
         StringBuffer result = new StringBuffer();
@@ -76,7 +77,18 @@ public class AgatteParser {
         return tops;
     }
 
-    private boolean searchforTopOk(String result) {
+    private Collection<String> searchForVirtualTops(String result) {
+        Collection<String> tops = new ArrayList<String>(4);
+        Pattern p = Pattern.compile(PATTERN_VIRTUAL_TOPS);
+        Matcher matcher = p.matcher(result);
+        while (matcher.find()) {
+            tops.add(matcher.group(1));
+        }
+        return tops;
+    }
+
+
+    private boolean searchForTopOk(String result) {
         String top;
         Pattern p = Pattern.compile(PATTERN_TOP_OK);
         Matcher matcher = p.matcher(result);
@@ -95,14 +107,21 @@ public class AgatteParser {
         }
 
         //get response as a string
-        String result = entitytoString(response);
+        String result = entityToString(response);
         //search for Unauthorized network
         if (searchNetworkNotAuthorized(result)) {
             return new AgatteResponse(AgatteResponse.Code.NetworkNotAuthorized);
         }
         //get tops
         Collection<String> tops = searchForTops(result);
-        return new AgatteResponse(AgatteResponse.Code.QueryOK, tops);
+        Collection<String> virtual_tops = searchForVirtualTops(result);
+
+        if (virtual_tops.isEmpty()) {
+            return new AgatteResponse(AgatteResponse.Code.QueryOK, tops);
+        } else {
+            return new AgatteResponse(AgatteResponse.Code.QueryOK, tops, virtual_tops);
+        }
+
     }
 
     public AgatteResponse.Code parse_punch_response(HttpResponse response) throws IOException {
@@ -129,19 +148,25 @@ public class AgatteParser {
             return new AgatteResponse(AgatteResponse.Code.UnknownError, response.getStatusLine().getReasonPhrase());
         }
         //get response as a string
-        String result = entitytoString(response);
+        String result = entityToString(response);
         //search for Unauthorized network
         if (searchNetworkNotAuthorized(result)) {
             return new AgatteResponse(AgatteResponse.Code.NetworkNotAuthorized);
         }
 
         Pattern p = Pattern.compile(PATTERN_TOP_OK);
-        if (!searchforTopOk(result)) {
+        if (!searchForTopOk(result)) {
             return new AgatteResponse(AgatteResponse.Code.UnknownError);
         }
         //get tops
         Collection<String> tops = searchForTops(result);
-        return new AgatteResponse(AgatteResponse.Code.PunchOK, tops);
+        Collection<String> virtual_tops = searchForVirtualTops(result);
+
+        if (virtual_tops.isEmpty()) {
+            return new AgatteResponse(AgatteResponse.Code.PunchOK, tops);
+        } else {
+            return new AgatteResponse(AgatteResponse.Code.PunchOK, tops, virtual_tops);
+        }
     }
 
 }
