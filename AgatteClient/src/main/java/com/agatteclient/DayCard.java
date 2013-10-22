@@ -15,6 +15,8 @@
 
 package com.agatteclient;
 
+import android.util.Pair;
+
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -114,13 +116,14 @@ public class DayCard implements Serializable {
         //compute non worked time at mid-day
         long l1 = start + 11 * 60 * 60 * 1000;
         long l2 = start + 14 * 60 * 60 * 1000;
+        long l3 = start + 19 * 60 * 60 * 1000;
         long ti = start;//Doesn't matter
         long tf = start;
         int last_noon_tf = 0;
         int i = 0;
         long noon = l2 - l1;
         boolean open = true;
-
+        boolean has_noon = true;
         for (long t : punches) {
             if (open) {
                 ti = t;
@@ -130,7 +133,8 @@ public class DayCard implements Serializable {
             if (!open && tf > l1 && ti < l2) {
                 if (ti < l1 && tf > l2) {
                     //ti before 11h, tf after 14h
-                    noon -= l2 - l1;
+                    noon = 0;
+                    has_noon = false;
                 } else if (ti < l1 && tf < l2) {
                     //ti before 11h, tf before 14h
                     noon -= tf - l1;
@@ -143,14 +147,28 @@ public class DayCard implements Serializable {
                 }
                 last_noon_tf = i - 1;
             }
+            // Limit at 19h
+            if (tf > l3) {
+                this.corrected_punches.add(tf);
+            }
+            if (ti > l3) {
+                this.corrected_punches.add(ti);
+            }
+
             open = !open;
             i++;
-            this.corrected_punches.add(t);
         }
         //apply correction
-        if (noon < (45 * 60 * 1000)) {
-            long t = this.corrected_punches.get(last_noon_tf);
-            this.corrected_punches.set(last_noon_tf, t + (45 * 60 * 1000) - noon);
+        if (has_noon && noon < (45 * 60 * 1000)) {
+            long t  = this.punches.get(last_noon_tf);
+            this.corrected_punches.add(t);
+            this.corrected_punches.add(t + (45 * 60 * 1000) - noon);
+
+        }
+        if (!has_noon) {
+            //add 150min if there is no midday pause
+            this.corrected_punches.add(l1 + (15 * 60 * 1000));
+            this.corrected_punches.add(l2 - (15 * 60 * 1000));
         }
     }
 
@@ -234,7 +252,7 @@ public class DayCard implements Serializable {
      * @return the time, in hours
      */
     public double getCorrectedTotalTime() {
-        double result = 0.;
+        double correction = 0.;
         Long ti, tf;
 
         Iterator<Long> iterator = corrected_punches.iterator();
@@ -246,9 +264,9 @@ public class DayCard implements Serializable {
                 tf = System.currentTimeMillis();
             }
             double delta_h = ((double) (tf - ti)) / (1000.0 * 60.0 * 60.0);
-            result += delta_h;
+            correction += delta_h;
         }
-        return result;
+        return getTotalTime() - correction;
     }
 
     /**
@@ -271,13 +289,16 @@ public class DayCard implements Serializable {
     }
 
     /**
-     * @return the array of corrected punches
+     * Get the array of Pair of Date defining periods when time has been punched in, but as been excluded
+     * @return the array of Pair (di, df) with di < df
      */
-    public Date[] getCorrectedPunches() {
-        Date[] result = new Date[this.corrected_punches.size()];
-        int i = 0;
-        for (Long date_l : this.corrected_punches) {
-            result[i++] = new Date(date_l);
+    public Pair<Date, Date>[] getCorrectedPunches() {
+        Pair<Date, Date>[] result = new Pair[this.corrected_punches.size()/2];
+        Date di, df;
+        for (int i = 0; i < this.corrected_punches.size(); i+=2) {
+            di = new Date(this.corrected_punches.get(i));
+            df = new Date(this.corrected_punches.get(i+1));
+            result[i++] = new Pair<Date, Date>(di, df);
         }
         return result;
     }

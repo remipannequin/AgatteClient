@@ -18,12 +18,16 @@ package com.agatteclient;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.graphics.Shader;
 import android.util.AttributeSet;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
 
@@ -73,6 +77,7 @@ class DayCardView extends View {
     private float margin;
     private float block;
     private float scale;
+    private Paint hatching_paint;
 
 
     public DayCardView(Context context, AttributeSet attrs) {
@@ -152,6 +157,41 @@ class DayCardView extends View {
         text_width = event_text_paint.measureText(fmt.format(cal.getTime()));
 
         scale = 1.0f;
+
+        BitmapShader hatchingShader = new BitmapShader(makeHatchingBitmap(),
+                Shader.TileMode.REPEAT,
+                Shader.TileMode.REPEAT);
+        hatching_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        hatching_paint.setShader(hatchingShader);
+
+
+    }
+
+    private static Bitmap makeHatchingBitmap() {
+        Bitmap bm = Bitmap.createBitmap(32, 32, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(bm);
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        p.setColor(Color.WHITE);
+        p.setAlpha(0xCC);
+        p.setStrokeWidth(8f);
+        float[] pts = new float[4];
+        pts[0] = -8;
+        pts[1] = -8;
+        pts[2] = 72;
+        pts[3] = 72;
+        c.drawLines(pts, p);
+        pts[0] = -4;
+        pts[1] = 28;
+        pts[2] = 4;
+        pts[3] = 36;
+        c.drawLines(pts, p);
+        pts[0] = 28;
+        pts[1] = -4;
+        pts[2] = 36;
+        pts[3] = 4;
+        c.drawLines(pts, p);
+        c.clipRect(0, 0, 32, 32);
+        return bm;
     }
 
     private int dpToPx(float dp) {
@@ -311,7 +351,7 @@ class DayCardView extends View {
             boolean odd = false;
 
             Date[] punches = card.getPunches();
-            Date[] corrected_punches = card.getCorrectedPunches();
+            Pair<Date,Date>[] corrected_punches = card.getCorrectedPunches();
 
             float top, bottom = 0;
 
@@ -347,6 +387,17 @@ class DayCardView extends View {
                     }
                 }
             }
+            float now = bottom;
+
+            //draw hatching over corrected periods
+            for (Pair<Date, Date> p : corrected_punches) {
+                di = p.first;
+                df = p.second;
+                top = getYFromHour(di);
+                bottom = getYFromHour(df);
+                canvas.drawRect(margin, top, bounds.right, bottom, hatching_paint);
+            }
+
             //change drawing if odd to indicate that the time is running
             if (odd) {
 
@@ -361,7 +412,7 @@ class DayCardView extends View {
                 }
                 odd_path.rLineTo(0, -real_h);
                 odd_path.close();
-                odd_path.offset(margin, bottom);
+                odd_path.offset(margin, now);
                 canvas.drawPath(odd_path, event_paint);
             }
         }
