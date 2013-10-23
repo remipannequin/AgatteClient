@@ -124,6 +124,7 @@ class DayCardView extends View {
         line_paint.setStyle(Paint.Style.STROKE);
         line_paint.setStrokeJoin(Paint.Join.ROUND);
         line_paint.setTextSize(text_height);
+        //TODO adapt to low dpi screen !
 
         line_text_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         line_text_paint.setColor(line_color);
@@ -313,7 +314,7 @@ class DayCardView extends View {
 
 
         //Draw mandatory periods
-        canvas.drawRect(bounds.left + text_width + 10f, getYFromHour(9f), bounds.right, getYFromHour(11f), mandatory_paint);
+        canvas.drawRect(bounds.left + text_width + 10f, getYFromHour(9f), bounds.right, getYFromHour(11.5f), mandatory_paint);
         canvas.drawRect(bounds.left + text_width + 10f, getYFromHour(14f), bounds.right, getYFromHour(16f), mandatory_paint);
 
         //Draw hour lines

@@ -24,6 +24,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
@@ -441,9 +442,11 @@ public class MainActivity extends Activity {
      * Stop refresh image animation
      */
     protected void stopRefresh() {
-        if (refreshItem != null && refreshItem.getActionView() != null) {
-            refreshItem.getActionView().clearAnimation();
-            refreshItem.setActionView(null);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
+            if (refreshItem != null && refreshItem.getActionView() != null) {
+                refreshItem.getActionView().clearAnimation();
+                refreshItem.setActionView(null);
+            }
         }
     }
 
@@ -451,16 +454,18 @@ public class MainActivity extends Activity {
      * Animate the refresh icon
      */
     protected void runRefresh() {
-        if (getApplication() != null) {
-            LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            ImageView refresh_action_iv = (ImageView) inflater.inflate(R.layout.update_action_view, null);
-            Animation rotation = AnimationUtils.loadAnimation(getApplication(), R.anim.clockwise_refresh);
-            assert rotation != null;
-            assert refresh_action_iv != null;
-            rotation.setRepeatCount(Animation.INFINITE);
-            /* Attach a rotating ImageView to the refresh item as an ActionView */
-            refresh_action_iv.startAnimation(rotation);
-            refreshItem.setActionView(refresh_action_iv);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
+            if (getApplication() != null) {
+                LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                ImageView refresh_action_iv = (ImageView) inflater.inflate(R.layout.update_action_view, null);
+                Animation rotation = AnimationUtils.loadAnimation(getApplication(), R.anim.clockwise_refresh);
+                assert rotation != null;
+                assert refresh_action_iv != null;
+                rotation.setRepeatCount(Animation.INFINITE);
+                /* Attach a rotating ImageView to the refresh item as an ActionView */
+                refresh_action_iv.startAnimation(rotation);
+                refreshItem.setActionView(refresh_action_iv);
+            }
         }
     }
 
@@ -478,8 +483,27 @@ public class MainActivity extends Activity {
      * @param v the current view
      */
     public void doPunch(View v) {
-        DialogFragment confirm = new ConfirmPunchDialogFragment();
-        confirm.show(getFragmentManager(), "confirm_punch");
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(R.string.dialog_confirm_punch)
+                    .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            //Create Async Task and Send it
+                            AgatteDoPunchTask punchTask = new AgatteDoPunchTask();
+                            punchTask.execute();
+
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // User cancelled the dialog
+                        }
+                    });
+            builder.show();
+        } else {
+            DialogFragment confirm = new ConfirmPunchDialogFragment();
+            confirm.show(getFragmentManager(), "confirm_punch");
+        }
     }
 
 
@@ -488,7 +512,12 @@ public class MainActivity extends Activity {
         switch (item.getItemId()) {
             case R.id.action_settings:
                 //display Settings activity
-                Intent intent = new Intent(this, AgattePreferenceActivity.class);
+                Intent intent;
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                    intent = new Intent(this, AgattePreferenceActivity.class);
+                } else {
+                    intent = new Intent(this, AgattePreferenceActivity.class);
+                }
                 startActivity(intent);
                 break;
             case R.id.action_update:

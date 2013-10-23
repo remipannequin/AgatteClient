@@ -23,6 +23,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 
 /**
@@ -36,9 +37,14 @@ public class AgattePreferenceActivity extends PreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setupActionBar();
-        getFragmentManager().beginTransaction().replace(android.R.id.content,
-                new PrefsFragment()).commit();
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
+            addPreferencesFromResource(R.xml.preferences);
+        } else {
+            getFragmentManager().beginTransaction().replace(android.R.id.content,
+                    new PrefsFragment()).commit();
+        }
     }
+
 
     /**
      * Set up the {@link android.app.ActionBar}, if the API is available.
