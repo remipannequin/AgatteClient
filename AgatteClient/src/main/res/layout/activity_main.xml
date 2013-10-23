@@ -26,9 +26,11 @@
             custom:textHeight="15dp"
             custom:mandatoryColor="#FFBB33"
             custom:durationColor="#03B5E5"
+            custom:durationVirtualColor="#99CC00"
             custom:textEventTimeColor="#0099CC"
             custom:textDurationColor="#FFFFFF"
             custom:hourLineColor="#AAAAAA"
+            custom:hatchingColor="#FFFFFFAA"
             custom:timeFormat="HH:mm"
             custom:hourIncrement="2"
             custom:hourHeight="20dp"/>

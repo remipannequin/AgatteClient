@@ -50,6 +50,7 @@ class DayCardView extends View {
     private final int hourIncrement;
     private final float hourHeight;
     private final float min;
+    private final int duration_virtual_color;
     private float text_width = 0;
     private final float text_height;
     private final int line_color;
@@ -70,6 +71,7 @@ class DayCardView extends View {
     private Paint line_text_paint;
     private Paint mandatory_paint;
     private Paint event_paint;
+    private Paint event_virtual_paint;
     private Paint duration_text_paint;
     private Paint duration_text_bold_paint;
     private Path odd_path;
@@ -78,6 +80,7 @@ class DayCardView extends View {
     private float block;
     private float scale;
     private Paint hatching_paint;
+
 
 
     public DayCardView(Context context, AttributeSet attrs) {
@@ -103,6 +106,7 @@ class DayCardView extends View {
             text_duration_color = a.getColor(R.styleable.DayCardView_textDurationColor, Color.WHITE);
             text_event_color = a.getColor(R.styleable.DayCardView_textEventTimeColor, Color.BLACK);
             duration_color = a.getColor(R.styleable.DayCardView_durationColor, Color.BLUE);
+            duration_virtual_color = a.getColor(R.styleable.DayCardView_durationVirtualColor, Color.BLUE);
             mandatory_color = a.getColor(R.styleable.DayCardView_mandatoryColor, Color.RED);
             min = a.getInteger(R.styleable.DayCardView_dayStartHour, 8);
             hourIncrement = a.getInteger(R.styleable.DayCardView_hourIncrement, 3);
@@ -139,6 +143,10 @@ class DayCardView extends View {
         event_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         event_paint.setStyle(Paint.Style.FILL);
         event_paint.setColor(duration_color);
+
+        event_virtual_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        event_virtual_paint.setStyle(Paint.Style.FILL);
+        event_virtual_paint.setColor(duration_virtual_color);
 
         duration_text_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         duration_text_paint.setTextSize(text_height);
@@ -272,10 +280,12 @@ class DayCardView extends View {
     int getFirstPunchY() {
         if (card != null) {
             float y_dp;
-            if (card.getNumberOfPunches() == 0) {
+            Date min_d = card.getFirstPunch();
+
+            if (min_d == null) {
                 y_dp = getYFromHour(min);
             } else {
-                y_dp = getYFromHour(card.getPunches()[0]);
+                y_dp = getYFromHour(min_d);
             }
             return (int) (y_dp - block / 2);
 
@@ -330,7 +340,7 @@ class DayCardView extends View {
             //Get the punch date nearest from h
             if (card != null) {
                 //using this method, if odd, now is added the list of punches
-                for (Date punch_d : card.getPunchesWithNow()) {
+                for (Date punch_d : card.getAllPunches()) {
                     cal.setTime(punch_d);
                     float d_h = cal.get(Calendar.HOUR_OF_DAY) + cal.get(Calendar.MINUTE) / 60f;
                     float diff = Math.abs(d_h - h);
@@ -348,51 +358,16 @@ class DayCardView extends View {
             }
         }
 
-        //Draw tops
+        //Draw punches
         if (card != null) {
-            Date di, df;
-            boolean odd = false;
 
-            Date[] punches = card.getPunches();
-            Pair<Date, Date>[] corrected_punches = card.getCorrectedPunches();
-
-            float top, bottom = 0;
-
-            for (int i = 0; i < (punches.length + 1) / 2; i++) {
-                di = punches[2 * i];
-                if ((2 * i + 1) < punches.length) {
-                    df = punches[2 * i + 1];//even
-                } else {
-                    df = card.now();//odd case
-                    odd = true;
-                }
-                top = getYFromHour(di);
-                bottom = getYFromHour(df);
-
-                cal.setTime(di);
-                canvas.drawText(fmt.format(cal.getTime()), bounds.left, (top + (text_height) / 2f - line_width), event_text_paint);
-                cal.setTime(df);
-                if (Math.abs(di.getTime() - df.getTime()) > (1000 * 60 * 15)) {//15min
-                    canvas.drawText(fmt.format(cal.getTime()), bounds.left, (bottom + (text_height) / 2f - line_width), event_text_paint);
-                }
-                canvas.drawRect(margin, top, bounds.right, bottom, event_paint);
-                //only display duration text if there is enough space
-                // i.e. (bottom - top) > text_height + 4
-                if ((bottom - top) > (text_height + 4)) {
-                    //compute hours and minute difference
-                    long h = (df.getTime() - di.getTime()) / (1000 * 60 * 60);
-                    long m = ((df.getTime() - di.getTime()) / (1000 * 60)) % 60;
-                    float w1 = duration_text_paint.measureText(String.format("%dh", h));
-                    float w2 = duration_text_paint.measureText(String.format("%02d", m));
-                    canvas.drawText(String.format("%dh", h), (rect_width - w1 - w2) / 2f + margin, (bottom - top + text_height) / 2f + top, duration_text_bold_paint);
-                    if (m != 0) {
-                        canvas.drawText(String.format("%02d", m), (rect_width - w1 - w2) / 2f + margin + w1, (bottom - top + text_height) / 2f + top, duration_text_paint);
-                    }
-                }
-            }
-            float now = bottom;
+            drawPeriods(canvas, card.getVirtualPunches(), true);
+            float now = drawPeriods(canvas, card.getPunches(), false);
 
             //draw hatching over corrected periods
+            Pair<Date, Date>[] corrected_punches = card.getCorrectedPunches();
+            Date di, df;
+            float top, bottom;
             for (Pair<Date, Date> p : corrected_punches) {
                 di = p.first;
                 df = p.second;
@@ -402,7 +377,7 @@ class DayCardView extends View {
             }
 
             //change drawing if odd to indicate that the time is running
-            if (odd) {
+            if (card.isOdd()) {
 
                 odd_path.reset();
                 float required_h = ODD_H;
@@ -420,6 +395,57 @@ class DayCardView extends View {
             }
         }
     }
+
+    /**
+     *
+     * @param canvas
+     * @param punches
+     * @param virtual
+     * @return
+     */
+    private float drawPeriods(Canvas canvas, Date[] punches, boolean virtual) {
+        Date di, df;
+        float top, bottom = 0;
+        boolean odd = false;
+        Paint p = (virtual?event_virtual_paint:event_paint);
+
+
+
+        for (int i = 0; i < (punches.length + 1) / 2; i++) {
+            di = punches[2 * i];
+            if ((2 * i + 1) < punches.length) {
+                df = punches[2 * i + 1];//even
+            } else {
+                df = card.now();//odd case
+                odd = true;
+            }
+            top = getYFromHour(di);
+            bottom = getYFromHour(df);
+
+            cal.setTime(di);
+            canvas.drawText(fmt.format(cal.getTime()), bounds.left, (top + (text_height) / 2f - line_width), event_text_paint);
+            cal.setTime(df);
+            if (Math.abs(di.getTime() - df.getTime()) > (1000 * 60 * 15)) {//15min
+                canvas.drawText(fmt.format(cal.getTime()), bounds.left, (bottom + (text_height) / 2f - line_width), event_text_paint);
+            }
+            canvas.drawRect(margin, top, bounds.right, bottom, p);
+            //only display duration text if there is enough space
+            // i.e. (bottom - top) > text_height + 4
+            if ((bottom - top) > (text_height + 4)) {
+                //compute hours and minute difference
+                long h = (df.getTime() - di.getTime()) / (1000 * 60 * 60);
+                long m = ((df.getTime() - di.getTime()) / (1000 * 60)) % 60;
+                float w1 = duration_text_paint.measureText(String.format("%dh", h));
+                float w2 = duration_text_paint.measureText(String.format("%02d", m));
+                canvas.drawText(String.format("%dh", h), (rect_width - w1 - w2) / 2f + margin, (bottom - top + text_height) / 2f + top, duration_text_bold_paint);
+                if (m != 0) {
+                    canvas.drawText(String.format("%02d", m), (rect_width - w1 - w2) / 2f + margin + w1, (bottom - top + text_height) / 2f + top, duration_text_paint);
+                }
+            }
+        }
+        return bottom;
+    }
+
 
     /**
      * Return the Y coordinate corresponding to a hour

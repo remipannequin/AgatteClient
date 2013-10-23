@@ -363,13 +363,16 @@ public class DayCard implements Serializable {
     }
 
     /**
-     *
-     * @return
+     * Return an Array of all the punches of the card (real and virtual) and now if the day is odd
+     * @return the array of punches (possibly unsorted)
      */
-    public Date[] getPunchesWithNow() {
-        int s = this.punches.size();
+    public Date[] getAllPunches() {
+        int s = this.punches.size() + this.virtual_punches.size();
         Date[] result = new Date[s + s % 2];
         int i = 0;
+        for (Long date_l : this.virtual_punches) {
+            result[i++] = new Date(date_l);
+        }
         for (Long date_l : this.punches) {
             result[i++] = new Date(date_l);
         }
@@ -379,5 +382,25 @@ public class DayCard implements Serializable {
         return result;
 
 
+    }
+
+    /**
+     * Return the first punch of the card or null if there is no punches in the card
+     * @return
+     */
+    public Date getFirstPunch() {
+        boolean empty = (this.punches.size() == 0);
+        boolean empty_virtual = (this.virtual_punches.size() == 0);
+
+        if (empty & empty_virtual) {
+            long l = Math.min(this.virtual_punches.get(0), this.punches.get(0));
+            return new Date(l);
+        } else if (empty & !empty_virtual) {
+            return new Date(this.virtual_punches.get(0));
+        } else if (!empty & empty_virtual) {
+            return new Date(this.punches.get(0));
+        } else {
+            return null;
+        }
     }
 }
