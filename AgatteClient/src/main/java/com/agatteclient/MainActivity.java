@@ -134,13 +134,16 @@ public class MainActivity extends Activity {
                 if (context != null) Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
 
             }
-            if (rsp.getCode() == AgatteResponse.Code.QueryOK && rsp.hasTops()) {
-                for (String top : rsp.getTops()) {
-                    try {
-                        cur_card.addPunch(top);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
+            if (rsp.getCode() == AgatteResponse.Code.QueryOK) {
+                try {
+                    if (rsp.hasVirtualTops()) {
+                        cur_card.addPunches(rsp.getVirtualTops(), true);
                     }
+                    if (rsp.hasTops()) {
+                        cur_card.addPunches(rsp.getTops(), false);
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
                 }
             }
             updateCard();
@@ -184,14 +187,15 @@ public class MainActivity extends Activity {
                     break;
                 case PunchOK:
                 case QueryOK:
-                    if (rsp.hasTops()) {
-                        for (String top : rsp.getTops()) {
-                            try {
-                                cur_card.addPunch(top);
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
+                    try {
+                        if (rsp.hasVirtualTops()) {
+                            cur_card.addPunches(rsp.getVirtualTops(), true);
                         }
+                        if (rsp.hasTops()) {
+                            cur_card.addPunches(rsp.getTops(), false);
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
                     }
                     toast.append(getString(R.string.punch_ok_toast));
                     break;
@@ -337,10 +341,7 @@ public class MainActivity extends Activity {
         }
         editor.commit();
 
-
         mScaleDetector = new ScaleGestureDetector(getApplicationContext(), new ScaleListener());
-
-
 
         setContentView(R.layout.activity_main);
 
@@ -372,15 +373,15 @@ public class MainActivity extends Activity {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        //TESTING !
+        /*/TESTING !
         try {
             cur_card.addPunch("7:56", true);
             cur_card.addPunch("11:30", true);
             cur_card.addPunch("14:00");
-            cur_card.addPunch("18:00");
+
         } catch (ParseException e) {
             e.printStackTrace();
-        }//
+        }/*/
 
 
         updateCard();

@@ -205,6 +205,7 @@ class DayCardView extends View {
 
     private int dpToPx(float dp) {
         Resources r = getResources();
+        assert r != null;
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
     }
 
@@ -212,10 +213,8 @@ class DayCardView extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         float desiredHeight_dip = hourHeight * 25 * MAX_SCALE;//take max scaling into account
-        Resources r = getResources();
         int desiredWidth = 200;
         int desiredHeight = dpToPx(desiredHeight_dip);
-
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
@@ -254,16 +253,16 @@ class DayCardView extends View {
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
+    protected void onSizeChanged(int w, int h, int oldW, int oldH) {
+        super.onSizeChanged(w, h, oldW, oldH);
 
         // Account for padding
-        float xpad = (float) (getPaddingLeft() + getPaddingRight());
-        float ypad = (float) (getPaddingTop() + getPaddingBottom());
+        float xPad = (float) (getPaddingLeft() + getPaddingRight());
+        float yPad = (float) (getPaddingTop() + getPaddingBottom());
 
-        float ww = (float) w - xpad;
-        float hh = (float) h - ypad;
-        bounds = new RectF(xpad, ypad, ww, hh);
+        float ww = (float) w - xPad;
+        float hh = (float) h - yPad;
+        bounds = new RectF(xPad, yPad, ww, hh);
 
         margin = bounds.left + text_width + 10f;
         rect_width = bounds.width() - text_width - 10f;
@@ -273,9 +272,7 @@ class DayCardView extends View {
     }
 
     /**
-     * Return the Y coordinate (in pixel) of the first punch or now
-     *
-     * @return
+     * @return the Y coordinate (in pixel) of the first punch or now
      */
     int getFirstPunchY() {
         if (card != null) {
@@ -292,10 +289,6 @@ class DayCardView extends View {
         } else {
             return 0;
         }
-    }
-
-    float getRequestedHeight() {
-        return hourHeight * 25;
     }
 
     /**
@@ -354,7 +347,7 @@ class DayCardView extends View {
                 cal.set(Calendar.HOUR_OF_DAY, h);
                 cal.set(Calendar.MINUTE, 0);
                 float y = getYFromHour(h);
-                canvas.drawText(fmt.format(cal.getTime()), bounds.left, (float) (y + (text_height) / 2f - line_width), line_text_paint);
+                canvas.drawText(fmt.format(cal.getTime()), bounds.left, y + (text_height) / 2f - line_width, line_text_paint);
             }
         }
 
@@ -398,18 +391,15 @@ class DayCardView extends View {
 
     /**
      *
-     * @param canvas
-     * @param punches
-     * @param virtual
-     * @return
+     * @param canvas the canvas to draw into
+     * @param punches an array of Dates
+     * @param virtual if true, the event_virtual_paint is used
+     * @return the bottom of the last period
      */
     private float drawPeriods(Canvas canvas, Date[] punches, boolean virtual) {
         Date di, df;
         float top, bottom = 0;
-        boolean odd = false;
         Paint p = (virtual?event_virtual_paint:event_paint);
-
-
 
         for (int i = 0; i < (punches.length + 1) / 2; i++) {
             di = punches[2 * i];
@@ -417,7 +407,6 @@ class DayCardView extends View {
                 df = punches[2 * i + 1];//even
             } else {
                 df = card.now();//odd case
-                odd = true;
             }
             top = getYFromHour(di);
             bottom = getYFromHour(df);
@@ -463,7 +452,7 @@ class DayCardView extends View {
      * Return the Y coordinate corresponding to a hour
      *
      * @param h the hour
-     * @returnthe Y coordinate corresponding to the date
+     * @return the Y coordinate corresponding to the date
      */
     private float getYFromHour(float h) {
 
@@ -479,7 +468,7 @@ class DayCardView extends View {
     /**
      * Set the day card to display. invalidate the view if the card has changed
      *
-     * @param card
+     * @param card the new DayCard
      */
     public void setCard(DayCard card) {
         if (card != this.card) {
@@ -492,7 +481,7 @@ class DayCardView extends View {
     /**
      * Change the scale of the view according to factor
      *
-     * @param mScaleFactor
+     * @param mScaleFactor the scaling factor to apply
      */
     public void applyScale(float mScaleFactor) {
         if ((mScaleFactor > 1 && scale <= MAX_SCALE) || (mScaleFactor < 1 && scale >= MIN_SCALE)) {
