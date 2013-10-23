@@ -37,6 +37,7 @@ public class DayCard implements Serializable {
 
     private final List<Long> punches;
     private final List<Long> corrected_punches;
+    private List<Long> virtual_punches;
     private final int day;
     private final int year;
     private final long start;
@@ -47,6 +48,7 @@ public class DayCard implements Serializable {
     public DayCard() {
         this.punches = new ArrayList<Long>(12);
         this.corrected_punches = new ArrayList<Long>(12);
+        this.virtual_punches = new ArrayList<Long>(4);
         Calendar cal = Calendar.getInstance();
         Date now = new Date(System.currentTimeMillis());
         cal.setTime(now);
@@ -69,6 +71,7 @@ public class DayCard implements Serializable {
         Calendar cal = Calendar.getInstance();
         this.punches = new ArrayList<Long>(12);
         this.corrected_punches = new ArrayList<Long>(12);
+        this.virtual_punches = new ArrayList<Long>(4);
         this.year = year;
         this.day = day;
         cal.set(Calendar.YEAR, year);
@@ -87,10 +90,22 @@ public class DayCard implements Serializable {
      * <p/>
      * If a correction must be applied, this method will manage it.
      *
-     * @param time the time of the punch in the form "HH:mm" (e.g. 20:09)
+     * The punch is assumed to be a real one
+     *
+     * @param time
      * @throws ParseException
      */
     public void addPunch(String time) throws ParseException {
+        addPunch(time, false);
+    }
+
+    /**
+     *
+     * @param time
+     * @param virtual
+     * @throws ParseException
+     */
+    public void addPunch(String time, boolean virtual) throws ParseException {
         //1. Parse date
         Date date;
         Calendar cal = Calendar.getInstance();
@@ -102,14 +117,26 @@ public class DayCard implements Serializable {
         date = cal.getTime();
         Long date_l = date.getTime();
 
-        //2. Check existence, add, and sort
-        if (!this.punches.contains(date_l)) {
-            this.punches.add(date_l);
-            Collections.sort(this.punches);
+        //2a. Check existence, add, and sort (real punch)
+        if (!virtual) {
+            if (!this.punches.contains(date_l)) {
+                this.punches.add(date_l);
+                Collections.sort(this.punches);
+            } else {
+                //no need to apply correction
+                return;
+            }
+        //2b. Check existence, add, and sort (virtual punch)
         } else {
-            //no need to apply correction
+            if (!this.virtual_punches.contains(date_l)) {
+                this.virtual_punches.add(date_l);
+                Collections.sort(this.virtual_punches);
+            }
+            //Don't compute correction in any case
             return;
         }
+
+
 
         //3. Apply corrections
         corrected_punches.clear();
@@ -175,7 +202,14 @@ public class DayCard implements Serializable {
     }
 
     /**
-     * @return the number of punch of the day
+     * @returnthe number of virtual punches of the day
+     */
+    public int getNumberOfVirtualPunches() {
+        return virtual_punches.size();
+    }
+
+    /**
+     * @return the number of (real) punches of the day
      */
     public int getNumberOfPunches() {
         return punches.size();
@@ -233,17 +267,28 @@ public class DayCard implements Serializable {
     public double getTotalTime() {
         double result = 0.;
         Long ti, tf;
+        Iterator<Long> iterator;
+        List[] l;
 
-        Iterator<Long> iterator = punches.iterator();
-        while (iterator.hasNext()) {
-            ti = iterator.next();
-            if (iterator.hasNext()) {
-                tf = iterator.next();
-            } else {
-                tf = System.currentTimeMillis();
+        //Iterate on virtual and real punches
+        //ensure sanity
+        if ((getNumberOfVirtualPunches() % 2) == 0) {
+            l = new List[]{virtual_punches, punches};
+        } else {
+            l = new List[]{punches};
+        }
+        for (int i=0; i < 2; i++) {
+            iterator = l[i].iterator();
+            while (iterator.hasNext()) {
+                ti = iterator.next();
+                if (iterator.hasNext()) {
+                    tf = iterator.next();
+                } else {
+                    tf = System.currentTimeMillis();
+                }
+                double delta_h = ((double) (tf - ti)) / (1000.0 * 60.0 * 60.0);
+                result += delta_h;
             }
-            double delta_h = ((double) (tf - ti)) / (1000.0 * 60.0 * 60.0);
-            result += delta_h;
         }
         return result;
     }
@@ -272,12 +317,24 @@ public class DayCard implements Serializable {
     }
 
     /**
-     * @return the array of punches of the card
+     * @return the array of (real)  punches of the card
      */
     public Date[] getPunches() {
         Date[] result = new Date[this.punches.size()];
         int i = 0;
         for (Long date_l : this.punches) {
+            result[i++] = new Date(date_l);
+        }
+        return result;
+    }
+
+    /**
+     * @return the array of virtual punches of the card
+     */
+    public Date[] getVirtualPunches() {
+        Date[] result = new Date[this.virtual_punches.size()];
+        int i = 0;
+        for (Long date_l : this.virtual_punches) {
             result[i++] = new Date(date_l);
         }
         return result;

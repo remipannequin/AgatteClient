@@ -5,6 +5,7 @@ import android.util.Pair;
 
 import com.agatteclient.DayCard;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -143,10 +144,10 @@ public class DayCardTest extends AndroidTestCase {
 
     public void testCorrectedTotalTime6() throws Exception {
         DayCard instance = new DayCard(200, 2012);
-        instance.addPunch("09:00");
+        instance.addPunch("09:10");
         instance.addPunch("12:10");
         instance.addPunch("12:43");
-        instance.addPunch("14:43");
+        instance.addPunch("15:43");
         assertEquals(4, instance.getNumberOfPunches());
         Date[] c = instance.getPunches();
         assertEquals(4, c.length);
@@ -154,7 +155,6 @@ public class DayCardTest extends AndroidTestCase {
         assertEquals(6d, instance.getTotalTime());
         assertEquals(5.8d, instance.getCorrectedTotalTime());
     }
-
 
     public void testIsCurrentDay1() {
         DayCard instance = new DayCard(200, 2012);
@@ -166,6 +166,29 @@ public class DayCardTest extends AndroidTestCase {
         DayCard instance = new DayCard();
         boolean b = instance.isCurrentDay();
         assertTrue(b);
+    }
+
+    public void testGetVirtualPunches() throws ParseException {
+        DayCard instance = new DayCard(200, 2012);
+        instance.addPunch("09:00", true);
+        instance.addPunch("12:00", true);
+        assertEquals(2, instance.getNumberOfVirtualPunches());
+        assertEquals(0, instance.getNumberOfPunches());
+        assertEquals(3d, instance.getTotalTime());
+        assertEquals(3d, instance.getCorrectedTotalTime());
+    }
+
+
+    public void testGetVirtualPunches2() throws ParseException {
+        DayCard instance = new DayCard(200, 2012);
+        instance.addPunch("09:00", true);
+        instance.addPunch("12:00", true);
+        instance.addPunch("12:10");
+        instance.addPunch("17:10");
+        assertEquals(2, instance.getNumberOfVirtualPunches());
+        assertEquals(2, instance.getNumberOfPunches());
+        assertEquals(8d, instance.getTotalTime());
+        assertEquals(8d, instance.getCorrectedTotalTime());
     }
 
 }
