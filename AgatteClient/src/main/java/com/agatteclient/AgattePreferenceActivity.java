@@ -15,6 +15,7 @@
 
 package com.agatteclient;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,7 +24,6 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 
 /**
@@ -130,6 +130,7 @@ public class AgattePreferenceActivity extends PreferenceActivity {
      * This fragment shows general preferences only. It is used when the
      * activity is showing a two-pane settings UI.
      */
+    @TargetApi(11)
     public static class PrefsFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {

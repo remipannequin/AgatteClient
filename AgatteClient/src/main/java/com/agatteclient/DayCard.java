@@ -85,9 +85,9 @@ public class DayCard implements Serializable {
 
     /**
      * Add an arry of punches to the card
-     *
+     * <p/>
      * If a punch is already present in the card, it won't be added twice.
-     *
+     * <p/>
      * If a correction must be applied, this method will manage it.
      *
      * @param tops
@@ -95,7 +95,7 @@ public class DayCard implements Serializable {
      */
     public void addPunches(String[] tops, boolean virtual) throws ParseException {
         boolean need_correction = false;
-        for (String punch: tops) {
+        for (String punch : tops) {
             need_correction = need_correction || addPunchRaw(punch, virtual);
         }
         if (need_correction) {
@@ -109,7 +109,7 @@ public class DayCard implements Serializable {
      * If a punch is already present in the card, it won't be added twice.
      * <p/>
      * If a correction must be applied, this method will manage it.
-     *
+     * <p/>
      * The punch is assumed to be a real one
      *
      * @param time
@@ -120,7 +120,6 @@ public class DayCard implements Serializable {
     }
 
     /**
-     *
      * @param time
      * @param virtual
      * @throws ParseException
@@ -132,7 +131,6 @@ public class DayCard implements Serializable {
     }
 
     /**
-     *
      * @param time
      * @param virtual
      * @return
@@ -225,7 +223,7 @@ public class DayCard implements Serializable {
         }
         //apply correction
         if (has_noon && noon < (45 * 60 * 1000)) {
-            long t  = this.punches.get(last_noon_tf);
+            long t = this.punches.get(last_noon_tf);
             this.corrected_punches.add(t);
             this.corrected_punches.add(t + (45 * 60 * 1000) - noon);
 
@@ -313,7 +311,7 @@ public class DayCard implements Serializable {
         } else {
             l = new List[]{punches};
         }
-        for (int i=0; i < 2; i++) {
+        for (int i = 0; i < 2; i++) {
             iterator = l[i].iterator();
             while (iterator.hasNext()) {
                 ti = iterator.next();
@@ -385,14 +383,15 @@ public class DayCard implements Serializable {
 
     /**
      * Get the array of Pair of Date defining periods when time has been punched in, but as been excluded
+     *
      * @return the array of Pair (di, df) with di < df
      */
     public Pair<Date, Date>[] getCorrectedPunches() {
-        Pair<Date, Date>[] result = new Pair[this.corrected_punches.size()/2];
+        Pair<Date, Date>[] result = new Pair[this.corrected_punches.size() / 2];
         Date di, df;
-        for (int i = 0; i < this.corrected_punches.size(); i+=2) {
+        for (int i = 0; i < this.corrected_punches.size(); i += 2) {
             di = new Date(this.corrected_punches.get(i));
-            df = new Date(this.corrected_punches.get(i+1));
+            df = new Date(this.corrected_punches.get(i + 1));
             result[i++] = new Pair<Date, Date>(di, df);
         }
         return result;
@@ -400,6 +399,7 @@ public class DayCard implements Serializable {
 
     /**
      * Return an Array of all the punches of the card (real and virtual) and now if the day is odd
+     *
      * @return the array of punches (possibly unsorted)
      */
     public Date[] getAllPunches() {
@@ -422,6 +422,7 @@ public class DayCard implements Serializable {
 
     /**
      * Return the first punch of the card or null if there is no punches in the card
+     *
      * @return
      */
     public Date getFirstPunch() {

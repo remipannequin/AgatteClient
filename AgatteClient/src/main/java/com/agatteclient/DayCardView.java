@@ -83,7 +83,6 @@ class DayCardView extends View {
     private Paint hatching_paint;
 
 
-
     public DayCardView(Context context, AttributeSet attrs) {
         super(context, attrs);
         Resources.Theme theme = context.getTheme();
@@ -402,8 +401,7 @@ class DayCardView extends View {
     }
 
     /**
-     *
-     * @param canvas the canvas to draw into
+     * @param canvas  the canvas to draw into
      * @param punches an array of Dates
      * @param virtual if true, the event_virtual_paint is used
      * @return the bottom of the last period
@@ -411,7 +409,7 @@ class DayCardView extends View {
     private float drawPeriods(Canvas canvas, Date[] punches, boolean virtual) {
         Date di, df;
         float top, bottom = 0;
-        Paint p = (virtual?event_virtual_paint:event_paint);
+        Paint p = (virtual ? event_virtual_paint : event_paint);
 
         for (int i = 0; i < (punches.length + 1) / 2; i++) {
             di = punches[2 * i];

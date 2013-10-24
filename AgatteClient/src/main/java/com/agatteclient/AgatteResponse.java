@@ -23,8 +23,6 @@ import java.util.Collection;
 public class AgatteResponse {
 
 
-
-
     public Code getCode() {
         return code;
     }
