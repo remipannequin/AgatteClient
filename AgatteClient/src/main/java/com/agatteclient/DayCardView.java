@@ -43,7 +43,7 @@ import java.util.Date;
  */
 class DayCardView extends View {
 
-    private static final float ODD_H = 15;
+    private static final float ODD_H = 7.5f;
     private static final float MAX_SCALE = 2.0f;
     private static final float MIN_SCALE = 0.5f;
     private final float line_width;
@@ -51,6 +51,7 @@ class DayCardView extends View {
     private final float hourHeight;
     private final float min;
     private final int duration_virtual_color;
+    private final int hatchingColor;
     private float text_width = 0;
     private final float text_height;
     private final int line_color;
@@ -102,7 +103,7 @@ class DayCardView extends View {
                 date_fmt = fmt;
             }
             line_color = a.getColor(R.styleable.DayCardView_hourLineColor, Color.LTGRAY);
-            line_width = a.getFloat(R.styleable.DayCardView_hourLineWidth, 5f);
+            line_width = a.getDimension(R.styleable.DayCardView_hourLineWidth, 2f);
             text_duration_color = a.getColor(R.styleable.DayCardView_textDurationColor, Color.WHITE);
             text_event_color = a.getColor(R.styleable.DayCardView_textEventTimeColor, Color.BLACK);
             duration_color = a.getColor(R.styleable.DayCardView_durationColor, Color.BLUE);
@@ -111,6 +112,7 @@ class DayCardView extends View {
             min = a.getInteger(R.styleable.DayCardView_dayStartHour, 8);
             hourIncrement = a.getInteger(R.styleable.DayCardView_hourIncrement, 3);
             hourHeight = a.getDimension(R.styleable.DayCardView_hourHeight, 25);
+            hatchingColor = a.getColor(R.styleable.DayCardView_hatchingColor, Color.WHITE);
 
         } finally {
             a.recycle();
@@ -124,11 +126,10 @@ class DayCardView extends View {
 
         line_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         line_paint.setColor(line_color);
-        line_paint.setStrokeWidth(line_width);
+        line_paint.setStrokeWidth(pxToDp(line_width));
         line_paint.setStyle(Paint.Style.STROKE);
         line_paint.setStrokeJoin(Paint.Join.ROUND);
         line_paint.setTextSize(text_height);
-        //TODO adapt to low dpi screen !
 
         line_text_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         line_text_paint.setColor(line_color);
@@ -176,30 +177,34 @@ class DayCardView extends View {
 
     }
 
-    private static Bitmap makeHatchingBitmap() {
-        Bitmap bm = Bitmap.createBitmap(32, 32, Bitmap.Config.ARGB_8888);
+    private Bitmap makeHatchingBitmap() {
+
+        float density = getResources().getDisplayMetrics().density;
+        int size = (int) ((24 * density) + 0.5f);
+        int stroke = size / 8;
+        Bitmap bm = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(bm);
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
-        p.setColor(Color.WHITE);
-        p.setAlpha(0x88);
-        p.setStrokeWidth(8f);
+        p.setColor(this.hatchingColor);
+
+        p.setStrokeWidth(stroke * 2);
         float[] pts = new float[4];
-        pts[0] = -8;
-        pts[1] = -8;
-        pts[2] = 72;
-        pts[3] = 72;
+        pts[0] = 0;
+        pts[1] = 0;
+        pts[2] = size;
+        pts[3] = size;
         c.drawLines(pts, p);
-        pts[0] = -4;
-        pts[1] = 28;
-        pts[2] = 4;
-        pts[3] = 36;
+        pts[0] = -stroke;
+        pts[1] = size - stroke;
+        pts[2] = stroke;
+        pts[3] = size + stroke;
         c.drawLines(pts, p);
-        pts[0] = 28;
-        pts[1] = -4;
-        pts[2] = 36;
-        pts[3] = 4;
+        pts[0] = size - stroke;
+        pts[1] = -stroke;
+        pts[2] = size + stroke;
+        pts[3] = stroke;
         c.drawLines(pts, p);
-        c.clipRect(0, 0, 32, 32);
+        c.clipRect(0, 0, size, size);
         return bm;
     }
 
@@ -207,6 +212,13 @@ class DayCardView extends View {
         Resources r = getResources();
         assert r != null;
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
+    }
+
+    private float pxToDp(float px) {
+        Resources r = getResources();
+        assert r != null;
+        float scale = r.getDisplayMetrics().density;
+        return (px * scale);
     }
 
 
@@ -373,7 +385,7 @@ class DayCardView extends View {
             if (card.isOdd()) {
 
                 odd_path.reset();
-                float required_h = ODD_H;
+                float required_h = pxToDp(ODD_H);
                 int num = (int) Math.floor(rect_width / (2 * required_h));
                 float real_h = rect_width / (2 * num);
                 odd_path.rLineTo(0, real_h);

@@ -6,7 +6,7 @@
         <attr name="textDurationColor" format="color" />
         <attr name="dayStartHour" format="integer" />
         <attr name="hourLineColor" format="color" />
-        <attr name="hourLineWidth" format="float"/>
+        <attr name="hourLineWidth" format="dimension" />
         <attr name="durationColor" format="color" />
         <attr name="durationVirtualColor" format="color" />
         <attr name="timeFormat" format="string" />

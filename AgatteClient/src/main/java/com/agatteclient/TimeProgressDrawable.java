@@ -15,6 +15,7 @@
 
 package com.agatteclient;
 
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -36,24 +37,25 @@ public class TimeProgressDrawable extends Drawable {
     private final double goal;
     private final int step;
 
+    private static final int WIDTH = 5;//dp
 
-    public TimeProgressDrawable(int max, double goal, int fact) {
+    public TimeProgressDrawable(int max, double goal, int fact, float density) {
         this.goal = goal;
         this.step = 10000 / (max / fact);
 
         paint_empty = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint_empty.setStyle(Paint.Style.STROKE);
-        paint_empty.setStrokeWidth(10);
+        paint_empty.setStrokeWidth(WIDTH * density);
         paint_empty.setColor(Color.LTGRAY);
 
         paint_goal = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint_goal.setStyle(Paint.Style.STROKE);
-        paint_goal.setStrokeWidth(10);
+        paint_goal.setStrokeWidth(WIDTH * density);
         paint_goal.setColor(Color.parseColor("#AA66CC"));
 
         paint_done = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint_done.setStyle(Paint.Style.STROKE);
-        paint_done.setStrokeWidth(10);
+        paint_done.setStrokeWidth(WIDTH * density);
         paint_done.setColor(Color.parseColor("#33B5E5"));
 
 

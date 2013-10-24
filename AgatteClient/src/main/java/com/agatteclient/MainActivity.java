@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -211,37 +212,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    /**
-     *
-     */
-    public class ConfirmPunchDialogFragment extends DialogFragment {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            // Use the Builder class for convenient dialog construction
-            Activity activity = getActivity();
-            if (activity != null) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                builder.setMessage(R.string.dialog_confirm_punch)
-                        .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                //Create Async Task and Send it
-                                AgatteDoPunchTask punchTask = new AgatteDoPunchTask();
-                                punchTask.execute();
 
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                // User cancelled the dialog
-                            }
-                        });
-                // Create the AlertDialog object and return it
-                return builder.create();
-            } else {
-                return null;
-            }
-        }
-    }
 
     /**
      *
@@ -348,8 +319,11 @@ public class MainActivity extends Activity {
         dc_view = (DayCardView) findViewById(R.id.day_card_view);
         dc_view.setCard(cur_card);
 
+
+        Resources r = getResources();
+        float scale = r.getDisplayMetrics().density;
         day_progress = (ProgressBar) findViewById(R.id.day_progress);
-        day_progress.setProgressDrawable(new TimeProgressDrawable(1200, 7.5, 100));
+        day_progress.setProgressDrawable(new TimeProgressDrawable(1200, 7.5, 100, scale));
         day_progress.setMax(1200);
 
         day_textView = (TextView) findViewById(R.id.day_textView);
@@ -373,15 +347,15 @@ public class MainActivity extends Activity {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        /*/TESTING !
+        //TESTING !
         try {
-            cur_card.addPunch("7:56", true);
-            cur_card.addPunch("11:30", true);
-            cur_card.addPunch("14:00");
-
+            //cur_card.addPunch("5:00", true);
+            //cur_card.addPunch("7:30", true);
+            cur_card.addPunch("8:00");
+            cur_card.addPunch("15:00");
         } catch (ParseException e) {
             e.printStackTrace();
-        }/*/
+        }//
 
 
         updateCard();
@@ -504,7 +478,34 @@ public class MainActivity extends Activity {
                     });
             builder.show();
         } else {
-            DialogFragment confirm = new ConfirmPunchDialogFragment();
+            DialogFragment confirm = new DialogFragment() {
+                @Override
+                public Dialog onCreateDialog(Bundle savedInstanceState) {
+                    // Use the Builder class for convenient dialog construction
+                    Activity activity = getActivity();
+                    if (activity != null) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                        builder.setMessage(R.string.dialog_confirm_punch)
+                                .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        //Create Async Task and Send it
+                                        AgatteDoPunchTask punchTask = new AgatteDoPunchTask();
+                                        punchTask.execute();
+
+                                    }
+                                })
+                                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        // User cancelled the dialog
+                                    }
+                                });
+                        // Create the AlertDialog object and return it
+                        return builder.create();
+                    } else {
+                        return null;
+                    }
+                }
+            };
             confirm.show(getFragmentManager(), "confirm_punch");
         }
     }
