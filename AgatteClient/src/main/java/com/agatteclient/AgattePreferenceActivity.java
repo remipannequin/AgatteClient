@@ -24,6 +24,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 
 /**
@@ -37,9 +38,11 @@ public class AgattePreferenceActivity extends PreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setupActionBar();
+
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
             addPreferencesFromResource(R.xml.preferences);
         } else {
+            getActionBar().setDisplayHomeAsUpEnabled(true);
             getFragmentManager().beginTransaction().replace(android.R.id.content,
                     new PrefsFragment()).commit();
         }
@@ -69,8 +72,7 @@ public class AgattePreferenceActivity extends PreferenceActivity {
                 //
                 // http://developer.android.com/design/patterns/navigation.html#up-vs-back
                 //create a crash
-                //NavUtils.navigateUpFromSameTask(this);
-                //NavUtils.getParentActivityIntent(this);
+                NavUtils.navigateUpFromSameTask(this);
                 return true;
         }
         return super.onOptionsItemSelected(item);

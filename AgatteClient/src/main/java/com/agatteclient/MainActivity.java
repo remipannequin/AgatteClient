@@ -50,8 +50,10 @@ import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ *
+ */
 public class MainActivity extends Activity {
-
 
     static final String SERVER_PREF = "server";
     static final String LOGIN_PREF = "login";
