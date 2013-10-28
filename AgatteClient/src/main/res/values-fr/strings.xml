@@ -35,4 +35,6 @@
     <string name="about_free_soft">Ce logiciel est libre ; vous pouvez le redistribuer ou le modifier suivant les termes de la GNU General Public License telle que publiée par la Free Software Foundation ; soit la version 3 de la licence, soit (à votre gré) toute version ultérieure.\n\n Vous devez avoir reçu une copie de la GNU General Public License en même temps que AgatteClient ; si ce n\'est pas le cas, consultez <link>http://www.gnu.org/licenses</link>.\n\n Vous pouvez suivre le développement, soumettre des anomalies ou des souhaits sur\n<link>https://github.com/remipannequin/AgatteClient</link></string>
     <string name="punch_error_toast">Erreur pendant le pointage:</string>
     <string name="update_error_toast">Erreur pendant la mise à jour:</string>
+    <string name="interface_preference">Interface</string>
+    <string name="confirm_punch_title">Confirmer le pointage</string>
 </resources>

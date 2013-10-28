@@ -60,6 +60,7 @@ public class MainActivity extends Activity {
     static final String LOGIN_DEFAULT = "login";
     static final String PASSWD_DEFAULT = "";
     static final String DAY_CARD = "day-card";
+    private static final String CONFIRM_PUNCH_PREF = "confirm_punch";
 
     private ScaleGestureDetector mScaleDetector;
     protected MenuItem refreshItem = null;
@@ -308,6 +309,9 @@ public class MainActivity extends Activity {
         if (!preferences.contains(PASSWD_PREF)) {
             editor.putString(PASSWD_PREF, PASSWD_DEFAULT); // value to store
         }
+        if (!preferences.contains(CONFIRM_PUNCH_PREF)) {
+            editor.putBoolean(CONFIRM_PUNCH_PREF, true); // value to store
+        }
         editor.commit();
 
         mScaleDetector = new ScaleGestureDetector(getApplicationContext(), new ScaleListener());
@@ -459,53 +463,60 @@ public class MainActivity extends Activity {
      * @param v the current view
      */
     public void doPunch(View v) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage(R.string.dialog_confirm_punch)
-                    .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            //Create Async Task and Send it
-                            AgatteDoPunchTask punchTask = new AgatteDoPunchTask();
-                            punchTask.execute();
-
-                        }
-                    })
-                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // User cancelled the dialog
-                        }
-                    });
-            builder.show();
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        boolean mustConfirm = pref.getBoolean(CONFIRM_PUNCH_PREF, true);
+        if (!mustConfirm) {
+            AgatteDoPunchTask punchTask = new AgatteDoPunchTask();
+            punchTask.execute();
         } else {
-            DialogFragment confirm = new DialogFragment() {
-                @Override
-                public Dialog onCreateDialog(Bundle savedInstanceState) {
-                    // Use the Builder class for convenient dialog construction
-                    Activity activity = getActivity();
-                    if (activity != null) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                        builder.setMessage(R.string.dialog_confirm_punch)
-                                .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        //Create Async Task and Send it
-                                        AgatteDoPunchTask punchTask = new AgatteDoPunchTask();
-                                        punchTask.execute();
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage(R.string.dialog_confirm_punch)
+                        .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                //Create Async Task and Send it
+                                AgatteDoPunchTask punchTask = new AgatteDoPunchTask();
+                                punchTask.execute();
 
-                                    }
-                                })
-                                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        // User cancelled the dialog
-                                    }
-                                });
-                        // Create the AlertDialog object and return it
-                        return builder.create();
-                    } else {
-                        return null;
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // User cancelled the dialog
+                            }
+                        });
+                builder.show();
+            } else {
+                DialogFragment confirm = new DialogFragment() {
+                    @Override
+                    public Dialog onCreateDialog(Bundle savedInstanceState) {
+                        // Use the Builder class for convenient dialog construction
+                        Activity activity = getActivity();
+                        if (activity != null) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                            builder.setMessage(R.string.dialog_confirm_punch)
+                                    .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            //Create Async Task and Send it
+                                            AgatteDoPunchTask punchTask = new AgatteDoPunchTask();
+                                            punchTask.execute();
+
+                                        }
+                                    })
+                                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            // User cancelled the dialog
+                                        }
+                                    });
+                            // Create the AlertDialog object and return it
+                            return builder.create();
+                        } else {
+                            return null;
+                        }
                     }
-                }
-            };
-            confirm.show(getFragmentManager(), "confirm_punch");
+                };
+                confirm.show(getFragmentManager(), "confirm_punch");
+            }
         }
     }
 

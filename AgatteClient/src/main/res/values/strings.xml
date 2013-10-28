@@ -50,5 +50,7 @@
     Follow development, submit bugs or wishes at\n <link>https://github.com/remipannequin/AgatteClient</link></string>
     <string name="punch_error_toast">Error while punching:</string>
     <string name="update_error_toast">Error while updating:</string>
+    <string name="interface_preference">Interface</string>
+    <string name="confirm_punch_title">Confirm Punch</string>
 
 </resources>

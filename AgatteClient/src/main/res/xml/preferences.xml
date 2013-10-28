@@ -43,5 +43,15 @@
             android:selectAllOnFocus="true"
             android:inputType="time" />
     </PreferenceCategory>
+    <PreferenceCategory android:title="@string/interface_preference">
+
+        <CheckBoxPreference
+            android:key="confirm_punch"
+            android:title="@string/confirm_punch_title"
+            android:selectAllOnFocus="true"
+            android:checked="true"/>
+
+
+    </PreferenceCategory>
 
 </PreferenceScreen>
