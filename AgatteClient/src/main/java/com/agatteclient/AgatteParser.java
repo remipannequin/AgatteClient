@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 /**
  * Singleton calss to parse response from the Agatte Server
  * <p/>
- * Created by remi on 03/10/13.
+ * Created by Rémi Pannequin on 03/10/13.
  */
 public class AgatteParser {
 
