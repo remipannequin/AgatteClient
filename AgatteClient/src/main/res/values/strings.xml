@@ -25,8 +25,8 @@
     <string name="daily_time_count">Day</string>
     <string name="time_count">Counters</string>
     <string name="time_test">5h30</string>
-    <string name="day_goal_prefs_title">Daily work time</string>
-    <string name="day_goal_default_value">7:40</string>
+    <string name="week_goal_prefs_title">Weekly work time</string>
+    <string name="week_goal_default_value">38h10</string>
     <string name="connection_preferences">Connexion</string>
     <string name="profile_preference">Profile</string>
     <string name="title_activity_about">About</string>

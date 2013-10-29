@@ -52,17 +52,14 @@ class DayCardView extends View {
     private final float min;
     private final int duration_virtual_color;
     private final int hatchingColor;
-    private float text_width = 0;
     private final float text_height;
     private final int line_color;
     private final int text_duration_color;
     private final int text_event_color;
     private final int duration_color;
     private final int mandatory_color;
-
-
     private final String date_fmt;
-
+    private float text_width = 0;
     private DayCard card;
     private Paint line_paint;
     private RectF bounds;
@@ -219,7 +216,6 @@ class DayCardView extends View {
         float scale = r.getDisplayMetrics().density;
         return (px * scale);
     }
-
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -444,7 +440,6 @@ class DayCardView extends View {
         }
         return bottom;
     }
-
 
     /**
      * Return the Y coordinate corresponding to a hour

@@ -31,12 +31,10 @@ import android.graphics.drawable.Drawable;
 public class TimeProgressDrawable extends Drawable {
 
 
+    private static final int WIDTH = 5;//dp
     private final Paint paint_empty, paint_goal, paint_done;
-
     private final double goal;
     private final int step;
-
-    private static final int WIDTH = 5;//dp
 
     public TimeProgressDrawable(int max, double goal, int fact, float density) {
         this.goal = goal;

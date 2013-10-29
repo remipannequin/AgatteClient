@@ -22,7 +22,6 @@ import com.agatteclient.DayCard;
 
 import java.text.ParseException;
 import java.util.Date;
-import java.util.Iterator;
 
 /**
  * Created by Rémi Pannequin on 02/10/13.

@@ -82,7 +82,7 @@
         android:id="@+id/time_count_textView"
         android:layout_alignTop="@+id/day_scrollview"
         android:layout_alignRight="@+id/day_progress"
-        android:gravity="center_vertical"
+        android:gravity="center_horizontal|top"
         android:layout_alignLeft="@+id/day_progress" />
 
     <TextView

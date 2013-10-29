@@ -37,10 +37,10 @@ public class DayCard implements Serializable {
 
     private final List<Long> punches;
     private final List<Long> corrected_punches;
-    private List<Long> virtual_punches;
     private final int day;
     private final int year;
     private final long start;
+    private List<Long> virtual_punches;
 
     /**
      * Crete a new instance of a DayCard with the current day and year
@@ -84,18 +84,18 @@ public class DayCard implements Serializable {
     }
 
     /**
-     * Add an arry of punches to the card
+     * Add an array of punches to the card
      * <p/>
      * If a punch is already present in the card, it won't be added twice.
      * <p/>
      * If a correction must be applied, this method will manage it.
      *
-     * @param tops
-     * @param virtual
+     * @param punches the dates to add
+     * @param virtual if true the punches added are virtual ones
      */
-    public void addPunches(String[] tops, boolean virtual) throws ParseException {
+    public void addPunches(String[] punches, boolean virtual) throws ParseException {
         boolean need_correction = false;
-        for (String punch : tops) {
+        for (String punch : punches) {
             need_correction = need_correction || addPunchRaw(punch, virtual);
         }
         if (need_correction) {
@@ -112,7 +112,7 @@ public class DayCard implements Serializable {
      * <p/>
      * The punch is assumed to be a real one
      *
-     * @param time
+     * @param time the date to add
      * @throws ParseException
      */
     public void addPunch(String time) throws ParseException {
@@ -120,8 +120,8 @@ public class DayCard implements Serializable {
     }
 
     /**
-     * @param time
-     * @param virtual
+     * @param time the date to add
+     * @param virtual if true the punches added are virtual ones
      * @throws ParseException
      */
     public void addPunch(String time, boolean virtual) throws ParseException {
@@ -131,8 +131,8 @@ public class DayCard implements Serializable {
     }
 
     /**
-     * @param time
-     * @param virtual
+     * @param time the date to add
+     * @param virtual if true the punches added are virtual ones
      * @return
      * @throws ParseException
      */
@@ -236,7 +236,7 @@ public class DayCard implements Serializable {
     }
 
     /**
-     * @returnthe number of virtual punches of the day
+     * @return the number of virtual punches of the day
      */
     public int getNumberOfVirtualPunches() {
         return virtual_punches.size();

@@ -40,11 +40,11 @@ public class AgatteParser {
     private static final String PATTERN_TOP_OK = "<p>(Top pris en compte à [0-9][0-9]:[0-9}][0-9])</p>";
     private static AgatteParser ourInstance = new AgatteParser();
 
-    public static AgatteParser getInstance() {
-        return ourInstance;
+    private AgatteParser() {
     }
 
-    private AgatteParser() {
+    public static AgatteParser getInstance() {
+        return ourInstance;
     }
 
     private String entityToString(HttpResponse response) throws IOException {
@@ -87,18 +87,11 @@ public class AgatteParser {
         return tops;
     }
 
-
     private boolean searchForTopOk(String result) {
-        String top;
         Pattern p = Pattern.compile(PATTERN_TOP_OK);
         Matcher matcher = p.matcher(result);
-        if (matcher.find()) {
-            top = matcher.group(1);
-            return true;
-        }
-        return false;
+        return matcher.find();
     }
-
 
     public AgatteResponse parse_query_response(HttpResponse response) throws IOException {
 
@@ -129,7 +122,6 @@ public class AgatteParser {
         //verify that response is a redirection to topOk.htm (ie punchOkDir)
         //This is actually a chain of redirection that should lead there...
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
-            boolean found = false;
             for (Header h : response.getHeaders("Location")) {
                 if (h.getValue().contains(AgatteSession.PUNCH_OK_DIR)) {
                     return AgatteResponse.Code.TemporaryOK;
@@ -142,7 +134,6 @@ public class AgatteParser {
         return AgatteResponse.Code.TemporaryOK;
     }
 
-
     public AgatteResponse parse_topOk_response(HttpResponse response) throws IOException {
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
             return new AgatteResponse(AgatteResponse.Code.UnknownError, response.getStatusLine().getReasonPhrase());
@@ -153,8 +144,6 @@ public class AgatteParser {
         if (searchNetworkNotAuthorized(result)) {
             return new AgatteResponse(AgatteResponse.Code.NetworkNotAuthorized);
         }
-
-        Pattern p = Pattern.compile(PATTERN_TOP_OK);
         if (!searchForTopOk(result)) {
             return new AgatteResponse(AgatteResponse.Code.UnknownError);
         }
