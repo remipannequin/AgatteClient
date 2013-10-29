@@ -24,8 +24,8 @@
     <string name="daily_time_count">Journée</string>
     <string name="time_count">Décomptes</string>
     <string name="time_test">5h30</string>
-    <string name="day_goal_prefs_title">Temps Quotidien à réaliser</string>
-    <string name="day_goal_default_value">7:40</string>
+    <string name="week_goal_prefs_title">Temps de travail hebdomadaire</string>
+    <string name="week_goal_default_value">38h10</string>
     <string name="connection_preferences">Connexion</string>
     <string name="profile_preference">Profil</string>
     <string name="title_activity_about">À propos</string>

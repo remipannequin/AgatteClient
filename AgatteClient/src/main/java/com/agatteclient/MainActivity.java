@@ -63,9 +63,9 @@ public class MainActivity extends Activity {
     static final String PASSWD_DEFAULT = "";
     static final String DAY_CARD = "day-card";
     private static final String CONFIRM_PUNCH_PREF = "confirm_punch";
-
-    private ScaleGestureDetector mScaleDetector;
+    private static final String PROFILE_PREF = "week_profile";
     protected MenuItem refreshItem = null;
+    private ScaleGestureDetector mScaleDetector;
     private AgatteSession session;
     private DayCard cur_card;
     private DayCardView dc_view;
@@ -77,201 +77,6 @@ public class MainActivity extends Activity {
     private Button punch_button;
     private ScrollView day_sv;
 
-
-    /**
-     *
-     */
-    private class UpdateViewTask extends TimerTask {
-        @Override
-        public void run() {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    updateCard();
-                }
-            });
-        }
-    }
-
-    /**
-     *
-     */
-    private class AgatteQueryTask extends AsyncTask<Void, Void, AgatteResponse> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            //start animation
-            runRefresh();
-        }
-
-        @Override
-        protected AgatteResponse doInBackground(Void... voids) {
-            return session.query_day();
-        }
-
-        @Override
-        protected void onPostExecute(AgatteResponse rsp) {
-            //check for status
-            if (rsp.isError()) {
-                //display error (in a Toast)
-                StringBuilder toast = new StringBuilder();
-                toast.append(getString(R.string.update_error_toast));
-                toast.append(" ");
-                switch (rsp.getCode()) {
-                    case IOError:
-                        toast.append(getString(R.string.network_error_toast));
-                        if (rsp.hasDetail()) {
-                            toast.append(": ").append(rsp.getDetail());
-                        }
-                        break;
-                    case NetworkNotAuthorized:
-                        toast.append(getString(R.string.unauthorized_network_toast));
-                        break;
-                    case LoginFailed:
-                        toast.append(getString(R.string.login_failed_toast));
-                        break;
-                    case UnknownError:
-                        toast.append(getString(R.string.error_toast));
-                }
-                Context context = getApplicationContext();
-                if (context != null) Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
-
-            }
-            if (rsp.getCode() == AgatteResponse.Code.QueryOK) {
-                try {
-                    if (rsp.hasVirtualTops()) {
-                        cur_card.addPunches(rsp.getVirtualTops(), true);
-                    }
-                    if (rsp.hasTops()) {
-                        cur_card.addPunches(rsp.getTops(), false);
-                    }
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-            updateCard();
-            //stop animation, restore button
-            stopRefresh();
-        }
-    }
-
-    /**
-     *
-     */
-    private class AgatteDoPunchTask extends AsyncTask<Void, Void, AgatteResponse> {
-        @Override
-        protected AgatteResponse doInBackground(Void... voids) {
-
-            AgatteResponse rsp = session.doPunch();
-            return rsp;
-        }
-
-        @Override
-        protected void onPostExecute(AgatteResponse rsp) {
-            //check for status
-
-            //display error (in a Toast)
-            StringBuilder toast = new StringBuilder();
-            switch (rsp.getCode()) {
-                case IOError:
-                    toast.append(getString(R.string.punch_error_toast)).append(" ");
-                    toast.append(getString(R.string.network_error_toast));
-                    if (rsp.hasDetail()) {
-                        toast.append(" : ").append(rsp.getDetail());
-                    }
-                    break;
-                case NetworkNotAuthorized:
-                    toast.append(getString(R.string.punch_error_toast)).append(" ");
-                    toast.append(getString(R.string.unauthorized_network_toast));
-                    break;
-                case LoginFailed:
-                    toast.append(getString(R.string.punch_error_toast)).append(" ");
-                    toast.append(getString(R.string.login_failed_toast));
-                    break;
-                case PunchOK:
-                case QueryOK:
-                    try {
-                        if (rsp.hasVirtualTops()) {
-                            cur_card.addPunches(rsp.getVirtualTops(), true);
-                        }
-                        if (rsp.hasTops()) {
-                            cur_card.addPunches(rsp.getTops(), false);
-                        }
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    toast.append(getString(R.string.punch_ok_toast));
-                    break;
-                case UnknownError:
-                    toast.append(getString(R.string.punch_error_toast)).append(" ");
-                    toast.append(getString(R.string.error_toast));
-            }
-            Context context = getApplicationContext();
-            updateCard();
-            if (context != null) {
-                Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-
-    /**
-     *
-     */
-    protected class AgattePreferenceListener implements SharedPreferences.OnSharedPreferenceChangeListener {
-        private final AgatteSession session;
-
-        protected AgattePreferenceListener(AgatteSession session) {
-            this.session = session;
-        }
-
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-            if (s.equals(SERVER_PREF)) {
-                String value = sharedPreferences.getString(s, SERVER_DEFAULT);
-                try {
-                    session.setServer(value);
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                }
-                return;
-            }
-            if (s.equals(LOGIN_PREF)) {
-                String value = sharedPreferences.getString(s, LOGIN_DEFAULT);
-                try {
-                    session.setUser(value);
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                return;
-            }
-            if (s.equals(PASSWD_PREF)) {
-                String value = sharedPreferences.getString(s, PASSWD_DEFAULT);
-                try {
-                    session.setPassword(value);
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-
-    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-            float mScaleFactor = detector.getScaleFactor();
-            float center = detector.getFocusY();
-            float delta_scroll = day_sv.getScrollY();
-            //scroll view to maintain center
-            day_sv.smoothScrollBy(0, (int) ((center + delta_scroll) * (mScaleFactor - 1)));
-            dc_view.applyScale(mScaleFactor);
-            dc_view.invalidate();
-            return true;
-        }
-    }
-
-
     /**
      * Save the state of the activity (the DayCard)
      *
@@ -282,7 +87,6 @@ public class MainActivity extends Activity {
         super.onSaveInstanceState(outState);
         outState.putSerializable(DAY_CARD, cur_card);
     }
-
 
     /**
      * Restore the state of the activity (the DayCard)
@@ -323,11 +127,14 @@ public class MainActivity extends Activity {
         dc_view = (DayCardView) findViewById(R.id.day_card_view);
         dc_view.setCard(cur_card);
 
+        String profile = preferences.getString(PROFILE_PREF,"1");
+        int profile_n = Integer.decode(profile)-1;
+        float day_goal = TimeProfile.values()[profile_n].daily_time;
 
         Resources r = getResources();
         float scale = r.getDisplayMetrics().density;
         day_progress = (ProgressBar) findViewById(R.id.day_progress);
-        day_progress.setProgressDrawable(new TimeProgressDrawable(1200, 7.5, 100, scale));
+        day_progress.setProgressDrawable(new TimeProgressDrawable(1200, day_goal, 100, scale));
         day_progress.setMax(1200);
 
         day_textView = (TextView) findViewById(R.id.day_textView);
@@ -351,7 +158,7 @@ public class MainActivity extends Activity {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        //TESTING !
+        /*/TESTING !
         try {
             //cur_card.addPunch("5:00", true);
             //cur_card.addPunch("7:30", true);
@@ -359,7 +166,7 @@ public class MainActivity extends Activity {
             cur_card.addPunch("15:00");
         } catch (ParseException e) {
             e.printStackTrace();
-        }//
+        }/*/
 
 
         updateCard();
@@ -522,7 +329,6 @@ public class MainActivity extends Activity {
         }
     }
 
-
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         switch (item.getItemId()) {
@@ -547,5 +353,194 @@ public class MainActivity extends Activity {
 
         }
         return true;
+    }
+
+    /**
+     *
+     */
+    private class UpdateViewTask extends TimerTask {
+        @Override
+        public void run() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    updateCard();
+                }
+            });
+        }
+    }
+
+    /**
+     *
+     */
+    private class AgatteQueryTask extends AsyncTask<Void, Void, AgatteResponse> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            //start animation
+            runRefresh();
+        }
+
+        @Override
+        protected AgatteResponse doInBackground(Void... voids) {
+            return session.query_day();
+        }
+
+        @Override
+        protected void onPostExecute(AgatteResponse rsp) {
+            //check for status
+            if (rsp.isError()) {
+                //display error (in a Toast)
+                StringBuilder toast = new StringBuilder();
+                toast.append(getString(R.string.update_error_toast));
+                toast.append(" ");
+                switch (rsp.getCode()) {
+                    case IOError:
+                        toast.append(getString(R.string.network_error_toast));
+                        if (rsp.hasDetail()) {
+                            toast.append(": ").append(rsp.getDetail());
+                        }
+                        break;
+                    case NetworkNotAuthorized:
+                        toast.append(getString(R.string.unauthorized_network_toast));
+                        break;
+                    case LoginFailed:
+                        toast.append(getString(R.string.login_failed_toast));
+                        break;
+                    case UnknownError:
+                        toast.append(getString(R.string.error_toast));
+                }
+                Context context = getApplicationContext();
+                if (context != null) Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
+
+            }
+            if (rsp.getCode() == AgatteResponse.Code.QueryOK) {
+                try {
+                    if (rsp.hasVirtualTops()) {
+                        cur_card.addPunches(rsp.getVirtualTops(), true);
+                    }
+                    if (rsp.hasTops()) {
+                        cur_card.addPunches(rsp.getTops(), false);
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+            updateCard();
+            //stop animation, restore button
+            stopRefresh();
+        }
+    }
+
+    /**
+     *
+     */
+    private class AgatteDoPunchTask extends AsyncTask<Void, Void, AgatteResponse> {
+        @Override
+        protected AgatteResponse doInBackground(Void... voids) {
+            return session.doPunch();
+        }
+
+        @Override
+        protected void onPostExecute(AgatteResponse rsp) {
+            //check for status
+
+            //display error (in a Toast)
+            StringBuilder toast = new StringBuilder();
+            switch (rsp.getCode()) {
+                case IOError:
+                    toast.append(getString(R.string.punch_error_toast)).append(" ");
+                    toast.append(getString(R.string.network_error_toast));
+                    if (rsp.hasDetail()) {
+                        toast.append(" : ").append(rsp.getDetail());
+                    }
+                    break;
+                case NetworkNotAuthorized:
+                    toast.append(getString(R.string.punch_error_toast)).append(" ");
+                    toast.append(getString(R.string.unauthorized_network_toast));
+                    break;
+                case LoginFailed:
+                    toast.append(getString(R.string.punch_error_toast)).append(" ");
+                    toast.append(getString(R.string.login_failed_toast));
+                    break;
+                case PunchOK:
+                case QueryOK:
+                    try {
+                        if (rsp.hasVirtualTops()) {
+                            cur_card.addPunches(rsp.getVirtualTops(), true);
+                        }
+                        if (rsp.hasTops()) {
+                            cur_card.addPunches(rsp.getTops(), false);
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    toast.append(getString(R.string.punch_ok_toast));
+                    break;
+                case UnknownError:
+                    toast.append(getString(R.string.punch_error_toast)).append(" ");
+                    toast.append(getString(R.string.error_toast));
+            }
+            Context context = getApplicationContext();
+            updateCard();
+            if (context != null) {
+                Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    protected class AgattePreferenceListener implements SharedPreferences.OnSharedPreferenceChangeListener {
+        private final AgatteSession session;
+
+        protected AgattePreferenceListener(AgatteSession session) {
+            this.session = session;
+        }
+
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+            if (s.equals(SERVER_PREF)) {
+                String value = sharedPreferences.getString(s, SERVER_DEFAULT);
+                try {
+                    session.setServer(value);
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
+            if (s.equals(LOGIN_PREF)) {
+                String value = sharedPreferences.getString(s, LOGIN_DEFAULT);
+                try {
+                    session.setUser(value);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
+            if (s.equals(PASSWD_PREF)) {
+                String value = sharedPreferences.getString(s, PASSWD_DEFAULT);
+                try {
+                    session.setPassword(value);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            float mScaleFactor = detector.getScaleFactor();
+            float center = detector.getFocusY();
+            float delta_scroll = day_sv.getScrollY();
+            //scroll view to maintain center
+            day_sv.smoothScrollBy(0, (int) ((center + delta_scroll) * (mScaleFactor - 1)));
+            dc_view.applyScale(mScaleFactor);
+            dc_view.invalidate();
+            return true;
+        }
     }
 }

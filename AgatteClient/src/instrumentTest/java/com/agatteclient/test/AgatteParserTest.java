@@ -19,22 +19,13 @@ import android.test.AndroidTestCase;
 
 import com.agatteclient.AgatteParser;
 import com.agatteclient.AgatteResponse;
-import com.agatteclient.AgatteSession;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.message.BasicStatusLine;
-import org.xml.sax.InputSource;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * Created by Rémi Pannequin on 03/10/13.
