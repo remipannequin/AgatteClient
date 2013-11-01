@@ -15,42 +15,42 @@
 
 package com.agatteclient;
 
+import android.os.Bundle;
+
 import java.util.Collection;
 
 /**
- * Created by remi on 06/10/13.
+ * Created by Rémi Pannequin on 06/10/13.
  */
 public class AgatteResponse {
 
 
     private Code code;
     private String detail;
-    private String[] tops;
-    private String[] virtual_tops;
+    private String[] punches;
+    private String[] virtual_punches;
     public AgatteResponse(Code code) {
         this.code = code;
         this.detail = null;
 
     }
-    public AgatteResponse(Code code, String[] tops) {
-        this(code);
-        this.tops = tops;
-        this.virtual_tops = new String[0];
+
+    private AgatteResponse() {
     }
 
-    public AgatteResponse(Code code, Collection<String> tops) {
+    public AgatteResponse(Code code, Collection<String> punches) {
         this(code);
-        this.tops = tops.toArray(new String[tops.size()]);
+        this.punches = punches.toArray(new String[punches.size()]);
     }
 
-    public AgatteResponse(Code code, Collection<String> tops, Collection<String> virtual_tops) {
-        this(code, tops);
-        this.virtual_tops = virtual_tops.toArray(new String[tops.size()]);
+    public AgatteResponse(Code code, Collection<String> punches, Collection<String> virtual_punches) {
+        this(code, punches);
+        this.virtual_punches = virtual_punches.toArray(new String[punches.size()]);
     }
 
     public AgatteResponse(Code code, Exception cause) {
         this(code);
-        this.virtual_tops = new String[0];
+        this.virtual_punches = new String[0];
         if (cause.getCause() != null) {
             this.detail = cause.getCause().getLocalizedMessage();
         } else {
@@ -60,7 +60,7 @@ public class AgatteResponse {
 
     public AgatteResponse(Code code, String s) {
         this(code);
-        this.virtual_tops = new String[0];
+        this.virtual_punches = new String[0];
         this.detail = s;
     }
 
@@ -68,12 +68,12 @@ public class AgatteResponse {
         return code;
     }
 
-    public String[] getTops() {
-        return tops;
+    public String[] getPunches() {
+        return punches;
     }
 
-    public String[] getVirtualTops() {
-        return virtual_tops;
+    public String[] getVirtualPunches() {
+        return virtual_punches;
     }
 
     public String getDetail() {
@@ -85,20 +85,41 @@ public class AgatteResponse {
         return code.isError();
     }
 
-    public boolean hasTops() {
+    public boolean hasPunches() {
         //true for 'OK' types
         return code.hasTops();
     }
 
-    public boolean hasVirtualTops() {
+    public boolean hasVirtualPunches() {
         //true for 'OK' types
-        return (virtual_tops.length != 0);
+        return (virtual_punches.length != 0);
     }
 
     public boolean hasDetail() {
         //true if isError
         return (detail != null);
     }
+
+
+
+    public Bundle toBundle() {
+        Bundle result = new Bundle();
+        result.putInt("code", this.code.ordinal());
+        result.putString("detail", this.detail);
+        result.putStringArray("punches", this.punches);
+        result.putStringArray("virtual_punches", this.virtual_punches);
+        return result;
+    }
+
+    public static AgatteResponse fromBundle(Bundle bundle){
+        AgatteResponse instance = new AgatteResponse();
+        instance.code = Code.values()[bundle.getInt("code")];
+        instance.detail = bundle.getString("detail");
+        instance.punches = bundle.getStringArray("punches");
+        instance.virtual_punches = bundle.getStringArray("virtual_punches");
+        return instance;
+    }
+
 
     public enum Code {
         IOError(true),//IOError happened

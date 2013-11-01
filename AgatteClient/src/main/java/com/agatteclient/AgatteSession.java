@@ -110,7 +110,7 @@ public class AgatteSession {
      *
      * @param client the HttpClient to use
      */
-    private void logout(AndroidHttpClient client) {
+    public void logout(AndroidHttpClient client) {
 
         try {
             client.execute(logout_rq, httpContext);

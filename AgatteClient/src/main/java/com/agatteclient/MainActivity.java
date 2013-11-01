@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.IntentService;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,6 +28,9 @@ import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -43,6 +47,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOError;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
@@ -274,19 +279,19 @@ public class MainActivity extends Activity {
     public void doPunch(View v) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         boolean mustConfirm = pref.getBoolean(CONFIRM_PUNCH_PREF, true);
+        final Intent i = new Intent(this, PunchService.class);
+        i.setAction(PunchService.DO_PUNCH);
+        i.putExtra(PunchService.RESULT_RECEIVER, new AgatteResultReceiver());
+
         if (!mustConfirm) {
-            AgatteDoPunchTask punchTask = new AgatteDoPunchTask();
-            punchTask.execute();
+            startService(i);
         } else {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage(R.string.dialog_confirm_punch)
                         .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                //Create Async Task and Send it
-                                AgatteDoPunchTask punchTask = new AgatteDoPunchTask();
-                                punchTask.execute();
-
+                                startService(i);
                             }
                         })
                         .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -306,10 +311,7 @@ public class MainActivity extends Activity {
                             builder.setMessage(R.string.dialog_confirm_punch)
                                     .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
-                                            //Create Async Task and Send it
-                                            AgatteDoPunchTask punchTask = new AgatteDoPunchTask();
-                                            punchTask.execute();
-
+                                            startService(i);
                                         }
                                     })
                                     .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -343,9 +345,8 @@ public class MainActivity extends Activity {
                 startActivity(intent);
                 break;
             case R.id.action_update:
-                AgatteQueryTask queryTask = new AgatteQueryTask();
                 refreshItem = item;//menu.getItem(R.id.action_update);
-                queryTask.execute();
+                doUpdate();
                 break;
             case R.id.action_about:
                 Intent about_intent = new Intent(this, AboutActivity.class);
@@ -355,95 +356,30 @@ public class MainActivity extends Activity {
         return true;
     }
 
-    /**
-     *
-     */
-    private class UpdateViewTask extends TimerTask {
-        @Override
-        public void run() {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    updateCard();
-                }
-            });
-        }
+    private void doUpdate() {
+        Intent i = new Intent(this, PunchService.class);
+        i.setAction(PunchService.QUERY);
+        i.putExtra(PunchService.RESULT_RECEIVER, new AgatteResultReceiver());
+        startService(i);
+        runRefresh();
     }
 
-    /**
-     *
-     */
-    private class AgatteQueryTask extends AsyncTask<Void, Void, AgatteResponse> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            //start animation
-            runRefresh();
+
+    private class AgatteResultReceiver extends ResultReceiver {
+
+        /**
+         * Create a new ResultReceive to receive results.  Your
+         * {@link #onReceiveResult} method will be called from the thread running
+         * <var>handler</var> if given, or from an arbitrary thread if null.
+         *
+         */
+        public AgatteResultReceiver() {
+            super(new Handler(Looper.getMainLooper()));
         }
 
         @Override
-        protected AgatteResponse doInBackground(Void... voids) {
-            return session.query_day();
-        }
-
-        @Override
-        protected void onPostExecute(AgatteResponse rsp) {
-            //check for status
-            if (rsp.isError()) {
-                //display error (in a Toast)
-                StringBuilder toast = new StringBuilder();
-                toast.append(getString(R.string.update_error_toast));
-                toast.append(" ");
-                switch (rsp.getCode()) {
-                    case IOError:
-                        toast.append(getString(R.string.network_error_toast));
-                        if (rsp.hasDetail()) {
-                            toast.append(": ").append(rsp.getDetail());
-                        }
-                        break;
-                    case NetworkNotAuthorized:
-                        toast.append(getString(R.string.unauthorized_network_toast));
-                        break;
-                    case LoginFailed:
-                        toast.append(getString(R.string.login_failed_toast));
-                        break;
-                    case UnknownError:
-                        toast.append(getString(R.string.error_toast));
-                }
-                Context context = getApplicationContext();
-                if (context != null) Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
-
-            }
-            if (rsp.getCode() == AgatteResponse.Code.QueryOK) {
-                try {
-                    if (rsp.hasVirtualTops()) {
-                        cur_card.addPunches(rsp.getVirtualTops(), true);
-                    }
-                    if (rsp.hasTops()) {
-                        cur_card.addPunches(rsp.getTops(), false);
-                    }
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-            updateCard();
-            //stop animation, restore button
-            stopRefresh();
-        }
-    }
-
-    /**
-     *
-     */
-    private class AgatteDoPunchTask extends AsyncTask<Void, Void, AgatteResponse> {
-        @Override
-        protected AgatteResponse doInBackground(Void... voids) {
-            return session.doPunch();
-        }
-
-        @Override
-        protected void onPostExecute(AgatteResponse rsp) {
-            //check for status
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            AgatteResponse rsp = AgatteResponse.fromBundle(resultData);
 
             //display error (in a Toast)
             StringBuilder toast = new StringBuilder();
@@ -466,11 +402,12 @@ public class MainActivity extends Activity {
                 case PunchOK:
                 case QueryOK:
                     try {
-                        if (rsp.hasVirtualTops()) {
-                            cur_card.addPunches(rsp.getVirtualTops(), true);
+                        DayCard cur_card = CardBinder.getInstance().getTodayCard();
+                        if (rsp.hasVirtualPunches()) {
+                            cur_card.addPunches(rsp.getVirtualPunches(), true);
                         }
-                        if (rsp.hasTops()) {
-                            cur_card.addPunches(rsp.getTops(), false);
+                        if (rsp.hasPunches()) {
+                            cur_card.addPunches(rsp.getPunches(), false);
                         }
                     } catch (ParseException e) {
                         e.printStackTrace();
@@ -482,10 +419,31 @@ public class MainActivity extends Activity {
                     toast.append(getString(R.string.error_toast));
             }
             Context context = getApplicationContext();
-            updateCard();
             if (context != null) {
+
                 Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
+
             }
+
+
+            updateCard();
+            stopRefresh();
+
+        }
+    }
+
+    /**
+     *
+     */
+    private class UpdateViewTask extends TimerTask {
+        @Override
+        public void run() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    updateCard();
+                }
+            });
         }
     }
 

@@ -41,8 +41,8 @@ public class AgatteParserTest extends AndroidTestCase {
 
         AgatteResponse rsp = instance.parse_query_response(test);
         assertEquals(AgatteResponse.Code.QueryOK, rsp.getCode());
-        assertTrue(rsp.hasTops());
-        String[] actual = rsp.getTops();
+        assertTrue(rsp.hasPunches());
+        String[] actual = rsp.getPunches();
         assertEquals(2, actual.length);
         assertEquals("12:10", actual[0]);
         assertEquals("13:00", actual[1]);
@@ -57,8 +57,8 @@ public class AgatteParserTest extends AndroidTestCase {
         test.setEntity(test_entity);
         AgatteResponse rsp = instance.parse_query_response(test);
         assertEquals(AgatteResponse.Code.QueryOK, rsp.getCode());
-        assertTrue(rsp.hasTops());
-        String[] actual = rsp.getTops();
+        assertTrue(rsp.hasPunches());
+        String[] actual = rsp.getPunches();
         assertEquals(3, actual.length);
         assertEquals("09:01", actual[0]);
         assertEquals("12:15", actual[1]);
@@ -84,8 +84,8 @@ public class AgatteParserTest extends AndroidTestCase {
         test.setEntity(test_entity);
         AgatteResponse rsp = instance.parse_topOk_response(test);
         assertEquals(AgatteResponse.Code.PunchOK, rsp.getCode());
-        assertTrue(rsp.hasTops());
-        String[] actual = rsp.getTops();
+        assertTrue(rsp.hasPunches());
+        String[] actual = rsp.getPunches();
         assertEquals(3, actual.length);
         assertEquals("07:48", actual[0]);
         assertEquals("12:15", actual[1]);
@@ -110,14 +110,14 @@ public class AgatteParserTest extends AndroidTestCase {
         test.setEntity(test_entity);
         AgatteResponse rsp = instance.parse_query_response(test);
         assertEquals(AgatteResponse.Code.QueryOK, rsp.getCode());
-        assertTrue(rsp.hasTops());
-        assertTrue(rsp.hasVirtualTops());
-        assertEquals(2, rsp.getVirtualTops().length);
-        assertEquals("07:56", rsp.getVirtualTops()[0]);
-        assertEquals("11:45", rsp.getVirtualTops()[1]);
-        assertEquals(2, rsp.getTops().length);
-        assertEquals("13:00", rsp.getTops()[0]);
-        assertEquals("17:00", rsp.getTops()[1]);
+        assertTrue(rsp.hasPunches());
+        assertTrue(rsp.hasVirtualPunches());
+        assertEquals(2, rsp.getVirtualPunches().length);
+        assertEquals("07:56", rsp.getVirtualPunches()[0]);
+        assertEquals("11:45", rsp.getVirtualPunches()[1]);
+        assertEquals(2, rsp.getPunches().length);
+        assertEquals("13:00", rsp.getPunches()[0]);
+        assertEquals("17:00", rsp.getPunches()[1]);
     }
 
 

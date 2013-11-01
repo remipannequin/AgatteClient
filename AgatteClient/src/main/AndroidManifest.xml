@@ -40,6 +40,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.agatteclient.MainActivity" />
         </activity>
+        <service
+            android:enabled="true"
+            android:name="com.agatteclient.PunchService"
+            android:label="PunchService"
+        />
     </application>
 
 </manifest>
