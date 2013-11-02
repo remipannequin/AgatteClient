@@ -30,9 +30,18 @@
     <string name="profile_preference">Profil</string>
     <string name="title_activity_about">À propos</string>
     <string name="about_description">AgatteClient : utilisez Agatte depuis votre smartphone.</string>
-    <string name="about_disclaimer">AgatteClient est distribué dans l\'espoir qu\'il sera utile, mais SANS AUCUNE GARANTIE ; pas même la garantie implicite de COMMERCIABILISABILITÉ ni d\'ADÉQUATION à UN OBJECTIF PARTICULIER. Consultez la GNU General Public License pour plus de détails.\n<b>Soyez conscients que les informations de décompte de temps peuvent être éronées et des pointages peuvent être perdus...</b></string>
+    <string name="about_disclaimer">AgatteClient est distribué dans l\'espoir qu\'il sera utile, mais SANS AUCUNE GARANTIE ; pas même la garantie implicite de COMMERCIABILISABILITÉ ni d\'ADÉQUATION à UN OBJECTIF PARTICULIER. Consultez la GNU GPL pour plus de détails.\n<b>Soyez conscients que les informations de décompte de temps peuvent être éronés et des pointage peuvent être perdus...</b></string>
     <string name="action_about">À propos</string>
-    <string name="about_free_soft">Ce logiciel est libre ; vous pouvez le redistribuer ou le modifier suivant les termes de la GNU General Public License telle que publiée par la Free Software Foundation ; soit la version 3 de la licence, soit (à votre gré) toute version ultérieure.\n\n Vous devez avoir reçu une copie de la GNU General Public License en même temps que AgatteClient ; si ce n\'est pas le cas, consultez <link>http://www.gnu.org/licenses</link>.\n\n Vous pouvez suivre le développement, soumettre des anomalies ou des souhaits sur\n<link>https://github.com/remipannequin/AgatteClient</link></string>
+    <string name="about_free_soft">
+        Ce logiciel est libre ; vous pouvez le redistribuer ou le\n
+        modifier suivant les termes de la GNU General Public\n
+        License telle que publiée par la Free Software\n
+        Foundation ; soit la version 3 de la licence,\n
+        soit (à votre gré) toute version ultérieure.\n
+        Consultez <link>http://www.gnu.org/licenses</link>.\n\n
+        Vous pouvez suivre le développement, soumettre\n
+        des anomalies ou des souhaits \n
+        sur <link>https://github.com/remipannequin/AgatteClient</link></string>
     <string name="punch_error_toast">Erreur pendant le pointage:</string>
     <string name="update_error_toast">Erreur pendant la mise à jour:</string>
     <string name="interface_preference">Interface</string>

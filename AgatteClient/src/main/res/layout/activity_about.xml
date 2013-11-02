@@ -17,16 +17,20 @@
         android:textStyle="italic"
         android:gravity="center_horizontal"
         android:layout_alignParentBottom="true"
-        android:layout_alignLeft="@+id/freesoft_textView" />
+        android:layout_alignLeft="@+id/freesoft_textView"
+        android:autoText="false"
+        android:typeface="sans"
+        android:textSize="12sp"/>
 
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/about_description"
         android:id="@+id/description_textView"
         android:layout_alignParentTop="true"
-        android:layout_alignLeft="@+id/disclaimer_textView" />
+        android:layout_alignLeft="@+id/disclaimer_textView"
+        android:textSize="16sp"
+        android:textStyle="bold"/>
 
     <TextView
         android:layout_width="fill_parent"
