@@ -1,6 +1,8 @@
 package com.agatteclient;
 
 import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,6 +12,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.os.ResultReceiver;
+import android.support.v4.app.NotificationCompat;
 
 import java.util.Collection;
 import java.util.Date;
@@ -25,14 +28,38 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     private class PunchResultReceiver extends ResultReceiver {
 
-        public PunchResultReceiver() {
+        private final Context ctx;
+        private final NotificationManager mNotifyManager;
+        private final NotificationCompat.Builder mBuilder;
+
+        public PunchResultReceiver(Context ctx) {
             super(new Handler(Looper.getMainLooper()));
+            this.ctx = ctx;
+            mNotifyManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+            mBuilder = new NotificationCompat.Builder(ctx);
+
         }
 
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-            //TODO: display notification based on result
+
             AgatteResponse rsp = AgatteResponse.fromBundle(resultData);
+            //TODO: set notification text and title based on result
+            StringBuilder notification_text = new StringBuilder("le pointage programmé à XXhXX a été effectué");
+            StringBuilder notification_title = new StringBuilder("Pointage effectué");
+
+
+            mBuilder.setContentTitle(notification_title)
+                    .setContentText(notification_text)
+                    .setSmallIcon(R.drawable.ic_stat_notify);
+
+            PendingIntent contentIntent = PendingIntent.getActivity(ctx, 0,
+                    new Intent(ctx, MainActivity.class), 0);
+
+            mNotifyManager.notify(0, mBuilder.build());
+
+
+
 
         }
     }
@@ -53,7 +80,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         final Intent i = new Intent(context, PunchService.class);
         i.setAction(PunchService.DO_PUNCH);
-        i.putExtra(PunchService.RESULT_RECEIVER, new PunchResultReceiver());
+        i.putExtra(PunchService.RESULT_RECEIVER, new PunchResultReceiver(context));
         context.startService(i);
 
         wl.release();
