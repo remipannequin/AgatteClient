@@ -92,7 +92,7 @@ public class AgatteResponse {
 
     public boolean hasVirtualPunches() {
         //true for 'OK' types
-        return (virtual_punches.length != 0);
+        return (virtual_punches != null && virtual_punches.length != 0);
     }
 
     public boolean hasDetail() {
