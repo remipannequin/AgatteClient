@@ -92,7 +92,7 @@ public class AgatteResponse {
 
     public boolean hasVirtualTops() {
         //true for 'OK' types
-        return (virtual_tops.length != 0);
+        return (virtual_tops != null && virtual_tops.length != 0);
     }
 
     public boolean hasDetail() {
