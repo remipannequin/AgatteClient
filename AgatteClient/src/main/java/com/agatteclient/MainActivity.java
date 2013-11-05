@@ -168,7 +168,8 @@ public class MainActivity extends Activity {
             //cur_card.addPunch("5:00", true);
             //cur_card.addPunch("7:30", true);
             cur_card.addPunch("8:00");
-            cur_card.addPunch("15:00");
+            cur_card.addPunch("12:00");
+            cur_card.addPunch("12:15");
         } catch (ParseException e) {
             e.printStackTrace();
         }/*/
@@ -205,6 +206,7 @@ public class MainActivity extends Activity {
         if (cur_card.isEven()) {
             punch_button.setText(R.string.punch_button1);
         } else {
+            cur_card.applyCorrection();
             punch_button.setText(R.string.punch_button2);
         }
 
