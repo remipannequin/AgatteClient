@@ -9,7 +9,6 @@
     <string name="login_default_value">name5</string>
     <string name="password_prefs_title">Password</string>
     <string name="password_default_value">******</string>
-    <string name="pref_header_general">General</string>
     <string name="title_activity_settings">Parameters</string>
     <string name="action_update">Update</string>
     <string name="dialog_confirm_punch">Confirm sending punch ?</string>
@@ -26,13 +25,13 @@
     <string name="daily_time_count">Day</string>
     <string name="time_count">Counters</string>
     <string name="time_test">5h30</string>
-    <string name="day_goal_prefs_title">Daily work time</string>
-    <string name="day_goal_default_value">7:40</string>
+    <string name="week_goal_prefs_title">Weekly work time</string>
+    <string name="week_goal_default_value">38h10</string>
     <string name="connection_preferences">Connexion</string>
     <string name="profile_preference">Profile</string>
     <string name="title_activity_about">About</string>
     <string name="about_description">AgatteClient : use Agatte from your smart phone</string>
-    <string name="about_author">Copyright © 2013 Rémi Pannequin (remi.pannequin@gmail.com)</string>
+    <string name="about_author">© 2013 Rémi Pannequin (remi.pannequin@gmail.com)</string>
     <string name="about_version">Version :</string>
     <string name="about_disclaimer">This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -51,5 +50,7 @@
     Follow development, submit bugs or wishes at\n <link>https://github.com/remipannequin/AgatteClient</link></string>
     <string name="punch_error_toast">Error while punching:</string>
     <string name="update_error_toast">Error while updating:</string>
+    <string name="interface_preference">Interface</string>
+    <string name="confirm_punch_title">Confirm Punch</string>
 
 </resources>

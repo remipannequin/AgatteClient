@@ -6,9 +6,9 @@ Milestone 0 : Usable app (1.0 v1 -> 4)
 
 
 Milestone 1: More interaction
- * Gesture on DayDarcView : zooming (pinch), changing area displayed (vertical move)
- * Legend Activity : display the signification of the graphical elements
- * "Tops d'absence" in another color
+ * Gesture on DayCardView : zooming (pinch), changing area displayed (vertical move)
+ * preference to hide punch confirm dialog
+ * virtual punches ("Tops d'absence") in another color
 
 
  Milestone 2 : Automation
@@ -33,3 +33,5 @@ Milestone 1: More interaction
  Milestone 5: Eye candy
  * App Widget with day counter, and punch button.
  * create a two-columns layout in landscape orientation
+ * Legend Activity : display the signification of the graphical elements
+

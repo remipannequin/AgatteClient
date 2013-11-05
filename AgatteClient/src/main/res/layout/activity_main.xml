@@ -9,24 +9,34 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".MainActivity">
 
-    <view
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        class="com.agatteclient.DayCardView"
-        android:id="@+id/day_card_view"
+    <ScrollView
+        android:scrollbars="none"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/day_scrollview"
         android:layout_above="@+id/button_doPunch"
-        custom:textHeight="15dp"
-        custom:dayStartHour="7"
-        custom:dayEndHour="19"
-        custom:mandatoryColor="#FFBB33"
-        custom:durationColor="#03B5E5"
-        custom:textEventTimeColor="#0099CC"
-        custom:textDurationColor="#FFFFFF"
-        custom:hourLineColor="#AAAAAA"
-        custom:timeFormat="HH:mm"
         android:layout_toLeftOf="@+id/day_progress"
-        android:paddingRight="@dimen/activity_horizontal_margin" />
+        android:paddingRight="@dimen/activity_horizontal_margin">
 
+        <view
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            class="com.agatteclient.DayCardView"
+            android:id="@+id/day_card_view"
+            custom:textHeight="15dp"
+            custom:mandatoryColor="#FFBB33"
+            custom:durationColor="#03B5E5"
+            custom:durationVirtualColor="#99CC00"
+            custom:textEventTimeColor="#0099CC"
+            custom:textDurationColor="#FFFFFF"
+            custom:hourLineColor="#AAAAAA"
+            custom:hourLineWidth="0.75dp"
+            custom:hatchingColor="#77FFFFFF"
+            custom:timeFormat="HH:mm"
+            custom:hourIncrement="2"
+            custom:hourHeight="20dp"/>
+
+    </ScrollView>
 
     <Button
         android:layout_width="wrap_content"
@@ -35,7 +45,7 @@
         android:id="@+id/button_doPunch"
         android:onClick="doPunch"
         android:layout_alignParentBottom="true"
-        android:layout_alignLeft="@+id/day_card_view"
+        android:layout_alignLeft="@+id/day_scrollview"
         android:singleLine="true"
         android:layout_alignRight="@+id/day_progress" />
 
@@ -70,9 +80,9 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="@string/time_count"
         android:id="@+id/time_count_textView"
-        android:layout_alignTop="@+id/day_card_view"
+        android:layout_alignTop="@+id/day_scrollview"
         android:layout_alignRight="@+id/day_progress"
-        android:gravity="center_vertical"
+        android:gravity="center_horizontal|top"
         android:layout_alignLeft="@+id/day_progress" />
 
     <TextView

@@ -30,23 +30,24 @@ import java.util.regex.Pattern;
 /**
  * Singleton calss to parse response from the Agatte Server
  * <p/>
- * Created by remi on 03/10/13.
+ * Created by Rémi Pannequin on 03/10/13.
  */
 public class AgatteParser {
 
-    private static final String PATTERN_TOPS = ".*<li.*([0-9][0-9]:[0-9][0-9])\\s*</li>.*";
+    private static final String PATTERN_TOPS = ".*<li.*Top r.el.*([0-9][0-9]:[0-9][0-9])\\s*</li>.*";
+    private static final String PATTERN_VIRTUAL_TOPS = ".*<li.*Tops d\'absence.*([0-9][0-9]:[0-9][0-9])\\s*</li>.*";
     private static final String PATTERN_NETWORK_NOT_AUTHORIZED = "<legend>Acc\ufffds interdit</legend>";
     private static final String PATTERN_TOP_OK = "<p>(Top pris en compte à [0-9][0-9]:[0-9}][0-9])</p>";
     private static AgatteParser ourInstance = new AgatteParser();
+
+    private AgatteParser() {
+    }
 
     public static AgatteParser getInstance() {
         return ourInstance;
     }
 
-    private AgatteParser() {
-    }
-
-    private String entitytoString(HttpResponse response) throws IOException {
+    private String entityToString(HttpResponse response) throws IOException {
         InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
         BufferedReader rd = new BufferedReader(reader);
         StringBuffer result = new StringBuffer();
@@ -76,17 +77,21 @@ public class AgatteParser {
         return tops;
     }
 
-    private boolean searchforTopOk(String result) {
-        String top;
-        Pattern p = Pattern.compile(PATTERN_TOP_OK);
+    private Collection<String> searchForVirtualTops(String result) {
+        Collection<String> tops = new ArrayList<String>(4);
+        Pattern p = Pattern.compile(PATTERN_VIRTUAL_TOPS);
         Matcher matcher = p.matcher(result);
-        if (matcher.find()) {
-            top = matcher.group(1);
-            return true;
+        while (matcher.find()) {
+            tops.add(matcher.group(1));
         }
-        return false;
+        return tops;
     }
 
+    private boolean searchForTopOk(String result) {
+        Pattern p = Pattern.compile(PATTERN_TOP_OK);
+        Matcher matcher = p.matcher(result);
+        return matcher.find();
+    }
 
     public AgatteResponse parse_query_response(HttpResponse response) throws IOException {
 
@@ -95,14 +100,21 @@ public class AgatteParser {
         }
 
         //get response as a string
-        String result = entitytoString(response);
+        String result = entityToString(response);
         //search for Unauthorized network
         if (searchNetworkNotAuthorized(result)) {
             return new AgatteResponse(AgatteResponse.Code.NetworkNotAuthorized);
         }
         //get tops
         Collection<String> tops = searchForTops(result);
-        return new AgatteResponse(AgatteResponse.Code.QueryOK, tops);
+        Collection<String> virtual_tops = searchForVirtualTops(result);
+
+        if (virtual_tops.isEmpty()) {
+            return new AgatteResponse(AgatteResponse.Code.QueryOK, tops);
+        } else {
+            return new AgatteResponse(AgatteResponse.Code.QueryOK, tops, virtual_tops);
+        }
+
     }
 
     public AgatteResponse.Code parse_punch_response(HttpResponse response) throws IOException {
@@ -110,7 +122,6 @@ public class AgatteParser {
         //verify that response is a redirection to topOk.htm (ie punchOkDir)
         //This is actually a chain of redirection that should lead there...
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
-            boolean found = false;
             for (Header h : response.getHeaders("Location")) {
                 if (h.getValue().contains(AgatteSession.PUNCH_OK_DIR)) {
                     return AgatteResponse.Code.TemporaryOK;
@@ -123,25 +134,28 @@ public class AgatteParser {
         return AgatteResponse.Code.TemporaryOK;
     }
 
-
     public AgatteResponse parse_topOk_response(HttpResponse response) throws IOException {
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
             return new AgatteResponse(AgatteResponse.Code.UnknownError, response.getStatusLine().getReasonPhrase());
         }
         //get response as a string
-        String result = entitytoString(response);
+        String result = entityToString(response);
         //search for Unauthorized network
         if (searchNetworkNotAuthorized(result)) {
             return new AgatteResponse(AgatteResponse.Code.NetworkNotAuthorized);
         }
-
-        Pattern p = Pattern.compile(PATTERN_TOP_OK);
-        if (!searchforTopOk(result)) {
+        if (!searchForTopOk(result)) {
             return new AgatteResponse(AgatteResponse.Code.UnknownError);
         }
         //get tops
         Collection<String> tops = searchForTops(result);
-        return new AgatteResponse(AgatteResponse.Code.PunchOK, tops);
+        Collection<String> virtual_tops = searchForVirtualTops(result);
+
+        if (virtual_tops.isEmpty()) {
+            return new AgatteResponse(AgatteResponse.Code.PunchOK, tops);
+        } else {
+            return new AgatteResponse(AgatteResponse.Code.PunchOK, tops, virtual_tops);
+        }
     }
 
 }

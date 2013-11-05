@@ -5,12 +5,15 @@
         <attr name="textEventTimeColor" format="color" />
         <attr name="textDurationColor" format="color" />
         <attr name="dayStartHour" format="integer" />
-        <attr name="dayEndHour" format="integer" />
         <attr name="hourLineColor" format="color" />
-        <attr name="hourLineWidth" format="float"/>
+        <attr name="hourLineWidth" format="dimension" />
         <attr name="durationColor" format="color" />
+        <attr name="durationVirtualColor" format="color" />
         <attr name="timeFormat" format="string" />
         <attr name="mandatoryColor" format="color" />
+        <attr name="hourIncrement" format="integer" />
+        <attr name="hourHeight" format="dimension"/>
+        <attr name="hatchingColor" format="color"/>
     </declare-styleable>
 
 </resources>

@@ -15,6 +15,8 @@
 
 package com.agatteclient;
 
+import android.util.Pair;
+
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,6 +40,7 @@ public class DayCard implements Serializable {
     private final int day;
     private final int year;
     private final long start;
+    private List<Long> virtual_punches;
 
     /**
      * Crete a new instance of a DayCard with the current day and year
@@ -45,6 +48,7 @@ public class DayCard implements Serializable {
     public DayCard() {
         this.punches = new ArrayList<Long>(12);
         this.corrected_punches = new ArrayList<Long>(12);
+        this.virtual_punches = new ArrayList<Long>(4);
         Calendar cal = Calendar.getInstance();
         Date now = new Date(System.currentTimeMillis());
         cal.setTime(now);
@@ -67,6 +71,7 @@ public class DayCard implements Serializable {
         Calendar cal = Calendar.getInstance();
         this.punches = new ArrayList<Long>(12);
         this.corrected_punches = new ArrayList<Long>(12);
+        this.virtual_punches = new ArrayList<Long>(4);
         this.year = year;
         this.day = day;
         cal.set(Calendar.YEAR, year);
@@ -79,16 +84,59 @@ public class DayCard implements Serializable {
     }
 
     /**
-     * Add some punch in the card.
+     * Add an array of punches to the card
      * <p/>
      * If a punch is already present in the card, it won't be added twice.
      * <p/>
      * If a correction must be applied, this method will manage it.
      *
-     * @param time the time of the punch in the form "HH:mm" (e.g. 20:09)
+     * @param punches the dates to add
+     * @param virtual if true the punches added are virtual ones
+     */
+    public void addPunches(String[] punches, boolean virtual) throws ParseException {
+        boolean need_correction = false;
+        for (String punch : punches) {
+            need_correction = need_correction || addPunchRaw(punch, virtual);
+        }
+        if (need_correction) {
+            applyCorrection();
+        }
+    }
+
+    /**
+     * Add some punch in the card.
+     * <p/>
+     * If a punch is already present in the card, it won't be added twice.
+     * <p/>
+     * If a correction must be applied, this method will manage it.
+     * <p/>
+     * The punch is assumed to be a real one
+     *
+     * @param time the date to add
      * @throws ParseException
      */
     public void addPunch(String time) throws ParseException {
+        addPunch(time, false);
+    }
+
+    /**
+     * @param time the date to add
+     * @param virtual if true the punches added are virtual ones
+     * @throws ParseException
+     */
+    public void addPunch(String time, boolean virtual) throws ParseException {
+        if (addPunchRaw(time, virtual)) {
+            applyCorrection();
+        }
+    }
+
+    /**
+     * @param time the date to add
+     * @param virtual if true the punches added are virtual ones
+     * @return
+     * @throws ParseException
+     */
+    private boolean addPunchRaw(String time, boolean virtual) throws ParseException {
         //1. Parse date
         Date date;
         Calendar cal = Calendar.getInstance();
@@ -100,37 +148,56 @@ public class DayCard implements Serializable {
         date = cal.getTime();
         Long date_l = date.getTime();
 
-        //2. Check existence, add, and sort
-        if (!this.punches.contains(date_l)) {
-            this.punches.add(date_l);
-            Collections.sort(this.punches);
+        //2a. Check existence, add, and sort (real punch)
+        if (!virtual) {
+            if (!this.punches.contains(date_l)) {
+                this.punches.add(date_l);
+                Collections.sort(this.punches);
+            } else {
+                //no need to apply correction
+                return false;
+            }
+            //2b. Check existence, add, and sort (virtual punch)
         } else {
-            //no need to apply correction
-            return;
+            if (!this.virtual_punches.contains(date_l)) {
+                this.virtual_punches.add(date_l);
+                Collections.sort(this.virtual_punches);
+            }
+            //Don't compute corrections for virtual punches
+            return false;
         }
+        return true;
+    }
 
-        //3. Apply corrections
+    /**
+     *
+     */
+    private void applyCorrection() {
         corrected_punches.clear();
         //compute non worked time at mid-day
         long l1 = start + 11 * 60 * 60 * 1000;
         long l2 = start + 14 * 60 * 60 * 1000;
+        long l3 = start + 19 * 60 * 60 * 1000;
         long ti = start;//Doesn't matter
         long tf = start;
         int last_noon_tf = 0;
         int i = 0;
         long noon = l2 - l1;
         boolean open = true;
-
+        boolean has_noon = true;
         for (long t : punches) {
             if (open) {
                 ti = t;
             } else {
                 tf = t;
             }
+            //TODO: what happen if odd day ?
+            //e.g. 9h 12h 12h30 ??
             if (!open && tf > l1 && ti < l2) {
                 if (ti < l1 && tf > l2) {
                     //ti before 11h, tf after 14h
-                    noon -= l2 - l1;
+                    noon = 0;
+                    has_noon = false;
                 } else if (ti < l1 && tf < l2) {
                     //ti before 11h, tf before 14h
                     noon -= tf - l1;
@@ -143,19 +210,40 @@ public class DayCard implements Serializable {
                 }
                 last_noon_tf = i - 1;
             }
+            // Limit at 19h
+            if (tf > l3) {
+                this.corrected_punches.add(tf);
+            }
+            if (ti > l3) {
+                this.corrected_punches.add(ti);
+            }
+
             open = !open;
             i++;
-            this.corrected_punches.add(t);
         }
         //apply correction
-        if (noon < (45 * 60 * 1000)) {
-            long t = this.corrected_punches.get(last_noon_tf);
-            this.corrected_punches.set(last_noon_tf, t + (45 * 60 * 1000) - noon);
+        if (has_noon && noon < (45 * 60 * 1000)) {
+            long t = this.punches.get(last_noon_tf);
+            this.corrected_punches.add(t);
+            this.corrected_punches.add(t + (45 * 60 * 1000) - noon);
+
+        }
+        if (!has_noon) {
+            //add 150min if there is no midday pause
+            this.corrected_punches.add(l1 + (15 * 60 * 1000));
+            this.corrected_punches.add(l2 - (15 * 60 * 1000));
         }
     }
 
     /**
-     * @return the number of punch of the day
+     * @return the number of virtual punches of the day
+     */
+    public int getNumberOfVirtualPunches() {
+        return virtual_punches.size();
+    }
+
+    /**
+     * @return the number of (real) punches of the day
      */
     public int getNumberOfPunches() {
         return punches.size();
@@ -213,17 +301,28 @@ public class DayCard implements Serializable {
     public double getTotalTime() {
         double result = 0.;
         Long ti, tf;
+        Iterator<Long> iterator;
+        List[] l;
 
-        Iterator<Long> iterator = punches.iterator();
-        while (iterator.hasNext()) {
-            ti = iterator.next();
-            if (iterator.hasNext()) {
-                tf = iterator.next();
-            } else {
-                tf = System.currentTimeMillis();
+        //Iterate on virtual and real punches
+        //ensure sanity
+        if ((getNumberOfVirtualPunches() % 2) == 0) {
+            l = new List[]{virtual_punches, punches};
+        } else {
+            l = new List[]{punches};
+        }
+        for (int i = 0; i < 2; i++) {
+            iterator = (Iterator<Long>)l[i].iterator();
+            while (iterator.hasNext()) {
+                ti = iterator.next();
+                if (iterator.hasNext()) {
+                    tf = iterator.next();
+                } else {
+                    tf = System.currentTimeMillis();
+                }
+                double delta_h = ((double) (tf - ti)) / (1000.0 * 60.0 * 60.0);
+                result += delta_h;
             }
-            double delta_h = ((double) (tf - ti)) / (1000.0 * 60.0 * 60.0);
-            result += delta_h;
         }
         return result;
     }
@@ -234,7 +333,7 @@ public class DayCard implements Serializable {
      * @return the time, in hours
      */
     public double getCorrectedTotalTime() {
-        double result = 0.;
+        double correction = 0.;
         Long ti, tf;
 
         Iterator<Long> iterator = corrected_punches.iterator();
@@ -246,18 +345,30 @@ public class DayCard implements Serializable {
                 tf = System.currentTimeMillis();
             }
             double delta_h = ((double) (tf - ti)) / (1000.0 * 60.0 * 60.0);
-            result += delta_h;
+            correction += delta_h;
         }
-        return result;
+        return getTotalTime() - correction;
     }
 
     /**
-     * @return the array of punches of the card
+     * @return the array of (real)  punches of the card
      */
     public Date[] getPunches() {
         Date[] result = new Date[this.punches.size()];
         int i = 0;
         for (Long date_l : this.punches) {
+            result[i++] = new Date(date_l);
+        }
+        return result;
+    }
+
+    /**
+     * @return the array of virtual punches of the card
+     */
+    public Date[] getVirtualPunches() {
+        Date[] result = new Date[this.virtual_punches.size()];
+        int i = 0;
+        for (Long date_l : this.virtual_punches) {
             result[i++] = new Date(date_l);
         }
         return result;
@@ -271,15 +382,62 @@ public class DayCard implements Serializable {
     }
 
     /**
-     * @return the array of corrected punches
+     * Get the array of Pair of Date defining periods when time has been punched in, but as been excluded
+     *
+     * @return the array of Pair (di, df) with di < df
      */
-    public Date[] getCorrectedPunches() {
-        Date[] result = new Date[this.corrected_punches.size()];
-        int i = 0;
-        for (Long date_l : this.corrected_punches) {
-            result[i++] = new Date(date_l);
+    public Pair<Date, Date>[] getCorrectedPunches() {
+        Pair<Date, Date>[] result = (Pair<Date, Date>[]) new Pair[this.corrected_punches.size() / 2];
+        Date di, df;
+        for (int i = 0; i < this.corrected_punches.size(); i += 2) {
+            di = new Date(this.corrected_punches.get(i));
+            df = new Date(this.corrected_punches.get(i + 1));
+            result[i++] = new Pair<Date, Date>(di, df);
         }
         return result;
     }
 
+    /**
+     * Return an Array of all the punches of the card (real and virtual) and now if the day is odd
+     *
+     * @return the array of punches (possibly unsorted)
+     */
+    public Date[] getAllPunches() {
+        int s = this.punches.size() + this.virtual_punches.size();
+        Date[] result = new Date[s + s % 2];
+        int i = 0;
+        for (Long date_l : this.virtual_punches) {
+            result[i++] = new Date(date_l);
+        }
+        for (Long date_l : this.punches) {
+            result[i++] = new Date(date_l);
+        }
+        if (isOdd()) {
+            result[i++] = now();
+        }
+        return result;
+
+
+    }
+
+    /**
+     * Return the first punch of the card or null if there is no punches in the card
+     *
+     * @return
+     */
+    public Date getFirstPunch() {
+        boolean empty = (this.punches.size() == 0);
+        boolean empty_virtual = (this.virtual_punches.size() == 0);
+
+        if (!empty & !empty_virtual) {
+            long l = Math.min(this.virtual_punches.get(0), this.punches.get(0));
+            return new Date(l);
+        } else if (empty & !empty_virtual) {
+            return new Date(this.virtual_punches.get(0));
+        } else if (!empty & empty_virtual) {
+            return new Date(this.punches.get(0));
+        } else {
+            return null;
+        }
+    }
 }

@@ -27,7 +27,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.protocol.ClientContext;
-import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.message.BasicNameValuePair;
@@ -50,19 +49,6 @@ import java.util.List;
  */
 public class AgatteSession {
 
-    private final BasicCookieStore cookieStore;
-    private String session_id;
-    private String server;
-    private long session_expire;
-    private HttpGet login_rq;
-    private HttpGet logout_rq;
-    private HttpPost auth_rq;
-    private HttpGet query_day_rq;
-    private HttpGet query_top_ok_rq;
-    private HttpPost exec_rq;
-    private final List<NameValuePair> credentials;
-    private HttpContext httpContext;
-
     static final String LOGIN_DIR = "/app/login.form";
     static final String LOGOUT_DIR = "/app/logout.form";
     static final String AUTH_DIR = "/j_acegi_security_check";
@@ -72,6 +58,18 @@ public class AgatteSession {
     static final String USER = "j_username";
     static final String PASSWORD = "j_password";
     static final String AGENT = "Mozilla/5.0 (Linux; U; Android 2.2; en-us; Nexus One Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
+    private final BasicCookieStore cookieStore;
+    private final List<NameValuePair> credentials;
+    private String session_id;
+    private String server;
+    private long session_expire;
+    private HttpGet login_rq;
+    private HttpGet logout_rq;
+    private HttpPost auth_rq;
+    private HttpGet query_day_rq;
+    private HttpGet query_top_ok_rq;
+    private HttpPost exec_rq;
+    private HttpContext httpContext;
 
 
     /**
@@ -261,15 +259,6 @@ public class AgatteSession {
     }
 
     /**
-     * Return the current user login
-     *
-     * @return the login
-     */
-    public String getUser() {
-        return credentials.get(0).getValue();
-    }
-
-    /**
      * Set the username to use to connect
      *
      * @param user the username to set
@@ -278,15 +267,6 @@ public class AgatteSession {
     public void setUser(String user) throws UnsupportedEncodingException {
         credentials.add(0, new BasicNameValuePair(USER, user));
         auth_rq.setEntity(new UrlEncodedFormEntity(credentials));
-    }
-
-    /**
-     * Get the current password
-     *
-     * @return the current password
-     */
-    public String getPassword() {
-        return credentials.get(1).getValue();
     }
 
     /**

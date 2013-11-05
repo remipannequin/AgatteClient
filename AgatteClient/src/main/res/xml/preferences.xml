@@ -35,13 +35,22 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/profile_preference">
+        <ListPreference
+            android:key="week_profile"
+            android:title="@string/week_goal_prefs_title"
+            android:defaultValue="3"
+            android:entries="@array/week_profile_array"
+            android:entryValues="@array/week_profile_values" />
+    </PreferenceCategory>
 
-        <EditTextPreference
-            android:key="day_goal"
-            android:title="@string/day_goal_prefs_title"
-            android:defaultValue="@string/day_goal_default_value"
+    <PreferenceCategory android:title="@string/interface_preference">
+        <CheckBoxPreference
+            android:key="confirm_punch"
+            android:title="@string/confirm_punch_title"
             android:selectAllOnFocus="true"
-            android:inputType="time" />
+            android:checked="true"/>
+
+
     </PreferenceCategory>
 
 </PreferenceScreen>

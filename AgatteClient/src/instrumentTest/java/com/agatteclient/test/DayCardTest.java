@@ -1,14 +1,30 @@
+/*This file is part of AgatteClient.
+
+    AgatteClient is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    AgatteClient is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.*/
+
 package com.agatteclient.test;
 
 import android.test.AndroidTestCase;
+import android.util.Pair;
 
 import com.agatteclient.DayCard;
 
+import java.text.ParseException;
 import java.util.Date;
-import java.util.Iterator;
 
 /**
- * Created by remi on 02/10/13.
+ * Created by Rémi Pannequin on 02/10/13.
  */
 public class DayCardTest extends AndroidTestCase {
 
@@ -80,8 +96,10 @@ public class DayCardTest extends AndroidTestCase {
         assertTrue(instance.isEven());
         assertEquals(6.5d, instance.getTotalTime());
         assertEquals(6.25d, instance.getCorrectedTotalTime());
-        Date[] cp = instance.getCorrectedPunches();
-        assertEquals(4, cp.length);
+        Pair<Date, Date>[] cp = instance.getCorrectedPunches();
+        assertEquals(1, cp.length);
+
+
     }
 
     public void testCorrectedTotalTime3() throws Exception {
@@ -126,6 +144,32 @@ public class DayCardTest extends AndroidTestCase {
         assertEquals(7d, instance.getCorrectedTotalTime());
     }
 
+    public void testCorrectedTotalTime5() throws Exception {
+        DayCard instance = new DayCard(200, 2012);
+        instance.addPunch("08:00");
+        instance.addPunch("16:00");
+        assertEquals(2, instance.getNumberOfPunches());
+        Date[] c = instance.getPunches();
+        assertEquals(2, c.length);
+        assertTrue(instance.isEven());
+        assertEquals(8d, instance.getTotalTime());
+        assertEquals(5.5d, instance.getCorrectedTotalTime());
+    }
+
+    public void testCorrectedTotalTime6() throws Exception {
+        DayCard instance = new DayCard(200, 2012);
+        instance.addPunch("09:10");
+        instance.addPunch("12:10");
+        instance.addPunch("12:43");
+        instance.addPunch("15:43");
+        assertEquals(4, instance.getNumberOfPunches());
+        Date[] c = instance.getPunches();
+        assertEquals(4, c.length);
+        assertTrue(instance.isEven());
+        assertEquals(6d, instance.getTotalTime());
+        assertEquals(5.8d, instance.getCorrectedTotalTime());
+    }
+
     public void testIsCurrentDay1() {
         DayCard instance = new DayCard(200, 2012);
         boolean b = instance.isCurrentDay();
@@ -136,6 +180,29 @@ public class DayCardTest extends AndroidTestCase {
         DayCard instance = new DayCard();
         boolean b = instance.isCurrentDay();
         assertTrue(b);
+    }
+
+    public void testGetVirtualPunches() throws ParseException {
+        DayCard instance = new DayCard(200, 2012);
+        instance.addPunch("09:00", true);
+        instance.addPunch("12:00", true);
+        assertEquals(2, instance.getNumberOfVirtualPunches());
+        assertEquals(0, instance.getNumberOfPunches());
+        assertEquals(3d, instance.getTotalTime());
+        assertEquals(3d, instance.getCorrectedTotalTime());
+    }
+
+
+    public void testGetVirtualPunches2() throws ParseException {
+        DayCard instance = new DayCard(200, 2012);
+        instance.addPunch("09:00", true);
+        instance.addPunch("12:00", true);
+        instance.addPunch("12:10");
+        instance.addPunch("17:10");
+        assertEquals(2, instance.getNumberOfVirtualPunches());
+        assertEquals(2, instance.getNumberOfPunches());
+        assertEquals(8d, instance.getTotalTime());
+        assertEquals(8d, instance.getCorrectedTotalTime());
     }
 
 }

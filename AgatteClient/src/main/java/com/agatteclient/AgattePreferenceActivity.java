@@ -15,6 +15,7 @@
 
 package com.agatteclient;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 
 /**
@@ -31,44 +33,6 @@ import android.view.MenuItem;
  */
 public class AgattePreferenceActivity extends PreferenceActivity {
 
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //setupActionBar();
-        getFragmentManager().beginTransaction().replace(android.R.id.content,
-                new PrefsFragment()).commit();
-    }
-
-    /**
-     * Set up the {@link android.app.ActionBar}, if the API is available.
-     */
-    private void setupActionBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            // Show the Up button in the action bar.
-            ActionBar bar = getActionBar();
-            assert bar != null;
-            bar.setDisplayHomeAsUpEnabled(true);
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                // This ID represents the Home or Up button. In the case of this
-                // activity, the Up button is shown. Use NavUtils to allow users
-                // to navigate up one level in the application structure. For
-                // more details, see the Navigation pattern on Android Design:
-                //
-                // http://developer.android.com/design/patterns/navigation.html#up-vs-back
-                //create a crash
-                //NavUtils.navigateUpFromSameTask(this);
-                //NavUtils.getParentActivityIntent(this);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     /**
      * A preference value change listener that updates the preference's summary
@@ -120,10 +84,54 @@ public class AgattePreferenceActivity extends PreferenceActivity {
                         .getString(preference.getKey(), ""));
     }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        //setupActionBar();
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
+            addPreferencesFromResource(R.xml.preferences);
+        } else {
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+            getFragmentManager().beginTransaction().replace(android.R.id.content,
+                    new PrefsFragment()).commit();
+        }
+    }
+
+    /**
+     * Set up the {@link android.app.ActionBar}, if the API is available.
+     */
+    private void setupActionBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            // Show the Up button in the action bar.
+            ActionBar bar = getActionBar();
+            assert bar != null;
+            bar.setDisplayHomeAsUpEnabled(true);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // This ID represents the Home or Up button. In the case of this
+                // activity, the Up button is shown. Use NavUtils to allow users
+                // to navigate up one level in the application structure. For
+                // more details, see the Navigation pattern on Android Design:
+                //
+                // http://developer.android.com/design/patterns/navigation.html#up-vs-back
+                //create a crash
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     /**
      * This fragment shows general preferences only. It is used when the
      * activity is showing a two-pane settings UI.
      */
+    @TargetApi(11)
     public static class PrefsFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -137,7 +145,7 @@ public class AgattePreferenceActivity extends PreferenceActivity {
             bindPreferenceSummaryToValue(findPreference("server"));
             bindPreferenceSummaryToValue(findPreference("login"));
             //Don't bind password
-            bindPreferenceSummaryToValue(findPreference("day_goal"));
+            bindPreferenceSummaryToValue(findPreference("week_profile"));
         }
     }
 }
