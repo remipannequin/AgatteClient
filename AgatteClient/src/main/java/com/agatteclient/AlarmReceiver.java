@@ -37,7 +37,6 @@ public class AlarmReceiver extends BroadcastReceiver {
             this.ctx = ctx;
             mNotifyManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
             mBuilder = new NotificationCompat.Builder(ctx);
-
         }
 
         @Override
@@ -45,13 +44,47 @@ public class AlarmReceiver extends BroadcastReceiver {
 
             AgatteResponse rsp = AgatteResponse.fromBundle(resultData);
             //TODO: set notification text and title based on result
-            StringBuilder notification_text = new StringBuilder("le pointage programmé à XXhXX a été effectué");
-            StringBuilder notification_title = new StringBuilder("Pointage effectué");
+            StringBuilder notification_text = new StringBuilder();
+            StringBuilder notification_title = new StringBuilder();
+
+            int icon;
+            if (rsp.isError()) {
+                notification_title.append(ctx.getString(R.string.programmed_punch_success_title));
+                icon = R.drawable.ic_stat_notify;
+            } else {
+                notification_title.append(ctx.getString(R.string.programmed_punch_failed_title));
+                icon = R.drawable.ic_stat_notify;
+            }
+
+            switch (rsp.getCode()) {
+                case NetworkNotAuthorized:
+                    notification_text.append(ctx.getString(R.string.unauthorized_network_toast));
+                    break;
+                case UnknownError:
+
+                    break;
+                case LoginFailed:
+                    notification_text.append(ctx.getString(R.string.login_failed_toast));
+                    break;
+                case IOError:
+                    notification_text.append(ctx.getString(R.string.network_error_toast));
+                    if (rsp.hasDetail()) {
+                        notification_text.append(" : ").append(rsp.getDetail());
+                    }
+                    break;
+                case PunchOK:
+                case QueryOK:
+                    notification_text.append(ctx.getString(R.string.successful_programmed_punch));
+                    break;
+                default:
+
+
+            }
 
 
             mBuilder.setContentTitle(notification_title)
                     .setContentText(notification_text)
-                    .setSmallIcon(R.drawable.ic_stat_notify);
+                    .setSmallIcon(icon);
 
             PendingIntent contentIntent = PendingIntent.getActivity(ctx, 0,
                     new Intent(ctx, MainActivity.class), 0);
@@ -77,24 +110,27 @@ public class AlarmReceiver extends BroadcastReceiver {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
         wl.acquire();
-
+        //Do the punch by calling the punching service
         final Intent i = new Intent(context, PunchService.class);
         i.setAction(PunchService.DO_PUNCH);
         i.putExtra(PunchService.RESULT_RECEIVER, new PunchResultReceiver(context));
         context.startService(i);
 
         wl.release();
-
     }
 
-    public void AddAlarm(Context context) {
+
+    public void AddAlarm(Context context, PunchAlarmTime alarm) {
         AlarmManager am=(AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         Intent i = new Intent(context, AlarmReceiver.class);
-        PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, 0);
-        //TODO: add to the collection of alarms
-        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 60 * 10, pi); // Millisec * Second * Minute
-
+        //TODO: use request code
+        PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_ONE_SHOT);
+        alarms.put(alarm, pi);
+        long now = System.currentTimeMillis();
+        long delay = alarm.nextAlarm(now);
+        am.set(AlarmManager.RTC_WAKEUP, delay, pi);
     }
+
 
     public Collection<Date> getAlarms() {
         //TODO

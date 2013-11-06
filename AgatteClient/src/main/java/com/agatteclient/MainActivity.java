@@ -172,7 +172,11 @@ public class MainActivity extends Activity {
             cur_card.addPunch("12:15");
         } catch (ParseException e) {
             e.printStackTrace();
-        }/*/
+        }/
+        AlarmReceiver alarm = new AlarmReceiver();
+        alarm.AddAlarm(this, new PunchAlarmTime(14, 00));
+        */
+
 
 
         updateCard();

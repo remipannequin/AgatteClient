@@ -52,5 +52,8 @@
     <string name="update_error_toast">Error while updating:</string>
     <string name="interface_preference">Interface</string>
     <string name="confirm_punch_title">Confirm Punch</string>
+    <string name="successful_programmed_punch">Programmed punching has been successfully made</string>
+    <string name="programmed_punch_success_title">Programmed punching failed</string>
+    <string name="programmed_punch_failed_title">Programmed punching done</string>
 
 </resources>
