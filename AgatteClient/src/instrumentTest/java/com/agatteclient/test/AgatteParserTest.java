@@ -33,7 +33,7 @@ import java.io.ByteArrayInputStream;
 public class AgatteParserTest extends AndroidTestCase {
 
     public void testParseResponse() throws Exception {
-        AgatteParser instance  = AgatteParser.getInstance();
+        AgatteParser instance = AgatteParser.getInstance();
         HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
         BasicHttpEntity test_entity = new BasicHttpEntity();
         test_entity.setContent(new ByteArrayInputStream(response_test1.getBytes()));

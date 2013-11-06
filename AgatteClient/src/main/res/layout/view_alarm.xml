@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/time_test"
+        android:id="@+id/textView"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignLeft="@+id/toggleButton" />
+
+    <ToggleButton
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:text="LUN."
+        android:id="@+id/toggleButton"
+        android:textOff="LUN."
+        android:textOn="LUN."
+        android:width="10dp"
+        android:maxWidth="10dp"
+        android:textSize="10sp"
+        android:checked="true"
+        android:layout_below="@+id/textView"
+        android:layout_alignParentLeft="true" />
+
+    <ToggleButton
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:text="MAR."
+        android:id="@+id/toggleButton2"
+        android:textOff="MAR."
+        android:textOn="MAR."
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_column="1"
+        android:maxWidth="10dp"
+        android:width="10dp"
+        android:textSize="10sp"
+        android:checked="true"
+        android:layout_below="@+id/textView"
+        android:layout_toRightOf="@+id/toggleButton" />
+
+    <ToggleButton
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:text="MER."
+        android:id="@+id/toggleButton3"
+        android:textOff="MER."
+        android:textOn="MER."
+        android:layout_column="2"
+        android:width="10dp"
+        android:maxWidth="10dp"
+        android:textSize="10sp"
+        android:checked="true"
+        android:layout_below="@+id/textView"
+        android:layout_toRightOf="@+id/toggleButton2" />
+
+    <ToggleButton
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:text="JEU."
+        android:id="@+id/toggleButton4"
+        android:textOff="JEU."
+        android:textOn="JEU."
+        android:layout_column="3"
+        android:width="10dp"
+        android:maxWidth="10dp"
+        android:textSize="10sp"
+        android:checked="true"
+        android:layout_alignTop="@+id/toggleButton3"
+        android:layout_toRightOf="@+id/toggleButton3" />
+
+    <ToggleButton
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:text="VEN."
+        android:id="@+id/toggleButton5"
+        android:textOff="VEN."
+        android:textOn="VEN."
+        android:layout_column="6"
+        android:width="10dp"
+        android:maxWidth="10dp"
+        android:textSize="10sp"
+        android:checked="true"
+        android:enabled="true"
+        android:layout_toRightOf="@+id/toggleButton4"
+        android:layout_below="@+id/textView" />
+
+    <ToggleButton
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:text="SAM."
+        android:id="@+id/toggleButton_saturday"
+        android:textOff="SAM."
+        android:textOn="SAM."
+        android:layout_column="7"
+        android:width="10dp"
+        android:maxWidth="10dp"
+        android:textSize="10sp"
+        android:layout_toRightOf="@+id/toggleButton5"
+        android:layout_below="@+id/textView" />
+
+    <ToggleButton
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:text="DIM."
+        android:id="@+id/toggleButton_sunday"
+        android:singleLine="false"
+        android:textOff="DIM."
+        android:textOn="DIM."
+        android:layout_column="9"
+        android:width="10dp"
+        android:maxWidth="10dp"
+        android:textSize="10sp"
+        android:layout_toRightOf="@+id/toggleButton_saturday"
+        android:layout_below="@+id/textView" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enable"
+        android:id="@+id/checkBox"
+        android:checked="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true" />
+
+</RelativeLayout>
+

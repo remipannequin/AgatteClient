@@ -120,7 +120,7 @@ public class DayCard implements Serializable {
     }
 
     /**
-     * @param time the date to add
+     * @param time    the date to add
      * @param virtual if true the punches added are virtual ones
      * @throws ParseException
      */
@@ -131,7 +131,7 @@ public class DayCard implements Serializable {
     }
 
     /**
-     * @param time the date to add
+     * @param time    the date to add
      * @param virtual if true the punches added are virtual ones
      * @return
      * @throws ParseException
@@ -312,7 +312,7 @@ public class DayCard implements Serializable {
             l = new List[]{punches};
         }
         for (int i = 0; i < 2; i++) {
-            iterator = (Iterator<Long>)l[i].iterator();
+            iterator = (Iterator<Long>) l[i].iterator();
             while (iterator.hasNext()) {
                 ti = iterator.next();
                 if (iterator.hasNext()) {

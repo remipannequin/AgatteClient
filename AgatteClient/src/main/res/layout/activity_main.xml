@@ -34,7 +34,7 @@
             custom:hatchingColor="#77FFFFFF"
             custom:timeFormat="HH:mm"
             custom:hourIncrement="2"
-            custom:hourHeight="20dp"/>
+            custom:hourHeight="20dp" />
 
     </ScrollView>
 

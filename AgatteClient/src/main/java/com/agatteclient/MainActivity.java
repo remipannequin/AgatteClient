@@ -132,8 +132,8 @@ public class MainActivity extends Activity {
         dc_view = (DayCardView) findViewById(R.id.day_card_view);
         dc_view.setCard(cur_card);
 
-        String profile = preferences.getString(PROFILE_PREF,"1");
-        int profile_n = Integer.decode(profile)-1;
+        String profile = preferences.getString(PROFILE_PREF, "1");
+        int profile_n = Integer.decode(profile) - 1;
         float day_goal = TimeProfile.values()[profile_n].daily_time;
 
         Resources r = getResources();
@@ -371,7 +371,6 @@ public class MainActivity extends Activity {
          * Create a new ResultReceive to receive results.  Your
          * {@link #onReceiveResult} method will be called from the thread running
          * <var>handler</var> if given, or from an arbitrary thread if null.
-         *
          */
         public AgatteResultReceiver() {
             super(new Handler(Looper.getMainLooper()));

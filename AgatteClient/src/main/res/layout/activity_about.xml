@@ -20,7 +20,7 @@
         android:layout_alignLeft="@+id/freesoft_textView"
         android:autoText="false"
         android:typeface="sans"
-        android:textSize="12sp"/>
+        android:textSize="12sp" />
 
     <TextView
         android:layout_width="fill_parent"
@@ -30,7 +30,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignLeft="@+id/disclaimer_textView"
         android:textSize="16sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
 
     <TextView
         android:layout_width="fill_parent"
