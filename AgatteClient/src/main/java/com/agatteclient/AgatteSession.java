@@ -191,6 +191,7 @@ public class AgatteSession {
             return new AgatteResponse(AgatteResponse.Code.IOError, e);
         } finally {
             if (client != null) {
+                logout(client);
                 client.close();
             }
         }
@@ -218,7 +219,7 @@ public class AgatteSession {
                     client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
                     client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
                     HttpResponse response2 = client.execute(query_top_ok_rq, httpContext);
-                    return AgatteParser.getInstance().parse_query_response(response2);
+                    return AgatteParser.getInstance().parse_topOk_response(response2);
                 case NetworkNotAuthorized:
                     return new AgatteResponse(code);
                 default:
@@ -228,7 +229,10 @@ public class AgatteSession {
             e.printStackTrace();
             return new AgatteResponse(AgatteResponse.Code.IOError, e);
         } finally {
-            client.close();
+            if (client != null) {
+                logout(client);
+                client.close();
+            }
         }
     }
 
