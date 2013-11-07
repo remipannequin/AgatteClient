@@ -21,6 +21,7 @@ import android.util.Pair;
 import com.agatteclient.DayCard;
 
 import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -42,7 +43,14 @@ public class DayCardTest extends AndroidTestCase {
         assertEquals(1, instance.getNumberOfPunches());
         Date[] c = instance.getPunches();
         assertEquals(1, c.length);
-        assertEquals("Wed Jul 18 08:00:00 GMT 2012", c[0].toString());
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(c[0]);
+        assertEquals(0, cal.get(Calendar.MILLISECOND));
+        assertEquals(0, cal.get(Calendar.SECOND));
+        assertEquals(0, cal.get(Calendar.MINUTE));
+        assertEquals(8, cal.get(Calendar.HOUR_OF_DAY));
+        assertEquals(200, cal.get(Calendar.DAY_OF_YEAR));
+        assertEquals(2012, cal.get(Calendar.YEAR));
         assertTrue(instance.isOdd());
     }
 
@@ -66,7 +74,14 @@ public class DayCardTest extends AndroidTestCase {
         assertEquals(1, instance.getNumberOfPunches());
         Date[] c = instance.getPunches();
         assertEquals(1, c.length);
-        assertEquals("Wed Jul 18 08:00:00 GMT 2012", c[0].toString());
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(c[0]);
+        assertEquals(0, cal.get(Calendar.MILLISECOND));
+        assertEquals(0, cal.get(Calendar.SECOND));
+        assertEquals(0, cal.get(Calendar.MINUTE));
+        assertEquals(8, cal.get(Calendar.HOUR_OF_DAY));
+        assertEquals(200, cal.get(Calendar.DAY_OF_YEAR));
+        assertEquals(2012, cal.get(Calendar.YEAR));
         assertTrue(instance.isOdd());
     }
 
@@ -214,5 +229,86 @@ public class DayCardTest extends AndroidTestCase {
         assertEquals(8d, instance.getTotalTime());
         assertEquals(8d, instance.getCorrectedTotalTime());
     }
+
+    public void testTotalTimeWithVirtual1() throws ParseException {
+        DayCard instance = new DayCard(200, 2012);
+        instance.addPunch("14:00", true);
+        instance.addPunch("18:00", true);
+        instance.addPunch("8:30");
+        assertTrue(instance.isOdd());
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, 2012);
+        cal.set(Calendar.DAY_OF_YEAR, 200);
+        cal.set(Calendar.HOUR_OF_DAY, 9);
+        cal.set(Calendar.MINUTE, 30);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        assertEquals(5d, instance.getTotalTime(cal.getTime()));
+    }
+
+    public void testApplyCorrection1() throws ParseException {
+        DayCard instance = new DayCard(200, 2012);
+        instance.addPunch("09:00");
+        instance.addPunch("12:00");
+        instance.addPunch("12:30");
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, 2012);
+        cal.set(Calendar.DAY_OF_YEAR, 200);
+        cal.set(Calendar.HOUR_OF_DAY, 12);
+        cal.set(Calendar.MINUTE, 45);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        Date now = cal.getTime();
+        instance.applyCorrection(now);
+        Pair<Date, Date>[] actual = instance.getCorrectedPunches();
+        assertEquals(0, actual.length);
+        assertEquals(3.25d, instance.getCorrectedTotalTime(now));
+    }
+
+    public void testApplyCorrection2() throws ParseException {
+        DayCard instance = new DayCard(200, 2012);
+        instance.addPunch("09:00");
+        instance.addPunch("12:00");
+        instance.addPunch("12:30");
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, 2012);
+        cal.set(Calendar.DAY_OF_YEAR, 200);
+        cal.set(Calendar.HOUR_OF_DAY, 13);
+        cal.set(Calendar.MINUTE, 45);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        Date now = cal.getTime();
+        instance.applyCorrection(now);
+        Pair<Date, Date>[] actual = instance.getCorrectedPunches();
+        assertEquals(0, actual.length);
+        assertEquals(4.25d, instance.getCorrectedTotalTime(now));
+    }
+
+    public void testApplyCorrection3() throws ParseException {
+        DayCard instance = new DayCard(200, 2012);
+        instance.addPunch("09:00");
+        instance.addPunch("12:00");
+        instance.addPunch("12:30");
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, 2012);
+        cal.set(Calendar.DAY_OF_YEAR, 200);
+        cal.set(Calendar.HOUR_OF_DAY, 14);
+        cal.set(Calendar.MINUTE, 45);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        Date now = cal.getTime();
+        instance.applyCorrection(now);
+        Pair<Date, Date>[] actual = instance.getCorrectedPunches();
+        assertEquals(1, actual.length);
+        cal.set(Calendar.HOUR_OF_DAY, 12);
+        cal.set(Calendar.MINUTE, 30);
+        assertEquals(cal.getTime(), actual[0].first);
+        cal.set(Calendar.HOUR_OF_DAY, 12);
+        cal.set(Calendar.MINUTE, 45);
+        assertEquals(cal.getTime(), actual[0].second);
+        assertEquals(5d, instance.getCorrectedTotalTime(now));
+    }
+
+
 
 }

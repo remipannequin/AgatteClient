@@ -100,7 +100,7 @@ public class DayCard implements Serializable {
             need_correction = need_correction || r;
         }
         if (need_correction) {
-            applyCorrection();
+            applyCorrection(now());
         }
     }
 
@@ -127,7 +127,7 @@ public class DayCard implements Serializable {
      */
     public void addPunch(String time, boolean virtual) throws ParseException {
         if (addPunchRaw(time, virtual)) {
-            applyCorrection();
+            applyCorrection(now());
         }
     }
 
@@ -144,6 +144,8 @@ public class DayCard implements Serializable {
         SimpleDateFormat df = new SimpleDateFormat("HH:mm");
         date = df.parse(time);
         cal.setTime(date);
+         cal.set(Calendar.MILLISECOND, 0);
+        cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.YEAR, this.year);
         cal.set(Calendar.DAY_OF_YEAR, this.day);
         date = cal.getTime();
@@ -173,7 +175,14 @@ public class DayCard implements Serializable {
     /**
      *
      */
-    private void applyCorrection() {
+    public void applyCorrection() {
+        applyCorrection(now());
+    }
+
+    /**
+     *
+     */
+    public void applyCorrection(Date now) {
         corrected_punches.clear();
         //compute non worked time at mid-day
         long l1 = start + 11 * 60 * 60 * 1000;
@@ -186,13 +195,22 @@ public class DayCard implements Serializable {
         long noon = l2 - l1;
         boolean open = true;
         boolean has_noon = true;
-        for (long t : punches) {
+
+        //If day is odd, append now to the end of the list of punches
+        List<Long> punches_with_now;
+        if (isOdd()) {
+            punches_with_now = new ArrayList<Long>(punches);
+            punches_with_now.add(now.getTime());
+        } else {
+            punches_with_now = punches;
+        }
+        for (long t : punches_with_now) {
             if (open) {
                 ti = t;
             } else {
                 tf = t;
             }
-            //TODO: what happen if odd day ?
+
             //e.g. 9h 12h 12h30 ??
             if (!open && tf > l1 && ti < l2) {
                 if (ti < l1 && tf > l2) {
@@ -272,6 +290,16 @@ public class DayCard implements Serializable {
     }
 
     /**
+     *
+     * @param now the date representing the current time
+     * @return true if the card is in the same day as "now"
+     */
+    public boolean isCurrentDay(Date now) {
+        return isInCardDay(now);
+    }
+
+
+    /**
      * @return the day of year of the card
      */
     public Date getDay() {
@@ -300,6 +328,15 @@ public class DayCard implements Serializable {
      * @return the total time in decimal hours
      */
     public double getTotalTime() {
+        return getTotalTime(now());
+    }
+
+    /**
+     * Compute the total worked time between punches (if event) or between punches and now (if odd)
+     * @param now the date representing the current time
+     * @return
+     */
+    public double getTotalTime(Date now) {
         double result = 0.;
         Long ti, tf;
         Iterator<Long> iterator;
@@ -319,7 +356,8 @@ public class DayCard implements Serializable {
                 if (iterator.hasNext()) {
                     tf = iterator.next();
                 } else {
-                    tf = System.currentTimeMillis();
+                    tf = now.getTime();
+
                 }
                 double delta_h = ((double) (tf - ti)) / (1000.0 * 60.0 * 60.0);
                 result += delta_h;
@@ -328,12 +366,22 @@ public class DayCard implements Serializable {
         return result;
     }
 
+
     /**
      * Return the total time, with correction such as min. 45min at noon, at most 10 hours per day...
      *
      * @return the time, in hours
      */
     public double getCorrectedTotalTime() {
+        return getCorrectedTotalTime(now());
+    }
+
+    /**
+     *
+     * @param now
+     * @return
+     */
+    public double getCorrectedTotalTime(Date now) {
         double correction = 0.;
         Long ti, tf;
 
@@ -343,12 +391,12 @@ public class DayCard implements Serializable {
             if (iterator.hasNext()) {
                 tf = iterator.next();
             } else {
-                tf = System.currentTimeMillis();
+                tf = now.getTime();
             }
             double delta_h = ((double) (tf - ti)) / (1000.0 * 60.0 * 60.0);
             correction += delta_h;
         }
-        return getTotalTime() - correction;
+        return getTotalTime(now) - correction;
     }
 
     /**

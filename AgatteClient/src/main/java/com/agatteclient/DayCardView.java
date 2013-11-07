@@ -41,7 +41,7 @@ import java.util.Date;
  * <p/>
  * Created by Rémi Pannequin on 04/10/13.
  */
-class DayCardView extends View {
+public class DayCardView extends View {
 
     private static final float ODD_H = 7.5f;
     private static final float MAX_SCALE = 2.0f;
