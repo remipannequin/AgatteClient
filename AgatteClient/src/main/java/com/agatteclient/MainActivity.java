@@ -475,6 +475,7 @@ public class MainActivity extends Activity {
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
+
                     toast.append(getString(R.string.punch_ok_toast));
                     break;
                 case UnknownError:

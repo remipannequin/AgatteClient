@@ -70,6 +70,16 @@ public class DayCardTest extends AndroidTestCase {
         assertTrue(instance.isOdd());
     }
 
+    public void testAddCollection() throws Exception {
+        DayCard instance = new DayCard(200, 2012);
+        String[] punches = new String[]{"09:02", "12:07", "13:23"};
+        instance.addPunches(punches, false);
+        Date[] c = instance.getPunches();
+        assertEquals(3, c.length);
+
+
+    }
+
     public void testCorrectedTotalTime1() throws Exception {
         DayCard instance = new DayCard(200, 2012);
         instance.addPunch("08:15");
