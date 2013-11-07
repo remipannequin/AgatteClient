@@ -96,7 +96,8 @@ public class DayCard implements Serializable {
     public void addPunches(String[] punches, boolean virtual) throws ParseException {
         boolean need_correction = false;
         for (String punch : punches) {
-            need_correction = need_correction || addPunchRaw(punch, virtual);
+            boolean r = addPunchRaw(punch, virtual);
+            need_correction = need_correction || r;
         }
         if (need_correction) {
             applyCorrection();
