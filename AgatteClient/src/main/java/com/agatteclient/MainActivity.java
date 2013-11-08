@@ -225,7 +225,7 @@ public class MainActivity extends Activity {
         dc_view.invalidate();
 
         SimpleDateFormat fmt = new SimpleDateFormat("E dd MMM yyyy");
-        StringBuilder t = new StringBuilder("Agatte : ").append(fmt.format(cur_card.getDay()));
+        StringBuilder t = new StringBuilder().append(fmt.format(cur_card.getDay()));
         setTitle(t);
     }
 

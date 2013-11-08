@@ -58,7 +58,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         protected void onReceiveResult(int resultCode, Bundle resultData) {
 
             AgatteResponse rsp = AgatteResponse.fromBundle(resultData);
-            //TODO: set notification text and title based on result
+            //set notification text and title based on result
             StringBuilder notification_text = new StringBuilder();
             StringBuilder notification_title = new StringBuilder();
 
