@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.*/
 
-package com.agatteclient;
+package com.agatteclient.agatte;
 
 
 import android.net.http.AndroidHttpClient;

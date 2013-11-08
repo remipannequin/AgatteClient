@@ -18,7 +18,7 @@ package com.agatteclient.test;
 import android.test.AndroidTestCase;
 import android.util.Pair;
 
-import com.agatteclient.DayCard;
+import com.agatteclient.card.DayCard;
 
 import java.text.ParseException;
 import java.util.Calendar;

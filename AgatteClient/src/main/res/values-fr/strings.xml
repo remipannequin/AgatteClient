@@ -56,4 +56,6 @@
     <string name="successful_programmed_punch">Le pointage programmé a été effectué</string>
     <string name="programmed_punch_success_title">Échec du pointage</string>
     <string name="programmed_punch_failed_title">Pointage effectué</string>
+    <string name="action_alarms">Alarmes</string>
+    <string name="title_activity_alarm">Alarmes</string>
 </resources>

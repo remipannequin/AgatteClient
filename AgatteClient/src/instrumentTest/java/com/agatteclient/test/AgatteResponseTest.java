@@ -18,7 +18,7 @@ package com.agatteclient.test;
 import android.os.Bundle;
 import android.test.AndroidTestCase;
 
-import com.agatteclient.AgatteResponse;
+import com.agatteclient.agatte.AgatteResponse;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -13,37 +13,21 @@
     You should have received a copy of the GNU General Public License
     along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.*/
 
-package com.agatteclient;
+package com.agatteclient.alarm;
 
-import java.util.LinkedList;
-import java.util.List;
+import android.content.Context;
+import android.util.AttributeSet;
+import android.view.View;
 
 /**
- * Created by remi on 29/10/13.
+ * Created by remi on 06/11/13.
  */
-public class CardBinder {
-    private static CardBinder ourInstance = new CardBinder();
+public class AlarmView extends View {
 
-    public static CardBinder getInstance() {
-        return ourInstance;
+
+    public AlarmView(Context context, AttributeSet attrs) {
+        super(context, attrs);
     }
 
-    private LinkedList<DayCard> cards;
-    private DayCard current;
 
-    private CardBinder() {
-        cards = new LinkedList<DayCard>();
-    }
-
-    /**
-     * Return Today card
-     */
-    public DayCard getTodayCard() {
-        if (current == null || !current.isCurrentDay()) {
-            DayCard new_card = new DayCard();
-            cards.addLast(new_card);
-            current = new_card;
-        }
-        return current;
-    }
 }

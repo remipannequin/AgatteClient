@@ -3,6 +3,10 @@
         android:title="@string/action_update"
         android:showAsAction="ifRoom"
         android:icon="@android:drawable/stat_notify_sync"/>
+    <item android:id="@+id/action_alarm"
+        android:title="@string/action_alarms"
+        android:icon="@android:drawable/ic_lock_idle_alarm"
+        android:showAsAction="ifRoom" />
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="100"

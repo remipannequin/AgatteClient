@@ -13,24 +13,22 @@
     You should have received a copy of the GNU General Public License
     along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.*/
 
-package com.agatteclient;
+package com.agatteclient.alarm;
 
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
+import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
 import android.widget.ListView;
+
+import com.agatteclient.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AlarmActivity extends ActionBarActivity {
+public class AlarmActivity extends Activity {
 
     private AlarmArrayAdapter mAdapter;
     private List<PunchAlarmTime> alarms;
@@ -40,13 +38,8 @@ public class AlarmActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm);
 
-        if (savedInstanceState == null) {
-
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
-                    .commit();
-        }
-
+        //TODO : get alarmlist from Shared Preferences...
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         alarms = new ArrayList<PunchAlarmTime>(2);
         alarms.add(new PunchAlarmTime(8, 0));
         alarms.add(new PunchAlarmTime(14, 0, PunchAlarmTime.Day.monday, PunchAlarmTime.Day.wednesday));
@@ -54,7 +47,6 @@ public class AlarmActivity extends ActionBarActivity {
         ListView lv = (ListView) findViewById(R.id.alarmListView);
         lv.setAdapter(mAdapter);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -76,20 +68,5 @@ public class AlarmActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_alarm, container, false);
-            return rootView;
-        }
-    }
 
 }

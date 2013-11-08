@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.*/
 
-package com.agatteclient;
+package com.agatteclient.card;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -30,6 +30,8 @@ import android.util.AttributeSet;
 import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
+
+import com.agatteclient.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -281,7 +283,7 @@ public class DayCardView extends View {
     /**
      * @return the Y coordinate (in pixel) of the first punch or now
      */
-    int getFirstPunchY() {
+    public int getFirstPunchY() {
         if (card != null) {
             float y_dp;
             Date min_d = card.getFirstPunch();

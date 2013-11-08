@@ -13,21 +13,19 @@
     You should have received a copy of the GNU General Public License
     along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.*/
 
-package com.agatteclient;
-
-import android.content.Context;
-import android.util.AttributeSet;
-import android.view.View;
+package com.agatteclient.card;
 
 /**
- * Created by remi on 06/11/13.
+ * Created by remi on 29/10/13.
  */
-public class AlarmView extends View {
+public enum TimeProfile {
 
+    week_38h10(7.66666f),
+    week_37h30(7.5f),
+    week_36h40(7.33333f);
+    public float daily_time;
 
-    public AlarmView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+    TimeProfile(float daily_time) {
+        this.daily_time = daily_time;
     }
-
-
 }

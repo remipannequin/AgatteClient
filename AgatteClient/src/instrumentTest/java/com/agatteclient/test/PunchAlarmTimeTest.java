@@ -17,7 +17,7 @@ package com.agatteclient.test;
 
 import android.test.AndroidTestCase;
 
-import com.agatteclient.PunchAlarmTime;
+import com.agatteclient.alarm.PunchAlarmTime;
 
 import java.util.Calendar;
 import java.util.Date;

@@ -18,7 +18,7 @@ package com.agatteclient.test;
 import android.app.Activity;
 import android.test.ActivityInstrumentationTestCase2;
 
-import com.agatteclient.DayCardView;
+import com.agatteclient.card.DayCardView;
 import com.agatteclient.MainActivity;
 import com.agatteclient.R;
 

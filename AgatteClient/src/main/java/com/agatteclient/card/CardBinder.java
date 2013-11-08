@@ -13,19 +13,36 @@
     You should have received a copy of the GNU General Public License
     along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.*/
 
-package com.agatteclient;
+package com.agatteclient.card;
+
+import java.util.LinkedList;
 
 /**
  * Created by remi on 29/10/13.
  */
-public enum TimeProfile {
+public class CardBinder {
+    private static CardBinder ourInstance = new CardBinder();
 
-    week_38h10(7.66666f),
-    week_37h30(7.5f),
-    week_36h40(7.33333f);
-    public float daily_time;
+    public static CardBinder getInstance() {
+        return ourInstance;
+    }
 
-    TimeProfile(float daily_time) {
-        this.daily_time = daily_time;
+    private LinkedList<DayCard> cards;
+    private DayCard current;
+
+    private CardBinder() {
+        cards = new LinkedList<DayCard>();
+    }
+
+    /**
+     * Return Today card
+     */
+    public DayCard getTodayCard() {
+        if (current == null || !current.isCurrentDay()) {
+            DayCard new_card = new DayCard();
+            cards.addLast(new_card);
+            current = new_card;
+        }
+        return current;
     }
 }

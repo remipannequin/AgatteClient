@@ -13,10 +13,9 @@
     You should have received a copy of the GNU General Public License
     along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.*/
 
-package com.agatteclient;
+package com.agatteclient.alarm;
 
 import android.app.AlarmManager;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -28,6 +27,11 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.os.ResultReceiver;
 import android.support.v4.app.NotificationCompat;
+
+import com.agatteclient.MainActivity;
+import com.agatteclient.R;
+import com.agatteclient.agatte.AgatteResponse;
+import com.agatteclient.agatte.PunchService;
 
 import java.util.Collection;
 import java.util.Date;
