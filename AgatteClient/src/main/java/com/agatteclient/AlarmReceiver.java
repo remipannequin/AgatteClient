@@ -65,10 +65,10 @@ public class AlarmReceiver extends BroadcastReceiver {
             int icon;
             if (rsp.isError()) {
                 notification_title.append(ctx.getString(R.string.programmed_punch_success_title));
-                icon = R.drawable.ic_stat_notify;
+                icon = R.drawable.ic_stat_alerts_and_states_warning;
             } else {
                 notification_title.append(ctx.getString(R.string.programmed_punch_failed_title));
-                icon = R.drawable.ic_stat_notify;
+                icon = R.drawable.ic_stat_agatte;
             }
 
             switch (rsp.getCode()) {
