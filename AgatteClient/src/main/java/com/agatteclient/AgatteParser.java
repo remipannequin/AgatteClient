@@ -28,7 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Singleton calss to parse response from the Agatte Server
+ * Singleton class to parse response from the Agatte Server
  * <p/>
  * Created by Rémi Pannequin on 03/10/13.
  */
@@ -37,7 +37,7 @@ public class AgatteParser {
     private static final String PATTERN_TOPS = ".*<li.*Top r.el.*([0-9][0-9]:[0-9][0-9])\\s*</li>.*";
     private static final String PATTERN_VIRTUAL_TOPS = ".*<li.*Tops d\'absence.*([0-9][0-9]:[0-9][0-9])\\s*</li>.*";
     private static final String PATTERN_NETWORK_NOT_AUTHORIZED = "<legend>Acc\ufffds interdit</legend>";
-    private static final String PATTERN_TOP_OK = "<p>(Top pris en compte à [0-9][0-9]:[0-9}][0-9])</p>";
+    private static final String PATTERN_TOP_OK = "<p>Top pris en compte . ([0-9][0-9]:[0-9}][0-9])</p>";
     private static AgatteParser ourInstance = new AgatteParser();
 
     private AgatteParser() {

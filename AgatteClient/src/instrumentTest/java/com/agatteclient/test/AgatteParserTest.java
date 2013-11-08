@@ -120,6 +120,22 @@ public class AgatteParserTest extends AndroidTestCase {
         assertEquals("17:00", rsp.getTops()[1]);
     }
 
+    public void testParseResponse7() throws Exception {
+        AgatteParser instance = AgatteParser.getInstance();
+        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
+        BasicHttpEntity test_entity = new BasicHttpEntity();
+        test_entity.setContent(new ByteArrayInputStream(response_test6.getBytes()));
+        test.setEntity(test_entity);
+        AgatteResponse rsp = instance.parse_topOk_response(test);
+        assertEquals(AgatteResponse.Code.PunchOK, rsp.getCode());
+        assertTrue(rsp.hasTops());
+        assertFalse(rsp.hasVirtualTops());
+
+        assertEquals(1, rsp.getTops().length);
+        assertEquals("09:00", rsp.getTops()[0]);
+
+    }
+
 
     private final static String response_test1 = "<html>\n" +
             "<head>\n" +
@@ -872,4 +888,55 @@ public class AgatteParserTest extends AndroidTestCase {
             "</div>\n" +
             "</body>\n" +
             "</html>";
+
+    private final static String response_test6 = "<html>\t<head>\t\t \t<meta http-equiv=\"refresh\" content=\"600;URL=/logout.htm\"><link rel=\"stylesheet\" href=\"/media/css/normalize.css\" type=\"text/css\"/> <link rel=\"stylesheet\" href=\"/media/css/agatte.css?Fri Nov 08 11:41:09 CET 2013\" type=\"text/css\"/><link rel=\"stylesheet\" href=\"/media/css/print.css\" type=\"text/css\" media=\"print\"/><link rel=\"stylesheet\" href=\"/media/css/displaytag.css\" type=\"text/css\"/><style type=\"text/css\" media=\"screen\">@import \"/media/css/tabs.css\";</style>\n" +
+            "<!--[if IE]><link rel=\"stylesheet\" href=\"/media/css/agatteIE.css\" type=\"text/css\"/><![endif]--><style type='text/css'>@import url(/media/js/jscalendar-1.0/skins/aqua/theme.css);</style>\n" +
+            "<title>Agatte</title>\n" +
+            "\t</head>\n" +
+            "\t<body>\t  <div id=page>\t\t<div id=\"importJS\">\t\t<script type='text/javascript' src='/media/js/agatte.js'></script>\n" +
+            "\t\t<script type='text/javascript' src='/media/js/jscalendar-1.0/calendar.js'></script>\n" +
+            "\t<script type='text/javascript' src='/media/js/jscalendar-1.0/lang/calendar-fr.js'></script>\n" +
+            "\t<script type='text/javascript' src='/media/js/jscalendar-1.0/calendar-setup.js'></script>\n" +
+            "</div>\n" +
+            "<script type='text/javascript' src='/media/js/scriptaculous-js-1.6.1/lib/prototype.js'></script>\n" +
+            "<script type='text/javascript' src='/media/js/scriptaculous-js-1.6.1/src/scriptaculous.js'></script>\n" +
+            "<script type='text/javascript' src='/media/js/Tooltip.js'></script>\t\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/prototype.js\"></script>\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/effects.js\"></script>\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/window.js\"></script>\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/debug.js\"></script>\n" +
+            "  \t\t<link href=\"/media/js/windows_js_1.3/themes/alert_agatte.css\" rel=\"stylesheet\" type=\"text/css\">\t<link href=\"/media/js/windows_js_1.3/themes/default.css\" rel=\"stylesheet\" type=\"text/css\"><!--[if IE]>\t<script language=\"javascript\">function loadInfoDialog() {}</script>\n" +
+            "<![endif]-->\t\t<div id=\"bandeau\">\t<div id=\"logo\"></div>\n" +
+            "</div>\t\n" +
+            "\t\t\t<div id=\"header\">\t\t<ul id=\"primary\">\t\t\t\t\t\t\t<li><a href=\"/top/top.form?numMen=1\" onclick='loadInfoDialog()' class='current'>Tops</a><ul id=\"secondary\"><li><a href=\"/top/top.form?numMen=2\" onclick='loadInfoDialog()' class='current'>Toper</a></li><li><a href=\"/top/feuille-top.form?numMen=3\" onclick='loadInfoDialog()' >Feuille des tops</a></li><li><a href=\"/top/detail-jour.form?numMen=4\" onclick='loadInfoDialog()' >D�tail d'une journ�e</a></li><li><a href=\"/top/liste-ano.form?numMen=5\" onclick='loadInfoDialog()' >Liste des anomalies</a></li></ul></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/abs/dem-abs.form?numMen=6\" onclick='loadInfoDialog()' >Absences</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/planning/planning.form?numMen=607\" onclick='loadInfoDialog()' >Planning</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/cet/accueilCET.htm?numMen=613\" onclick='loadInfoDialog()' >CET</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/pers/fichePersonnel.htm?numMen=612\" onclick='loadInfoDialog()' >Fiche Personnel</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/app/pref.form?numMen=609\" onclick='loadInfoDialog()' >Pr�f�rences</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/app/aide.htm?numMen=610\" onclick='loadInfoDialog()' >Aide</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/logout.htm?numMen=611\" onclick='loadInfoDialog()' >Quitter</a></li>\n" +
+            "\t\t\t\t\t</ul>\n" +
+            "\t\t\t\t\t\t\t\t</div>\n" +
+            "\t\t<div id=\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\"main-menu\"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t >\t\t\t<div id=\t\t\t\t\t\t\t\t\t\t\t\t\t\t\"contents-menu\"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t>\t\t\t\t<h1>Top</h1>\n" +
+            "<p>Top pris en compte � 09:00</p>\n" +
+            "<hr/><div id=\"rappelTop\">\tRappel des tops de la journ�e\t<ul>\t\t\t\t\t<li \t\t\t\t\t\t\t\t\ttitle=\"Top r�el\"\t\t\t\t\t\t\t\t\t\t\t\t>\t\t\t\t09:00\t\t\t</li>\n" +
+            "\t\t\t</ul>\n" +
+            "\t<p>\t\t<span>Tops r�els</span>\n" +
+            "\t\t<br/>\t\t<span class=\"top-absence\">Tops d'absence</span>\n" +
+            "\t</p>\n" +
+            "</div>\n" +
+            "<div class=\"spacer\">&nbsp;</div>\n" +
+            "\t\t\t</div>\n" +
+            "\t\t</div>\n" +
+            "\t\t<div id=\"dhtmltooltip\"></div>\n" +
+            "<div id=\"dhtmltooltipJS\"> <script type=\"text/javascript\" src=\"/media/js/dhtmlToolTip.js\"></script> \n" +
+            "</div>\n" +
+            "<div id=\"pied\">\t\t\t<div class=\"info\">Profil : Personnel</div>\n" +
+            "\t\t<div>Le logiciel Agatte a fait l'objet d'une d�claration � la Commission Nationale de l'Informatique et des Libert�s (CNIL), enregistr�e sous le N� 1005966. Selon la loi 78-17 du 6 janvier 1978 sur l'informatique et les libert�s, vous b�n�ficiez d'un droit d'information et de rectification sur les renseignements vous concernant qui sont saisis dans le logiciel. Si vous souhaitez utiliser ce droit, veuillez contacter la DRH - Pr�sidence de l'Universit�.</div>\n" +
+            "\t<p>&copy; 2013 - Universit� de Lorraine</p>\t\n" +
+            "</div>\n" +
+            "\t  </div>\t\n" +
+            "\t</body>\n" +
+            "</html>\n";
 }

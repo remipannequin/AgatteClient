@@ -210,14 +210,19 @@ public class AgatteSession {
                     return new AgatteResponse(AgatteResponse.Code.LoginFailed);
                 }
             }
+            //Make sure to follow redirection
+            client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
+            client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
+            //Simulate a first query
+            client.execute(query_day_rq, httpContext).getEntity().consumeContent();
+            //Then send a punching request
             HttpResponse response1 = client.execute(exec_rq, httpContext);
             //should be a redirect to topOk
             AgatteResponse.Code code = AgatteParser.getInstance().parse_punch_response(response1);
             switch (code) {
                 case TemporaryOK:
-                    //Make sure to follow redirection
-                    client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
-                    client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
+
+
                     HttpResponse response2 = client.execute(query_top_ok_rq, httpContext);
                     return AgatteParser.getInstance().parse_topOk_response(response2);
                 case NetworkNotAuthorized:
@@ -225,6 +230,42 @@ public class AgatteSession {
                 default:
                     return new AgatteResponse(AgatteResponse.Code.UnknownError);
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new AgatteResponse(AgatteResponse.Code.IOError, e);
+        } finally {
+            if (client != null) {
+                logout(client);
+                client.close();
+            }
+        }
+    }
+
+    /**
+     * Request the "topOk" page from the server
+     * <p/>
+     * Useful for testing mainly
+     *
+     * @return
+     */
+    public AgatteResponse queryPunchOk() {
+        AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
+        try {
+            if (!mustLogin()) {
+                if (!login(client)) {
+                    return new AgatteResponse(AgatteResponse.Code.LoginFailed);
+                }
+            }
+
+            client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
+            client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
+            //Simulate a first query
+            client.execute(query_day_rq, httpContext).getEntity().consumeContent();
+
+            HttpResponse response2 = client.execute(query_top_ok_rq, httpContext);
+
+            return AgatteParser.getInstance().parse_topOk_response(response2);
+
         } catch (IOException e) {
             e.printStackTrace();
             return new AgatteResponse(AgatteResponse.Code.IOError, e);
