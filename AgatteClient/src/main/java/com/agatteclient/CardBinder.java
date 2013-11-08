@@ -39,7 +39,7 @@ public class CardBinder {
      * Return Today card
      */
     public DayCard getTodayCard() {
-        if (!current.isCurrentDay()) {
+        if (current == null || !current.isCurrentDay()) {
             DayCard new_card = new DayCard();
             cards.addLast(new_card);
             current = new_card;

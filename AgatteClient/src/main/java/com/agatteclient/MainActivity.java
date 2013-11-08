@@ -104,7 +104,7 @@ public class MainActivity extends Activity {
 
         //Get old instance or create a new one
         if (savedInstanceState == null) {
-            cur_card = new DayCard();
+            cur_card = CardBinder.getInstance().getTodayCard();
         } else {
             cur_card = (DayCard) savedInstanceState.getSerializable(DAY_CARD);
         }
@@ -203,10 +203,7 @@ public class MainActivity extends Activity {
      */
     private void updateCard() {
 
-        if (!cur_card.isCurrentDay()) {
-            cur_card = new DayCard();
-            dc_view.setCard(cur_card);
-        }
+        cur_card = CardBinder.getInstance().getTodayCard();
         if (cur_card.isEven()) {
             punch_button.setText(R.string.punch_button1);
         } else {
@@ -388,6 +385,7 @@ public class MainActivity extends Activity {
 
             //display error (in a Toast)
             StringBuilder toast = new StringBuilder();
+            boolean isPunch = false;
             switch (rsp.getCode()) {
                 case IOError:
                     toast.append(getString(R.string.punch_error_toast)).append(" ");
@@ -405,6 +403,7 @@ public class MainActivity extends Activity {
                     toast.append(getString(R.string.login_failed_toast));
                     break;
                 case PunchOK:
+                    isPunch = true;
                 case QueryOK:
                     try {
                         DayCard cur_card = CardBinder.getInstance().getTodayCard();
@@ -417,8 +416,10 @@ public class MainActivity extends Activity {
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
-
-                    toast.append(getString(R.string.punch_ok_toast));
+                    //Only if it was a punching request
+                    if (isPunch) {
+                        toast.append(getString(R.string.punch_ok_toast));
+                    }
                     break;
                 case UnknownError:
                     toast.append(getString(R.string.punch_error_toast)).append(" ");
