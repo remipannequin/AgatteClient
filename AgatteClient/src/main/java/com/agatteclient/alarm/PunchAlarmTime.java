@@ -27,6 +27,10 @@ public class PunchAlarmTime {
     private int firing_days;
     private static final Calendar cal = Calendar.getInstance();
 
+
+
+
+
     public enum Day {
         monday(1),
         tuesday(1<<2),
@@ -144,6 +148,14 @@ public class PunchAlarmTime {
     public long nextAlarm(long currentTimeMillis) {
         Date d = new Date(currentTimeMillis);
         return nextAlarm(d).getTime();
+    }
+
+    public Date getTime() {
+        cal.set(Calendar.HOUR_OF_DAY, this.time_of_day / 60);
+        cal.set(Calendar.MINUTE, this.time_of_day % 60);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
     }
 
 }

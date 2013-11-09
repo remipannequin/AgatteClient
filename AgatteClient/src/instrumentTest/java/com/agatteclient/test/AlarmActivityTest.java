@@ -27,6 +27,6 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
 
 
     public void testPreConditions() {
-
+        assertNotNull(mActivity);
     }
 }
