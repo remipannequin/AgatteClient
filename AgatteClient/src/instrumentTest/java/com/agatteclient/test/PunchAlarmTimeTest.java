@@ -29,35 +29,57 @@ public class PunchAlarmTimeTest extends AndroidTestCase {
 
     public void testFireAt() throws Exception {
         PunchAlarmTime instance = new PunchAlarmTime(6,30, PunchAlarmTime.Day.monday);
-        assertTrue(instance.fireAt(PunchAlarmTime.Day.monday));
-        assertFalse(instance.fireAt(PunchAlarmTime.Day.tuesday));
-        assertFalse(instance.fireAt(PunchAlarmTime.Day.wednesday));
-        assertFalse(instance.fireAt(PunchAlarmTime.Day.thursday));
-        assertFalse(instance.fireAt(PunchAlarmTime.Day.friday));
-        assertFalse(instance.fireAt(PunchAlarmTime.Day.saturday));
-        assertFalse(instance.fireAt(PunchAlarmTime.Day.sunday));
+        assertTrue(instance.isFireAt(PunchAlarmTime.Day.monday));
+        assertFalse(instance.isFireAt(PunchAlarmTime.Day.tuesday));
+        assertFalse(instance.isFireAt(PunchAlarmTime.Day.wednesday));
+        assertFalse(instance.isFireAt(PunchAlarmTime.Day.thursday));
+        assertFalse(instance.isFireAt(PunchAlarmTime.Day.friday));
+        assertFalse(instance.isFireAt(PunchAlarmTime.Day.saturday));
+        assertFalse(instance.isFireAt(PunchAlarmTime.Day.sunday));
     }
 
     public void testFireAt2() throws Exception {
         PunchAlarmTime instance = new PunchAlarmTime(10,25);
-        assertTrue(instance.fireAt(PunchAlarmTime.Day.monday));
-        assertTrue(instance.fireAt(PunchAlarmTime.Day.tuesday));
-        assertTrue(instance.fireAt(PunchAlarmTime.Day.wednesday));
-        assertTrue(instance.fireAt(PunchAlarmTime.Day.thursday));
-        assertTrue(instance.fireAt(PunchAlarmTime.Day.friday));
-        assertFalse(instance.fireAt(PunchAlarmTime.Day.saturday));
-        assertFalse(instance.fireAt(PunchAlarmTime.Day.sunday));
+        assertTrue(instance.isFireAt(PunchAlarmTime.Day.monday));
+        assertTrue(instance.isFireAt(PunchAlarmTime.Day.tuesday));
+        assertTrue(instance.isFireAt(PunchAlarmTime.Day.wednesday));
+        assertTrue(instance.isFireAt(PunchAlarmTime.Day.thursday));
+        assertTrue(instance.isFireAt(PunchAlarmTime.Day.friday));
+        assertFalse(instance.isFireAt(PunchAlarmTime.Day.saturday));
+        assertFalse(instance.isFireAt(PunchAlarmTime.Day.sunday));
     }
 
     public void testFireAt3() throws Exception {
         PunchAlarmTime instance = new PunchAlarmTime(18,39, PunchAlarmTime.Day.monday, PunchAlarmTime.Day.wednesday, PunchAlarmTime.Day.friday, PunchAlarmTime.Day.sunday);
-        assertTrue(instance.fireAt(PunchAlarmTime.Day.monday));
-        assertFalse(instance.fireAt(PunchAlarmTime.Day.tuesday));
-        assertTrue(instance.fireAt(PunchAlarmTime.Day.wednesday));
-        assertFalse(instance.fireAt(PunchAlarmTime.Day.thursday));
-        assertTrue(instance.fireAt(PunchAlarmTime.Day.friday));
-        assertFalse(instance.fireAt(PunchAlarmTime.Day.saturday));
-        assertTrue(instance.fireAt(PunchAlarmTime.Day.sunday));
+        assertTrue(instance.isFireAt(PunchAlarmTime.Day.monday));
+        assertFalse(instance.isFireAt(PunchAlarmTime.Day.tuesday));
+        assertTrue(instance.isFireAt(PunchAlarmTime.Day.wednesday));
+        assertFalse(instance.isFireAt(PunchAlarmTime.Day.thursday));
+        assertTrue(instance.isFireAt(PunchAlarmTime.Day.friday));
+        assertFalse(instance.isFireAt(PunchAlarmTime.Day.saturday));
+        assertTrue(instance.isFireAt(PunchAlarmTime.Day.sunday));
+    }
+
+    public void testSetFireAt()  throws Exception {
+        PunchAlarmTime instance = new PunchAlarmTime(18,39);
+
+        for (int i = 0; i < 5; i++) {
+            PunchAlarmTime.Day day = PunchAlarmTime.Day.values()[i];
+            assertTrue(instance.isFireAt(day));
+            instance.setFireAt(day, true);
+            assertTrue(instance.isFireAt(day));
+            instance.setFireAt(day, false);
+            assertFalse(instance.isFireAt(day));
+        }
+
+        for (int i = 5; i < 7; i++) {
+            PunchAlarmTime.Day day = PunchAlarmTime.Day.values()[i];
+            assertFalse(instance.isFireAt(day));
+            instance.setFireAt(day, false);
+            assertFalse(instance.isFireAt(day));
+            instance.setFireAt(day, true);
+            assertTrue(instance.isFireAt(day));
+        }
     }
 
     public void testNextAlarm1() throws Exception {

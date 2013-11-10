@@ -28,9 +28,6 @@ public class PunchAlarmTime {
     private static final Calendar cal = Calendar.getInstance();
 
 
-
-
-
     public enum Day {
         monday(1),
         tuesday(1<<2),
@@ -93,11 +90,23 @@ public class PunchAlarmTime {
         return instance;
     }
 
+
+
+
     public PunchAlarmTime(int hour, int minute) {
         this(hour,minute, Day.monday, Day.tuesday, Day.wednesday, Day.thursday , Day.friday);
     }
 
-    public boolean fireAt(Day day) {
+    public void setFireAt(Day day, boolean b) {
+        if (isFireAt(day) && !b) {
+            this.firing_days -= day.f;
+        } else if (!isFireAt(day) && b) {
+            this.firing_days += day.f;
+        }
+
+    }
+
+    public boolean isFireAt(Day day) {
         return ((this.firing_days & day.f) != 0);
     }
 
@@ -125,7 +134,7 @@ public class PunchAlarmTime {
             //search if day is a firing day
             for (int i=0; i < 7; i++) {
                 Day d = Day.fromCalDay(cal.get(Calendar.DAY_OF_WEEK));
-                if (fireAt(d)) {
+                if (isFireAt(d)) {
                     return cal.getTime();
                 }
                 cal.add(Calendar.DATE, 1);
@@ -136,7 +145,7 @@ public class PunchAlarmTime {
             for (int i=0; i < 7; i++) {
                 cal.add(Calendar.DATE, 1);
                 Day d = Day.fromCalDay(cal.get(Calendar.DAY_OF_WEEK));
-                if (fireAt(d)) {
+                if (isFireAt(d)) {
                     return cal.getTime();
                 }
             }
