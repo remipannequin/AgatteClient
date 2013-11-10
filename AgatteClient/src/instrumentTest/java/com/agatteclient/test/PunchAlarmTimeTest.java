@@ -127,6 +127,19 @@ public class PunchAlarmTimeTest extends AndroidTestCase {
         assertEquals(expected, actual);
     }
 
+    public void testToLong()  throws Exception {
+        PunchAlarmTime instance = new PunchAlarmTime(10,25);
+        long actual = instance.toLong();
+        long expected = 281608120697457l;
+        assertEquals(expected, actual);
+    }
 
+    public void testFromLong()  throws Exception {
+        PunchAlarmTime expected = new PunchAlarmTime(6,52, PunchAlarmTime.Day.monday, PunchAlarmTime.Day.wednesday, PunchAlarmTime.Day.friday, PunchAlarmTime.Day.sunday);
+        expected.setEnabled(false);
+        PunchAlarmTime actual = PunchAlarmTime.fromLong(412l+365072220160l);
+        assertTrue(expected.equals(actual));
+        assertEquals(expected, actual);
+    }
 
 }
