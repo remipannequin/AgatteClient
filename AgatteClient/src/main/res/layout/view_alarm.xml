@@ -18,7 +18,6 @@
     <ToggleButton
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:text="LUN."
         android:id="@+id/toggleButton"
         android:textOff="LUN."
         android:textOn="LUN."
@@ -32,7 +31,6 @@
     <ToggleButton
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:text="MAR."
         android:id="@+id/toggleButton2"
         android:textOff="MAR."
         android:textOn="MAR."
@@ -48,7 +46,6 @@
     <ToggleButton
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:text="MER."
         android:id="@+id/toggleButton3"
         android:textOff="MER."
         android:textOn="MER."
@@ -63,7 +60,6 @@
     <ToggleButton
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:text="JEU."
         android:id="@+id/toggleButton4"
         android:textOff="JEU."
         android:textOn="JEU."
@@ -78,7 +74,6 @@
     <ToggleButton
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:text="VEN."
         android:id="@+id/toggleButton5"
         android:textOff="VEN."
         android:textOn="VEN."
@@ -94,7 +89,6 @@
     <ToggleButton
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:text="SAM."
         android:id="@+id/toggleButton_saturday"
         android:textOff="SAM."
         android:textOn="SAM."
@@ -108,7 +102,6 @@
     <ToggleButton
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:text="DIM."
         android:id="@+id/toggleButton_sunday"
         android:singleLine="false"
         android:textOff="DIM."

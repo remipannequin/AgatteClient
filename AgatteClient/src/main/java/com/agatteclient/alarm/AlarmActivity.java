@@ -16,6 +16,7 @@
 package com.agatteclient.alarm;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -31,21 +32,33 @@ import java.util.List;
 public class AlarmActivity extends Activity {
 
     private AlarmArrayAdapter mAdapter;
-    private List<PunchAlarmTime> alarms;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm);
-
-        //TODO : get alarmlist from Shared Preferences...
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        alarms = new ArrayList<PunchAlarmTime>(2);
-        alarms.add(new PunchAlarmTime(8, 0));
-        alarms.add(new PunchAlarmTime(14, 0, PunchAlarmTime.Day.monday, PunchAlarmTime.Day.wednesday));
-        mAdapter = new AlarmArrayAdapter(this, alarms);
         ListView lv = (ListView) findViewById(R.id.alarmListView);
         lv.setAdapter(mAdapter);
+    }
+
+    public AlarmArrayAdapter getAdapter() {
+        return mAdapter;
+    }
+
+    public void setAdapter(AlarmArrayAdapter mAdapter) {
+        this.mAdapter = mAdapter;
+    }
+
+    public void setAlarms(final List<PunchAlarmTime> alarms) {
+        final Context ctx = this;
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mAdapter = new AlarmArrayAdapter(ctx, alarms);
+                ListView lv = (ListView) findViewById(R.id.alarmListView);
+                lv.setAdapter(mAdapter);
+            }
+        });
     }
 
     @Override
@@ -67,6 +80,4 @@ public class AlarmActivity extends Activity {
         }
         return super.onOptionsItemSelected(item);
     }
-
-
 }

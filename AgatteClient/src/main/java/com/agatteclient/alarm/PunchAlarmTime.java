@@ -86,7 +86,7 @@ public class PunchAlarmTime {
     public static PunchAlarmTime fromLong(long l) {
         int t = (int)l;
         int days = (int)(l >> 32);
-        boolean enabled = (l & (1l << 48)) == 1;
+        boolean enabled = (l & (1l << 48)) != 0;
         PunchAlarmTime instance = new PunchAlarmTime();
         instance.firing_days = days;
         instance.time_of_day = t;

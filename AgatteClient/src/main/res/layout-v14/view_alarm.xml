@@ -1,103 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <TextView
-        android:id="@+id/alarmTimeTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/switch_enabled"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:text="@string/time_test"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <Switch
-        android:id="@+id/switch_enabled"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:checked="true" />
-
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/alarmTimeTextView">
+        android:layout_height="fill_parent"
+        android:padding="5dp">
 
-        <ToggleButton
-            android:id="@+id/toggleButton_monday"
-            android:layout_width="55dp"
+        <TextView
+            android:id="@+id/alarmTimeTextView"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="false"
-            android:checked="true"
-            android:textOff="@string/short_monday"
-            android:textOn="@string/short_monday"
-            android:textSize="12sp" />
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="@string/time_test"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_toLeftOf="@+id/switch_enabled"
+            android:paddingLeft="4dp" />
 
-        <ToggleButton
-            android:id="@+id/toggleButton_tuesday"
-            android:layout_width="55dp"
+        <Switch
+            android:id="@+id/switch_enabled"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="false"
-            android:checked="true"
-            android:textOff="@string/short_tuesday"
-            android:textOn="@string/short_tuesday"
-            android:textSize="12sp" />
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:checked="true" />
 
-        <ToggleButton
-            android:id="@+id/toggleButton_wednesday"
-            android:layout_width="55dp"
+        <LinearLayout
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="false"
-            android:checked="true"
-            android:textOff="@string/short_wednesday"
-            android:textOn="@string/short_wednesday"
-            android:textSize="12sp" />
+            android:layout_below="@+id/alarmTimeTextView">
 
-        <ToggleButton
-            android:id="@+id/toggleButton_thursday"
-            android:layout_width="55dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="false"
-            android:checked="true"
-            android:textOff="@string/short_thursday"
-            android:textOn="@string/short_thursday"
-            android:textSize="12sp" />
+            <ToggleButton
+                android:id="@+id/toggleButton_monday"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="false"
+                android:checked="true"
+                android:textOff="@string/short_monday"
+                android:textOn="@string/short_monday"
+                android:textSize="12sp" />
 
-        <ToggleButton
-            android:id="@+id/toggleButton_friday"
-            android:layout_width="55dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="false"
-            android:checked="true"
-            android:textOff="@string/short_friday"
-            android:textOn="@string/short_friday"
-            android:textSize="12sp" />
+            <ToggleButton
+                android:id="@+id/toggleButton_tuesday"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="false"
+                android:checked="true"
+                android:textOff="@string/short_tuesday"
+                android:textOn="@string/short_tuesday"
+                android:textSize="12sp" />
 
-        <ToggleButton
-            android:id="@+id/toggleButton_saturday"
-            android:layout_width="55dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="false"
-            android:checked="false"
-            android:textOff="@string/short_saturday"
-            android:textOn="@string/short_saturday"
-            android:textSize="12sp" />
+            <ToggleButton
+                android:id="@+id/toggleButton_wednesday"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="false"
+                android:checked="true"
+                android:textOff="@string/short_wednesday"
+                android:textOn="@string/short_wednesday"
+                android:textSize="12sp" />
 
-        <ToggleButton
-            android:id="@+id/toggleButton_sunday"
-            android:layout_width="55dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="false"
-            android:checked="false"
-            android:textOff="@string/short_sunday"
-            android:textOn="@string/short_sunday"
-            android:textSize="12sp" />
-    </LinearLayout>
+            <ToggleButton
+                android:id="@+id/toggleButton_thursday"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="false"
+                android:checked="true"
+                android:textOff="@string/short_thursday"
+                android:textOn="@string/short_thursday"
+                android:textSize="12sp" />
+
+            <ToggleButton
+                android:id="@+id/toggleButton_friday"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="false"
+                android:checked="true"
+                android:textOff="@string/short_friday"
+                android:textOn="@string/short_friday"
+                android:textSize="12sp" />
+
+            <ToggleButton
+                android:id="@+id/toggleButton_saturday"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="false"
+                android:checked="false"
+                android:textOff="@string/short_saturday"
+                android:textOn="@string/short_saturday"
+                android:textSize="12sp" />
+
+            <ToggleButton
+                android:id="@+id/toggleButton_sunday"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="false"
+                android:checked="false"
+                android:textOff="@string/short_sunday"
+                android:textOn="@string/short_sunday"
+                android:textSize="12sp" />
+        </LinearLayout>
 
 </RelativeLayout>
-
+</FrameLayout>
