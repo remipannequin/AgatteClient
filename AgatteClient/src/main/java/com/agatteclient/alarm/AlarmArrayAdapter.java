@@ -16,7 +16,6 @@
 package com.agatteclient.alarm;
 
 import android.content.Context;
-import android.support.v7.internal.view.menu.MenuView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,93 +27,144 @@ import android.widget.ToggleButton;
 import com.agatteclient.R;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Rémi Pannequin on 06/11/13.
  */
 public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
 
+    private static int[] days = new int[]{R.id.toggleButton_monday,
+            R.id.toggleButton_tuesday,
+            R.id.toggleButton_wednesday,
+            R.id.toggleButton_thursday,
+            R.id.toggleButton_friday,
+            R.id.toggleButton_saturday,
+            R.id.toggleButton_sunday};
 
-    private final List<PunchAlarmTime> list;
-
-    Map<Integer, List<ToggleButton>> day_button;
-    private CompoundButton enabled;
-    private TextView text;
+    //Used for testing
+    private LayoutInflater inflater;
 
     public AlarmArrayAdapter(Context context, List<PunchAlarmTime> objects) {
         super(context, R.layout.view_alarm, objects);
-        this.list = objects;
-        this.day_button = new HashMap<Integer, List<ToggleButton>>(list.size());
+    }
+
+    private LayoutInflater getInflater(ViewGroup parent) {
+
+        if (inflater == null) {
+            assert parent != null;
+            assert parent.getContext() != null;
+            inflater = (LayoutInflater) parent.getContext()
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+        return inflater;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        assert parent != null;
-        View itemView;
-        final PunchAlarmTime alarm = list.get(position);
+
+        final PunchAlarmTime alarm = getItem(position);
+        ViewHolder holder;
 
         if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) parent.getContext()
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            itemView = inflater.inflate(R.layout.view_alarm, null);
-
+            convertView = getInflater(parent).inflate(R.layout.view_alarm, parent, false);
+            assert convertView != null;
+            holder = new ViewHolder(convertView);
+            //views.set(position, holder);
+            convertView.setTag(holder);
         } else {
-            itemView = convertView;
+            holder = (ViewHolder) convertView.getTag();
         }
 
-        assert itemView != null;
+        CompoundButton cb = holder.getEnabled();
+        cb.setTag(alarm);
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                PunchAlarmTime a = (PunchAlarmTime) compoundButton.getTag();
+                if (a.isEnabled() != b) {
+                    a.setEnabled(b);
+                }
+            }
+        });
 
-        //Play with itemView
-        ArrayList<ToggleButton> button = new ArrayList<ToggleButton>(7);
-        for (int b: new int[] {R.id.toggleButton_monday,
-                R.id.toggleButton_tuesday,
-                R.id.toggleButton_wednesday,
-                R.id.toggleButton_thursday,
-                R.id.toggleButton_friday,
-                R.id.toggleButton_saturday,
-                R.id.toggleButton_sunday}) {
-            ToggleButton item = (ToggleButton) itemView.findViewById(b);
-            assert item != null;
-            button.add(item);
-        }
-        day_button.put(position, button);
-
-        enabled = (CompoundButton)itemView.findViewById(R.id.alarmEnabledCheckBox);
-
-        text = (TextView)itemView.findViewById(R.id.alarmTimeTextView);
-
-        for (int i=0; i < 7; i++) {
+        for (int i = 0; i < 7; i++) {
+            ToggleButton button = holder.getToggleButton()[i];
+            button.setTag(alarm);
             final PunchAlarmTime.Day cur_day = PunchAlarmTime.Day.values()[i];
-            button.get(i).setChecked(alarm.isFireAt(cur_day));
-            button.get(i).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    alarm.setFireAt(cur_day, b);
+                    PunchAlarmTime a = (PunchAlarmTime) compoundButton.getTag();
+                    if (a.isFireAt(cur_day) != b) {
+                        a.setFireAt(cur_day, b);
+                    }
                 }
             });
         }
+
+        for (int i=0; i < 7; i++) {
+            ToggleButton button = holder.getToggleButton()[i];
+            final PunchAlarmTime.Day cur_day = PunchAlarmTime.Day.values()[i];
+            button.setChecked(alarm.isFireAt(cur_day));
+        }
+
+        holder.getEnabled().setChecked(alarm.isEnabled());
+
+        TextView tv = holder.getText();
         SimpleDateFormat df = new SimpleDateFormat("HH:mm");
-        text.setText(df.format(alarm.getTime()));
-        text.setOnClickListener(new View.OnClickListener() {
+        tv.setText(df.format(alarm.getTime()));
+        tv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                //TODO: display dialog to set alarm time
             }
         });
-        //TODO: manage enabled
-
-
-
-        return itemView;
-
-
+        return convertView;
     }
 
-    public List<ToggleButton> getDay_button(int position) {
-        return day_button.get(position);
+
+    /**
+     * Created by Rémi Pannequin on 16/11/13.
+     */
+    private class ViewHolder {
+        View row;
+
+        private TextView text = null;
+        private ToggleButton[] day_button = null;
+        private CompoundButton enabled = null;
+
+
+        public ViewHolder(View row) {
+            this.row = row;
+        }
+
+        public TextView getText() {
+            if (this.text == null) {
+                this.text = (TextView) row.findViewById(R.id.alarmTimeTextView);
+            }
+            return this.text;
+        }
+
+        public ToggleButton[] getToggleButton() {
+            if (day_button == null) {
+                day_button = new ToggleButton[7];
+                for (int i = 0; i < 7; i++) {
+                    ToggleButton item = (ToggleButton) row.findViewById(days[i]);
+                    assert item != null;
+                    day_button[i] = item;
+                }
+            }
+            return day_button;
+        }
+
+        public CompoundButton getEnabled() {
+            if (enabled == null) {
+                enabled = (CompoundButton) row.findViewById(R.id.alarmEnabledCompoundButton);
+            }
+            return enabled;
+        }
+
+
     }
 }

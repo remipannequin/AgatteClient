@@ -65,5 +65,6 @@
     <string name="programmed_punch_success_title">Programmed punching failed</string>
     <string name="programmed_punch_failed_title">Programmed punching done</string>
     <string name="action_alarms">Alarms</string>
+    <string name="alarm_add">Add</string>
 
 </resources>

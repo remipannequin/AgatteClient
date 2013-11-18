@@ -22,12 +22,11 @@
             android:paddingLeft="4dp" />
 
         <Switch
-            android:id="@+id/switch_enabled"
+            android:id="@+id/alarmEnabledCompoundButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:checked="true" />
+            android:layout_alignParentTop="true" />
 
         <LinearLayout
             android:layout_width="fill_parent"

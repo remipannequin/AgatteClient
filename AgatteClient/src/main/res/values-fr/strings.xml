@@ -58,4 +58,5 @@
     <string name="programmed_punch_failed_title">Pointage effectué</string>
     <string name="action_alarms">Alarmes</string>
     <string name="title_activity_alarm">Alarmes</string>
+    <string name="alarm_add">Ajouter</string>
 </resources>

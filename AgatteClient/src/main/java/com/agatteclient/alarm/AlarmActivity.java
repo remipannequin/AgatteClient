@@ -16,49 +16,29 @@
 package com.agatteclient.alarm;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
 import com.agatteclient.R;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class AlarmActivity extends Activity {
 
     private AlarmArrayAdapter mAdapter;
+    private ListView lv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm);
-        ListView lv = (ListView) findViewById(R.id.alarmListView);
+        lv = (ListView) findViewById(R.id.alarmListView);
+        mAdapter = new AlarmArrayAdapter(this, AlarmBinder.getInstance().getList());
         lv.setAdapter(mAdapter);
     }
 
     public AlarmArrayAdapter getAdapter() {
         return mAdapter;
-    }
-
-    public void setAdapter(AlarmArrayAdapter mAdapter) {
-        this.mAdapter = mAdapter;
-    }
-
-    public void setAlarms(final List<PunchAlarmTime> alarms) {
-        final Context ctx = this;
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mAdapter = new AlarmArrayAdapter(ctx, alarms);
-                ListView lv = (ListView) findViewById(R.id.alarmListView);
-                lv.setAdapter(mAdapter);
-            }
-        });
     }
 
     @Override
@@ -76,6 +56,11 @@ public class AlarmActivity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.action_settings:
+                return true;
+            case R.id.action_alarm_add:
+                //add a new alarm
+                PunchAlarmTime new_alarm = new PunchAlarmTime(12, 00);
+                mAdapter.add(new_alarm);
                 return true;
         }
         return super.onOptionsItemSelected(item);
