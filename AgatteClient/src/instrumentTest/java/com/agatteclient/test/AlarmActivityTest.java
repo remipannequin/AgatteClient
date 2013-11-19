@@ -68,6 +68,7 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
         assertFalse(a2.isEnabled());
     }
 
+    @MediumTest
     public void testInitialDisplay() throws Exception {
         assertNotNull(mActivity);
         ListView listView = (ListView) mActivity.findViewById(R.id.alarmListView);
