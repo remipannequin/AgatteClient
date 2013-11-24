@@ -34,7 +34,7 @@ public class AlarmActivity extends Activity {
         setContentView(R.layout.activity_alarm);
 
         lv = (ListView) findViewById(R.id.alarmListView);
-        mAdapter = new AlarmArrayAdapter(this, AlarmBinder.getInstance().getList());
+        mAdapter = new AlarmArrayAdapter(this, AlarmBinder.getInstance(this));
         lv.setAdapter(mAdapter);
     }
 

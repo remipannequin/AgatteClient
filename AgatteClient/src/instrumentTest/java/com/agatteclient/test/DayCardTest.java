@@ -91,8 +91,6 @@ public class DayCardTest extends AndroidTestCase {
         instance.addPunches(punches, false);
         Date[] c = instance.getPunches();
         assertEquals(3, c.length);
-
-
     }
 
     public void testCorrectedTotalTime1() throws Exception {
@@ -123,8 +121,6 @@ public class DayCardTest extends AndroidTestCase {
         assertEquals(6.25d, instance.getCorrectedTotalTime());
         Pair<Date, Date>[] cp = instance.getCorrectedPunches();
         assertEquals(1, cp.length);
-
-
     }
 
     public void testCorrectedTotalTime3() throws Exception {
@@ -217,7 +213,6 @@ public class DayCardTest extends AndroidTestCase {
         assertEquals(3d, instance.getCorrectedTotalTime());
     }
 
-
     public void testGetVirtualPunches2() throws ParseException {
         DayCard instance = new DayCard(200, 2012);
         instance.addPunch("09:00", true);
@@ -308,7 +303,6 @@ public class DayCardTest extends AndroidTestCase {
         assertEquals(cal.getTime(), actual[0].second);
         assertEquals(5d, instance.getCorrectedTotalTime(now));
     }
-
 
 
 }

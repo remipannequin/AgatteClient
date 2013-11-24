@@ -100,7 +100,6 @@ public class AlarmReceiver extends BroadcastReceiver {
 
             }
 
-
             mBuilder.setContentTitle(notification_title)
                     .setContentText(notification_text)
                     .setSmallIcon(icon);
@@ -109,8 +108,6 @@ public class AlarmReceiver extends BroadcastReceiver {
                     new Intent(ctx, MainActivity.class), 0);
 
             mNotifyManager.notify(0, mBuilder.build());
-
-
         }
     }
 

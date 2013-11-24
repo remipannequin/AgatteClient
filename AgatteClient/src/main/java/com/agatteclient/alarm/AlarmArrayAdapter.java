@@ -27,7 +27,6 @@ import android.widget.ToggleButton;
 import com.agatteclient.R;
 
 import java.text.SimpleDateFormat;
-import java.util.List;
 
 /**
  * Created by Rémi Pannequin on 06/11/13.
@@ -41,12 +40,15 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
             R.id.toggleButton_friday,
             R.id.toggleButton_saturday,
             R.id.toggleButton_sunday};
+    private final AlarmBinder alarms;
 
     //Used for testing
     private LayoutInflater inflater;
 
-    public AlarmArrayAdapter(Context context, List<PunchAlarmTime> objects) {
+    public AlarmArrayAdapter(Context context, AlarmBinder objects) {
         super(context, R.layout.view_alarm, objects);
+        this.alarms = objects;
+
     }
 
     private LayoutInflater getInflater(ViewGroup parent) {
@@ -77,27 +79,29 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
         }
 
         CompoundButton cb = holder.getEnabled();
-        cb.setTag(alarm);
+        cb.setTag(position);
         cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                PunchAlarmTime a = (PunchAlarmTime) compoundButton.getTag();
+                int p = (Integer) compoundButton.getTag();
+                PunchAlarmTime a = alarms.get(p);
                 if (a.isEnabled() != b) {
-                    a.setEnabled(b);
+                    alarms.setEnabled(p, b);
                 }
             }
         });
 
         for (int i = 0; i < 7; i++) {
             ToggleButton button = holder.getToggleButton()[i];
-            button.setTag(alarm);
+            button.setTag(position);
             final PunchAlarmTime.Day cur_day = PunchAlarmTime.Day.values()[i];
             button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    PunchAlarmTime a = (PunchAlarmTime) compoundButton.getTag();
+                    int p = (Integer) compoundButton.getTag();
+                    PunchAlarmTime a = alarms.get(p);
                     if (a.isFireAt(cur_day) != b) {
-                        a.setFireAt(cur_day, b);
+                        alarms.setFireAt(p, cur_day, b);
                     }
                 }
             });

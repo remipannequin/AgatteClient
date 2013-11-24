@@ -182,6 +182,10 @@ public class MainActivity extends Activity {
         }/
         AlarmReceiver alarm = new AlarmReceiver();
         alarm.AddAlarm(this, new PunchAlarmTime(14, 00));
+
+        SharedPreferences prefs = ctx.getPreferences();
+        AlarmBinder.getInstance().loadFromPreferences(prefs);
+
         */
 
 

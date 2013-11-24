@@ -19,14 +19,14 @@ import com.agatteclient.alarm.PunchAlarmTime;
 
 /**
  * Test the Alarm View
- *
+ * <p/>
  * Created by Rémi Pannequin on 07/11/13.
  */
 public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
 
 
     private AlarmActivity mActivity;
-    private AlarmBinder alarms = AlarmBinder.getInstance();
+    private AlarmBinder alarms;
 
 
     public AlarmActivityTest() {
@@ -36,15 +36,17 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        if (alarms.getList().size() == 0) {
+
+        alarms = AlarmBinder.getInstance(getInstrumentation().getContext());
+        if (alarms.size() == 0) {
             PunchAlarmTime a1 = new PunchAlarmTime(8, 0);
             alarms.addAlarm(a1);
             PunchAlarmTime a2 = new PunchAlarmTime(14, 0, PunchAlarmTime.Day.monday, PunchAlarmTime.Day.wednesday);
             alarms.addAlarm(a2);
         }
-        alarms.getList().get(0).setEnabled(true);
-        alarms.getList().get(1).setEnabled(false);
-        mActivity = (AlarmActivity)getActivity();
+        alarms.get(0).setEnabled(true);
+        alarms.get(1).setEnabled(false);
+        mActivity = (AlarmActivity) getActivity();
 
         setActivityInitialTouchMode(false);
     }
@@ -59,12 +61,12 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
         PunchAlarmTime a1 = adapter.getItem(0);
         PunchAlarmTime a2 = adapter.getItem(1);
         assertTrue(a1.isEnabled());
-        assertTrue(alarms.getList().get(0).isEnabled());
-        assertFalse(alarms.getList().get(1).isEnabled());
+        assertTrue(alarms.get(0).isEnabled());
+        assertFalse(alarms.get(1).isEnabled());
         assertTrue(a1.isFireAt(PunchAlarmTime.Day.monday));
-        assertTrue(alarms.getList().get(0).isFireAt(PunchAlarmTime.Day.monday));
+        assertTrue(alarms.get(0).isFireAt(PunchAlarmTime.Day.monday));
         assertFalse(a2.isFireAt(PunchAlarmTime.Day.tuesday));
-        assertFalse(alarms.getList().get(1).isFireAt(PunchAlarmTime.Day.tuesday));
+        assertFalse(alarms.get(1).isFireAt(PunchAlarmTime.Day.tuesday));
         assertFalse(a2.isEnabled());
     }
 
@@ -75,9 +77,9 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
         getInstrumentation().waitForIdleSync();
         AlarmArrayAdapter adapter = (AlarmArrayAdapter) listView.getAdapter();
         assertNotNull(adapter);
-        assertTrue(alarms.getList().get(0).isEnabled());
+        assertTrue(alarms.get(0).isEnabled());
         assertTrue(getEnableButton(listView, 0).isChecked());
-        assertFalse(alarms.getList().get(1).isEnabled());
+        assertFalse(alarms.get(1).isEnabled());
         assertFalse(getEnableButton(listView, 1).isChecked());
         assertEquals("08:00", getText(listView, 0).getText());
         assertEquals("14:00", getText(listView, 1).getText());
@@ -109,30 +111,30 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
         assertNotNull(adapter);
         PunchAlarmTime a1 = adapter.getItem(0);
         assertTrue(a1.isFireAt(PunchAlarmTime.Day.monday));
-        assertTrue(alarms.getList().get(0).isFireAt(PunchAlarmTime.Day.monday));
+        assertTrue(alarms.get(0).isFireAt(PunchAlarmTime.Day.monday));
         PunchAlarmTime a2 = adapter.getItem(1);
         assertFalse(a2.isFireAt(PunchAlarmTime.Day.tuesday));
-        assertFalse(alarms.getList().get(1).isFireAt(PunchAlarmTime.Day.tuesday));
+        assertFalse(alarms.get(1).isFireAt(PunchAlarmTime.Day.tuesday));
 
         ToggleButton[] list_button = getDayButton(listView, 0);
         assertNotNull(list_button);
         ToggleButton b_monday = list_button[0];
         TouchUtils.clickView(this, b_monday);
         assertFalse(a1.isFireAt(PunchAlarmTime.Day.monday));
-        assertFalse(alarms.getList().get(0).isFireAt(PunchAlarmTime.Day.monday));
+        assertFalse(alarms.get(0).isFireAt(PunchAlarmTime.Day.monday));
         TouchUtils.clickView(this, b_monday);
         assertTrue(a1.isFireAt(PunchAlarmTime.Day.monday));
-        assertTrue(alarms.getList().get(0).isFireAt(PunchAlarmTime.Day.monday));
+        assertTrue(alarms.get(0).isFireAt(PunchAlarmTime.Day.monday));
 
         list_button = getDayButton(listView, 1);
         assertNotNull(list_button);
         ToggleButton b_tuesday = list_button[1];
         TouchUtils.clickView(this, b_tuesday);
         assertTrue(a2.isFireAt(PunchAlarmTime.Day.tuesday));
-        assertTrue(alarms.getList().get(1).isFireAt(PunchAlarmTime.Day.tuesday));
+        assertTrue(alarms.get(1).isFireAt(PunchAlarmTime.Day.tuesday));
         TouchUtils.clickView(this, b_tuesday);
         assertFalse(a2.isFireAt(PunchAlarmTime.Day.tuesday));
-        assertFalse(alarms.getList().get(1).isFireAt(PunchAlarmTime.Day.tuesday));
+        assertFalse(alarms.get(1).isFireAt(PunchAlarmTime.Day.tuesday));
     }
 
     @MediumTest
@@ -143,20 +145,20 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
         assertNotNull(adapter);
         PunchAlarmTime a1 = adapter.getItem(0);
         assertTrue(a1.isEnabled());
-        assertTrue(alarms.getList().get(0).isEnabled());
+        assertTrue(alarms.get(0).isEnabled());
         PunchAlarmTime a2 = adapter.getItem(1);
         assertFalse(a2.isEnabled());
-        assertFalse(alarms.getList().get(1).isEnabled());
+        assertFalse(alarms.get(1).isEnabled());
 
         CompoundButton button1 = getEnableButton(listView, 0);
         assertNotNull(button1);
         assertTrue(button1.isChecked());
         TouchUtils.clickView(this, button1);
         assertFalse(a1.isEnabled());
-        assertFalse(alarms.getList().get(0).isEnabled());
+        assertFalse(alarms.get(0).isEnabled());
         TouchUtils.clickView(this, button1);
         assertTrue(a1.isEnabled());
-        assertTrue(alarms.getList().get(0).isEnabled());
+        assertTrue(alarms.get(0).isEnabled());
 
     }
 
