@@ -120,6 +120,11 @@ public class PunchAlarmTime {
         return ((this.firing_days & day.f) != 0);
     }
 
+    public void setTime(int hourOfDay, int minute) {
+        this.time_of_day = (60 * hourOfDay + minute);
+    }
+
+
     /**
      * Compute the next date when the alarm should be fired.
      * Result is null if there is no next occurrence (i.e. no firing days)

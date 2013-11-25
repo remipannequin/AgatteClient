@@ -15,18 +15,26 @@
 
 package com.agatteclient.alarm;
 
+import android.app.Dialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
+import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.ToggleButton;
 
 import com.agatteclient.R;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 /**
  * Created by Rémi Pannequin on 06/11/13.
@@ -40,6 +48,44 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
             R.id.toggleButton_friday,
             R.id.toggleButton_saturday,
             R.id.toggleButton_sunday};
+    private final android.support.v4.app.FragmentManager fragment_manager;
+
+    public static class TimePickerFragment extends DialogFragment
+            implements TimePickerDialog.OnTimeSetListener {
+
+        private AlarmBinder binder;
+        private int position;
+        private TextView tv;
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the current time as the default values for the picker
+            final Calendar c = Calendar.getInstance();
+            int hour = c.get(Calendar.HOUR_OF_DAY);
+            int minute = c.get(Calendar.MINUTE);
+
+            // Create a new instance of TimePickerDialog and return it
+            return new TimePickerDialog(getActivity(), this, hour, minute,
+                    DateFormat.is24HourFormat(getActivity()));
+        }
+
+        public void setAlarm(AlarmBinder binder, int position) {
+            this.binder = binder;
+            this.position = position;
+        }
+
+        public void setView(TextView tv) {
+            this.tv = tv;
+        }
+
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            // Do something with the time chosen by the user
+            binder.setTime(position, hourOfDay, minute);
+            SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+            tv.setText(df.format(binder.get(position).getTime()));
+        }
+    }
+
     private final AlarmBinder alarms;
 
     //Used for testing
@@ -48,7 +94,9 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
     public AlarmArrayAdapter(Context context, AlarmBinder objects) {
         super(context, R.layout.view_alarm, objects);
         this.alarms = objects;
-
+        Context ctx = getContext();
+        assert (ctx instanceof FragmentActivity);
+        fragment_manager = ((FragmentActivity) ctx).getSupportFragmentManager();
     }
 
     private LayoutInflater getInflater(ViewGroup parent) {
@@ -117,11 +165,20 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
 
         TextView tv = holder.getText();
         SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+        tv.setTag(position);
         tv.setText(df.format(alarm.getTime()));
         tv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO: display dialog to set alarm time
+                //display dialog to set alarm time
+                assert view instanceof TextView;
+                TimePickerFragment newFragment = new TimePickerFragment();
+                int p = (Integer) view.getTag();
+                PunchAlarmTime a = alarms.get(p);
+                newFragment.setAlarm(alarms, p);
+                newFragment.setView((TextView) view);
+                newFragment.show(fragment_manager, "timePicker");
+
             }
         });
         return convertView;

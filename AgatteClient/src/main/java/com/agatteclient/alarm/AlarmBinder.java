@@ -220,6 +220,9 @@ public class AlarmBinder implements List<PunchAlarmTime> {
         saveToPreferences();
     }
 
-
+    public void setTime(int i, int hourOfDay, int minute) {
+        alarms.get(i).setTime(hourOfDay, minute);
+        saveToPreferences();
+    }
 }
 
