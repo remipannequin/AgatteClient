@@ -49,6 +49,7 @@ import com.agatteclient.agatte.AgatteResponse;
 import com.agatteclient.agatte.AgatteSession;
 import com.agatteclient.agatte.PunchService;
 import com.agatteclient.alarm.AlarmActivity;
+import com.agatteclient.alarm.AlarmBinder;
 import com.agatteclient.card.CardBinder;
 import com.agatteclient.card.DayCard;
 import com.agatteclient.card.DayCardView;
@@ -116,6 +117,8 @@ public class MainActivity extends Activity {
             cur_card = (DayCard) savedInstanceState.getSerializable(DAY_CARD);
         }
 
+        AlarmBinder.getInstance(this);
+
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor editor = preferences.edit();
         if (!preferences.contains(SERVER_PREF)) {
@@ -170,25 +173,6 @@ public class MainActivity extends Activity {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        /*/TESTING !
-        try {
-            //cur_card.addPunch("5:00", true);
-            //cur_card.addPunch("7:30", true);
-            cur_card.addPunch("8:00");
-            cur_card.addPunch("12:00");
-            cur_card.addPunch("12:15");
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }/
-        AlarmReceiver alarm = new AlarmReceiver();
-        alarm.AddAlarm(this, new PunchAlarmTime(14, 00));
-
-        SharedPreferences prefs = ctx.getPreferences();
-        AlarmBinder.getInstance().loadFromPreferences(prefs);
-
-        */
-
-
 
         updateCard();
     }
