@@ -1,0 +1,26 @@
+Règle de confidentialité pour l'application AgatteClient
+
+Date de la dernière modification : 24 février 2014
+
+
+1. Données personnelles recueillies par l'application
+
+L'application à besoin pour fonctionner de connaitre les identifiants permettant
+de se connecter au serveur Agatte. Ces données, renseignées par l'utilisateur,
+sont stockées en clair sur le système android, sous la forme d'un fichier de 
+préférence dont la l'accès est limité à l'application.
+
+L'application mémorise les heures de pointage pendant son exécution, mais ne les
+conserve pas de manière persistante (c'est à dire lorsqu'elle ne fonctionne pas).
+
+
+2. Communication avec des tiers
+
+L'application communique uniquement avec le serveur Agatte (par défaut le 
+serveur dont le nom est agatte.univ-lorraine.fr, ou un autre site renseigné par 
+l'utilisateur). Lors de cette communication, l'application envoie au serveur les 
+mots de passe et login sur une liaison sécurisée (technologie SSL).
+
+L'application ne communique avec aucun autre serveur.
+
+
