@@ -55,8 +55,13 @@ public class AgatteSession {
     static final String PUNCH_DIR = "/top/top.form";
     static final String PUNCH_OK_DIR = "/top/topOk.htm";
     static final String QUERY_DIR = "/";
+    static final String WEEK_COUNTER_DIR = "/top/feuille-top.form";
     static final String USER = "j_username";
     static final String PASSWORD = "j_password";
+    static final String COUNTER_CONTRACT_NUMBER = "numCtp";
+    static final String COUNTER_CONTRACT_YEAR = "codeAnu";
+    static final String COUNTER_WEEK = "numSem";
+    static final String COUNTER_TYPE = "nivCpt";
     static final String AGENT = "Mozilla/5.0 (Linux; U; Android 2.2; en-us; Nexus One Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
     private final BasicCookieStore cookieStore;
     private final List<NameValuePair> credentials;
@@ -68,6 +73,8 @@ public class AgatteSession {
     private HttpPost auth_rq;
     private HttpGet query_day_rq;
     private HttpGet query_top_ok_rq;
+    private HttpGet query_week_counter_rq1;
+
     private HttpPost exec_rq;
     private HttpContext httpContext;
 
@@ -242,6 +249,74 @@ public class AgatteSession {
     }
 
     /**
+     * Get the counter page from the server, and parse the response.
+     *
+     * 1) Send a GET request to extract contract number and contract year, then
+     * 2) send a POST request to the server with the following content
+     *
+     * numSem:YYYYWW where YYYY is the year and WW is the week number in the year. Only in "A" mode
+     * numCont: 10259  number of the work contract
+     * nivCpt: X X="H" for weekly counter, X="A" for yearly
+     * codeAnu: YYYY where YYYY is the year of the contract
+     *
+     */
+    public void queryCounter(AgatteCounterResponse.Type type, int year, int week) {
+        AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
+        try {
+            if (!mustLogin()) {
+                if (!login(client)) {
+                    return;
+                }
+            }
+
+
+            client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
+            client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
+
+
+            //TODO: possible optimisation : remember contract num and year and proceed to next step.
+            HttpResponse response1 = client.execute(query_week_counter_rq1, httpContext);
+            //TODO: detected a "counter unavailable" message, and exit
+
+
+            //TODO: extract contract number (numCont) and year (codeAnu)
+            //TODO: manage multiple contracts ?
+            String contract = "10259";
+            String contract_year = "2013";
+            String date = String.format("%04d%02d", year, week);
+
+            // Create post request
+            HttpPost query_week_counter_rq2 = new HttpPost(new URI("https", this.getServer(), WEEK_COUNTER_DIR, null));
+            List<NameValuePair> request = new ArrayList<NameValuePair>(4);
+            request.add(0, new BasicNameValuePair(COUNTER_CONTRACT_NUMBER, contract));
+            request.add(0, new BasicNameValuePair(COUNTER_CONTRACT_YEAR, contract_year));
+            switch (type) {
+                case Year:
+                    request.add(0, new BasicNameValuePair(COUNTER_TYPE, "A"));
+                    break;
+                case Week:
+                    request.add(0, new BasicNameValuePair(COUNTER_TYPE, "H"));
+                    request.add(0, new BasicNameValuePair(COUNTER_WEEK, date));
+                    break;
+                default:
+            }
+            query_week_counter_rq2.setEntity(new UrlEncodedFormEntity(request));
+            HttpResponse response2 = client.execute(query_week_counter_rq1, httpContext);
+
+
+            //TODO: extract value
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (URISyntaxException e) {//can't happen
+            e.printStackTrace();
+        }
+
+    }
+
+
+    /**
      * Request the "topOk" page from the server
      * <p/>
      * Useful for testing mainly
@@ -301,6 +376,7 @@ public class AgatteSession {
         this.exec_rq = new HttpPost(new URI("https", this.getServer(), PUNCH_DIR, null));
         this.query_day_rq = new HttpGet(new URI("https", this.getServer(), QUERY_DIR, null));
         this.query_top_ok_rq = new HttpGet(new URI("https", this.getServer(), PUNCH_OK_DIR, null));
+        this.query_week_counter_rq1 = new HttpGet(new URI("https", this.getServer(), WEEK_COUNTER_DIR, null));
     }
 
     /**
