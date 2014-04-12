@@ -41,7 +41,7 @@ public class AgatteResponseTest extends AndroidTestCase {
         Collection<String> punches = new ArrayList<String>();
         Collections.addAll(punches, new String[]{"08:00", "10:30", "12:00", "14:00"});
         Collection<String> virtual_punches = new ArrayList<String>(4);
-        Collections.addAll(virtual_punches, new String[] {"06:00", "7:30"});
+        Collections.addAll(virtual_punches, new String[]{"06:00", "7:30"});
         AgatteResponse instance = new AgatteResponse(AgatteResponse.Code.PunchOK, punches, virtual_punches);
         Bundle b = instance.toBundle();
         assertNotNull(b);

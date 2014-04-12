@@ -28,7 +28,7 @@ import java.util.Date;
 public class PunchAlarmTimeTest extends AndroidTestCase {
 
     public void testFireAt() throws Exception {
-        PunchAlarmTime instance = new PunchAlarmTime(6,30, PunchAlarmTime.Day.monday);
+        PunchAlarmTime instance = new PunchAlarmTime(6, 30, PunchAlarmTime.Day.monday);
         assertTrue(instance.isFireAt(PunchAlarmTime.Day.monday));
         assertFalse(instance.isFireAt(PunchAlarmTime.Day.tuesday));
         assertFalse(instance.isFireAt(PunchAlarmTime.Day.wednesday));
@@ -39,7 +39,7 @@ public class PunchAlarmTimeTest extends AndroidTestCase {
     }
 
     public void testFireAt2() throws Exception {
-        PunchAlarmTime instance = new PunchAlarmTime(10,25);
+        PunchAlarmTime instance = new PunchAlarmTime(10, 25);
         assertTrue(instance.isFireAt(PunchAlarmTime.Day.monday));
         assertTrue(instance.isFireAt(PunchAlarmTime.Day.tuesday));
         assertTrue(instance.isFireAt(PunchAlarmTime.Day.wednesday));
@@ -50,7 +50,7 @@ public class PunchAlarmTimeTest extends AndroidTestCase {
     }
 
     public void testFireAt3() throws Exception {
-        PunchAlarmTime instance = new PunchAlarmTime(18,39, PunchAlarmTime.Day.monday, PunchAlarmTime.Day.wednesday, PunchAlarmTime.Day.friday, PunchAlarmTime.Day.sunday);
+        PunchAlarmTime instance = new PunchAlarmTime(18, 39, PunchAlarmTime.Day.monday, PunchAlarmTime.Day.wednesday, PunchAlarmTime.Day.friday, PunchAlarmTime.Day.sunday);
         assertTrue(instance.isFireAt(PunchAlarmTime.Day.monday));
         assertFalse(instance.isFireAt(PunchAlarmTime.Day.tuesday));
         assertTrue(instance.isFireAt(PunchAlarmTime.Day.wednesday));
@@ -60,8 +60,8 @@ public class PunchAlarmTimeTest extends AndroidTestCase {
         assertTrue(instance.isFireAt(PunchAlarmTime.Day.sunday));
     }
 
-    public void testSetFireAt()  throws Exception {
-        PunchAlarmTime instance = new PunchAlarmTime(18,39);
+    public void testSetFireAt() throws Exception {
+        PunchAlarmTime instance = new PunchAlarmTime(18, 39);
 
         for (int i = 0; i < 5; i++) {
             PunchAlarmTime.Day day = PunchAlarmTime.Day.values()[i];
@@ -83,7 +83,7 @@ public class PunchAlarmTimeTest extends AndroidTestCase {
     }
 
     public void testNextAlarm1() throws Exception {
-        PunchAlarmTime instance = new PunchAlarmTime(10,25);
+        PunchAlarmTime instance = new PunchAlarmTime(10, 25);
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 9);
         cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
@@ -97,7 +97,7 @@ public class PunchAlarmTimeTest extends AndroidTestCase {
     }
 
     public void testNextAlarm2() throws Exception {
-        PunchAlarmTime instance = new PunchAlarmTime(10,25);
+        PunchAlarmTime instance = new PunchAlarmTime(10, 25);
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 11);
         cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
@@ -113,7 +113,7 @@ public class PunchAlarmTimeTest extends AndroidTestCase {
 
 
     public void testNextAlarm3() throws Exception {
-        PunchAlarmTime instance = new PunchAlarmTime(10,25);
+        PunchAlarmTime instance = new PunchAlarmTime(10, 25);
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 9);
         cal.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
@@ -127,17 +127,17 @@ public class PunchAlarmTimeTest extends AndroidTestCase {
         assertEquals(expected, actual);
     }
 
-    public void testToLong()  throws Exception {
-        PunchAlarmTime instance = new PunchAlarmTime(10,25);
+    public void testToLong() throws Exception {
+        PunchAlarmTime instance = new PunchAlarmTime(10, 25);
         long actual = instance.toLong();
         long expected = 281608120697457l;
         assertEquals(expected, actual);
     }
 
-    public void testFromLong()  throws Exception {
-        PunchAlarmTime expected = new PunchAlarmTime(6,52, PunchAlarmTime.Day.monday, PunchAlarmTime.Day.wednesday, PunchAlarmTime.Day.friday, PunchAlarmTime.Day.sunday);
+    public void testFromLong() throws Exception {
+        PunchAlarmTime expected = new PunchAlarmTime(6, 52, PunchAlarmTime.Day.monday, PunchAlarmTime.Day.wednesday, PunchAlarmTime.Day.friday, PunchAlarmTime.Day.sunday);
         expected.setEnabled(false);
-        PunchAlarmTime actual = PunchAlarmTime.fromLong(412l+365072220160l);
+        PunchAlarmTime actual = PunchAlarmTime.fromLong(412l + 365072220160l);
         assertTrue(expected.equals(actual));
         assertEquals(expected, actual);
     }
