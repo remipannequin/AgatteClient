@@ -59,4 +59,6 @@
     <string name="action_alarms">Alarmes</string>
     <string name="title_activity_alarm">Alarmes</string>
     <string name="alarm_add">Ajouter</string>
+    <string name="week_label">Semaine</string>
+    <string name="year_label">Année</string>
 </resources>

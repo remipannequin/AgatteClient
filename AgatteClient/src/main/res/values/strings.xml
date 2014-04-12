@@ -66,5 +66,6 @@
     <string name="programmed_punch_failed_title">Programmed punching done</string>
     <string name="action_alarms">Alarms</string>
     <string name="alarm_add">Add</string>
-
+    <string name="week_label">Week</string>
+    <string name="year_label">Year</string>
 </resources>
