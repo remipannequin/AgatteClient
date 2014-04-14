@@ -148,6 +148,7 @@ public class AgatteParserTest extends AndroidTestCase {
         assertEquals(10259, rsp.getContractNumber());
     }
 
+
     private final static String response_test1 = "<html>\n" +
             "<head>\n" +
             "    <meta content=\"600;URL=/logout.htm\" http-equiv=\"refresh\">\n" +
