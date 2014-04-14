@@ -18,6 +18,8 @@ package com.agatteclient.test;
 import android.test.AndroidTestCase;
 
 import com.agatteclient.agatte.AgatteCounterResponse;
+import com.agatteclient.agatte.AgatteException;
+import com.agatteclient.agatte.AgatteNetworkNotAuthorizedException;
 import com.agatteclient.agatte.AgatteParser;
 import com.agatteclient.agatte.AgatteResponse;
 
@@ -41,7 +43,6 @@ public class AgatteParserTest extends AndroidTestCase {
         test.setEntity(test_entity);
 
         AgatteResponse rsp = instance.parse_query_response(test);
-        assertEquals(AgatteResponse.Code.QueryOK, rsp.getCode());
         assertTrue(rsp.hasPunches());
         String[] actual = rsp.getPunches();
         assertEquals(2, actual.length);
@@ -57,7 +58,6 @@ public class AgatteParserTest extends AndroidTestCase {
         test_entity.setContent(new ByteArrayInputStream(response_test2.getBytes()));
         test.setEntity(test_entity);
         AgatteResponse rsp = instance.parse_query_response(test);
-        assertEquals(AgatteResponse.Code.QueryOK, rsp.getCode());
         assertTrue(rsp.hasPunches());
         String[] actual = rsp.getPunches();
         assertEquals(3, actual.length);
@@ -67,14 +67,18 @@ public class AgatteParserTest extends AndroidTestCase {
 
     }
 
+
     public void testParseResponse3() throws Exception {
         AgatteParser instance = AgatteParser.getInstance();
         HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
         BasicHttpEntity test_entity = new BasicHttpEntity();
         test_entity.setContent(new ByteArrayInputStream(response_test3.getBytes()));
         test.setEntity(test_entity);
-        AgatteResponse rsp = instance.parse_query_response(test);
-        assertEquals(AgatteResponse.Code.NetworkNotAuthorized, rsp.getCode());
+        try {
+            instance.parse_query_response(test);
+            fail("Should have thrown AgatteNetworkNotAuthorizedException");
+        } catch (AgatteNetworkNotAuthorizedException ex) {
+        }
     }
 
     public void testParseResponse4() throws Exception {
@@ -84,7 +88,6 @@ public class AgatteParserTest extends AndroidTestCase {
         test_entity.setContent(new ByteArrayInputStream(response_test4.getBytes()));
         test.setEntity(test_entity);
         AgatteResponse rsp = instance.parse_topOk_response(test);
-        assertEquals(AgatteResponse.Code.PunchOK, rsp.getCode());
         assertTrue(rsp.hasPunches());
         String[] actual = rsp.getPunches();
         assertEquals(3, actual.length);
@@ -99,8 +102,11 @@ public class AgatteParserTest extends AndroidTestCase {
         BasicHttpEntity test_entity = new BasicHttpEntity();
         test_entity.setContent(new ByteArrayInputStream(response_test2.getBytes()));
         test.setEntity(test_entity);
-        AgatteResponse rsp = instance.parse_topOk_response(test);
-        assertEquals(AgatteResponse.Code.UnknownError, rsp.getCode());
+        try {
+            instance.parse_topOk_response(test);
+            fail("Should have thrown AgatteException");
+        } catch (AgatteException ex) {
+        }
     }
 
     public void testParseResponse6() throws Exception {
@@ -110,7 +116,6 @@ public class AgatteParserTest extends AndroidTestCase {
         test_entity.setContent(new ByteArrayInputStream(response_test5.getBytes()));
         test.setEntity(test_entity);
         AgatteResponse rsp = instance.parse_query_response(test);
-        assertEquals(AgatteResponse.Code.QueryOK, rsp.getCode());
         assertTrue(rsp.hasPunches());
         assertTrue(rsp.hasVirtualPunches());
         assertEquals(2, rsp.getVirtualPunches().length);
@@ -128,7 +133,6 @@ public class AgatteParserTest extends AndroidTestCase {
         test_entity.setContent(new ByteArrayInputStream(response_test6.getBytes()));
         test.setEntity(test_entity);
         AgatteResponse rsp = instance.parse_topOk_response(test);
-        assertEquals(AgatteResponse.Code.PunchOK, rsp.getCode());
         assertTrue(rsp.hasPunches());
         assertFalse(rsp.hasVirtualPunches());
 
@@ -146,6 +150,45 @@ public class AgatteParserTest extends AndroidTestCase {
         assertTrue(rsp.isAnomaly());
         assertEquals(2013, rsp.getContractYear());
         assertEquals(10259, rsp.getContractNumber());
+    }
+
+    public void testParseCounterResponse2() throws Exception {
+        AgatteParser instance = AgatteParser.getInstance();
+        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
+        BasicHttpEntity test_entity = new BasicHttpEntity();
+        test_entity.setContent(new ByteArrayInputStream(response_counter2.getBytes()));
+        test.setEntity(test_entity);
+        AgatteCounterResponse rsp = instance.parse_counter_response(test);
+        assertFalse(rsp.isAnomaly());
+        assertEquals(2013, rsp.getContractYear());
+        assertEquals(10259, rsp.getContractNumber());
+        assertEquals(0.0, rsp.getValue());
+    }
+
+    public void testParseCounterResponse3() throws Exception {
+        AgatteParser instance = AgatteParser.getInstance();
+        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
+        BasicHttpEntity test_entity = new BasicHttpEntity();
+        test_entity.setContent(new ByteArrayInputStream(response_counter3.getBytes()));
+        test.setEntity(test_entity);
+        AgatteCounterResponse rsp = instance.parse_counter_response(test);
+        assertFalse(rsp.isAnomaly());
+        assertEquals(2013, rsp.getContractYear());
+        assertEquals(10259, rsp.getContractNumber());
+        assertEquals(24 + 23. / 60., rsp.getValue());
+    }
+
+    public void testParseCounterResponse4() throws Exception {
+        AgatteParser instance = AgatteParser.getInstance();
+        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
+        BasicHttpEntity test_entity = new BasicHttpEntity();
+        test_entity.setContent(new ByteArrayInputStream(response_counter4.getBytes()));
+        test.setEntity(test_entity);
+        AgatteCounterResponse rsp = instance.parse_counter_response(test);
+        assertFalse(rsp.isAnomaly());
+        assertEquals(2013, rsp.getContractYear());
+        assertEquals(10259, rsp.getContractNumber());
+        assertEquals(2 + 22. / 60., rsp.getValue());
     }
 
 
@@ -1056,6 +1099,395 @@ public class AgatteParserTest extends AndroidTestCase {
             "\t</form>\n" +
             "\t<hr/>\t\t\t\t<div class=\"error\">Compteurs non disponibles</div>\n" +
             "\t\t\t\t\t\t\t\t<div class=\"spacer\">&nbsp;</div>\n" +
+            "\t\t<script type=\"text/javascript\">\t\t \t\tinitCalendrier(\"jour\",\"cal\"); \t\t\t\tinitNivCpt(document.formFeuilleTop.nivCpt);\t</script>\n" +
+            "\t\t\t\t\t</div>\n" +
+            "\t\t</div>\n" +
+            "\t\t<div id=\"dhtmltooltip\"></div>\n" +
+            "<div id=\"dhtmltooltipJS\"> <script type=\"text/javascript\" src=\"/media/js/dhtmlToolTip.js\"></script> \n" +
+            "</div>\n" +
+            "<div id=\"pied\">\t\t\t<div class=\"info\">Profil : Personnel</div>\n" +
+            "\t\t<div>Le logiciel Agatte a fait l'objet d'une d�claration � la Commission Nationale de l'Informatique et des Libert�s (CNIL), enregistr�e sous le N� 1005966. Selon la loi 78-17 du 6 janvier 1978 sur l'informatique et les libert�s, vous b�n�ficiez d'un droit d'information et de rectification sur les renseignements vous concernant qui sont saisis dans le logiciel. Si vous souhaitez utiliser ce droit, veuillez contacter la DRH - Pr�sidence de l'Universit�.</div>\n" +
+            "\t<p>&copy; 2013 - Universit� de Lorraine</p>\t\n" +
+            "</div>\n" +
+            "\t  </div>\t\n" +
+            "\t</body>\n" +
+            "</html>\n";
+
+    private static String response_counter2 = "<html>\t<head>\t\t \t<meta http-equiv=\"refresh\" content=\"600;URL=/logout.htm\"><link rel=\"stylesheet\" href=\"/media/css/normalize.css\" type=\"text/css\"/> <link rel=\"stylesheet\" href=\"/media/css/agatte.css?Mon Apr 14 22:25:16 CEST 2014\" type=\"text/css\"/><link rel=\"stylesheet\" href=\"/media/css/print.css\" type=\"text/css\" media=\"print\"/><link rel=\"stylesheet\" href=\"/media/css/displaytag.css\" type=\"text/css\"/><style type=\"text/css\" media=\"screen\">@import \"/media/css/tabs.css\";</style>\n" +
+            "<!--[if IE]><link rel=\"stylesheet\" href=\"/media/css/agatteIE.css\" type=\"text/css\"/><![endif]--><style type='text/css'>@import url(/media/js/jscalendar-1.0/skins/aqua/theme.css);</style>\n" +
+            "<title>Agatte</title>\n" +
+            "\t</head>\n" +
+            "\t<body>\t  <div id=page>\t\t<div id=\"importJS\">\t\t<script type='text/javascript' src='/media/js/agatte.js'></script>\n" +
+            "\t\t<script type='text/javascript' src='/media/js/jscalendar-1.0/calendar.js'></script>\n" +
+            "\t<script type='text/javascript' src='/media/js/jscalendar-1.0/lang/calendar-fr.js'></script>\n" +
+            "\t<script type='text/javascript' src='/media/js/jscalendar-1.0/calendar-setup.js'></script>\n" +
+            "</div>\n" +
+            "<script type='text/javascript' src='/media/js/scriptaculous-js-1.6.1/lib/prototype.js'></script>\n" +
+            "<script type='text/javascript' src='/media/js/scriptaculous-js-1.6.1/src/scriptaculous.js'></script>\n" +
+            "<script type='text/javascript' src='/media/js/Tooltip.js'></script>\t\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/prototype.js\"></script>\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/effects.js\"></script>\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/window.js\"></script>\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/debug.js\"></script>\n" +
+            "  \t\t<link href=\"/media/js/windows_js_1.3/themes/alert_agatte.css\" rel=\"stylesheet\" type=\"text/css\">\t<link href=\"/media/js/windows_js_1.3/themes/default.css\" rel=\"stylesheet\" type=\"text/css\"><!--[if IE]>\t<script language=\"javascript\">function loadInfoDialog() {}</script>\n" +
+            "<![endif]-->\t\t<div id=\"bandeau\">\t<div id=\"logo\"></div>\n" +
+            "</div>\t\n" +
+            "\t\t\t<div id=\"header\">\t\t<ul id=\"primary\">\t\t\t\t\t\t\t<li><a href=\"/top/top.form?numMen=1\" onclick='loadInfoDialog()' class='current'>Tops</a><ul id=\"secondary\"><li><a href=\"/top/top.form?numMen=2\" onclick='loadInfoDialog()' class='current'>Toper</a></li><li><a href=\"/top/feuille-top.form?numMen=3\" onclick='loadInfoDialog()' >Feuille des tops</a></li><li><a href=\"/top/detail-jour.form?numMen=4\" onclick='loadInfoDialog()' >D�tail d'une journ�e</a></li><li><a href=\"/top/liste-ano.form?numMen=5\" onclick='loadInfoDialog()' >Liste des anomalies</a></li></ul></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/abs/dem-abs.form?numMen=6\" onclick='loadInfoDialog()' >Absences</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/planning/planning.form?numMen=607\" onclick='loadInfoDialog()' >Planning</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/cet/accueilCET.htm?numMen=613\" onclick='loadInfoDialog()' >CET</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/pers/fichePersonnel.htm?numMen=612\" onclick='loadInfoDialog()' >Fiche Personnel</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/app/pref.form?numMen=609\" onclick='loadInfoDialog()' >Pr�f�rences</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/app/aide.htm?numMen=610\" onclick='loadInfoDialog()' >Aide</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/logout.htm?numMen=611\" onclick='loadInfoDialog()' >Quitter</a></li>\n" +
+            "\t\t\t\t\t</ul>\n" +
+            "\t\t\t\t\t\t\t\t</div>\n" +
+            "\t\t<div id=\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\"main-menu\"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t >\t\t\t<div id=\t\t\t\t\t\t\t\t\t\t\t\t\t\t\"contents-menu\"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t>\t\t\t\t<div id=\"dwr\"><script type='text/javascript' src='/dwr/interface/anneeDwr.js'></script>\n" +
+            "<script type='text/javascript' src='/dwr/engine.js'></script>\n" +
+            "<script type='text/javascript' src='/dwr/util.js'></script>\n" +
+            "<script type='text/javascript'>\tvar anneeCallback = function(annees) {\t\tDWRUtil.removeAllOptions('codAnu');\t\tDWRUtil.addOptions('codAnu', annees,'codAnu','libAnu');\t\tanneeDwr.listerSemaine(document.getElementById('codAnu').value,semaineCallback);\t}\tvar semaineCallback = function(semaines) {\t\tDWRUtil.removeAllOptions('numSem');\t\tDWRUtil.addOptions('numSem', semaines,'numSemaine','libSemaine');\t}</script>\n" +
+            "</div>\n" +
+            "<h1>Feuille des tops</h1>\n" +
+            "\t\t\t\t<form id=\"formFeuilleTop\" name=\"formFeuilleTop\" method=\"post\" action=\"feuille-top.form\">\t\t<div>\t\t\t<label>Contrat</label>\n" +
+            "\t\t\t\t\t\t\t<select name=\"numCont\" id=\"numCont\" onchange=\"anneeDwr.listerAnneeContrat(this.value,119309,anneeCallback);\">\t\t\t\t\t\t\t\t\t\t\t<option value=\"10259\"\t\t\t\t\t\t\tselected>\t\t\t\t\t\t\tDu 01/09/2013\t\t\t\t\t\t\t\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t</select>\n" +
+            "\t\t\t\t\t</div>\n" +
+            "\t\t<div>\t\t\t<label>Ann�e</label>\n" +
+            "\t\t\t\t\t\t\t<select name=\"codAnu\" id=\"codAnu\" \t\t\t\t\t\tonchange=\"anneeDwr.listerSemaine(this.value,semaineCallback);if (getValRadio(document.formFeuilleTop.nivCpt) == 'A') formFeuilleTop.submit();\">\t\t\t\t\t\t\t\t\t\t\t<option value=\"2013\"\t\t\t\t\t\t\tselected>\t\t\t\t\t\t\tAnnee 2013/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t</select>\n" +
+            "\t\t\t\t\t</div>\n" +
+            "\t\t<div>\t\t\t<label>Compteurs</label>\n" +
+            "\t\t\t\t\t\t\t<input type=\"radio\" name=\"nivCpt\" id=\"nivCpt\" value=\"A\" onclick=\"disableInputs(['numSem','jour','cal']);enableInputs(['codAnu','numCont'])\" />\t\t\t\t\t\t\tAnnuels | \t\t\t\t\t\t\t<input type=\"radio\" name=\"nivCpt\" id=\"nivCpt\" value=\"H\" onclick=\"disableInputs(['jour','cal']);enableInputs(['numSem','codAnu','numCont'])\" checked/>\t\t\t\t\t\tHebdomadaires\t\t\t\t\t\t\t<select name=\"numSem\" id=\"numSem\" onchange=\"formFeuilleTop.submit()\">\t\t\t\t\t\t\t\t\t\t\t<option value=\"201335\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 35 du 01/09/2013 au 01/09/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201336\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 36 du 02/09/2013 au 08/09/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201337\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 37 du 09/09/2013 au 15/09/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201338\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 38 du 16/09/2013 au 22/09/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201339\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 39 du 23/09/2013 au 29/09/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201340\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 40 du 30/09/2013 au 06/10/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201341\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 41 du 07/10/2013 au 13/10/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201342\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 42 du 14/10/2013 au 20/10/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201343\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 43 du 21/10/2013 au 27/10/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201344\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 44 du 28/10/2013 au 03/11/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201345\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 45 du 04/11/2013 au 10/11/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201346\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 46 du 11/11/2013 au 17/11/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201347\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 47 du 18/11/2013 au 24/11/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201348\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 48 du 25/11/2013 au 01/12/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201349\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 49 du 02/12/2013 au 08/12/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201350\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 50 du 09/12/2013 au 15/12/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201351\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 51 du 16/12/2013 au 22/12/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201352\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 52 du 23/12/2013 au 29/12/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201401\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 1 du 30/12/2013 au 05/01/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201402\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 2 du 06/01/2014 au 12/01/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201403\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 3 du 13/01/2014 au 19/01/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201404\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 4 du 20/01/2014 au 26/01/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201405\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 5 du 27/01/2014 au 02/02/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201406\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 6 du 03/02/2014 au 09/02/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201407\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 7 du 10/02/2014 au 16/02/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201408\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 8 du 17/02/2014 au 23/02/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201409\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 9 du 24/02/2014 au 02/03/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201410\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 10 du 03/03/2014 au 09/03/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201411\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 11 du 10/03/2014 au 16/03/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201412\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 12 du 17/03/2014 au 23/03/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201413\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 13 du 24/03/2014 au 30/03/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201414\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 14 du 31/03/2014 au 06/04/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201415\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 15 du 07/04/2014 au 13/04/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201416\"\t\t\t\t\t\t\tselected>\t\t\t\t\t\t\tSemaine 16 du 14/04/2014 au 20/04/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201417\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 17 du 21/04/2014 au 27/04/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201418\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 18 du 28/04/2014 au 04/05/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201419\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 19 du 05/05/2014 au 11/05/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201420\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 20 du 12/05/2014 au 18/05/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201421\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 21 du 19/05/2014 au 25/05/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201422\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 22 du 26/05/2014 au 01/06/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201423\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 23 du 02/06/2014 au 08/06/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201424\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 24 du 09/06/2014 au 15/06/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201425\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 25 du 16/06/2014 au 22/06/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201426\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 26 du 23/06/2014 au 29/06/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201427\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 27 du 30/06/2014 au 06/07/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201428\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 28 du 07/07/2014 au 13/07/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201429\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 29 du 14/07/2014 au 20/07/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201430\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 30 du 21/07/2014 au 27/07/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201431\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 31 du 28/07/2014 au 03/08/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201432\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 32 du 04/08/2014 au 10/08/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201433\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 33 du 11/08/2014 au 17/08/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201434\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 34 du 18/08/2014 au 24/08/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201435\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 35 du 25/08/2014 au 31/08/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t</select>\n" +
+            "\t\t\t\t\t\t\t\t</div>\n" +
+            "\t\t<div>\t\t\t<label>&nbsp;</label>\n" +
+            "\t\t\t<input type=\"submit\" class=\"button\" value=\"Valider\">\t\t</div>\n" +
+            "\t</form>\n" +
+            "\t<hr/>\t\t\t\t\t\t<div id=\"cpt\">\t\t\t<h3>Compteurs</h3>\n" +
+            "\t\t\t<ul class=\"cptWeb\">\t\t\t\t\t\t\t\t\t<li><span><a href=\"#\" onClick=\"maskViewNoeuds('TCRED','/media/img/lien_plus.gif','/media/img/lien_moins.gif');\"><img src=\"/media/img/lien_plus.gif\" class=\"imgNoeud\" id=\"imgTCRED\"></a></span><div class='tooltip' style=\"display:none;\"></div><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">Temps valid�</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Temps valid�</h3><p>Temps badg� valid�+ cong�s pay�s (hors r�gularisation) + absences cr�ditrices + temps cr�dit� jours f�ri�s + (ou -) r�gularisations</p></div></div></span></a><ul id=\"TCRED\" style=\"display: none\"><li><span><a href=\"#\" onClick=\"maskViewNoeuds('null','/media/img/lien_plus.gif','/media/img/lien_moins.gif');\"><img src=\"/media/img/lien_plus.gif\" class=\"imgNoeud\" id=\"imgnull\"></a></span><div class='tooltip' style=\"display:none;\"></div><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Temps badg� valid�</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Temps badg� valid�</h3><p>Temps base de calcul - �cr�tages journaliers - �cr�tages hebdomadaires</p></div></div></span></a><ul id=\"null\" style=\"display: none\"><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:17em\">+ Temps base de calcul</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>+ Temps base de calcul</h3><p>Temps de travail 'top�', calcul� sur vos tops �ventuellement corrig�s par le gestionnaire</p></div></div></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:17em\">-  Ecr�tages journaliers</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>-  Ecr�tages journaliers</h3><p>Pauses m�ridiennes trop courtes et/ou temps de travail journalier > au nombre d'heures autoris� par jour</p></div></div></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:17em\">-  Ecr�tages hebdomadaires</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>-  Ecr�tages hebdomadaires</h3><p>Temps de travail > au temps de travail autoris� par semaine apr�s �cr�tages journaliers</p></div></div></span></a></li></ul></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Absences cr�ditrices</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Absences cr�ditrices</h3><p>Absences consid�r�es comme temps travaill�</p></div></div></span></a><ul id=\"TABSC\" style=\"display: none\"></ul></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Temps cr�dit� jours f�ri�s</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Temps cr�dit� jours f�ri�s</h3><p>Jour f�ri� = temps travaill� s'il tombe un jour habituellement travaill�</p></div></div></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">R�gularisations</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>R�gularisations</h3><p>Ajustements sur le temps de travail r�alis� du 01/09/03 � l'entr�e en application d'Agatte, cong�s pay�s inclus</p></div></div></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Ecr�tage et ajustements annuels</span><span class=\"valCptWeb\" > 0 h 00 min</span></span></a></li></ul></li>\n" +
+            "\t\t\t\t\t\t\t\t\t<li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">Absences non cr�ditrices</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Absences non cr�ditrices</h3><p>Temps d'absence non pris en compte dans le temps de travail</p></div></div></span></a><ul id=\"ABNOCRE\" style=\"display: none\"></ul></li>\n" +
+            "\t\t\t\t\t\t\t\t\t<li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">Cong�s pay�s</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Cong�s pay�s</h3><p>Cong�s pay�s utilis�s depuis le d�but de l'ann�e universitaire convertis en heures</p></div></div></span></a></li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</ul>\n" +
+            "\t\t</div>\t\n" +
+            "\t\t\t\t\t\t<div id=\"tabBord\">\t\t\t<h3>Tableau de bord</h3>\n" +
+            "\t\t\t<ul class=\"cptWeb\">\t\t\t\t\t\t\t\t\t<li><span><a href=\"#\" onClick=\"maskViewNoeuds('TDU','/media/img/lien_plus.gif','/media/img/lien_moins.gif');\"><img src=\"/media/img/lien_plus.gif\" class=\"imgNoeud\" id=\"imgTDU\"></a></span><div class='tooltip' style=\"display:none;\"></div><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">R�f�rence annuelle</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 2043 h 22 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>R�f�rence annuelle</h3><p>Temps de travail annuel d� + cong�s pay�s</p></div></div></span></a><ul id=\"TDU\" style=\"display: none\"><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Temps de travail d�</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 1593 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Temps de travail d�</h3><p>Temps de travail �  r�aliser par an</p></div></div></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Cong�s pay�s</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 450 h 22 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Cong�s pay�s</h3><p>Droits � cong�s pay�s annuels convertis en heures</p></div></div></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">R�gularisations</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>R�gularisations</h3><p>Intervention baissant le temps annuel d� (gr�ve, C.I.F., cong�s sans solde,...)</p></div></div></span></a></li></ul></li>\n" +
+            "\t\t\t\t\t\t\t\t\t<li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">R�f�rence pour la p�riode</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>R�f�rence pour la p�riode</h3><p>Temps de travail moyen et droits � cong�s � une date donn�e, calcul bas� sur votre 'contrat' Agatte</p></div></div></span></a></li>\n" +
+            "\t\t\t\t\t\t\t\t\t<li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">Avance / Retard pour la p�riode</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Avance / Retard pour la p�riode</h3><p>R�f�rence pour la p�riode  - temps valid� = avance (+) ou retard (-) ou �quilibre (0 mn)</p></div></div></span></a></li>\n" +
+            "\t\t\t\t\t\t\t\t\t<li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">Temps d'avance maximum annuel</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 140 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Temps d'avance maximum annuel</h3><p>Ecr�tage des heures suppl�mentaires r�alis�es au-del� de ce seuil</p></div></div></span></a></li>\n" +
+            "\t\t\t\t\t\t\t</ul>\n" +
+            "\t\t</div>\n" +
+            "\t\t\t<div class=\"spacer\">&nbsp;</div>\n" +
+            "\t\t<script type=\"text/javascript\">\t\t \t\tinitCalendrier(\"jour\",\"cal\"); \t\t\t\tinitNivCpt(document.formFeuilleTop.nivCpt);\t</script>\n" +
+            "\t\t\t\t\t</div>\n" +
+            "\t\t</div>\n" +
+            "\t\t<div id=\"dhtmltooltip\"></div>\n" +
+            "<div id=\"dhtmltooltipJS\"> <script type=\"text/javascript\" src=\"/media/js/dhtmlToolTip.js\"></script> \n" +
+            "</div>\n" +
+            "<div id=\"pied\">\t\t\t<div class=\"info\">Profil : Personnel</div>\n" +
+            "\t\t<div>Le logiciel Agatte a fait l'objet d'une d�claration � la Commission Nationale de l'Informatique et des Libert�s (CNIL), enregistr�e sous le N� 1005966. Selon la loi 78-17 du 6 janvier 1978 sur l'informatique et les libert�s, vous b�n�ficiez d'un droit d'information et de rectification sur les renseignements vous concernant qui sont saisis dans le logiciel. Si vous souhaitez utiliser ce droit, veuillez contacter la DRH - Pr�sidence de l'Universit�.</div>\n" +
+            "\t<p>&copy; 2013 - Universit� de Lorraine</p>\t\n" +
+            "</div>\n" +
+            "\t  </div>\t\n" +
+            "\t</body>\n" +
+            "</html>\n";
+
+    private static String response_counter3 = "<html>\t<head>\t\t \t<meta http-equiv=\"refresh\" content=\"600;URL=/logout.htm\"><link rel=\"stylesheet\" href=\"/media/css/normalize.css\" type=\"text/css\"/> <link rel=\"stylesheet\" href=\"/media/css/agatte.css?Mon Apr 14 22:40:47 CEST 2014\" type=\"text/css\"/><link rel=\"stylesheet\" href=\"/media/css/print.css\" type=\"text/css\" media=\"print\"/><link rel=\"stylesheet\" href=\"/media/css/displaytag.css\" type=\"text/css\"/><style type=\"text/css\" media=\"screen\">@import \"/media/css/tabs.css\";</style>\n" +
+            "<!--[if IE]><link rel=\"stylesheet\" href=\"/media/css/agatteIE.css\" type=\"text/css\"/><![endif]--><style type='text/css'>@import url(/media/js/jscalendar-1.0/skins/aqua/theme.css);</style>\n" +
+            "<title>Agatte</title>\n" +
+            "\t</head>\n" +
+            "\t<body>\t  <div id=page>\t\t<div id=\"importJS\">\t\t<script type='text/javascript' src='/media/js/agatte.js'></script>\n" +
+            "\t\t<script type='text/javascript' src='/media/js/jscalendar-1.0/calendar.js'></script>\n" +
+            "\t<script type='text/javascript' src='/media/js/jscalendar-1.0/lang/calendar-fr.js'></script>\n" +
+            "\t<script type='text/javascript' src='/media/js/jscalendar-1.0/calendar-setup.js'></script>\n" +
+            "</div>\n" +
+            "<script type='text/javascript' src='/media/js/scriptaculous-js-1.6.1/lib/prototype.js'></script>\n" +
+            "<script type='text/javascript' src='/media/js/scriptaculous-js-1.6.1/src/scriptaculous.js'></script>\n" +
+            "<script type='text/javascript' src='/media/js/Tooltip.js'></script>\t\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/prototype.js\"></script>\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/effects.js\"></script>\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/window.js\"></script>\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/debug.js\"></script>\n" +
+            "  \t\t<link href=\"/media/js/windows_js_1.3/themes/alert_agatte.css\" rel=\"stylesheet\" type=\"text/css\">\t<link href=\"/media/js/windows_js_1.3/themes/default.css\" rel=\"stylesheet\" type=\"text/css\"><!--[if IE]>\t<script language=\"javascript\">function loadInfoDialog() {}</script>\n" +
+            "<![endif]-->\t\t<div id=\"bandeau\">\t<div id=\"logo\"></div>\n" +
+            "</div>\t\n" +
+            "\t\t\t<div id=\"header\">\t\t<ul id=\"primary\">\t\t\t\t\t\t\t<li><a href=\"/top/top.form?numMen=1\" onclick='loadInfoDialog()' class='current'>Tops</a><ul id=\"secondary\"><li><a href=\"/top/top.form?numMen=2\" onclick='loadInfoDialog()' class='current'>Toper</a></li><li><a href=\"/top/feuille-top.form?numMen=3\" onclick='loadInfoDialog()' >Feuille des tops</a></li><li><a href=\"/top/detail-jour.form?numMen=4\" onclick='loadInfoDialog()' >D�tail d'une journ�e</a></li><li><a href=\"/top/liste-ano.form?numMen=5\" onclick='loadInfoDialog()' >Liste des anomalies</a></li></ul></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/abs/dem-abs.form?numMen=6\" onclick='loadInfoDialog()' >Absences</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/planning/planning.form?numMen=607\" onclick='loadInfoDialog()' >Planning</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/cet/accueilCET.htm?numMen=613\" onclick='loadInfoDialog()' >CET</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/pers/fichePersonnel.htm?numMen=612\" onclick='loadInfoDialog()' >Fiche Personnel</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/app/pref.form?numMen=609\" onclick='loadInfoDialog()' >Pr�f�rences</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/app/aide.htm?numMen=610\" onclick='loadInfoDialog()' >Aide</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/logout.htm?numMen=611\" onclick='loadInfoDialog()' >Quitter</a></li>\n" +
+            "\t\t\t\t\t</ul>\n" +
+            "\t\t\t\t\t\t\t\t</div>\n" +
+            "\t\t<div id=\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\"main-menu\"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t >\t\t\t<div id=\t\t\t\t\t\t\t\t\t\t\t\t\t\t\"contents-menu\"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t>\t\t\t\t<div id=\"dwr\"><script type='text/javascript' src='/dwr/interface/anneeDwr.js'></script>\n" +
+            "<script type='text/javascript' src='/dwr/engine.js'></script>\n" +
+            "<script type='text/javascript' src='/dwr/util.js'></script>\n" +
+            "<script type='text/javascript'>\tvar anneeCallback = function(annees) {\t\tDWRUtil.removeAllOptions('codAnu');\t\tDWRUtil.addOptions('codAnu', annees,'codAnu','libAnu');\t\tanneeDwr.listerSemaine(document.getElementById('codAnu').value,semaineCallback);\t}\tvar semaineCallback = function(semaines) {\t\tDWRUtil.removeAllOptions('numSem');\t\tDWRUtil.addOptions('numSem', semaines,'numSemaine','libSemaine');\t}</script>\n" +
+            "</div>\n" +
+            "<h1>Feuille des tops</h1>\n" +
+            "\t\t\t\t<form id=\"formFeuilleTop\" name=\"formFeuilleTop\" method=\"post\" action=\"feuille-top.form\">\t\t<div>\t\t\t<label>Contrat</label>\n" +
+            "\t\t\t\t\t\t\t<select name=\"numCont\" id=\"numCont\" onchange=\"anneeDwr.listerAnneeContrat(this.value,119309,anneeCallback);\">\t\t\t\t\t\t\t\t\t\t\t<option value=\"10259\"\t\t\t\t\t\t\tselected>\t\t\t\t\t\t\tDu 01/09/2013\t\t\t\t\t\t\t\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t</select>\n" +
+            "\t\t\t\t\t</div>\n" +
+            "\t\t<div>\t\t\t<label>Ann�e</label>\n" +
+            "\t\t\t\t\t\t\t<select name=\"codAnu\" id=\"codAnu\" \t\t\t\t\t\tonchange=\"anneeDwr.listerSemaine(this.value,semaineCallback);if (getValRadio(document.formFeuilleTop.nivCpt) == 'A') formFeuilleTop.submit();\">\t\t\t\t\t\t\t\t\t\t\t<option value=\"2013\"\t\t\t\t\t\t\tselected>\t\t\t\t\t\t\tAnnee 2013/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t</select>\n" +
+            "\t\t\t\t\t</div>\n" +
+            "\t\t<div>\t\t\t<label>Compteurs</label>\n" +
+            "\t\t\t\t\t\t\t<input type=\"radio\" name=\"nivCpt\" id=\"nivCpt\" value=\"A\" onclick=\"disableInputs(['numSem','jour','cal']);enableInputs(['codAnu','numCont'])\" checked/>\t\t\t\t\t\t\tAnnuels | \t\t\t\t\t\t\t<input type=\"radio\" name=\"nivCpt\" id=\"nivCpt\" value=\"H\" onclick=\"disableInputs(['jour','cal']);enableInputs(['numSem','codAnu','numCont'])\" />\t\t\t\t\t\tHebdomadaires\t\t\t\t\t\t\t<select name=\"numSem\" id=\"numSem\" onchange=\"formFeuilleTop.submit()\">\t\t\t\t\t\t\t\t\t\t\t<option value=\"201335\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 35 du 01/09/2013 au 01/09/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201336\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 36 du 02/09/2013 au 08/09/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201337\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 37 du 09/09/2013 au 15/09/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201338\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 38 du 16/09/2013 au 22/09/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201339\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 39 du 23/09/2013 au 29/09/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201340\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 40 du 30/09/2013 au 06/10/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201341\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 41 du 07/10/2013 au 13/10/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201342\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 42 du 14/10/2013 au 20/10/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201343\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 43 du 21/10/2013 au 27/10/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201344\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 44 du 28/10/2013 au 03/11/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201345\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 45 du 04/11/2013 au 10/11/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201346\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 46 du 11/11/2013 au 17/11/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201347\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 47 du 18/11/2013 au 24/11/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201348\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 48 du 25/11/2013 au 01/12/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201349\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 49 du 02/12/2013 au 08/12/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201350\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 50 du 09/12/2013 au 15/12/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201351\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 51 du 16/12/2013 au 22/12/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201352\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 52 du 23/12/2013 au 29/12/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201401\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 1 du 30/12/2013 au 05/01/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201402\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 2 du 06/01/2014 au 12/01/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201403\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 3 du 13/01/2014 au 19/01/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201404\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 4 du 20/01/2014 au 26/01/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201405\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 5 du 27/01/2014 au 02/02/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201406\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 6 du 03/02/2014 au 09/02/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201407\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 7 du 10/02/2014 au 16/02/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201408\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 8 du 17/02/2014 au 23/02/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201409\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 9 du 24/02/2014 au 02/03/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201410\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 10 du 03/03/2014 au 09/03/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201411\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 11 du 10/03/2014 au 16/03/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201412\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 12 du 17/03/2014 au 23/03/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201413\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 13 du 24/03/2014 au 30/03/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201414\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 14 du 31/03/2014 au 06/04/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201415\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 15 du 07/04/2014 au 13/04/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201416\"\t\t\t\t\t\t\tselected>\t\t\t\t\t\t\tSemaine 16 du 14/04/2014 au 20/04/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201417\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 17 du 21/04/2014 au 27/04/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201418\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 18 du 28/04/2014 au 04/05/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201419\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 19 du 05/05/2014 au 11/05/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201420\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 20 du 12/05/2014 au 18/05/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201421\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 21 du 19/05/2014 au 25/05/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201422\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 22 du 26/05/2014 au 01/06/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201423\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 23 du 02/06/2014 au 08/06/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201424\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 24 du 09/06/2014 au 15/06/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201425\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 25 du 16/06/2014 au 22/06/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201426\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 26 du 23/06/2014 au 29/06/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201427\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 27 du 30/06/2014 au 06/07/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201428\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 28 du 07/07/2014 au 13/07/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201429\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 29 du 14/07/2014 au 20/07/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201430\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 30 du 21/07/2014 au 27/07/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201431\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 31 du 28/07/2014 au 03/08/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201432\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 32 du 04/08/2014 au 10/08/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201433\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 33 du 11/08/2014 au 17/08/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201434\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 34 du 18/08/2014 au 24/08/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201435\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 35 du 25/08/2014 au 31/08/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t</select>\n" +
+            "\t\t\t\t\t\t\t\t</div>\n" +
+            "\t\t<div>\t\t\t<label>&nbsp;</label>\n" +
+            "\t\t\t<input type=\"submit\" class=\"button\" value=\"Valider\">\t\t</div>\n" +
+            "\t</form>\n" +
+            "\t<hr/>\t\t\t\t\t\t<div id=\"cpt\">\t\t\t<h3>Compteurs</h3>\n" +
+            "\t\t\t<ul class=\"cptWeb\">\t\t\t\t\t\t\t\t\t<li><span><a href=\"#\" onClick=\"maskViewNoeuds('TCRED','/media/img/lien_plus.gif','/media/img/lien_moins.gif');\"><img src=\"/media/img/lien_plus.gif\" class=\"imgNoeud\" id=\"imgTCRED\"></a></span><div class='tooltip' style=\"display:none;\"></div><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">Temps valid�</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 1245 h 43 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Temps valid�</h3><p>Temps badg� valid�+ cong�s pay�s (hors r�gularisation) + absences cr�ditrices + temps cr�dit� jours f�ri�s + (ou -) r�gularisations</p></div></div></span></a><ul id=\"TCRED\" style=\"display: none\"><li><span><a href=\"#\" onClick=\"maskViewNoeuds('null','/media/img/lien_plus.gif','/media/img/lien_moins.gif');\"><img src=\"/media/img/lien_plus.gif\" class=\"imgNoeud\" id=\"imgnull\"></a></span><div class='tooltip' style=\"display:none;\"></div><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Temps badg� valid�</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 1024 h 21 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Temps badg� valid�</h3><p>Temps base de calcul - �cr�tages journaliers - �cr�tages hebdomadaires</p></div></div></span></a><ul id=\"null\" style=\"display: none\"><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:17em\">+ Temps base de calcul</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 1042 h 14 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>+ Temps base de calcul</h3><p>Temps de travail 'top�', calcul� sur vos tops �ventuellement corrig�s par le gestionnaire</p></div></div></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:17em\">-  Ecr�tages journaliers</span><span class=\"valCptWeb\"  style=\"cursor: help;\">-17 h 53 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>-  Ecr�tages journaliers</h3><p>Pauses m�ridiennes trop courtes et/ou temps de travail journalier > au nombre d'heures autoris� par jour</p></div></div></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:17em\">-  Ecr�tages hebdomadaires</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>-  Ecr�tages hebdomadaires</h3><p>Temps de travail > au temps de travail autoris� par semaine apr�s �cr�tages journaliers</p></div></div></span></a></li></ul></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Cong�s pay�s (hors r�gularisation)</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 171 h 45 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Cong�s pay�s (hors r�gularisation)</h3><p>Jours de cong�s pay�s convertis en heures pris depuis la mise en place d?Agatte</p></div></div></span></a></li><li><span><a href=\"#\" onClick=\"maskViewNoeuds('TABSC','/media/img/lien_plus.gif','/media/img/lien_moins.gif');\"><img src=\"/media/img/lien_plus.gif\" class=\"imgNoeud\" id=\"imgTABSC\"></a></span><div class='tooltip' style=\"display:none;\"></div><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Absences cr�ditrices</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 19 h 05 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Absences cr�ditrices</h3><p>Absences consid�r�es comme temps travaill�</p></div></div></span></a><ul id=\"TABSC\" style=\"display: none\"><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:17em\">Garde d'enfant malade</span><span class=\"valCptWeb\" > 11 h 27 min</span></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:17em\">Mission - jours et/ou demi-journ�es</span><span class=\"valCptWeb\" > 7 h 38 min</span></span></a></li></ul></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Temps cr�dit� jours f�ri�s</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 30 h 32 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Temps cr�dit� jours f�ri�s</h3><p>Jour f�ri� = temps travaill� s'il tombe un jour habituellement travaill�</p></div></div></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">R�gularisations</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>R�gularisations</h3><p>Ajustements sur le temps de travail r�alis� du 01/09/03 � l'entr�e en application d'Agatte, cong�s pay�s inclus</p></div></div></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Ecr�tage et ajustements annuels</span><span class=\"valCptWeb\" > 0 h 00 min</span></span></a></li></ul></li>\n" +
+            "\t\t\t\t\t\t\t\t\t<li><span><a href=\"#\" onClick=\"maskViewNoeuds('ABNOCRE','/media/img/lien_plus.gif','/media/img/lien_moins.gif');\"><img src=\"/media/img/lien_plus.gif\" class=\"imgNoeud\" id=\"imgABNOCRE\"></a></span><div class='tooltip' style=\"display:none;\"></div><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">Absences non cr�ditrices</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 15 h 16 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Absences non cr�ditrices</h3><p>Temps d'absence non pris en compte dans le temps de travail</p></div></div></span></a><ul id=\"ABNOCRE\" style=\"display: none\"><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">R�cup�ration en jours-demi journ�es</span><span class=\"valCptWeb\" > 15 h 16 min</span></span></a></li></ul></li>\n" +
+            "\t\t\t\t\t\t\t\t\t<li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">Cong�s pay�s</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 171 h 45 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Cong�s pay�s</h3><p>Cong�s pay�s utilis�s depuis le d�but de l'ann�e universitaire convertis en heures</p></div></div></span></a></li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</ul>\n" +
+            "\t\t</div>\t\n" +
+            "\t\t\t\t\t\t<div id=\"tabBord\">\t\t\t<h3>Tableau de bord</h3>\n" +
+            "\t\t\t<ul class=\"cptWeb\">\t\t\t\t\t\t\t\t\t<li><span><a href=\"#\" onClick=\"maskViewNoeuds('TDU','/media/img/lien_plus.gif','/media/img/lien_moins.gif');\"><img src=\"/media/img/lien_plus.gif\" class=\"imgNoeud\" id=\"imgTDU\"></a></span><div class='tooltip' style=\"display:none;\"></div><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">R�f�rence annuelle</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 2043 h 22 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>R�f�rence annuelle</h3><p>Temps de travail annuel d� + cong�s pay�s</p></div></div></span></a><ul id=\"TDU\" style=\"display: none\"><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Temps de travail d�</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 1593 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Temps de travail d�</h3><p>Temps de travail �  r�aliser par an</p></div></div></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Cong�s pay�s</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 450 h 22 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Cong�s pay�s</h3><p>Droits � cong�s pay�s annuels convertis en heures</p></div></div></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">R�gularisations</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>R�gularisations</h3><p>Intervention baissant le temps annuel d� (gr�ve, C.I.F., cong�s sans solde,...)</p></div></div></span></a></li></ul></li>\n" +
+            "\t\t\t\t\t\t\t\t\t<li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">R�f�rence pour la p�riode</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 1221 h 20 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>R�f�rence pour la p�riode</h3><p>Temps de travail moyen et droits � cong�s � une date donn�e, calcul bas� sur votre 'contrat' Agatte</p></div></div></span></a></li>\n" +
+            "\t\t\t\t\t\t\t\t\t<li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">Avance / Retard pour la p�riode</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 24 h 23 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Avance / Retard pour la p�riode</h3><p>R�f�rence pour la p�riode  - temps valid� = avance (+) ou retard (-) ou �quilibre (0 mn)</p></div></div></span></a></li>\n" +
+            "\t\t\t\t\t\t\t\t\t<li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">Temps d'avance maximum annuel</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 140 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Temps d'avance maximum annuel</h3><p>Ecr�tage des heures suppl�mentaires r�alis�es au-del� de ce seuil</p></div></div></span></a></li>\n" +
+            "\t\t\t\t\t\t\t</ul>\n" +
+            "\t\t</div>\n" +
+            "\t\t\t<div class=\"spacer\">&nbsp;</div>\n" +
+            "\t\t<script type=\"text/javascript\">\t\t \t\tinitCalendrier(\"jour\",\"cal\"); \t\t\t\tinitNivCpt(document.formFeuilleTop.nivCpt);\t</script>\n" +
+            "\t\t\t\t\t</div>\n" +
+            "\t\t</div>\n" +
+            "\t\t<div id=\"dhtmltooltip\"></div>\n" +
+            "<div id=\"dhtmltooltipJS\"> <script type=\"text/javascript\" src=\"/media/js/dhtmlToolTip.js\"></script> \n" +
+            "</div>\n" +
+            "<div id=\"pied\">\t\t\t<div class=\"info\">Profil : Personnel</div>\n" +
+            "\t\t<div>Le logiciel Agatte a fait l'objet d'une d�claration � la Commission Nationale de l'Informatique et des Libert�s (CNIL), enregistr�e sous le N� 1005966. Selon la loi 78-17 du 6 janvier 1978 sur l'informatique et les libert�s, vous b�n�ficiez d'un droit d'information et de rectification sur les renseignements vous concernant qui sont saisis dans le logiciel. Si vous souhaitez utiliser ce droit, veuillez contacter la DRH - Pr�sidence de l'Universit�.</div>\n" +
+            "\t<p>&copy; 2013 - Universit� de Lorraine</p>\t\n" +
+            "</div>\n" +
+            "\t  </div>\t\n" +
+            "\t</body>\n" +
+            "</html>\n";
+    private static String response_counter4 = "<html>\t<head>\t\t \t<meta http-equiv=\"refresh\" content=\"600;URL=/logout.htm\"><link rel=\"stylesheet\" href=\"/media/css/normalize.css\" type=\"text/css\"/> <link rel=\"stylesheet\" href=\"/media/css/agatte.css?Mon Apr 14 22:52:20 CEST 2014\" type=\"text/css\"/><link rel=\"stylesheet\" href=\"/media/css/print.css\" type=\"text/css\" media=\"print\"/><link rel=\"stylesheet\" href=\"/media/css/displaytag.css\" type=\"text/css\"/><style type=\"text/css\" media=\"screen\">@import \"/media/css/tabs.css\";</style>\n" +
+            "<!--[if IE]><link rel=\"stylesheet\" href=\"/media/css/agatteIE.css\" type=\"text/css\"/><![endif]--><style type='text/css'>@import url(/media/js/jscalendar-1.0/skins/aqua/theme.css);</style>\n" +
+            "<title>Agatte</title>\n" +
+            "\t</head>\n" +
+            "\t<body>\t  <div id=page>\t\t<div id=\"importJS\">\t\t<script type='text/javascript' src='/media/js/agatte.js'></script>\n" +
+            "\t\t<script type='text/javascript' src='/media/js/jscalendar-1.0/calendar.js'></script>\n" +
+            "\t<script type='text/javascript' src='/media/js/jscalendar-1.0/lang/calendar-fr.js'></script>\n" +
+            "\t<script type='text/javascript' src='/media/js/jscalendar-1.0/calendar-setup.js'></script>\n" +
+            "</div>\n" +
+            "<script type='text/javascript' src='/media/js/scriptaculous-js-1.6.1/lib/prototype.js'></script>\n" +
+            "<script type='text/javascript' src='/media/js/scriptaculous-js-1.6.1/src/scriptaculous.js'></script>\n" +
+            "<script type='text/javascript' src='/media/js/Tooltip.js'></script>\t\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/prototype.js\"></script>\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/effects.js\"></script>\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/window.js\"></script>\n" +
+            "<script type=\"text/javascript\" src=\"/media/js/windows_js_1.3/debug.js\"></script>\n" +
+            "  \t\t<link href=\"/media/js/windows_js_1.3/themes/alert_agatte.css\" rel=\"stylesheet\" type=\"text/css\">\t<link href=\"/media/js/windows_js_1.3/themes/default.css\" rel=\"stylesheet\" type=\"text/css\"><!--[if IE]>\t<script language=\"javascript\">function loadInfoDialog() {}</script>\n" +
+            "<![endif]-->\t\t<div id=\"bandeau\">\t<div id=\"logo\"></div>\n" +
+            "</div>\t\n" +
+            "\t\t\t<div id=\"header\">\t\t<ul id=\"primary\">\t\t\t\t\t\t\t<li><a href=\"/top/top.form?numMen=1\" onclick='loadInfoDialog()' class='current'>Tops</a><ul id=\"secondary\"><li><a href=\"/top/top.form?numMen=2\" onclick='loadInfoDialog()' class='current'>Toper</a></li><li><a href=\"/top/feuille-top.form?numMen=3\" onclick='loadInfoDialog()' >Feuille des tops</a></li><li><a href=\"/top/detail-jour.form?numMen=4\" onclick='loadInfoDialog()' >D�tail d'une journ�e</a></li><li><a href=\"/top/liste-ano.form?numMen=5\" onclick='loadInfoDialog()' >Liste des anomalies</a></li></ul></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/abs/dem-abs.form?numMen=6\" onclick='loadInfoDialog()' >Absences</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/planning/planning.form?numMen=607\" onclick='loadInfoDialog()' >Planning</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/cet/accueilCET.htm?numMen=613\" onclick='loadInfoDialog()' >CET</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/pers/fichePersonnel.htm?numMen=612\" onclick='loadInfoDialog()' >Fiche Personnel</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/app/pref.form?numMen=609\" onclick='loadInfoDialog()' >Pr�f�rences</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/app/aide.htm?numMen=610\" onclick='loadInfoDialog()' >Aide</a></li>\n" +
+            "\t\t\t\t\t\t\t<li><a href=\"/logout.htm?numMen=611\" onclick='loadInfoDialog()' >Quitter</a></li>\n" +
+            "\t\t\t\t\t</ul>\n" +
+            "\t\t\t\t\t\t\t\t</div>\n" +
+            "\t\t<div id=\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\"main-menu\"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t >\t\t\t<div id=\t\t\t\t\t\t\t\t\t\t\t\t\t\t\"contents-menu\"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t>\t\t\t\t<div id=\"dwr\"><script type='text/javascript' src='/dwr/interface/anneeDwr.js'></script>\n" +
+            "<script type='text/javascript' src='/dwr/engine.js'></script>\n" +
+            "<script type='text/javascript' src='/dwr/util.js'></script>\n" +
+            "<script type='text/javascript'>\tvar anneeCallback = function(annees) {\t\tDWRUtil.removeAllOptions('codAnu');\t\tDWRUtil.addOptions('codAnu', annees,'codAnu','libAnu');\t\tanneeDwr.listerSemaine(document.getElementById('codAnu').value,semaineCallback);\t}\tvar semaineCallback = function(semaines) {\t\tDWRUtil.removeAllOptions('numSem');\t\tDWRUtil.addOptions('numSem', semaines,'numSemaine','libSemaine');\t}</script>\n" +
+            "</div>\n" +
+            "<h1>Feuille des tops</h1>\n" +
+            "\t\t\t\t<form id=\"formFeuilleTop\" name=\"formFeuilleTop\" method=\"post\" action=\"feuille-top.form\">\t\t<div>\t\t\t<label>Contrat</label>\n" +
+            "\t\t\t\t\t\t\t<select name=\"numCont\" id=\"numCont\" onchange=\"anneeDwr.listerAnneeContrat(this.value,119309,anneeCallback);\">\t\t\t\t\t\t\t\t\t\t\t<option value=\"10259\"\t\t\t\t\t\t\tselected>\t\t\t\t\t\t\tDu 01/09/2013\t\t\t\t\t\t\t\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t</select>\n" +
+            "\t\t\t\t\t</div>\n" +
+            "\t\t<div>\t\t\t<label>Ann�e</label>\n" +
+            "\t\t\t\t\t\t\t<select name=\"codAnu\" id=\"codAnu\" \t\t\t\t\t\tonchange=\"anneeDwr.listerSemaine(this.value,semaineCallback);if (getValRadio(document.formFeuilleTop.nivCpt) == 'A') formFeuilleTop.submit();\">\t\t\t\t\t\t\t\t\t\t\t<option value=\"2013\"\t\t\t\t\t\t\tselected>\t\t\t\t\t\t\tAnnee 2013/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t</select>\n" +
+            "\t\t\t\t\t</div>\n" +
+            "\t\t<div>\t\t\t<label>Compteurs</label>\n" +
+            "\t\t\t\t\t\t\t<input type=\"radio\" name=\"nivCpt\" id=\"nivCpt\" value=\"A\" onclick=\"disableInputs(['numSem','jour','cal']);enableInputs(['codAnu','numCont'])\" />\t\t\t\t\t\t\tAnnuels | \t\t\t\t\t\t\t<input type=\"radio\" name=\"nivCpt\" id=\"nivCpt\" value=\"H\" onclick=\"disableInputs(['jour','cal']);enableInputs(['numSem','codAnu','numCont'])\" checked/>\t\t\t\t\t\tHebdomadaires\t\t\t\t\t\t\t<select name=\"numSem\" id=\"numSem\" onchange=\"formFeuilleTop.submit()\">\t\t\t\t\t\t\t\t\t\t\t<option value=\"201335\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 35 du 01/09/2013 au 01/09/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201336\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 36 du 02/09/2013 au 08/09/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201337\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 37 du 09/09/2013 au 15/09/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201338\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 38 du 16/09/2013 au 22/09/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201339\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 39 du 23/09/2013 au 29/09/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201340\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 40 du 30/09/2013 au 06/10/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201341\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 41 du 07/10/2013 au 13/10/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201342\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 42 du 14/10/2013 au 20/10/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201343\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 43 du 21/10/2013 au 27/10/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201344\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 44 du 28/10/2013 au 03/11/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201345\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 45 du 04/11/2013 au 10/11/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201346\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 46 du 11/11/2013 au 17/11/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201347\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 47 du 18/11/2013 au 24/11/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201348\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 48 du 25/11/2013 au 01/12/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201349\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 49 du 02/12/2013 au 08/12/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201350\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 50 du 09/12/2013 au 15/12/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201351\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 51 du 16/12/2013 au 22/12/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201352\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 52 du 23/12/2013 au 29/12/2013\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201401\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 1 du 30/12/2013 au 05/01/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201402\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 2 du 06/01/2014 au 12/01/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201403\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 3 du 13/01/2014 au 19/01/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201404\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 4 du 20/01/2014 au 26/01/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201405\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 5 du 27/01/2014 au 02/02/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201406\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 6 du 03/02/2014 au 09/02/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201407\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 7 du 10/02/2014 au 16/02/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201408\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 8 du 17/02/2014 au 23/02/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201409\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 9 du 24/02/2014 au 02/03/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201410\"\t\t\t\t\t\t\tselected>\t\t\t\t\t\t\tSemaine 10 du 03/03/2014 au 09/03/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201411\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 11 du 10/03/2014 au 16/03/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201412\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 12 du 17/03/2014 au 23/03/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201413\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 13 du 24/03/2014 au 30/03/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201414\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 14 du 31/03/2014 au 06/04/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201415\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 15 du 07/04/2014 au 13/04/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201416\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 16 du 14/04/2014 au 20/04/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201417\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 17 du 21/04/2014 au 27/04/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201418\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 18 du 28/04/2014 au 04/05/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201419\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 19 du 05/05/2014 au 11/05/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201420\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 20 du 12/05/2014 au 18/05/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201421\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 21 du 19/05/2014 au 25/05/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201422\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 22 du 26/05/2014 au 01/06/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201423\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 23 du 02/06/2014 au 08/06/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201424\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 24 du 09/06/2014 au 15/06/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201425\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 25 du 16/06/2014 au 22/06/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201426\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 26 du 23/06/2014 au 29/06/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201427\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 27 du 30/06/2014 au 06/07/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201428\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 28 du 07/07/2014 au 13/07/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201429\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 29 du 14/07/2014 au 20/07/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201430\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 30 du 21/07/2014 au 27/07/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201431\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 31 du 28/07/2014 au 03/08/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201432\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 32 du 04/08/2014 au 10/08/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201433\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 33 du 11/08/2014 au 17/08/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201434\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 34 du 18/08/2014 au 24/08/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t<option value=\"201435\"\t\t\t\t\t\t\t>\t\t\t\t\t\t\tSemaine 35 du 25/08/2014 au 31/08/2014\t\t\t\t\t\t</option>\n" +
+            "\t\t\t\t\t\t\t\t\t</select>\n" +
+            "\t\t\t\t\t\t\t\t</div>\n" +
+            "\t\t<div>\t\t\t<label>&nbsp;</label>\n" +
+            "\t\t\t<input type=\"submit\" class=\"button\" value=\"Valider\">\t\t</div>\n" +
+            "\t</form>\n" +
+            "\t<hr/>\t\t\t\t\t\t<div id=\"cpt\">\t\t\t<h3>Compteurs</h3>\n" +
+            "\t\t\t<ul class=\"cptWeb\">\t\t\t\t\t\t\t\t\t<li><span><a href=\"#\" onClick=\"maskViewNoeuds('TCRED','/media/img/lien_plus.gif','/media/img/lien_moins.gif');\"><img src=\"/media/img/lien_plus.gif\" class=\"imgNoeud\" id=\"imgTCRED\"></a></span><div class='tooltip' style=\"display:none;\"></div><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">Temps valid�</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 40 h 32 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Temps valid�</h3><p>Temps badg� valid�+ cong�s pay�s (hors r�gularisation) + absences cr�ditrices + temps cr�dit� jours f�ri�s + (ou -) r�gularisations</p></div></div></span></a><ul id=\"TCRED\" style=\"display: none\"><li><span><a href=\"#\" onClick=\"maskViewNoeuds('null','/media/img/lien_plus.gif','/media/img/lien_moins.gif');\"><img src=\"/media/img/lien_plus.gif\" class=\"imgNoeud\" id=\"imgnull\"></a></span><div class='tooltip' style=\"display:none;\"></div><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Temps badg� valid�</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 10 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Temps badg� valid�</h3><p>Temps base de calcul - �cr�tages journaliers - �cr�tages hebdomadaires</p></div></div></span></a><ul id=\"null\" style=\"display: none\"><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:17em\">+ Temps base de calcul</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 10 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>+ Temps base de calcul</h3><p>Temps de travail 'top�', calcul� sur vos tops �ventuellement corrig�s par le gestionnaire</p></div></div></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:17em\">-  Ecr�tages journaliers</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>-  Ecr�tages journaliers</h3><p>Pauses m�ridiennes trop courtes et/ou temps de travail journalier > au nombre d'heures autoris� par jour</p></div></div></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:17em\">-  Ecr�tages hebdomadaires</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>-  Ecr�tages hebdomadaires</h3><p>Temps de travail > au temps de travail autoris� par semaine apr�s �cr�tages journaliers</p></div></div></span></a></li></ul></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Cong�s pay�s (hors r�gularisation)</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 30 h 32 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Cong�s pay�s (hors r�gularisation)</h3><p>Jours de cong�s pay�s convertis en heures pris depuis la mise en place d?Agatte</p></div></div></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Absences cr�ditrices</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Absences cr�ditrices</h3><p>Absences consid�r�es comme temps travaill�</p></div></div></span></a><ul id=\"TABSC\" style=\"display: none\"></ul></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Temps cr�dit� jours f�ri�s</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Temps cr�dit� jours f�ri�s</h3><p>Jour f�ri� = temps travaill� s'il tombe un jour habituellement travaill�</p></div></div></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">R�gularisations</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>R�gularisations</h3><p>Ajustements sur le temps de travail r�alis� du 01/09/03 � l'entr�e en application d'Agatte, cong�s pay�s inclus</p></div></div></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Ecr�tage et ajustements annuels</span><span class=\"valCptWeb\" > 0 h 00 min</span></span></a></li></ul></li>\n" +
+            "\t\t\t\t\t\t\t\t\t<li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">Absences non cr�ditrices</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Absences non cr�ditrices</h3><p>Temps d'absence non pris en compte dans le temps de travail</p></div></div></span></a><ul id=\"ABNOCRE\" style=\"display: none\"></ul></li>\n" +
+            "\t\t\t\t\t\t\t\t\t<li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">Cong�s pay�s</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 30 h 32 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Cong�s pay�s</h3><p>Cong�s pay�s utilis�s depuis le d�but de l'ann�e universitaire convertis en heures</p></div></div></span></a></li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</ul>\n" +
+            "\t\t</div>\t\n" +
+            "\t\t\t\t\t\t<div id=\"tabBord\">\t\t\t<h3>Tableau de bord</h3>\n" +
+            "\t\t\t<ul class=\"cptWeb\">\t\t\t\t\t\t\t\t\t<li><span><a href=\"#\" onClick=\"maskViewNoeuds('TDU','/media/img/lien_plus.gif','/media/img/lien_moins.gif');\"><img src=\"/media/img/lien_plus.gif\" class=\"imgNoeud\" id=\"imgTDU\"></a></span><div class='tooltip' style=\"display:none;\"></div><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">R�f�rence annuelle</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 2043 h 22 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>R�f�rence annuelle</h3><p>Temps de travail annuel d� + cong�s pay�s</p></div></div></span></a><ul id=\"TDU\" style=\"display: none\"><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Temps de travail d�</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 1593 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Temps de travail d�</h3><p>Temps de travail �  r�aliser par an</p></div></div></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">Cong�s pay�s</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 450 h 22 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Cong�s pay�s</h3><p>Droits � cong�s pay�s annuels convertis en heures</p></div></div></span></a></li><li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:19em\">R�gularisations</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 0 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>R�gularisations</h3><p>Intervention baissant le temps annuel d� (gr�ve, C.I.F., cong�s sans solde,...)</p></div></div></span></a></li></ul></li>\n" +
+            "\t\t\t\t\t\t\t\t\t<li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">R�f�rence pour la p�riode</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 38 h 10 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>R�f�rence pour la p�riode</h3><p>Temps de travail moyen et droits � cong�s � une date donn�e, calcul bas� sur votre 'contrat' Agatte</p></div></div></span></a></li>\n" +
+            "\t\t\t\t\t\t\t\t\t<li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">Avance / Retard pour la p�riode</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 2 h 22 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Avance / Retard pour la p�riode</h3><p>R�f�rence pour la p�riode  - temps valid� = avance (+) ou retard (-) ou �quilibre (0 mn)</p></div></div></span></a></li>\n" +
+            "\t\t\t\t\t\t\t\t\t<li><span style=\"width:15.7\" class=\"spacerCptWeb\">&nbsp;</span><a class=\"highlight\" href=\"#\"><span><span style=\"width:21em\">Temps d'avance maximum annuel</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> 140 h 00 min</span><div class=\"tooltip\" style=\"display:none\"><div class=\"cmt\"><h3>Temps d'avance maximum annuel</h3><p>Ecr�tage des heures suppl�mentaires r�alis�es au-del� de ce seuil</p></div></div></span></a></li>\n" +
+            "\t\t\t\t\t\t\t</ul>\n" +
+            "\t\t</div>\n" +
+            "\t\t\t<div class=\"spacer\">&nbsp;</div>\n" +
             "\t\t<script type=\"text/javascript\">\t\t \t\tinitCalendrier(\"jour\",\"cal\"); \t\t\t\tinitNivCpt(document.formFeuilleTop.nivCpt);\t</script>\n" +
             "\t\t\t\t\t</div>\n" +
             "\t\t</div>\n" +

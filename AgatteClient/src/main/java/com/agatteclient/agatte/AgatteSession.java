@@ -303,7 +303,7 @@ public class AgatteSession {
                 default:
             }
             query_week_counter_rq2.setEntity(new UrlEncodedFormEntity(request));
-            HttpResponse response2 = client.execute(query_week_counter_rq1, httpContext);
+            HttpResponse response2 = client.execute(query_week_counter_rq2, httpContext);
 
             // Extract counter's value
             AgatteCounterResponse r2 = AgatteParser.getInstance().parse_counter_response(response2);

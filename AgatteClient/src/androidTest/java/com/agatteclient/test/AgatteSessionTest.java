@@ -33,12 +33,11 @@ public class AgatteSessionTest extends AndroidTestCase {
     public void testQueryTopOk() throws Exception {
         AgatteSession instance = new AgatteSession("agatte.univ-lorraine.fr", login, password);
         AgatteResponse rsp = instance.queryPunchOk();
-
     }
 
     public void testQueryCounter1() throws Exception {
         AgatteSession instance = new AgatteSession("agatte.univ-lorraine.fr", login, password);
-        instance.queryCounter(AgatteCounterResponse.Type.Year, 0, 0);
+        instance.queryCounter(AgatteCounterResponse.Type.Week, 2014, 10);
     }
 
 }

@@ -41,6 +41,7 @@ public class AgatteParser {
     private static final String PATTERN_COUNTER_NUM_CONTRACT = "<select.*id=\"numCont\".*<option value=\"([0-9]+)\".*selected>";
     private static final String PATTERN_COUNTER_YEAR_CONTRACT = "<select.*id=\"codAnu\".*<option value=\"(20[0-9][0-9])\".*selected>";
     private static final String PATTERN_COUNTER_ERROR = "<div class=\"error\">Compteurs non disponibles</div>";
+    private static final String PATTERN_COUNTER_VALUE = "Avance / Retard pour la p.riode</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> ([0-9]+) h ([0-9]+) min";
 
     private static AgatteParser ourInstance = new AgatteParser();
 
@@ -145,6 +146,26 @@ public class AgatteParser {
         return year;
     }
 
+    /**
+     * Get the value of the counter (in hours)
+     *
+     * @param result
+     * @return
+     */
+    private double searchForValue(String result) {
+        Pattern p = Pattern.compile(PATTERN_COUNTER_VALUE);
+        Matcher matcher = p.matcher(result);
+        double h = 0;
+        if (matcher.find())
+
+        {
+            h += Integer.valueOf(matcher.group(1));
+            h += Double.valueOf(matcher.group(2)) / 60;
+        }
+        return h;
+    }
+
+
     public AgatteResponse parse_query_response(HttpResponse response) throws IOException, AgatteException {
 
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
@@ -216,8 +237,8 @@ public class AgatteParser {
         boolean ano = searchForCounterUnavailable(result);
         int year = searchForYearContract(result);
         int counter = searchForNumContract(result);
-
-        return new AgatteCounterResponse(ano, year, counter);
+        double h = searchForValue(result);
+        return new AgatteCounterResponse(ano, year, counter, h);
     }
 
 

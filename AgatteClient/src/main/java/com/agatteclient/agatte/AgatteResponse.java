@@ -35,6 +35,7 @@ public class AgatteResponse {
     }
 
     public AgatteResponse(Collection<String> punches, Collection<String> virtual_punches) {
+        this(punches);
         this.virtual_punches = virtual_punches.toArray(new String[punches.size()]);
     }
 
