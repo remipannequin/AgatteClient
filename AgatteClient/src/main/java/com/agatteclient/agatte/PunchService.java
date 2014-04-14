@@ -18,12 +18,11 @@ package com.agatteclient.agatte;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
 
 import com.agatteclient.MainActivity;
-import com.agatteclient.agatte.AgatteResponse;
-import com.agatteclient.agatte.AgatteSession;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
@@ -71,22 +70,45 @@ public class PunchService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         Object receiver_raw = intent.getParcelableExtra(RESULT_RECEIVER);
-        AgatteResponse rsp;
-        if (intent.getAction().equals(DO_PUNCH)) {
-            rsp = session.doPunch();
-        } else if (intent.getAction().equals(QUERY)) {
-            rsp = session.query_day();
-        } else {
-            //TODO: manage error
+        Bundle bundle = new Bundle();
+        AgatteResultCode code = AgatteResultCode.exception;
+        try {
+            if (intent.getAction() != null) {
+                //can't happen
+                //TODO
+            } else if (intent.getAction().equals(DO_PUNCH)) {
 
-            return;
+                AgatteResponse rsp = session.doPunch();
+                bundle = rsp.toBundle();
+                code = AgatteResultCode.punch_ok;
+
+            } else if (intent.getAction().equals(QUERY)) {
+
+                AgatteResponse rsp = session.query_day();
+                bundle = rsp.toBundle();
+                code = AgatteResultCode.query_ok;
+
+            } else {
+                //TODO: manage error
+
+                return;
+            }
+        } catch (AgatteLoginFailedException e) {
+            code = AgatteResultCode.login_failed;
+            bundle = e.toBundle();
+        } catch (AgatteNetworkNotAuthorizedException e) {
+            code = AgatteResultCode.network_not_authorized;
+            bundle = e.toBundle();
+        } catch (AgatteException e) {
+            code = AgatteResultCode.exception;
+            bundle = e.toBundle();
         }
-
 
 
         if (receiver_raw != null && receiver_raw instanceof ResultReceiver) {
             ResultReceiver receiver = (ResultReceiver) receiver_raw;
-            receiver.send(rsp.getCode().ordinal(), rsp.toBundle());
+
+            receiver.send(code.ordinal(), bundle);
         }
     }
 }

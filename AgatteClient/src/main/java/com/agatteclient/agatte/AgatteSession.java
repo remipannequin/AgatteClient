@@ -178,7 +178,7 @@ public class AgatteSession {
      *
      * @return an AgatteResponse instance
      */
-    public AgatteResponse query_day() {
+    public AgatteResponse query_day() throws AgatteException {
         AndroidHttpClient client = null;
         try {
             client = AndroidHttpClient.newInstance(AGENT);
@@ -187,7 +187,8 @@ public class AgatteSession {
             HttpConnectionParams.setSoTimeout(httpParam, 5000);
             if (!mustLogin()) {
                 if (!login(client)) {
-                    return new AgatteResponse(AgatteResponse.Code.LoginFailed);
+                    //return new AgatteResponse(AgatteResponse.Code.LoginFailed);
+                    throw new AgatteLoginFailedException();
                 }
             }
             client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
@@ -196,7 +197,8 @@ public class AgatteSession {
             return AgatteParser.getInstance().parse_query_response(response);
         } catch (IOException e) {
             e.printStackTrace();
-            return new AgatteResponse(AgatteResponse.Code.IOError, e);
+            //return new AgatteResponse(AgatteResponse.Code.IOError, e);
+            throw new AgatteException(e);
         } finally {
             if (client != null) {
                 logout(client);
@@ -210,12 +212,13 @@ public class AgatteSession {
      *
      * @return an AgatteResponse instance
      */
-    public AgatteResponse doPunch() {
+    public AgatteResponse doPunch() throws AgatteException {
         AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
         try {
             if (!mustLogin()) {
                 if (!login(client)) {
-                    return new AgatteResponse(AgatteResponse.Code.LoginFailed);
+                    //return new AgatteResponse(AgatteResponse.Code.LoginFailed);
+                    throw new AgatteLoginFailedException();
                 }
             }
             //Make sure to follow redirection
@@ -226,21 +229,16 @@ public class AgatteSession {
             //Then send a punching request
             HttpResponse response1 = client.execute(exec_rq, httpContext);
             //should be a redirect to topOk
-            AgatteResponse.Code code = AgatteParser.getInstance().parse_punch_response(response1);
-            switch (code) {
-                case TemporaryOK:
 
-
-                    HttpResponse response2 = client.execute(query_top_ok_rq, httpContext);
-                    return AgatteParser.getInstance().parse_topOk_response(response2);
-                case NetworkNotAuthorized:
-                    return new AgatteResponse(code);
-                default:
-                    return new AgatteResponse(AgatteResponse.Code.UnknownError);
+            if (!AgatteParser.getInstance().parse_punch_response(response1)) {
+                throw new AgatteException();
             }
+            HttpResponse response2 = client.execute(query_top_ok_rq, httpContext);
+            return AgatteParser.getInstance().parse_topOk_response(response2);
+
         } catch (IOException e) {
             e.printStackTrace();
-            return new AgatteResponse(AgatteResponse.Code.IOError, e);
+            throw new AgatteException(e);
         } finally {
             if (client != null) {
                 logout(client);
@@ -348,12 +346,12 @@ public class AgatteSession {
      *
      * @return
      */
-    public AgatteResponse queryPunchOk() {
+    public AgatteResponse queryPunchOk() throws AgatteException {
         AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
         try {
             if (!mustLogin()) {
                 if (!login(client)) {
-                    return new AgatteResponse(AgatteResponse.Code.LoginFailed);
+                    throw new AgatteLoginFailedException();
                 }
             }
 
@@ -368,7 +366,7 @@ public class AgatteSession {
 
         } catch (IOException e) {
             e.printStackTrace();
-            return new AgatteResponse(AgatteResponse.Code.IOError, e);
+            throw new AgatteException(e);
         } finally {
             if (client != null) {
                 logout(client);
