@@ -38,6 +38,10 @@ public class AgatteParser {
     private static final String PATTERN_VIRTUAL_TOPS = ".*<li.*Tops d\'absence.*([0-9][0-9]:[0-9][0-9])\\s*</li>.*";
     private static final String PATTERN_NETWORK_NOT_AUTHORIZED = "<legend>Acc\ufffds interdit</legend>";
     private static final String PATTERN_TOP_OK = "<p>Top pris en compte . ([0-9][0-9]:[0-9}][0-9])</p>";
+    private static final String PATTERN_COUNTER_NUM_CONTRACT = "<select.*id=\"numCont\".*<option value=\"([0-9]+)\".*selected>";
+    private static final String PATTERN_COUNTER_YEAR_CONTRACT = "<select.*id=\"codAnu\".*<option value=\"(20[0-9][0-9])\".*selected>";
+    private static final String PATTERN_COUNTER_ERROR = "<div class=\"error\">Compteurs non disponibles</div>";
+
     private static AgatteParser ourInstance = new AgatteParser();
 
     private AgatteParser() {
@@ -91,6 +95,54 @@ public class AgatteParser {
         Pattern p = Pattern.compile(PATTERN_TOP_OK);
         Matcher matcher = p.matcher(result);
         return matcher.find();
+    }
+
+    /**
+     * Search for the contract number
+     *
+     * @param result
+     * @return the contract number, or -1 if not found
+     */
+    private int searchForNumContract(String result) {
+        Pattern p = Pattern.compile(PATTERN_COUNTER_NUM_CONTRACT);
+        Matcher matcher = p.matcher(result);
+        int counter = -1;
+        if (matcher.find())
+
+        {
+            counter = Integer.valueOf(matcher.group(1));
+        }
+        return counter;
+    }
+
+    /**
+     * Search if counter are (said to be) unavailable
+     *
+     * @param result
+     * @return true if counter are *not* available
+     */
+    private boolean searchForCounterUnavailable(String result) {
+        Pattern p = Pattern.compile(PATTERN_COUNTER_ERROR);
+        Matcher matcher = p.matcher(result);
+        return matcher.find();
+    }
+
+    /**
+     * Search for contract year
+     *
+     * @param result
+     * @return the year, or -1 if not found
+     */
+    private int searchForYearContract(String result) {
+        Pattern p = Pattern.compile(PATTERN_COUNTER_YEAR_CONTRACT);
+        Matcher matcher = p.matcher(result);
+        int year = -1;
+        if (matcher.find())
+
+        {
+            year = Integer.valueOf(matcher.group(1));
+        }
+        return year;
     }
 
     public AgatteResponse parse_query_response(HttpResponse response) throws IOException {
@@ -157,5 +209,18 @@ public class AgatteParser {
             return new AgatteResponse(AgatteResponse.Code.PunchOK, tops, virtual_tops);
         }
     }
+
+    public AgatteCounterResponse parse_counter_response(HttpResponse response) throws IOException {
+        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            //TODO: exception
+        }
+        String result = entityToString(response);
+        boolean ano = searchForCounterUnavailable(result);
+        int year = searchForYearContract(result);
+        int counter = searchForNumContract(result);
+
+        return new AgatteCounterResponse(ano, year, counter);
+    }
+
 
 }

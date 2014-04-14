@@ -273,11 +273,11 @@ public class AgatteSession {
             client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
             client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
 
-
+            HttpGet query_week_counter_rq = new HttpGet(new URI("https", this.getServer(), WEEK_COUNTER_DIR, null));
             //TODO: possible optimisation : remember contract num and year and proceed to next step.
-            HttpResponse response1 = client.execute(query_week_counter_rq1, httpContext);
+            HttpResponse response1 = client.execute(query_week_counter_rq, httpContext);
             //TODO: detected a "counter unavailable" message, and exit
-
+            AgatteParser.getInstance().parse_counter_response(response1);
 
             //TODO: extract contract number (numCont) and year (codeAnu)
             //TODO: manage multiple contracts ?
@@ -305,7 +305,7 @@ public class AgatteSession {
 
 
             //TODO: extract value
-
+            AgatteParser.getInstance().parse_counter_response(response2);
 
         } catch (IOException e) {
             e.printStackTrace();
