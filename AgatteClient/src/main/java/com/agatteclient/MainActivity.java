@@ -46,6 +46,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.agatteclient.agatte.AgatteResponse;
+import com.agatteclient.agatte.AgatteResultCode;
 import com.agatteclient.agatte.AgatteSession;
 import com.agatteclient.agatte.PunchService;
 import com.agatteclient.alarm.AlarmActivity;
@@ -381,30 +382,32 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-            AgatteResponse rsp = AgatteResponse.fromBundle(resultData);
+
 
             //display error (in a Toast)
             StringBuilder toast = new StringBuilder();
             boolean isPunch = false;
-            switch (rsp.getCode()) {
-                case IOError:
+            switch (AgatteResultCode.values()[resultCode]) {
+                case io_exception:
                     toast.append(getString(R.string.punch_error_toast)).append(" ");
                     toast.append(getString(R.string.network_error_toast));
-                    if (rsp.hasDetail()) {
-                        toast.append(" : ").append(rsp.getDetail());
+                    String message = resultData.getString("message");
+                    if (message.length() != 0) {
+                        toast.append(" : ").append(message);
                     }
                     break;
-                case NetworkNotAuthorized:
+                case network_not_authorized:
                     toast.append(getString(R.string.punch_error_toast)).append(" ");
                     toast.append(getString(R.string.unauthorized_network_toast));
                     break;
-                case LoginFailed:
+                case login_failed:
                     toast.append(getString(R.string.punch_error_toast)).append(" ");
                     toast.append(getString(R.string.login_failed_toast));
                     break;
-                case PunchOK:
+                case punch_ok:
                     isPunch = true;
-                case QueryOK:
+                case query_ok:
+                    AgatteResponse rsp = AgatteResponse.fromBundle(resultData);
                     try {
                         DayCard cur_card = CardBinder.getInstance().getTodayCard();
                         if (rsp.hasVirtualPunches()) {
@@ -421,7 +424,7 @@ public class MainActivity extends Activity {
                         toast.append(getString(R.string.punch_ok_toast));
                     }
                     break;
-                case UnknownError:
+                case exception:
                     toast.append(getString(R.string.punch_error_toast)).append(" ");
                     toast.append(getString(R.string.error_toast));
             }

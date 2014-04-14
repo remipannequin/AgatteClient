@@ -93,68 +93,66 @@ public class AgatteParser {
         return matcher.find();
     }
 
-    public AgatteResponse parse_query_response(HttpResponse response) throws IOException {
+    public AgatteResponse parse_query_response(HttpResponse response) throws IOException, AgatteException {
 
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            return new AgatteResponse(AgatteResponse.Code.UnknownError, response.getStatusLine().getReasonPhrase());
+            throw new AgatteException(response.getStatusLine().getReasonPhrase());
         }
 
         //get response as a string
         String result = entityToString(response);
         //search for Unauthorized network
         if (searchNetworkNotAuthorized(result)) {
-            return new AgatteResponse(AgatteResponse.Code.NetworkNotAuthorized);
+            throw new AgatteNetworkNotAuthorizedException();
         }
         //get tops
         Collection<String> tops = searchForTops(result);
         Collection<String> virtual_tops = searchForVirtualTops(result);
 
         if (virtual_tops.isEmpty()) {
-            return new AgatteResponse(AgatteResponse.Code.QueryOK, tops);
+            return new AgatteResponse(tops);
         } else {
-            return new AgatteResponse(AgatteResponse.Code.QueryOK, tops, virtual_tops);
+            return new AgatteResponse(tops, virtual_tops);
         }
 
     }
 
-    public AgatteResponse.Code parse_punch_response(HttpResponse response) throws IOException {
+    public boolean parse_punch_response(HttpResponse response) throws IOException, AgatteException {
         response.getEntity().consumeContent();
         //verify that response is a redirection to topOk.htm (ie punchOkDir)
         //This is actually a chain of redirection that should lead there...
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
             for (Header h : response.getHeaders("Location")) {
-                if (h.getValue().contains(AgatteSession.PUNCH_OK_DIR)) {
-                    return AgatteResponse.Code.TemporaryOK;
-                } else if (h.getValue().contains("app/accesInterdit.htm")) {
-                    return AgatteResponse.Code.NetworkNotAuthorized;
+                if (h.getValue().contains("app/accesInterdit.htm")) {
+                    throw new AgatteNetworkNotAuthorizedException();
                 }
             }
         }
         //SO, BE LAZY, AND DON'T REALLY TEST
-        return AgatteResponse.Code.TemporaryOK;
+        return true;
     }
 
-    public AgatteResponse parse_topOk_response(HttpResponse response) throws IOException {
+    public AgatteResponse parse_topOk_response(HttpResponse response) throws IOException, AgatteException {
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            return new AgatteResponse(AgatteResponse.Code.UnknownError, response.getStatusLine().getReasonPhrase());
+            throw new AgatteException(response.getStatusLine().getReasonPhrase());
         }
         //get response as a string
         String result = entityToString(response);
         //search for Unauthorized network
         if (searchNetworkNotAuthorized(result)) {
-            return new AgatteResponse(AgatteResponse.Code.NetworkNotAuthorized);
+            throw new AgatteNetworkNotAuthorizedException();
         }
         if (!searchForTopOk(result)) {
-            return new AgatteResponse(AgatteResponse.Code.UnknownError);
+            throw new AgatteException("Unable to find punch ack");
         }
         //get tops
         Collection<String> tops = searchForTops(result);
         Collection<String> virtual_tops = searchForVirtualTops(result);
 
         if (virtual_tops.isEmpty()) {
-            return new AgatteResponse(AgatteResponse.Code.PunchOK, tops);
+            return new AgatteResponse(tops);
         } else {
-            return new AgatteResponse(AgatteResponse.Code.PunchOK, tops, virtual_tops);
+            return new AgatteResponse(tops, virtual_tops);
         }
     }
 
