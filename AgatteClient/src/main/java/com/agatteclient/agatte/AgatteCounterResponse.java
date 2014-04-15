@@ -14,35 +14,53 @@ public class AgatteCounterResponse implements Serializable {
     private boolean anomaly;
     private int contract_year;
     private int contract;
-    private double value;
+    private double value_week, value_year;
 
     private Type query_type;
     int queried_year;
     int queried_week;
 
-    // TODO: value, and such
 
-    public AgatteCounterResponse(boolean anomaly, int contract_year, int contract, double value) {
-        this.anomaly = anomaly;
-        this.contract_year = contract_year;
-        this.contract = contract;
-        this.value = value;
+    public AgatteCounterResponse(CounterPage page) {
+        this.anomaly = page.anomaly;
+        this.contract_year = page.contract_year;
+        this.contract = page.contract;
     }
+
 
     public boolean isAnomaly() {
         return anomaly;
     }
 
+
     public int getContractYear() {
         return contract_year;
     }
+
 
     public int getContractNumber() {
         return contract;
     }
 
-    public double getValue() {
-        return value;
+
+    public double getValueWeek() {
+        return value_week;
+    }
+
+
+    public void setValue(Type type, double value) {
+        switch (type) {
+            case Week:
+                value_week = value;
+                break;
+            case Year:
+                value_year = value;
+        }
+    }
+
+
+    public double getValueYear() {
+        return value_year;
     }
 
     public Bundle toBundle() {

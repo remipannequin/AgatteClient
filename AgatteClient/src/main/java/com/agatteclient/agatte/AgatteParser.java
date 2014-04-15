@@ -43,14 +43,18 @@ public class AgatteParser {
     private static final String PATTERN_COUNTER_ERROR = "<div class=\"error\">Compteurs non disponibles</div>";
     private static final String PATTERN_COUNTER_VALUE = "Avance / Retard pour la p.riode</span><span class=\"valCptWeb\"  style=\"cursor: help;\"> ([0-9]+) h ([0-9]+) min";
 
+
     private static AgatteParser ourInstance = new AgatteParser();
+
 
     private AgatteParser() {
     }
 
+
     public static AgatteParser getInstance() {
         return ourInstance;
     }
+
 
     private String entityToString(HttpResponse response) throws IOException {
         InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
@@ -66,11 +70,13 @@ public class AgatteParser {
         return result.toString();
     }
 
+
     private boolean searchNetworkNotAuthorized(String result) {
         Pattern unauthorized = Pattern.compile(PATTERN_NETWORK_NOT_AUTHORIZED);
         Matcher matcher = unauthorized.matcher(result);
         return matcher.find();
     }
+
 
     private Collection<String> searchForTops(String result) {
         Collection<String> tops = new ArrayList<String>(6);
@@ -82,6 +88,7 @@ public class AgatteParser {
         return tops;
     }
 
+
     private Collection<String> searchForVirtualTops(String result) {
         Collection<String> tops = new ArrayList<String>(4);
         Pattern p = Pattern.compile(PATTERN_VIRTUAL_TOPS);
@@ -92,11 +99,13 @@ public class AgatteParser {
         return tops;
     }
 
+
     private boolean searchForTopOk(String result) {
         Pattern p = Pattern.compile(PATTERN_TOP_OK);
         Matcher matcher = p.matcher(result);
         return matcher.find();
     }
+
 
     /**
      * Search for the contract number
@@ -116,6 +125,7 @@ public class AgatteParser {
         return counter;
     }
 
+
     /**
      * Search if counter are (said to be) unavailable
      *
@@ -127,6 +137,7 @@ public class AgatteParser {
         Matcher matcher = p.matcher(result);
         return matcher.find();
     }
+
 
     /**
      * Search for contract year
@@ -145,6 +156,7 @@ public class AgatteParser {
         }
         return year;
     }
+
 
     /**
      * Get the value of the counter (in hours)
@@ -187,8 +199,8 @@ public class AgatteParser {
         } else {
             return new AgatteResponse(tops, virtual_tops);
         }
-
     }
+
 
     public boolean parse_punch_response(HttpResponse response) throws IOException, AgatteException {
         response.getEntity().consumeContent();
@@ -204,6 +216,7 @@ public class AgatteParser {
         //SO, BE LAZY, AND DON'T REALLY TEST
         return true;
     }
+
 
     public AgatteResponse parse_topOk_response(HttpResponse response) throws IOException, AgatteException {
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
@@ -229,7 +242,8 @@ public class AgatteParser {
         }
     }
 
-    public AgatteCounterResponse parse_counter_response(HttpResponse response) throws IOException {
+
+    public CounterPage parse_counter_response(HttpResponse response) throws IOException {
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
             //TODO: exception
         }
@@ -238,8 +252,6 @@ public class AgatteParser {
         int year = searchForYearContract(result);
         int counter = searchForNumContract(result);
         double h = searchForValue(result);
-        return new AgatteCounterResponse(ano, year, counter, h);
+        return new CounterPage(ano, year, counter, h);
     }
-
-
 }

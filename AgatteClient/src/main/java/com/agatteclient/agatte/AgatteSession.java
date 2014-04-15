@@ -248,6 +248,78 @@ public class AgatteSession {
     }
 
     /**
+     *
+     * @return
+     * @throws IOException
+     */
+    public CounterPage queryCounterContext() throws IOException {
+        AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
+
+        if (!mustLogin()) {
+            if (!login(client)) {
+                return null;
+            }
+        }
+
+        client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
+        client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
+        //Simulate a first query
+        client.execute(query_day_rq, httpContext).getEntity().consumeContent();
+
+        //HttpGet query_week_counter_rq = new HttpGet(new URI("https", this.getServer(), WEEK_COUNTER_DIR, null));
+        //TODO: possible optimisation : remember contract num and year and proceed to next step.
+        HttpResponse response1 = client.execute(query_week_counter_rq1, httpContext);
+
+        // Extract contract number (numCont) and year (codeAnu), detect a "counter unavailable" message
+        return AgatteParser.getInstance().parse_counter_response(response1);
+    }
+
+    /**
+     * @param type
+     * @param year
+     * @param week
+     * @param contract
+     * @param contract_year
+     * @return
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    public CounterPage queryCounter(AgatteCounterResponse.Type type, int year, int week, int contract, int contract_year) throws IOException, URISyntaxException {
+        String date = String.format("%04d%02d", year, week);
+        AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
+
+        if (!mustLogin()) {
+            if (!login(client)) {
+                return null;
+            }
+        }
+
+        client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
+        client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
+        // Create post request
+        HttpPost query_week_counter_rq2 = new HttpPost(new URI("https", this.getServer(), WEEK_COUNTER_DIR, null));
+        List<NameValuePair> request = new ArrayList<NameValuePair>(4);
+        request.add(0, new BasicNameValuePair(COUNTER_CONTRACT_NUMBER, String.format("%d", contract)));
+        request.add(0, new BasicNameValuePair(COUNTER_CONTRACT_YEAR, String.format("%d", contract_year)));
+        switch (type) {
+            case Year:
+                request.add(0, new BasicNameValuePair(COUNTER_TYPE, "A"));
+                break;
+            case Week:
+                request.add(0, new BasicNameValuePair(COUNTER_TYPE, "H"));
+                request.add(0, new BasicNameValuePair(COUNTER_WEEK, date));
+                break;
+            default:
+        }
+        query_week_counter_rq2.setEntity(new UrlEncodedFormEntity(request));
+        HttpResponse response2 = client.execute(query_week_counter_rq2, httpContext);
+
+        // Extract counter's value
+        return AgatteParser.getInstance().parse_counter_response(response2);
+    }
+
+
+    /**
      * Get the counter page from the server, and parse the response.
      *
      * 1) Send a GET request to extract contract number and contract year, then
@@ -259,63 +331,21 @@ public class AgatteSession {
      * codeAnu: YYYY where YYYY is the year of the contract
      *
      */
-    public AgatteCounterResponse queryCounter(AgatteCounterResponse.Type type, int year, int week) {
-        AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
+    public AgatteCounterResponse queryCounterWeek(int year, int week) throws AgatteException {
         try {
-            if (!mustLogin()) {
-                if (!login(client)) {
-                    return null;
-                }
-            }
-
-            client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
-            client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
-            //Simulate a first query
-            client.execute(query_day_rq, httpContext).getEntity().consumeContent();
-
-            //HttpGet query_week_counter_rq = new HttpGet(new URI("https", this.getServer(), WEEK_COUNTER_DIR, null));
-            //TODO: possible optimisation : remember contract num and year and proceed to next step.
-            HttpResponse response1 = client.execute(query_week_counter_rq1, httpContext);
-
-            // Extract contract number (numCont) and year (codeAnu), detect a "counter unavailable" message
-            AgatteCounterResponse r1 = AgatteParser.getInstance().parse_counter_response(response1);
+            CounterPage r1 = queryCounterContext();
             //if counter are unavailable, exit
-            if (r1.isAnomaly()) {
-                return r1;
+            if (r1.anomaly) {
+                return new AgatteCounterResponse(r1);
             }
-
-            //TODO: manage multiple contracts ?
-            String date = String.format("%04d%02d", year, week);
-
-            // Create post request
-            HttpPost query_week_counter_rq2 = new HttpPost(new URI("https", this.getServer(), WEEK_COUNTER_DIR, null));
-            List<NameValuePair> request = new ArrayList<NameValuePair>(4);
-            request.add(0, new BasicNameValuePair(COUNTER_CONTRACT_NUMBER, String.format("%d", r1.getContractNumber())));
-            request.add(0, new BasicNameValuePair(COUNTER_CONTRACT_YEAR, String.format("%d", r1.getContractYear())));
-            switch (type) {
-                case Year:
-                    request.add(0, new BasicNameValuePair(COUNTER_TYPE, "A"));
-                    break;
-                case Week:
-                    request.add(0, new BasicNameValuePair(COUNTER_TYPE, "H"));
-                    request.add(0, new BasicNameValuePair(COUNTER_WEEK, date));
-                    break;
-                default:
-            }
-            query_week_counter_rq2.setEntity(new UrlEncodedFormEntity(request));
-            HttpResponse response2 = client.execute(query_week_counter_rq2, httpContext);
-
             // Extract counter's value
-            AgatteCounterResponse r2 = AgatteParser.getInstance().parse_counter_response(response2);
-            return r2;
-
+            CounterPage r2 = queryCounter(AgatteCounterResponse.Type.Week, year, week, r1.contract, r1.contract_year);
+            return new AgatteCounterResponse(r2);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new AgatteException(e);
         } catch (URISyntaxException e) {//can't happen
-            e.printStackTrace();
+            throw new AgatteException(e);
         }
-
-        return null;
     }
 
     /**
@@ -323,21 +353,31 @@ public class AgatteSession {
      *
      * @return
      */
-    public AgatteCounterResponse queryCounterWeek() {
+    public AgatteCounterResponse queryCounterCurrent() throws AgatteException {
         Calendar now = Calendar.getInstance();
         int year = now.get(Calendar.YEAR);
         int week = now.get(Calendar.WEEK_OF_YEAR);
-        return queryCounter(AgatteCounterResponse.Type.Week, year, week);
+        try {
+            CounterPage r1 = queryCounterContext();
+            //if counter are unavailable, exit
+            if (r1.anomaly) {
+                return new AgatteCounterResponse(r1);
+            }
+            // Extract counter's value
+            CounterPage r2 = queryCounter(AgatteCounterResponse.Type.Week, year, week, r1.contract, r1.contract_year);
+            CounterPage r3 = queryCounter(AgatteCounterResponse.Type.Week, year, week, r1.contract, r1.contract_year);
+            AgatteCounterResponse response = new AgatteCounterResponse(r2);
+            response.setValue(AgatteCounterResponse.Type.Week, r2.value);
+            response.setValue(AgatteCounterResponse.Type.Year, r3.value);
+            return response;
+        } catch (IOException e) {
+            throw new AgatteException(e);
+        } catch (URISyntaxException e) {//can't happen
+            throw new AgatteException(e);
+        }
+
     }
 
-    /**
-     * Get the counter value of the current year
-     *
-     * @return
-     */
-    public AgatteCounterResponse queryCounterYear() {
-        return queryCounter(AgatteCounterResponse.Type.Year, 0, 0);
-    }
 
     /**
      * Request the "topOk" page from the server
