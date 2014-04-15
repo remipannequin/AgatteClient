@@ -39,6 +39,7 @@ public class PunchService extends IntentService {
 
     public static final String DO_PUNCH = "punch";
     public static final String QUERY = "query";
+    public static final String QUERY_COUNTER = "query_counter";
     public static final String RESULT_RECEIVER = "result_receiver";
     private static final String TAG = "PunchService";
     private AgatteSession session;
@@ -88,6 +89,14 @@ public class PunchService extends IntentService {
                 bundle = rsp.toBundle();
                 code = AgatteResultCode.query_ok;
 
+            } else if (intent.getAction().equals(QUERY)) {
+                AgatteCounterResponse rsp = session.queryCounterWeek();
+                if (!rsp.isAnomaly()) {
+                    bundle = rsp.toBundle();
+                    code = AgatteResultCode.query_counter_ok;
+                } else {
+                    code = AgatteResultCode.query_counter_unavailable;
+                }
             } else {
                 //TODO: manage error
 

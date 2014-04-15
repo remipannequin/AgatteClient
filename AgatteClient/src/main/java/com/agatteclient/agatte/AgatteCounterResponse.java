@@ -1,9 +1,13 @@
 package com.agatteclient.agatte;
 
+import android.os.Bundle;
+
+import java.io.Serializable;
+
 /**
  * Created by Rémi Pannequin on 12/04/14.
  */
-public class AgatteCounterResponse {
+public class AgatteCounterResponse implements Serializable {
 
     public enum Type {Year, Week}
 
@@ -40,4 +44,15 @@ public class AgatteCounterResponse {
     public double getValue() {
         return value;
     }
+
+    public Bundle toBundle() {
+        Bundle result = new Bundle();
+        result.putSerializable("counter-response", this);
+        return result;
+    }
+
+    public static AgatteCounterResponse fromBundle(Bundle bundle) {
+        return (AgatteCounterResponse) bundle.getSerializable("counter-response");
+    }
+
 }

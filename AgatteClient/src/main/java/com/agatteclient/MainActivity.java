@@ -45,6 +45,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.agatteclient.agatte.AgatteCounterResponse;
 import com.agatteclient.agatte.AgatteResponse;
 import com.agatteclient.agatte.AgatteResultCode;
 import com.agatteclient.agatte.AgatteSession;
@@ -90,6 +91,8 @@ public class MainActivity extends Activity {
     private AgattePreferenceListener pref_listener;//need to be explicitly declared to avoid garbage collection
     private Button punch_button;
     private ScrollView day_sv;
+    private TextView week_TextView;
+    private TextView year_TextView;
 
     /**
      * Save the state of the activity (the DayCard)
@@ -154,6 +157,8 @@ public class MainActivity extends Activity {
         day_progress.setMax(1200);
 
         day_textView = (TextView) findViewById(R.id.day_textView);
+        week_TextView = (TextView) findViewById(R.id.week_textView);
+        year_TextView = (TextView) findViewById(R.id.year_textView);
         punch_button = (Button) findViewById(R.id.button_doPunch);
         day_sv = (ScrollView) findViewById(R.id.day_scrollview);
         //Schedule redraw in 1 minute (60 000 ms)
@@ -176,6 +181,8 @@ public class MainActivity extends Activity {
         }
 
         updateCard();
+        //TODO: get last known value in the prefs.
+        updateCounter(false, 0, 0);
     }
 
     @Override
@@ -225,6 +232,25 @@ public class MainActivity extends Activity {
         setTitle(t);
     }
 
+
+    /**
+     * Update view with new counter value
+     */
+    private void updateCounter(boolean available, double week_hours, double global_hours) {
+
+        //TODO: if unavailable display in italic / or red ?
+        int neg = (week_hours < 0 ? -1 : 1);
+        week_hours = week_hours * neg;
+        int h = (int) Math.floor(week_hours);
+        int m = (int) Math.round((week_hours - h) * 60);
+        week_TextView.setText(String.format("%dh%d", neg * h, m));
+
+        neg = (global_hours < 0 ? -1 : 1);
+        global_hours = global_hours * neg;
+        int half_day = (int) Math.round(global_hours * 2.0 / 7.62);
+        year_TextView.setText(String.format("%d d%s", neg * half_day / 2, (half_day % 2 == 11 ? " ½" : "")));
+    }
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         super.dispatchTouchEvent(ev);
@@ -268,6 +294,16 @@ public class MainActivity extends Activity {
         getMenuInflater().inflate(R.menu.main, menu);
 
         return true;
+    }
+
+    /**
+     * Try to update counters
+     */
+    public void updateCounters(View v) {
+        final Intent i = new Intent(this, PunchService.class);
+        i.setAction(PunchService.QUERY_COUNTER);
+        i.putExtra(PunchService.RESULT_RECEIVER, new AgatteResultReceiver());
+        startService(i);
     }
 
     /**
@@ -423,6 +459,14 @@ public class MainActivity extends Activity {
                     if (isPunch) {
                         toast.append(getString(R.string.punch_ok_toast));
                     }
+                    break;
+                case query_counter_ok:
+                    AgatteCounterResponse counter = AgatteCounterResponse.fromBundle(resultData);
+                    //TODO : update UI with result
+
+                    break;
+                case query_counter_unavailable:
+                    //TODO
                     break;
                 case exception:
                     toast.append(getString(R.string.punch_error_toast)).append(" ");
