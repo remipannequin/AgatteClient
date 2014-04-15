@@ -74,7 +74,7 @@ public class PunchService extends IntentService {
         Bundle bundle = new Bundle();
         AgatteResultCode code = AgatteResultCode.exception;
         try {
-            if (intent.getAction() != null) {
+            if (intent.getAction() == null) {
                 //can't happen
                 //TODO
             } else if (intent.getAction().equals(DO_PUNCH)) {
@@ -89,8 +89,8 @@ public class PunchService extends IntentService {
                 bundle = rsp.toBundle();
                 code = AgatteResultCode.query_ok;
 
-            } else if (intent.getAction().equals(QUERY)) {
-                AgatteCounterResponse rsp = session.queryCounterWeek();
+            } else if (intent.getAction().equals(QUERY_COUNTER)) {
+                AgatteCounterResponse rsp = session.queryCounterCurrent();
                 if (!rsp.isAnomaly()) {
                     bundle = rsp.toBundle();
                     code = AgatteResultCode.query_counter_ok;

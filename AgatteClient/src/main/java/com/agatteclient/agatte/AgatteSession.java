@@ -252,12 +252,12 @@ public class AgatteSession {
      * @return
      * @throws IOException
      */
-    public CounterPage queryCounterContext() throws IOException {
+    public CounterPage queryCounterContext() throws IOException, AgatteLoginFailedException {
         AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
 
         if (!mustLogin()) {
             if (!login(client)) {
-                return null;
+                throw new AgatteLoginFailedException();
             }
         }
 
@@ -284,13 +284,13 @@ public class AgatteSession {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public CounterPage queryCounter(AgatteCounterResponse.Type type, int year, int week, int contract, int contract_year) throws IOException, URISyntaxException {
+    public CounterPage queryCounter(AgatteCounterResponse.Type type, int year, int week, int contract, int contract_year) throws IOException, URISyntaxException, AgatteLoginFailedException {
         String date = String.format("%04d%02d", year, week);
         AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
 
         if (!mustLogin()) {
             if (!login(client)) {
-                return null;
+                throw new AgatteLoginFailedException();
             }
         }
 

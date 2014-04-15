@@ -243,7 +243,7 @@ public class MainActivity extends Activity {
         week_hours = week_hours * neg;
         int h = (int) Math.floor(week_hours);
         int m = (int) Math.round((week_hours - h) * 60);
-        week_TextView.setText(String.format("%dh%d", neg * h, m));
+        week_TextView.setText(String.format("%dh%02d", neg * h, m));
 
         neg = (global_hours < 0 ? -1 : 1);
         global_hours = global_hours * neg;
@@ -299,7 +299,7 @@ public class MainActivity extends Activity {
     /**
      * Try to update counters
      */
-    public void updateCounters(View v) {
+    public void doUpdateCounters() {
         final Intent i = new Intent(this, PunchService.class);
         i.setAction(PunchService.QUERY_COUNTER);
         i.putExtra(PunchService.RESULT_RECEIVER, new AgatteResultReceiver());
@@ -386,7 +386,8 @@ public class MainActivity extends Activity {
                 break;
             case R.id.action_update:
                 refreshItem = item;//menu.getItem(R.id.action_update);
-                doUpdate();
+                //doUpdate();
+                doUpdateCounters();
                 break;
             case R.id.action_about:
                 Intent about_intent = new Intent(this, AboutActivity.class);
@@ -461,12 +462,10 @@ public class MainActivity extends Activity {
                     }
                     break;
                 case query_counter_ok:
-                    AgatteCounterResponse counter = AgatteCounterResponse.fromBundle(resultData);
-                    //TODO : update UI with result
-
-                    break;
                 case query_counter_unavailable:
-                    //TODO
+                    AgatteCounterResponse counter = AgatteCounterResponse.fromBundle(resultData);
+                    // update UI with result
+                    updateCounter(counter.isAnomaly(), counter.getValueWeek(), counter.getValueYear());
                     break;
                 case exception:
                     toast.append(getString(R.string.punch_error_toast)).append(" ");
@@ -478,11 +477,8 @@ public class MainActivity extends Activity {
                 Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
 
             }
-
-
             updateCard();
             stopRefresh();
-
         }
     }
 
