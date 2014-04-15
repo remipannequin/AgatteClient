@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.*/
 
-package com.agatteclient;
+package com.agatteclient.alarm;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -26,15 +26,16 @@ public class PunchAlarmTime {
     private int time_of_day;
     private int firing_days;
     private static final Calendar cal = Calendar.getInstance();
+    private boolean enabled;
 
     public enum Day {
         monday(1),
-        tuesday(1<<2),
-        wednesday(1<<3),
-        thursday(1<<4),
-        friday(1<<5),
-        saturday(1<<6),
-        sunday(1<<7);
+        tuesday(1<<1),
+        wednesday(1<<2),
+        thursday(1<<3),
+        friday(1<<4),
+        saturday(1<<5),
+        sunday(1<<6);
 
         int f;
 
@@ -67,6 +68,7 @@ public class PunchAlarmTime {
     public PunchAlarmTime() {
         time_of_day = 0;
         firing_days = 0;
+        enabled = false;
     }
 
     public PunchAlarmTime(int hour, int minute, Day... firing_days) {
@@ -74,28 +76,54 @@ public class PunchAlarmTime {
         for (Day d : firing_days) {
             this.firing_days |= d.f;
         }
+        enabled = true;
     }
 
     public long toLong(){
-        return time_of_day + (firing_days << 32);
+        return time_of_day + (((long)firing_days) << 32) + (enabled?1l << 48:0);
     }
 
     public static PunchAlarmTime fromLong(long l) {
         int t = (int)l;
-        int days = (int)(l>>32);
+        int days = (int)(l >> 32);
+        boolean enabled = (l & (1l << 48)) != 0;
         PunchAlarmTime instance = new PunchAlarmTime();
         instance.firing_days = days;
         instance.time_of_day = t;
+        instance.enabled = enabled;
+
         return instance;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public PunchAlarmTime(int hour, int minute) {
         this(hour,minute, Day.monday, Day.tuesday, Day.wednesday, Day.thursday , Day.friday);
     }
 
-    public boolean fireAt(Day day) {
+    public void setFireAt(Day day, boolean b) {
+        if (isFireAt(day) && !b) {
+            this.firing_days -= day.f;
+        } else if (!isFireAt(day) && b) {
+            this.firing_days += day.f;
+        }
+
+    }
+
+    public boolean isFireAt(Day day) {
         return ((this.firing_days & day.f) != 0);
     }
+
+    public void setTime(int hourOfDay, int minute) {
+        this.time_of_day = (60 * hourOfDay + minute);
+    }
+
 
     /**
      * Compute the next date when the alarm should be fired.
@@ -121,7 +149,7 @@ public class PunchAlarmTime {
             //search if day is a firing day
             for (int i=0; i < 7; i++) {
                 Day d = Day.fromCalDay(cal.get(Calendar.DAY_OF_WEEK));
-                if (fireAt(d)) {
+                if (isFireAt(d)) {
                     return cal.getTime();
                 }
                 cal.add(Calendar.DATE, 1);
@@ -132,7 +160,7 @@ public class PunchAlarmTime {
             for (int i=0; i < 7; i++) {
                 cal.add(Calendar.DATE, 1);
                 Day d = Day.fromCalDay(cal.get(Calendar.DAY_OF_WEEK));
-                if (fireAt(d)) {
+                if (isFireAt(d)) {
                     return cal.getTime();
                 }
             }
@@ -146,4 +174,21 @@ public class PunchAlarmTime {
         return nextAlarm(d).getTime();
     }
 
+    public Date getTime() {
+        cal.set(Calendar.HOUR_OF_DAY, this.time_of_day / 60);
+        cal.set(Calendar.MINUTE, this.time_of_day % 60);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof PunchAlarmTime) {
+            PunchAlarmTime other = (PunchAlarmTime) o;
+            return (other.enabled == enabled) && (other.firing_days == firing_days) && (other.time_of_day == time_of_day);
+        } else {
+            return false;
+        }
+    }
 }

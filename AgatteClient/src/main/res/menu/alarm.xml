@@ -1,8 +1,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".AlarmActivity">
-
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_alarm_add"
+        android:title="@string/alarm_add"
+        app:showAsAction="always"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_action_alerts_and_states_add_alarm" />
     <item
         android:id="@+id/action_settings"
         android:title="@string/action_settings"

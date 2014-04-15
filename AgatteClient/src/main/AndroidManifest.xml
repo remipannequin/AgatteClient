@@ -46,7 +46,7 @@
                 android:value=".MainActivity" />
         </activity>
         
-        <receiver android:name=".NetworkChangeReceiver">
+        <receiver android:name=".alarm.NetworkChangeReceiver">
             <intent-filter>
                 <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
                 <action android:name="android.net.wifi.STATE_CHANGE" />
@@ -55,13 +55,13 @@
 
         <service
             android:enabled="true"
-            android:name=".PunchService"
+            android:name=".agatte.PunchService"
             android:label="PunchService" />
 
-        <receiver android:name=".AlarmReceiver" />
+        <receiver android:name=".alarm.AlarmReceiver" />
 
         <activity
-            android:name=".AlarmActivity"
+            android:name=".alarm.AlarmActivity"
             android:label="@string/title_activity_alarm"
             android:parentActivityName="MainActivity">
             <meta-data

@@ -13,22 +13,20 @@
     You should have received a copy of the GNU General Public License
     along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.*/
 
-package com.agatteclient;
+package com.agatteclient.agatte;
 
 import android.app.IntentService;
-import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.os.IBinder;
 import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
+
+import com.agatteclient.MainActivity;
+import com.agatteclient.agatte.AgatteResponse;
+import com.agatteclient.agatte.AgatteSession;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.text.ParseException;
 
 /**
  * This class create a AgatteSession, try to login, send a punch, and logout.

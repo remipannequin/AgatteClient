@@ -1,15 +1,9 @@
 package com.agatteclient.test;
 
-import android.net.Credentials;
 import android.test.AndroidTestCase;
 
-import com.agatteclient.AgatteResponse;
-import com.agatteclient.AgatteSession;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
+import com.agatteclient.agatte.AgatteResponse;
+import com.agatteclient.agatte.AgatteSession;
 
 /**
  * Created by remi on 08/11/13.

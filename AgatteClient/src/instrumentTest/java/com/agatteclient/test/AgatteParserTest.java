@@ -17,8 +17,8 @@ package com.agatteclient.test;
 
 import android.test.AndroidTestCase;
 
-import com.agatteclient.AgatteParser;
-import com.agatteclient.AgatteResponse;
+import com.agatteclient.agatte.AgatteParser;
+import com.agatteclient.agatte.AgatteResponse;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;

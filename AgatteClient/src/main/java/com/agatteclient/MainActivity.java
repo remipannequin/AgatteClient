@@ -19,13 +19,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.IntentService;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -47,7 +45,17 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOError;
+import com.agatteclient.agatte.AgatteResponse;
+import com.agatteclient.agatte.AgatteSession;
+import com.agatteclient.agatte.PunchService;
+import com.agatteclient.alarm.AlarmActivity;
+import com.agatteclient.alarm.AlarmBinder;
+import com.agatteclient.card.CardBinder;
+import com.agatteclient.card.DayCard;
+import com.agatteclient.card.DayCardView;
+import com.agatteclient.card.TimeProfile;
+import com.agatteclient.card.TimeProgressDrawable;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
@@ -60,12 +68,12 @@ import java.util.TimerTask;
  */
 public class MainActivity extends Activity {
 
-    static final String SERVER_PREF = "server";
-    static final String LOGIN_PREF = "login";
-    static final String PASSWD_PREF = "password";
-    static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";
-    static final String LOGIN_DEFAULT = "login";
-    static final String PASSWD_DEFAULT = "";
+    public static final String SERVER_PREF = "server";
+    public static final String LOGIN_PREF = "login";
+    public static final String PASSWD_PREF = "password";
+    public static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";
+    public static final String LOGIN_DEFAULT = "login";
+    public static final String PASSWD_DEFAULT = "";
     static final String DAY_CARD = "day-card";
     private static final String CONFIRM_PUNCH_PREF = "confirm_punch";
     private static final String PROFILE_PREF = "week_profile";
@@ -108,6 +116,8 @@ public class MainActivity extends Activity {
         } else {
             cur_card = (DayCard) savedInstanceState.getSerializable(DAY_CARD);
         }
+
+        AlarmBinder.getInstance(this);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor editor = preferences.edit();
@@ -163,21 +173,6 @@ public class MainActivity extends Activity {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        /*/TESTING !
-        try {
-            //cur_card.addPunch("5:00", true);
-            //cur_card.addPunch("7:30", true);
-            cur_card.addPunch("8:00");
-            cur_card.addPunch("12:00");
-            cur_card.addPunch("12:15");
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }/
-        AlarmReceiver alarm = new AlarmReceiver();
-        alarm.AddAlarm(this, new PunchAlarmTime(14, 00));
-        */
-
-
 
         updateCard();
     }
@@ -336,15 +331,20 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
             case R.id.action_settings:
                 //display Settings activity
-                Intent intent;
+
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
                     intent = new Intent(this, AgattePreferenceActivity.class);
                 } else {
                     intent = new Intent(this, AgattePreferenceActivity.class);
                 }
+                startActivity(intent);
+                break;
+            case R.id.action_alarm:
+                intent = new Intent(this, AlarmActivity.class);
                 startActivity(intent);
                 break;
             case R.id.action_update:
