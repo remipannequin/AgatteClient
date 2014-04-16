@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
@@ -37,7 +36,6 @@
                 android:id="@+id/toggleButton_monday"
                 android:layout_width="55dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="false"
                 android:checked="true"
                 android:textOff="@string/short_monday"
                 android:textOn="@string/short_monday"
@@ -47,7 +45,6 @@
                 android:id="@+id/toggleButton_tuesday"
                 android:layout_width="55dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="false"
                 android:checked="true"
                 android:textOff="@string/short_tuesday"
                 android:textOn="@string/short_tuesday"
@@ -57,7 +54,6 @@
                 android:id="@+id/toggleButton_wednesday"
                 android:layout_width="55dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="false"
                 android:checked="true"
                 android:textOff="@string/short_wednesday"
                 android:textOn="@string/short_wednesday"
@@ -67,7 +63,6 @@
                 android:id="@+id/toggleButton_thursday"
                 android:layout_width="55dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="false"
                 android:checked="true"
                 android:textOff="@string/short_thursday"
                 android:textOn="@string/short_thursday"
@@ -77,7 +72,6 @@
                 android:id="@+id/toggleButton_friday"
                 android:layout_width="55dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="false"
                 android:checked="true"
                 android:textOff="@string/short_friday"
                 android:textOn="@string/short_friday"
@@ -87,7 +81,6 @@
                 android:id="@+id/toggleButton_saturday"
                 android:layout_width="55dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="false"
                 android:checked="false"
                 android:textOff="@string/short_saturday"
                 android:textOn="@string/short_saturday"
@@ -104,5 +97,5 @@
                 android:textSize="12sp" />
         </LinearLayout>
 
-</RelativeLayout>
+    </RelativeLayout>
 </FrameLayout>

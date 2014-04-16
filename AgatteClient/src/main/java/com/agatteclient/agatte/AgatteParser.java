@@ -44,7 +44,7 @@ public class AgatteParser {
     private static final String PATTERN_COUNTER_VALUE = "Avance / Retard pour la p.riode</span><span class=\"valCptWeb\".*>([ |-]?[0-9]+) h ([0-9]+) min";
 
 
-    private static AgatteParser ourInstance = new AgatteParser();
+    private static final AgatteParser ourInstance = new AgatteParser();
 
 
     private AgatteParser() {
@@ -59,7 +59,7 @@ public class AgatteParser {
     private String entityToString(HttpResponse response) throws IOException {
         InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
         BufferedReader rd = new BufferedReader(reader);
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         String line;
         while ((line = rd.readLine()) != null) {
             result.append(line.replace("[\\n\\r\\t]", " "));
@@ -243,9 +243,10 @@ public class AgatteParser {
     }
 
 
-    public CounterPage parse_counter_response(HttpResponse response) throws IOException {
-        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            //TODO: exception
+    public CounterPage parse_counter_response(HttpResponse response) throws IOException, AgatteException {
+        int code = response.getStatusLine().getStatusCode();
+        if (code != HttpStatus.SC_OK) {
+            throw new AgatteException(response.getStatusLine().getReasonPhrase());
         }
         String result = entityToString(response);
         boolean ano = searchForCounterUnavailable(result);

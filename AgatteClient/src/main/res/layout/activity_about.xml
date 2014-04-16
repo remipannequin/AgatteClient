@@ -18,7 +18,6 @@
         android:gravity="center_horizontal"
         android:layout_alignParentBottom="true"
         android:layout_alignLeft="@+id/freesoft_textView"
-        android:autoText="false"
         android:typeface="sans"
         android:textSize="12sp" />
 

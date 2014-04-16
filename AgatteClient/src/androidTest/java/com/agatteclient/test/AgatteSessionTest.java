@@ -2,7 +2,6 @@ package com.agatteclient.test;
 
 import android.test.AndroidTestCase;
 
-import com.agatteclient.agatte.AgatteCounterResponse;
 import com.agatteclient.agatte.AgatteResponse;
 import com.agatteclient.agatte.AgatteSession;
 

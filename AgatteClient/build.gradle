@@ -20,9 +20,19 @@ android {
         minSdkVersion 10
         targetSdkVersion 19
     }
+
+    signingConfigs {
+        release {
+            storeFile file("~/android_key.jks")
+            storePassword System.console().readLine("\n\$ Enter keystore password: ")
+            keyAlias System.console().readLine("Rémi Pannequin")
+            keyPassword System.console().readLine("\n\$ Enter key password: ")
+        }
+    }
 }
 
 dependencies {
     compile 'com.android.support:appcompat-v7:19.1.0'
     compile 'com.android.support:support-v4:19.1.0'
+    compile 'com.intellij:annotations:+@jar'
 }

@@ -19,14 +19,13 @@
     <string name="network_error_toast">Network Error</string>
     <string name="unauthorized_network_toast">Network not authorized</string>
     <string name="login_failed_toast">Unable to login : invalid user or password</string>
-    <string name="error_toast">Error</string>
+    <string name="error_toast">Connection to server failed.</string>
     <string name="updating">Updating…</string>
     <string name="punch_ok_toast">Punching done</string>
     <string name="daily_time_count">Day</string>
     <string name="time_count">Counters</string>
     <string name="time_test">5h30</string>
     <string name="week_goal_prefs_title">Weekly work time</string>
-    <string name="week_goal_default_value">38h10</string>
     <string name="connection_preferences">Connexion</string>
     <string name="profile_preference">Profile</string>
     <string name="title_activity_about">About</string>
@@ -48,8 +47,6 @@
     along with this program.  If not, see <link>http://www.gnu.org/licenses</link>>\n
     \n
     Follow development, submit bugs or wishes at\n <link>https://github.com/remipannequin/AgatteClient</link></string>
-    <string name="punch_error_toast">Error while punching:</string>
-    <string name="update_error_toast">Error while updating:</string>
     <string name="interface_preference">Interface</string>
     <string name="confirm_punch_title">Confirm Punch</string>
     <string name="short_sunday">SUN.</string>
@@ -60,7 +57,6 @@
     <string name="short_tuesday">TUE.</string>
     <string name="short_monday">MON.</string>
     <string name="title_activity_alarm">Alarms</string>
-    <string name="hello_world">Hello world!</string>
     <string name="successful_programmed_punch">Programmed punching has been successfully made</string>
     <string name="programmed_punch_success_title">Programmed punching failed</string>
     <string name="programmed_punch_failed_title">Programmed punching done</string>
@@ -68,4 +64,8 @@
     <string name="alarm_add">Add</string>
     <string name="week_label">Week</string>
     <string name="year_label">Year</string>
+    <string name="time_test_week">-15h30</string>
+    <string name="time_test_year">+5j ½</string>
+    <string name="year_counter">%1$dd%2$s</string>
+    <string name="alarm_enable">Enable</string>
 </resources>

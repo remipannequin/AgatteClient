@@ -37,11 +37,7 @@ public class AboutActivity extends Activity {
         String name = getApplicationName();
 
         TextView text = (TextView) findViewById(R.id.version_textView);
-        StringBuilder sb = new StringBuilder(getString(R.string.about_version));
-        sb.append(getApplicationName());
-        sb.append(" ");
-        sb.append(getVersionNumber());
-        text.setText(sb.toString());
+        text.setText(getString(R.string.about_version) + getApplicationName() + " " + getVersionNumber());
     }
 
     /**

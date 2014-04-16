@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.agatteclient"
     android:versionCode="12"
     android:versionName="1.2">
-
-    <uses-sdk
-        android:minSdkVersion="10"
-        android:targetSdkVersion="18" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -32,8 +29,9 @@
         <activity
             android:name=".AgattePreferenceActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity" >
-            <meta-data
+            android:parentActivityName=".MainActivity"
+            tools:ignore="UnusedAttribute">
+        <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>

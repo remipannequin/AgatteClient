@@ -29,9 +29,9 @@ import java.net.URISyntaxException;
 
 /**
  * This class create a AgatteSession, try to login, send a punch, and logout.
- *
- *
- *
+ * <p/>
+ * <p/>
+ * <p/>
  * Created by Rémi Pannequin on 29/10/13.
  */
 public class PunchService extends IntentService {
@@ -65,7 +65,6 @@ public class PunchService extends IntentService {
     }
 
     /**
-     *
      * @param intent
      */
     @Override
@@ -75,8 +74,7 @@ public class PunchService extends IntentService {
         AgatteResultCode code = AgatteResultCode.exception;
         try {
             if (intent.getAction() == null) {
-                //can't happen
-                //TODO
+                throw new AgatteException("Null intent");
             } else if (intent.getAction().equals(DO_PUNCH)) {
 
                 AgatteResponse rsp = session.doPunch();
@@ -91,16 +89,14 @@ public class PunchService extends IntentService {
 
             } else if (intent.getAction().equals(QUERY_COUNTER)) {
                 AgatteCounterResponse rsp = session.queryCounterCurrent();
-                if (!rsp.isAnomaly()) {
+                if (rsp.isAvailable()) {
                     bundle = rsp.toBundle();
                     code = AgatteResultCode.query_counter_ok;
                 } else {
                     code = AgatteResultCode.query_counter_unavailable;
                 }
             } else {
-                //TODO: manage error
-
-                return;
+                throw new AgatteException("Unrecognized intent");
             }
         } catch (AgatteLoginFailedException e) {
             code = AgatteResultCode.login_failed;

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -17,10 +19,10 @@ import java.util.Set;
  */
 public class AlarmBinder implements List<PunchAlarmTime> {
     private static final String ALARMS_PREF = "alarms-pref";
-    public static final String ALARM_SHARED_PREFS = "alarms";
+    private static final String ALARM_SHARED_PREFS = "alarms";
     private static AlarmBinder ourInstance;
     private static SharedPreferences preferences;
-    private ArrayList<PunchAlarmTime> alarms;
+    private final ArrayList<PunchAlarmTime> alarms;
 
 
     public static AlarmBinder getInstance(Context context) {
@@ -49,7 +51,7 @@ public class AlarmBinder implements List<PunchAlarmTime> {
                 }
             }
         } else {
-
+            //TODO: implement preference holder for old version
         }
     }
 
@@ -65,7 +67,7 @@ public class AlarmBinder implements List<PunchAlarmTime> {
             editor.putStringSet(ALARMS_PREF, alarms_s); // value to store
             editor.commit();
         } else {
-
+            //TODO: implement preference holder for old version
         }
     }
 
@@ -78,6 +80,7 @@ public class AlarmBinder implements List<PunchAlarmTime> {
         }
     }
 
+    @NotNull
     public List<PunchAlarmTime> subList(int start, int end) {
         return alarms.subList(start, end);
     }
@@ -91,7 +94,7 @@ public class AlarmBinder implements List<PunchAlarmTime> {
         }
     }
 
-    public boolean containsAll(Collection<?> collection) {
+    public boolean containsAll(@NotNull Collection<?> collection) {
         return alarms.containsAll(collection);
     }
 
@@ -137,6 +140,7 @@ public class AlarmBinder implements List<PunchAlarmTime> {
         return a;
     }
 
+    @NotNull
     public Iterator<PunchAlarmTime> iterator() {
         return alarms.iterator();
     }
@@ -173,6 +177,7 @@ public class AlarmBinder implements List<PunchAlarmTime> {
         saveToPreferences();
     }
 
+    @NotNull
     public Object[] toArray() {
         return alarms.toArray();
     }
@@ -189,18 +194,20 @@ public class AlarmBinder implements List<PunchAlarmTime> {
         alarms.trimToSize();
     }
 
-    public boolean removeAll(Collection<?> collection) {
+    public boolean removeAll(@NotNull Collection<?> collection) {
         return alarms.removeAll(collection);
     }
 
+    @NotNull
     public ListIterator<PunchAlarmTime> listIterator() {
         return alarms.listIterator();
     }
 
-    public boolean retainAll(Collection<?> collection) {
+    public boolean retainAll(@NotNull Collection<?> collection) {
         return alarms.retainAll(collection);
     }
 
+    @NotNull
     public ListIterator<PunchAlarmTime> listIterator(int location) {
         return alarms.listIterator(location);
     }

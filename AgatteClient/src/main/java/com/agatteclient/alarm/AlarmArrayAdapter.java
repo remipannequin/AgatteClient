@@ -31,6 +31,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.ToggleButton;
 
+import com.agatteclient.BuildConfig;
 import com.agatteclient.R;
 
 import java.text.SimpleDateFormat;
@@ -41,7 +42,7 @@ import java.util.Calendar;
  */
 public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
 
-    private static int[] days = new int[]{R.id.toggleButton_monday,
+    private static final int[] days = new int[]{R.id.toggleButton_monday,
             R.id.toggleButton_tuesday,
             R.id.toggleButton_wednesday,
             R.id.toggleButton_thursday,
@@ -95,7 +96,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
         super(context, R.layout.view_alarm, objects);
         this.alarms = objects;
         Context ctx = getContext();
-        assert (ctx instanceof FragmentActivity);
+        if (!(ctx instanceof FragmentActivity)) throw new AssertionError();
         fragment_manager = ((FragmentActivity) ctx).getSupportFragmentManager();
     }
 
@@ -171,7 +172,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
             @Override
             public void onClick(View view) {
                 //display dialog to set alarm time
-                assert view instanceof TextView;
+                //assert view instanceof TextView;
                 TimePickerFragment newFragment = new TimePickerFragment();
                 int p = (Integer) view.getTag();
                 PunchAlarmTime a = alarms.get(p);
@@ -189,7 +190,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
      * Created by Rémi Pannequin on 16/11/13.
      */
     private class ViewHolder {
-        View row;
+        final View row;
 
         private TextView text = null;
         private ToggleButton[] day_button = null;

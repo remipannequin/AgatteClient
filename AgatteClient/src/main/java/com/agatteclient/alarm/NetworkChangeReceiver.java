@@ -15,18 +15,13 @@
 
 package com.agatteclient.alarm;
 
-import android.app.Activity;
-import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.Bundle;
-import android.os.IBinder;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -36,7 +31,7 @@ import java.util.Set;
  */
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
-    Set<String> authorized_ssid;
+    private final Set<String> authorized_ssid;
 
     public NetworkChangeReceiver() {
         super();
@@ -49,12 +44,12 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction() != null && intent.getAction().equals("android.net.wifi.WIFI_STATE_CHANGED")) {
-
+            //TODO
         }
 
         String ssid = getCurrentSsid(context);
         if (authorized_ssid.contains(ssid)) {
-
+            //TODO
         }
     }
 

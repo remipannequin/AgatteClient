@@ -30,14 +30,14 @@ public class PunchAlarmTime {
 
     public enum Day {
         monday(1),
-        tuesday(1<<1),
-        wednesday(1<<2),
-        thursday(1<<3),
-        friday(1<<4),
-        saturday(1<<5),
-        sunday(1<<6);
+        tuesday(1 << 1),
+        wednesday(1 << 2),
+        thursday(1 << 3),
+        friday(1 << 4),
+        saturday(1 << 5),
+        sunday(1 << 6);
 
-        int f;
+        final int f;
 
         Day(int flag) {
             this.f = flag;
@@ -50,7 +50,7 @@ public class PunchAlarmTime {
                 case Calendar.TUESDAY:
                     return tuesday;
                 case Calendar.WEDNESDAY:
-                    return  wednesday;
+                    return wednesday;
                 case Calendar.THURSDAY:
                     return thursday;
                 case Calendar.FRIDAY:
@@ -79,13 +79,13 @@ public class PunchAlarmTime {
         enabled = true;
     }
 
-    public long toLong(){
-        return time_of_day + (((long)firing_days) << 32) + (enabled?1l << 48:0);
+    public long toLong() {
+        return time_of_day + (((long) firing_days) << 32) + (enabled ? 1l << 48 : 0);
     }
 
     public static PunchAlarmTime fromLong(long l) {
-        int t = (int)l;
-        int days = (int)(l >> 32);
+        int t = (int) l;
+        int days = (int) (l >> 32);
         boolean enabled = (l & (1l << 48)) != 0;
         PunchAlarmTime instance = new PunchAlarmTime();
         instance.firing_days = days;
@@ -104,7 +104,7 @@ public class PunchAlarmTime {
     }
 
     public PunchAlarmTime(int hour, int minute) {
-        this(hour,minute, Day.monday, Day.tuesday, Day.wednesday, Day.thursday , Day.friday);
+        this(hour, minute, Day.monday, Day.tuesday, Day.wednesday, Day.thursday, Day.friday);
     }
 
     public void setFireAt(Day day, boolean b) {
@@ -128,6 +128,7 @@ public class PunchAlarmTime {
     /**
      * Compute the next date when the alarm should be fired.
      * Result is null if there is no next occurrence (i.e. no firing days)
+     *
      * @param now
      * @return
      */
@@ -143,11 +144,10 @@ public class PunchAlarmTime {
         cal.set(Calendar.MILLISECOND, 0);
 
 
-
         if (num_min < this.time_of_day) {
             //before alarm today
             //search if day is a firing day
-            for (int i=0; i < 7; i++) {
+            for (int i = 0; i < 7; i++) {
                 Day d = Day.fromCalDay(cal.get(Calendar.DAY_OF_WEEK));
                 if (isFireAt(d)) {
                     return cal.getTime();
@@ -157,7 +157,7 @@ public class PunchAlarmTime {
             return null;
         } else {
             //after alarm time: search next firing day
-            for (int i=0; i < 7; i++) {
+            for (int i = 0; i < 7; i++) {
                 cal.add(Calendar.DATE, 1);
                 Day d = Day.fromCalDay(cal.get(Calendar.DAY_OF_WEEK));
                 if (isFireAt(d)) {

@@ -92,6 +92,7 @@ public class AgattePreferenceActivity extends PreferenceActivity {
         //setupActionBar();
 
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
+            //noinspection deprecation
             addPreferencesFromResource(R.xml.preferences);
         } else {
             getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -134,7 +135,7 @@ public class AgattePreferenceActivity extends PreferenceActivity {
      * activity is showing a two-pane settings UI.
      */
     @TargetApi(11)
-    public static class PrefsFragment extends PreferenceFragment {
+    private static class PrefsFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);

@@ -40,7 +40,7 @@ public class DayCard implements Serializable {
     private final int day;
     private final int year;
     private final long start;
-    private List<Long> virtual_punches;
+    private final List<Long> virtual_punches;
 
     /**
      * Crete a new instance of a DayCard with the current day and year
@@ -144,7 +144,7 @@ public class DayCard implements Serializable {
         SimpleDateFormat df = new SimpleDateFormat("HH:mm");
         date = df.parse(time);
         cal.setTime(date);
-         cal.set(Calendar.MILLISECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.YEAR, this.year);
         cal.set(Calendar.DAY_OF_YEAR, this.day);
@@ -290,7 +290,6 @@ public class DayCard implements Serializable {
     }
 
     /**
-     *
      * @param now the date representing the current time
      * @return true if the card is in the same day as "now"
      */
@@ -350,6 +349,7 @@ public class DayCard implements Serializable {
 
     /**
      * Compute the total worked time between punches (if event) or between punches and now (if odd)
+     *
      * @param now the date representing the current time
      * @return
      */
@@ -367,6 +367,7 @@ public class DayCard implements Serializable {
             l = new List[]{punches};
         }
         for (int i = 0; i < 2; i++) {
+
             iterator = (Iterator<Long>) l[i].iterator();
             while (iterator.hasNext()) {
                 ti = iterator.next();
@@ -394,7 +395,6 @@ public class DayCard implements Serializable {
     }
 
     /**
-     *
      * @param now
      * @return
      */
