@@ -1,14 +1,17 @@
 package com.agatteclient.agatte;
 
 /**
+ * Data found on the counters page. Value may be interpreted as for year or week
+ * depending on request
+ *
  * Created by Rémi Pannequin on 15/04/14.
  */
 
-class CounterPage {
-    boolean anomaly;
-    int contract_year;
-    int contract;
-    double value;
+public class CounterPage {
+    public boolean anomaly;
+    public int contract_year;
+    public int contract;
+    public double value;
 
     CounterPage(boolean anomaly, int contract_year, int contract, double value) {
         this.anomaly = anomaly;

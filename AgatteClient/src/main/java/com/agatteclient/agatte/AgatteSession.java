@@ -354,21 +354,18 @@ public class AgatteSession {
      * @return
      */
     public AgatteCounterResponse queryCounterCurrent() throws AgatteException {
-        Calendar now = Calendar.getInstance();
-        int year = now.get(Calendar.YEAR);
-        int week = now.get(Calendar.WEEK_OF_YEAR);
         try {
             CounterPage r1 = queryCounterContext();
+            AgatteCounterResponse response = new AgatteCounterResponse(r1);
             //if counter are unavailable, exit
             if (r1.anomaly) {
-                return new AgatteCounterResponse(r1);
+                return response;
+            } else {
+                response.setValue(AgatteCounterResponse.Type.Week, r1.value);
             }
             // Extract counter's value
-            CounterPage r2 = queryCounter(AgatteCounterResponse.Type.Week, year, week, r1.contract, r1.contract_year);
-            CounterPage r3 = queryCounter(AgatteCounterResponse.Type.Week, year, week, r1.contract, r1.contract_year);
-            AgatteCounterResponse response = new AgatteCounterResponse(r2);
-            response.setValue(AgatteCounterResponse.Type.Week, r2.value);
-            response.setValue(AgatteCounterResponse.Type.Year, r3.value);
+            CounterPage r2 = queryCounter(AgatteCounterResponse.Type.Year, 0, 0, r1.contract, r1.contract_year);
+            response.setValue(AgatteCounterResponse.Type.Year, r2.value);
             return response;
         } catch (IOException e) {
             throw new AgatteException(e);
