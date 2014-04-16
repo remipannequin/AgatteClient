@@ -24,6 +24,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -73,6 +74,9 @@ public class MainActivity extends Activity {
     public static final String SERVER_PREF = "server";
     public static final String LOGIN_PREF = "login";
     public static final String PASSWD_PREF = "password";
+    public static final String COUNTER_WEEK_PREF = "counter-week";
+    public static final String COUNTER_YEAR_PREF = "counter-year";
+    public static final String COUNTER_LAST_UPDATE_PREF = "counter-update";
     public static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";
     public static final String LOGIN_DEFAULT = "login";
     public static final String PASSWD_DEFAULT = "";
@@ -181,8 +185,15 @@ public class MainActivity extends Activity {
         }
 
         updateCard();
-        //TODO: get last known value in the prefs.
-        updateCounter(false, 0, 0);
+        // Get last known value in the prefs, and request update if necessary
+        int last_update = preferences.getInt(COUNTER_LAST_UPDATE_PREF, -1);
+        if (last_update != cur_card.getDayOfYear() + 1000 * cur_card.getYear()) {
+            doUpdateCounters();
+        } else {
+            updateCounter(true,
+                    preferences.getFloat(COUNTER_WEEK_PREF, 0),
+                    preferences.getFloat(COUNTER_YEAR_PREF, 0));
+        }
     }
 
     @Override
@@ -236,9 +247,30 @@ public class MainActivity extends Activity {
     /**
      * Update view with new counter value
      */
-    private void updateCounter(boolean available, double week_hours, double global_hours) {
+    private void updateCounter(boolean available, float week_hours, float global_hours) {
 
-        //TODO: if unavailable display in italic / or red ?
+        // if available, record values in persistent storage
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        if (available) {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putFloat(COUNTER_YEAR_PREF, global_hours);
+            editor.putFloat(COUNTER_WEEK_PREF, week_hours);
+            editor.putInt(COUNTER_LAST_UPDATE_PREF, cur_card.getDayOfYear() + cur_card.getYear() * 1000);
+            editor.commit();
+        } else {
+            week_hours = preferences.getFloat(COUNTER_WEEK_PREF, 0);
+            global_hours = preferences.getFloat(COUNTER_YEAR_PREF, 0);
+        }
+
+        // if unavailable display in italic (or in red ?)
+        if (available) {
+            week_TextView.setTypeface(null, Typeface.NORMAL);
+            year_TextView.setTypeface(null, Typeface.NORMAL);
+        } else {
+            week_TextView.setTypeface(null, Typeface.ITALIC);
+            year_TextView.setTypeface(null, Typeface.ITALIC);
+        }
+
         int neg = (week_hours < 0 ? -1 : 1);
         week_hours = week_hours * neg;
         int h = (int) Math.floor(week_hours);
@@ -251,11 +283,13 @@ public class MainActivity extends Activity {
         year_TextView.setText(String.format("%d d%s", neg * half_day / 2, (half_day % 2 == 11 ? " ½" : "")));
     }
 
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         super.dispatchTouchEvent(ev);
         return mScaleDetector.onTouchEvent(ev);
     }
+
 
     /**
      * Stop refresh image animation
@@ -268,6 +302,7 @@ public class MainActivity extends Activity {
             }
         }
     }
+
 
     /**
      * Animate the refresh icon
@@ -461,8 +496,9 @@ public class MainActivity extends Activity {
                         toast.append(getString(R.string.punch_ok_toast));
                     }
                     break;
-                case query_counter_ok:
                 case query_counter_unavailable:
+                    toast.append("Counters unavailable");
+                case query_counter_ok:
                     AgatteCounterResponse counter = AgatteCounterResponse.fromBundle(resultData);
                     // update UI with result
                     updateCounter(counter.isAnomaly(), counter.getValueWeek(), counter.getValueYear());
@@ -472,7 +508,7 @@ public class MainActivity extends Activity {
                     toast.append(getString(R.string.error_toast));
             }
             Context context = getApplicationContext();
-            if (context != null) {
+            if (context != null && toast.length() != 0) {
 
                 Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
 

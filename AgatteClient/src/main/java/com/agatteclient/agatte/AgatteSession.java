@@ -265,9 +265,7 @@ public class AgatteSession {
         client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
         //Simulate a first query
         client.execute(query_day_rq, httpContext).getEntity().consumeContent();
-
-        //HttpGet query_week_counter_rq = new HttpGet(new URI("https", this.getServer(), WEEK_COUNTER_DIR, null));
-        //TODO: possible optimisation : remember contract num and year and proceed to next step.
+        // First query : get context and week
         HttpResponse response1 = client.execute(query_week_counter_rq1, httpContext);
 
         // Extract contract number (numCont) and year (codeAnu), detect a "counter unavailable" message

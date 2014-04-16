@@ -11,9 +11,9 @@ public class CounterPage {
     public boolean anomaly;
     public int contract_year;
     public int contract;
-    public double value;
+    public float value;
 
-    CounterPage(boolean anomaly, int contract_year, int contract, double value) {
+    CounterPage(boolean anomaly, int contract_year, int contract, float value) {
         this.anomaly = anomaly;
         this.contract_year = contract_year;
         this.contract = contract;

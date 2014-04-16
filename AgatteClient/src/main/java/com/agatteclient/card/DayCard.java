@@ -309,6 +309,23 @@ public class DayCard implements Serializable {
         return cal.getTime();
     }
 
+
+    /**
+     * @return the number of the day in the current year of the card (1-366)
+     */
+    public int getDayOfYear() {
+        return day;
+    }
+
+
+    /**
+     * @return the year of the card
+     */
+    public int getYear() {
+        return year;
+    }
+
+
     /**
      * @param to_test the date to test
      * @return true if the date To_test is inside the day of the card

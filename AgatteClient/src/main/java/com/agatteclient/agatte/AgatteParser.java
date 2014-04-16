@@ -164,10 +164,10 @@ public class AgatteParser {
      * @param result
      * @return
      */
-    private double searchForValue(String result) {
+    private float searchForValue(String result) {
         Pattern p = Pattern.compile(PATTERN_COUNTER_VALUE);
         Matcher matcher = p.matcher(result);
-        double h = 0;
+        float h = 0;
         if (matcher.find()) {
             String h_str = matcher.group(1);
             int hour = Integer.valueOf(h_str.trim());
@@ -251,7 +251,7 @@ public class AgatteParser {
         boolean ano = searchForCounterUnavailable(result);
         int year = searchForYearContract(result);
         int counter = searchForNumContract(result);
-        double h = searchForValue(result);
+        float h = searchForValue(result);
         return new CounterPage(ano, year, counter, h);
     }
 }

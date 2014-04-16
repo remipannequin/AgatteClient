@@ -14,7 +14,7 @@ public class AgatteCounterResponse implements Serializable {
     private boolean anomaly;
     private int contract_year;
     private int contract;
-    private double value_week, value_year;
+    private float value_week, value_year;
 
     private Type query_type;
     int queried_year;
@@ -43,12 +43,12 @@ public class AgatteCounterResponse implements Serializable {
     }
 
 
-    public double getValueWeek() {
+    public float getValueWeek() {
         return value_week;
     }
 
 
-    public void setValue(Type type, double value) {
+    public void setValue(Type type, float value) {
         switch (type) {
             case Week:
                 value_week = value;
@@ -59,7 +59,7 @@ public class AgatteCounterResponse implements Serializable {
     }
 
 
-    public double getValueYear() {
+    public float getValueYear() {
         return value_year;
     }
 
