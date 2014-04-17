@@ -65,6 +65,7 @@ public class AgatteSession {
     private static final String AGENT = "Mozilla/5.0 (Linux; U; Android 2.2; en-us; Nexus One Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
     private final BasicCookieStore cookieStore;
     private final List<NameValuePair> credentials;
+    private final HttpContext httpContext;
     private String session_id;
     private String server;
     private long session_expire;
@@ -74,9 +75,7 @@ public class AgatteSession {
     private HttpGet query_day_rq;
     private HttpGet query_top_ok_rq;
     private HttpGet query_week_counter_rq1;
-
     private HttpPost exec_rq;
-    private final HttpContext httpContext;
 
 
     /**

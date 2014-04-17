@@ -23,47 +23,10 @@ import java.util.Date;
  */
 public class PunchAlarmTime {
 
+    private static final Calendar cal = Calendar.getInstance();
     private int time_of_day;
     private int firing_days;
-    private static final Calendar cal = Calendar.getInstance();
     private boolean enabled;
-
-    public enum Day {
-        monday(1),
-        tuesday(1 << 1),
-        wednesday(1 << 2),
-        thursday(1 << 3),
-        friday(1 << 4),
-        saturday(1 << 5),
-        sunday(1 << 6);
-
-        final int f;
-
-        Day(int flag) {
-            this.f = flag;
-        }
-
-        static Day fromCalDay(int d) {
-            switch (d) {
-                case Calendar.MONDAY:
-                    return monday;
-                case Calendar.TUESDAY:
-                    return tuesday;
-                case Calendar.WEDNESDAY:
-                    return wednesday;
-                case Calendar.THURSDAY:
-                    return thursday;
-                case Calendar.FRIDAY:
-                    return friday;
-                case Calendar.SATURDAY:
-                    return saturday;
-                case Calendar.SUNDAY:
-                    return sunday;
-                default:
-                    return monday;
-            }
-        }
-    }
 
     public PunchAlarmTime() {
         time_of_day = 0;
@@ -79,8 +42,8 @@ public class PunchAlarmTime {
         enabled = true;
     }
 
-    public long toLong() {
-        return time_of_day + (((long) firing_days) << 32) + (enabled ? 1l << 48 : 0);
+    public PunchAlarmTime(int hour, int minute) {
+        this(hour, minute, Day.monday, Day.tuesday, Day.wednesday, Day.thursday, Day.friday);
     }
 
     public static PunchAlarmTime fromLong(long l) {
@@ -95,16 +58,16 @@ public class PunchAlarmTime {
         return instance;
     }
 
+    public long toLong() {
+        return time_of_day + (((long) firing_days) << 32) + (enabled ? 1l << 48 : 0);
+    }
+
     public boolean isEnabled() {
         return enabled;
     }
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-    }
-
-    public PunchAlarmTime(int hour, int minute) {
-        this(hour, minute, Day.monday, Day.tuesday, Day.wednesday, Day.thursday, Day.friday);
     }
 
     public void setFireAt(Day day, boolean b) {
@@ -123,7 +86,6 @@ public class PunchAlarmTime {
     public void setTime(int hourOfDay, int minute) {
         this.time_of_day = (60 * hourOfDay + minute);
     }
-
 
     /**
      * Compute the next date when the alarm should be fired.
@@ -189,6 +151,43 @@ public class PunchAlarmTime {
             return (other.enabled == enabled) && (other.firing_days == firing_days) && (other.time_of_day == time_of_day);
         } else {
             return false;
+        }
+    }
+
+    public enum Day {
+        monday(1),
+        tuesday(1 << 1),
+        wednesday(1 << 2),
+        thursday(1 << 3),
+        friday(1 << 4),
+        saturday(1 << 5),
+        sunday(1 << 6);
+
+        final int f;
+
+        Day(int flag) {
+            this.f = flag;
+        }
+
+        static Day fromCalDay(int d) {
+            switch (d) {
+                case Calendar.MONDAY:
+                    return monday;
+                case Calendar.TUESDAY:
+                    return tuesday;
+                case Calendar.WEDNESDAY:
+                    return wednesday;
+                case Calendar.THURSDAY:
+                    return thursday;
+                case Calendar.FRIDAY:
+                    return friday;
+                case Calendar.SATURDAY:
+                    return saturday;
+                case Calendar.SUNDAY:
+                    return sunday;
+                default:
+                    return monday;
+            }
         }
     }
 }

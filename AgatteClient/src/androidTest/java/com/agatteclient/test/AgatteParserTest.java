@@ -35,178 +35,6 @@ import java.io.ByteArrayInputStream;
  */
 public class AgatteParserTest extends AndroidTestCase {
 
-    public void testParseResponse() throws Exception {
-        AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_test1.getBytes()));
-        test.setEntity(test_entity);
-
-        AgatteResponse rsp = instance.parse_query_response(test);
-        assertTrue(rsp.hasPunches());
-        String[] actual = rsp.getPunches();
-        assertEquals(2, actual.length);
-        assertEquals("12:10", actual[0]);
-        assertEquals("13:00", actual[1]);
-
-    }
-
-    public void testParseResponse2() throws Exception {
-        AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_test2.getBytes()));
-        test.setEntity(test_entity);
-        AgatteResponse rsp = instance.parse_query_response(test);
-        assertTrue(rsp.hasPunches());
-        String[] actual = rsp.getPunches();
-        assertEquals(3, actual.length);
-        assertEquals("09:01", actual[0]);
-        assertEquals("12:15", actual[1]);
-        assertEquals("13:00", actual[2]);
-
-    }
-
-
-    public void testParseResponse3() throws Exception {
-        AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_test3.getBytes()));
-        test.setEntity(test_entity);
-        try {
-            instance.parse_query_response(test);
-            fail("Should have thrown AgatteNetworkNotAuthorizedException");
-        } catch (AgatteNetworkNotAuthorizedException ignored) {
-            //succeed
-        }
-    }
-
-    public void testParseResponse4() throws Exception {
-        AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_test4.getBytes()));
-        test.setEntity(test_entity);
-        AgatteResponse rsp = instance.parse_topOk_response(test);
-        assertTrue(rsp.hasPunches());
-        String[] actual = rsp.getPunches();
-        assertEquals(3, actual.length);
-        assertEquals("07:48", actual[0]);
-        assertEquals("12:15", actual[1]);
-        assertEquals("12:51", actual[2]);
-    }
-
-    public void testParseResponse5() throws Exception {
-        AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_test2.getBytes()));
-        test.setEntity(test_entity);
-        try {
-            instance.parse_topOk_response(test);
-            fail("Should have thrown AgatteException");
-        } catch (AgatteException ignored) {
-        }
-    }
-
-    public void testParseResponse6() throws Exception {
-        AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_test5.getBytes()));
-        test.setEntity(test_entity);
-        AgatteResponse rsp = instance.parse_query_response(test);
-        assertTrue(rsp.hasPunches());
-        assertTrue(rsp.hasVirtualPunches());
-        assertEquals(2, rsp.getVirtualPunches().length);
-        assertEquals("07:56", rsp.getVirtualPunches()[0]);
-        assertEquals("11:45", rsp.getVirtualPunches()[1]);
-        assertEquals(2, rsp.getPunches().length);
-        assertEquals("13:00", rsp.getPunches()[0]);
-        assertEquals("17:00", rsp.getPunches()[1]);
-    }
-
-    public void testParseResponse7() throws Exception {
-        AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_test6.getBytes()));
-        test.setEntity(test_entity);
-        AgatteResponse rsp = instance.parse_topOk_response(test);
-        assertTrue(rsp.hasPunches());
-        assertFalse(rsp.hasVirtualPunches());
-
-        assertEquals(1, rsp.getPunches().length);
-        assertEquals("09:00", rsp.getPunches()[0]);
-    }
-
-    public void testParseCounterResponse1() throws Exception {
-        AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_counter1.getBytes()));
-        test.setEntity(test_entity);
-        CounterPage rsp = instance.parse_counter_response(test);
-        assertTrue(rsp.anomaly);
-        assertEquals(2013, rsp.contract_year);
-        assertEquals(10259, rsp.contract);
-        assertEquals(0.0, rsp.value);
-    }
-
-    public void testParseCounterResponse2() throws Exception {
-        AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_counter2.getBytes()));
-        test.setEntity(test_entity);
-        CounterPage rsp = instance.parse_counter_response(test);
-        assertFalse(rsp.anomaly);
-        assertEquals(2013, rsp.contract_year);
-        assertEquals(10259, rsp.contract);
-        assertEquals(0.0, rsp.value);
-    }
-
-    public void testParseCounterResponse3() throws Exception {
-        AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_counter3.getBytes()));
-        test.setEntity(test_entity);
-        CounterPage rsp = instance.parse_counter_response(test);
-        assertFalse(rsp.anomaly);
-        assertEquals(2013, rsp.contract_year);
-        assertEquals(10259, rsp.contract);
-        assertEquals(24 + 23. / 60., rsp.value);
-    }
-
-    public void testParseCounterResponse4() throws Exception {
-        AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_counter4.getBytes()));
-        test.setEntity(test_entity);
-        CounterPage rsp = instance.parse_counter_response(test);
-        assertFalse(rsp.anomaly);
-        assertEquals(2013, rsp.contract_year);
-        assertEquals(10259, rsp.contract);
-        assertEquals(2 + 22. / 60., rsp.value);
-    }
-
-    public void testParseCounterResponse5() throws Exception {
-        AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_counter5.getBytes()));
-        test.setEntity(test_entity);
-        CounterPage rsp = instance.parse_counter_response(test);
-        assertFalse(rsp.anomaly);
-        assertEquals(2013, rsp.contract_year);
-        assertEquals(10259, rsp.contract);
-        assertEquals(-(4 + (11. / 60.)), rsp.value);//-4h11
-    }
-
-
     private final static String response_test1 = "<html>\n" +
             "<head>\n" +
             "    <meta content=\"600;URL=/logout.htm\" http-equiv=\"refresh\">\n" +
@@ -572,7 +400,6 @@ public class AgatteParserTest extends AndroidTestCase {
             "\t  </div>\t\n" +
             "\t</body>\n" +
             "</html>";
-
     private final static String response_test3 = "<html>\t<head>\t\t \t<meta http-equiv=\"refresh\" content=\"600;URL=/logout.htm\"><link rel=\"stylesheet\" href=\"/media/css/normalize.css\" type=\"text/css\"/> <link rel=\"stylesheet\" href=\"/media/css/agatte.css?Sun Oct 06 11:25:56 CEST 2013\" type=\"text/css\"/><link rel=\"stylesheet\" href=\"/media/css/print.css\" type=\"text/css\" media=\"print\"/><link rel=\"stylesheet\" href=\"/media/css/displaytag.css\" type=\"text/css\"/><style type=\"text/css\" media=\"screen\">@import \"/media/css/tabs.css\";</style>\n" +
             "<!--[if IE]><link rel=\"stylesheet\" href=\"/media/css/agatteIE.css\" type=\"text/css\"/><![endif]--><style type='text/css'>@import url(/media/js/jscalendar-1.0/skins/aqua/theme.css);</style>\n" +
             "<title>Agatte</title>\n" +
@@ -621,8 +448,6 @@ public class AgatteParserTest extends AndroidTestCase {
             "\t  </div>\t\n" +
             "\t</body>\n" +
             "</html>\n";
-
-
     private static final String response_test4 = "\n" +
             "\n" +
             "\n" +
@@ -854,7 +679,6 @@ public class AgatteParserTest extends AndroidTestCase {
             "\t  </div>\t\n" +
             "\t</body>\n" +
             "</html>";
-
     private static final String response_test5 = "<html>\n" +
             "<head>\n" +
             "    <meta content=\"600;URL=/logout.htm\" http-equiv=\"refresh\">\n" +
@@ -958,7 +782,6 @@ public class AgatteParserTest extends AndroidTestCase {
             "</div>\n" +
             "</body>\n" +
             "</html>";
-
     private final static String response_test6 = "<html>\t<head>\t\t \t<meta http-equiv=\"refresh\" content=\"600;URL=/logout.htm\"><link rel=\"stylesheet\" href=\"/media/css/normalize.css\" type=\"text/css\"/> <link rel=\"stylesheet\" href=\"/media/css/agatte.css?Fri Nov 08 11:41:09 CET 2013\" type=\"text/css\"/><link rel=\"stylesheet\" href=\"/media/css/print.css\" type=\"text/css\" media=\"print\"/><link rel=\"stylesheet\" href=\"/media/css/displaytag.css\" type=\"text/css\"/><style type=\"text/css\" media=\"screen\">@import \"/media/css/tabs.css\";</style>\n" +
             "<!--[if IE]><link rel=\"stylesheet\" href=\"/media/css/agatteIE.css\" type=\"text/css\"/><![endif]--><style type='text/css'>@import url(/media/js/jscalendar-1.0/skins/aqua/theme.css);</style>\n" +
             "<title>Agatte</title>\n" +
@@ -1009,7 +832,6 @@ public class AgatteParserTest extends AndroidTestCase {
             "\t  </div>\t\n" +
             "\t</body>\n" +
             "</html>\n";
-
     private static final String response_counter1 = "<html>\t<head>\t\t \t<meta http-equiv=\"refresh\" content=\"600;URL=/logout.htm\"><link rel=\"stylesheet\" href=\"/media/css/normalize.css\" type=\"text/css\"/> <link rel=\"stylesheet\" href=\"/media/css/agatte.css?Mon Apr 14 14:23:39 CEST 2014\" type=\"text/css\"/><link rel=\"stylesheet\" href=\"/media/css/print.css\" type=\"text/css\" media=\"print\"/><link rel=\"stylesheet\" href=\"/media/css/displaytag.css\" type=\"text/css\"/><style type=\"text/css\" media=\"screen\">@import \"/media/css/tabs.css\";</style>\n" +
             "<!--[if IE]><link rel=\"stylesheet\" href=\"/media/css/agatteIE.css\" type=\"text/css\"/><![endif]--><style type='text/css'>@import url(/media/js/jscalendar-1.0/skins/aqua/theme.css);</style>\n" +
             "<title>Agatte</title>\n" +
@@ -1127,7 +949,6 @@ public class AgatteParserTest extends AndroidTestCase {
             "\t  </div>\t\n" +
             "\t</body>\n" +
             "</html>\n";
-
     private static final String response_counter2 = "<html>\t<head>\t\t \t<meta http-equiv=\"refresh\" content=\"600;URL=/logout.htm\"><link rel=\"stylesheet\" href=\"/media/css/normalize.css\" type=\"text/css\"/> <link rel=\"stylesheet\" href=\"/media/css/agatte.css?Mon Apr 14 22:25:16 CEST 2014\" type=\"text/css\"/><link rel=\"stylesheet\" href=\"/media/css/print.css\" type=\"text/css\" media=\"print\"/><link rel=\"stylesheet\" href=\"/media/css/displaytag.css\" type=\"text/css\"/><style type=\"text/css\" media=\"screen\">@import \"/media/css/tabs.css\";</style>\n" +
             "<!--[if IE]><link rel=\"stylesheet\" href=\"/media/css/agatteIE.css\" type=\"text/css\"/><![endif]--><style type='text/css'>@import url(/media/js/jscalendar-1.0/skins/aqua/theme.css);</style>\n" +
             "<title>Agatte</title>\n" +
@@ -1257,7 +1078,6 @@ public class AgatteParserTest extends AndroidTestCase {
             "\t  </div>\t\n" +
             "\t</body>\n" +
             "</html>\n";
-
     private static final String response_counter3 = "<html>\t<head>\t\t \t<meta http-equiv=\"refresh\" content=\"600;URL=/logout.htm\"><link rel=\"stylesheet\" href=\"/media/css/normalize.css\" type=\"text/css\"/> <link rel=\"stylesheet\" href=\"/media/css/agatte.css?Mon Apr 14 22:40:47 CEST 2014\" type=\"text/css\"/><link rel=\"stylesheet\" href=\"/media/css/print.css\" type=\"text/css\" media=\"print\"/><link rel=\"stylesheet\" href=\"/media/css/displaytag.css\" type=\"text/css\"/><style type=\"text/css\" media=\"screen\">@import \"/media/css/tabs.css\";</style>\n" +
             "<!--[if IE]><link rel=\"stylesheet\" href=\"/media/css/agatteIE.css\" type=\"text/css\"/><![endif]--><style type='text/css'>@import url(/media/js/jscalendar-1.0/skins/aqua/theme.css);</style>\n" +
             "<title>Agatte</title>\n" +
@@ -1516,7 +1336,6 @@ public class AgatteParserTest extends AndroidTestCase {
             "\t  </div>\t\n" +
             "\t</body>\n" +
             "</html>\n";
-
     private static final String response_counter5 = "<html>\t<head>\t\t \t<meta http-equiv=\"refresh\" content=\"600;URL=/logout.htm\"><link rel=\"stylesheet\" href=\"/media/css/normalize.css\" type=\"text/css\"/> <link rel=\"stylesheet\" href=\"/media/css/agatte.css?Wed Apr 16 08:46:08 CEST 2014\" type=\"text/css\"/><link rel=\"stylesheet\" href=\"/media/css/print.css\" type=\"text/css\" media=\"print\"/><link rel=\"stylesheet\" href=\"/media/css/displaytag.css\" type=\"text/css\"/><style type=\"text/css\" media=\"screen\">@import \"/media/css/tabs.css\";</style>\n" +
             "<!--[if IE]><link rel=\"stylesheet\" href=\"/media/css/agatteIE.css\" type=\"text/css\"/><![endif]--><style type='text/css'>@import url(/media/js/jscalendar-1.0/skins/aqua/theme.css);</style>\n" +
             "<title>Agatte</title>\n" +
@@ -1646,5 +1465,175 @@ public class AgatteParserTest extends AndroidTestCase {
             "\t  </div>\t\n" +
             "\t</body>\n" +
             "</html>\n";
+
+    public void testParseResponse() throws Exception {
+        AgatteParser instance = AgatteParser.getInstance();
+        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
+        BasicHttpEntity test_entity = new BasicHttpEntity();
+        test_entity.setContent(new ByteArrayInputStream(response_test1.getBytes()));
+        test.setEntity(test_entity);
+
+        AgatteResponse rsp = instance.parse_query_response(test);
+        assertTrue(rsp.hasPunches());
+        String[] actual = rsp.getPunches();
+        assertEquals(2, actual.length);
+        assertEquals("12:10", actual[0]);
+        assertEquals("13:00", actual[1]);
+
+    }
+
+    public void testParseResponse2() throws Exception {
+        AgatteParser instance = AgatteParser.getInstance();
+        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
+        BasicHttpEntity test_entity = new BasicHttpEntity();
+        test_entity.setContent(new ByteArrayInputStream(response_test2.getBytes()));
+        test.setEntity(test_entity);
+        AgatteResponse rsp = instance.parse_query_response(test);
+        assertTrue(rsp.hasPunches());
+        String[] actual = rsp.getPunches();
+        assertEquals(3, actual.length);
+        assertEquals("09:01", actual[0]);
+        assertEquals("12:15", actual[1]);
+        assertEquals("13:00", actual[2]);
+
+    }
+
+    public void testParseResponse3() throws Exception {
+        AgatteParser instance = AgatteParser.getInstance();
+        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
+        BasicHttpEntity test_entity = new BasicHttpEntity();
+        test_entity.setContent(new ByteArrayInputStream(response_test3.getBytes()));
+        test.setEntity(test_entity);
+        try {
+            instance.parse_query_response(test);
+            fail("Should have thrown AgatteNetworkNotAuthorizedException");
+        } catch (AgatteNetworkNotAuthorizedException ignored) {
+            //succeed
+        }
+    }
+
+    public void testParseResponse4() throws Exception {
+        AgatteParser instance = AgatteParser.getInstance();
+        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
+        BasicHttpEntity test_entity = new BasicHttpEntity();
+        test_entity.setContent(new ByteArrayInputStream(response_test4.getBytes()));
+        test.setEntity(test_entity);
+        AgatteResponse rsp = instance.parse_topOk_response(test);
+        assertTrue(rsp.hasPunches());
+        String[] actual = rsp.getPunches();
+        assertEquals(3, actual.length);
+        assertEquals("07:48", actual[0]);
+        assertEquals("12:15", actual[1]);
+        assertEquals("12:51", actual[2]);
+    }
+
+    public void testParseResponse5() throws Exception {
+        AgatteParser instance = AgatteParser.getInstance();
+        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
+        BasicHttpEntity test_entity = new BasicHttpEntity();
+        test_entity.setContent(new ByteArrayInputStream(response_test2.getBytes()));
+        test.setEntity(test_entity);
+        try {
+            instance.parse_topOk_response(test);
+            fail("Should have thrown AgatteException");
+        } catch (AgatteException ignored) {
+        }
+    }
+
+    public void testParseResponse6() throws Exception {
+        AgatteParser instance = AgatteParser.getInstance();
+        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
+        BasicHttpEntity test_entity = new BasicHttpEntity();
+        test_entity.setContent(new ByteArrayInputStream(response_test5.getBytes()));
+        test.setEntity(test_entity);
+        AgatteResponse rsp = instance.parse_query_response(test);
+        assertTrue(rsp.hasPunches());
+        assertTrue(rsp.hasVirtualPunches());
+        assertEquals(2, rsp.getVirtualPunches().length);
+        assertEquals("07:56", rsp.getVirtualPunches()[0]);
+        assertEquals("11:45", rsp.getVirtualPunches()[1]);
+        assertEquals(2, rsp.getPunches().length);
+        assertEquals("13:00", rsp.getPunches()[0]);
+        assertEquals("17:00", rsp.getPunches()[1]);
+    }
+
+    public void testParseResponse7() throws Exception {
+        AgatteParser instance = AgatteParser.getInstance();
+        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
+        BasicHttpEntity test_entity = new BasicHttpEntity();
+        test_entity.setContent(new ByteArrayInputStream(response_test6.getBytes()));
+        test.setEntity(test_entity);
+        AgatteResponse rsp = instance.parse_topOk_response(test);
+        assertTrue(rsp.hasPunches());
+        assertFalse(rsp.hasVirtualPunches());
+
+        assertEquals(1, rsp.getPunches().length);
+        assertEquals("09:00", rsp.getPunches()[0]);
+    }
+
+    public void testParseCounterResponse1() throws Exception {
+        AgatteParser instance = AgatteParser.getInstance();
+        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
+        BasicHttpEntity test_entity = new BasicHttpEntity();
+        test_entity.setContent(new ByteArrayInputStream(response_counter1.getBytes()));
+        test.setEntity(test_entity);
+        CounterPage rsp = instance.parse_counter_response(test);
+        assertTrue(rsp.anomaly);
+        assertEquals(2013, rsp.contract_year);
+        assertEquals(10259, rsp.contract);
+        assertEquals(0.0, rsp.value);
+    }
+
+    public void testParseCounterResponse2() throws Exception {
+        AgatteParser instance = AgatteParser.getInstance();
+        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
+        BasicHttpEntity test_entity = new BasicHttpEntity();
+        test_entity.setContent(new ByteArrayInputStream(response_counter2.getBytes()));
+        test.setEntity(test_entity);
+        CounterPage rsp = instance.parse_counter_response(test);
+        assertFalse(rsp.anomaly);
+        assertEquals(2013, rsp.contract_year);
+        assertEquals(10259, rsp.contract);
+        assertEquals(0.0, rsp.value);
+    }
+
+    public void testParseCounterResponse3() throws Exception {
+        AgatteParser instance = AgatteParser.getInstance();
+        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
+        BasicHttpEntity test_entity = new BasicHttpEntity();
+        test_entity.setContent(new ByteArrayInputStream(response_counter3.getBytes()));
+        test.setEntity(test_entity);
+        CounterPage rsp = instance.parse_counter_response(test);
+        assertFalse(rsp.anomaly);
+        assertEquals(2013, rsp.contract_year);
+        assertEquals(10259, rsp.contract);
+        assertEquals(24 + 23. / 60., rsp.value);
+    }
+
+    public void testParseCounterResponse4() throws Exception {
+        AgatteParser instance = AgatteParser.getInstance();
+        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
+        BasicHttpEntity test_entity = new BasicHttpEntity();
+        test_entity.setContent(new ByteArrayInputStream(response_counter4.getBytes()));
+        test.setEntity(test_entity);
+        CounterPage rsp = instance.parse_counter_response(test);
+        assertFalse(rsp.anomaly);
+        assertEquals(2013, rsp.contract_year);
+        assertEquals(10259, rsp.contract);
+        assertEquals(2 + 22. / 60., rsp.value);
+    }
+
+    public void testParseCounterResponse5() throws Exception {
+        AgatteParser instance = AgatteParser.getInstance();
+        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
+        BasicHttpEntity test_entity = new BasicHttpEntity();
+        test_entity.setContent(new ByteArrayInputStream(response_counter5.getBytes()));
+        test.setEntity(test_entity);
+        CounterPage rsp = instance.parse_counter_response(test);
+        assertFalse(rsp.anomaly);
+        assertEquals(2013, rsp.contract_year);
+        assertEquals(10259, rsp.contract);
+        assertEquals(-(4 + (11. / 60.)), rsp.value);//-4h11
+    }
 
 }

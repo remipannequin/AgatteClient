@@ -2,13 +2,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_alarm_add"
-        android:title="@string/alarm_add"
-        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_action_device_access_alarms"
         android:orderInCategory="100"
-        android:icon="@drawable/ic_action_device_access_alarms" />
+        android:title="@string/alarm_add"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_settings"
-        android:title="@string/action_settings"
         android:orderInCategory="100"
+        android:title="@string/action_settings"
         app:showAsAction="never" />
 </menu>

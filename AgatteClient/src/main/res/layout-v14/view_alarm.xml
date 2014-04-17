@@ -15,10 +15,10 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:text="@string/time_test"
-            android:textAppearance="?android:attr/textAppearanceLarge"
             android:layout_toLeftOf="@+id/alarmEnabledCompoundButton"
-            android:paddingLeft="4dp" />
+            android:paddingLeft="4dp"
+            android:text="@string/time_test"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <Switch
             android:id="@+id/alarmEnabledCompoundButton"

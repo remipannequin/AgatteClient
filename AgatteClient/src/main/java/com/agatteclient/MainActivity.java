@@ -77,12 +77,12 @@ public class MainActivity extends Activity {
     public static final String SERVER_PREF = "server";
     public static final String LOGIN_PREF = "login";
     public static final String PASSWD_PREF = "password";
-    private static final String COUNTER_WEEK_PREF = "counter-week";
-    private static final String COUNTER_YEAR_PREF = "counter-year";
-    private static final String COUNTER_LAST_UPDATE_PREF = "counter-update";
     public static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";
     public static final String LOGIN_DEFAULT = "login";
     public static final String PASSWD_DEFAULT = "";
+    private static final String COUNTER_WEEK_PREF = "counter-week";
+    private static final String COUNTER_YEAR_PREF = "counter-year";
+    private static final String COUNTER_LAST_UPDATE_PREF = "counter-update";
     private static final String DAY_CARD = "day-card";
     private static final String CONFIRM_PUNCH_PREF = "confirm_punch";
     private static final String PROFILE_PREF = "week_profile";

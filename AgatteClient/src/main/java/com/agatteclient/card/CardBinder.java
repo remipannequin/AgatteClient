@@ -22,16 +22,15 @@ import java.util.LinkedList;
  */
 public class CardBinder {
     private static final CardBinder ourInstance = new CardBinder();
-
-    public static CardBinder getInstance() {
-        return ourInstance;
-    }
-
     private final LinkedList<DayCard> cards;
     private DayCard current;
 
     private CardBinder() {
         cards = new LinkedList<DayCard>();
+    }
+
+    public static CardBinder getInstance() {
+        return ourInstance;
     }
 
     /**

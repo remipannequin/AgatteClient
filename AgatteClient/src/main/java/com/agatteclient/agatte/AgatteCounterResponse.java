@@ -11,17 +11,13 @@ import java.io.Serializable;
  */
 public class AgatteCounterResponse implements Serializable {
 
-    public enum Type {Year, Week}
-
     private final boolean anomaly;
     private final int contract_year;
     private final int contract;
-    private float value_week, value_year;
-
-    private Type query_type;
     int queried_year;
     int queried_week;
-
+    private float value_week, value_year;
+    private Type query_type;
 
     public AgatteCounterResponse(CounterPage page) {
         this.anomaly = page.anomaly;
@@ -29,6 +25,9 @@ public class AgatteCounterResponse implements Serializable {
         this.contract = page.contract;
     }
 
+    public static AgatteCounterResponse fromBundle(Bundle bundle) {
+        return (AgatteCounterResponse) bundle.getSerializable("counter-response");
+    }
 
     public boolean isAvailable() {
         return !anomaly;
@@ -71,8 +70,6 @@ public class AgatteCounterResponse implements Serializable {
         return result;
     }
 
-    public static AgatteCounterResponse fromBundle(Bundle bundle) {
-        return (AgatteCounterResponse) bundle.getSerializable("counter-response");
-    }
+    public enum Type {Year, Week}
 
 }

@@ -98,7 +98,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         Intent i = new Intent(context, AlarmReceiver.class);
         //TODO: use request code
         PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_ONE_SHOT);
-        pendingIntentMap.put(alarm, new Pair(pi, alarm.toLong()));
+        pendingIntentMap.put(alarm, new Pair<PendingIntent, Long>(pi, alarm.toLong()));
 
         long now = System.currentTimeMillis();
         long delay = alarm.nextAlarm(now);

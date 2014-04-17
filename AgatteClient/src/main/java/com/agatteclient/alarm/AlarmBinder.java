@@ -25,15 +25,6 @@ public class AlarmBinder implements List<PunchAlarmTime> {
     private final ArrayList<PunchAlarmTime> alarms;
 
 
-    public static AlarmBinder getInstance(Context context) {
-        if (ourInstance == null) {
-            assert (context != null);
-            preferences = context.getSharedPreferences(ALARM_SHARED_PREFS, Context.MODE_PRIVATE);
-            ourInstance = new AlarmBinder(preferences);
-        }
-        return ourInstance;
-    }
-
     private AlarmBinder(SharedPreferences preferences) {
         alarms = new ArrayList<PunchAlarmTime>();
 
@@ -53,6 +44,15 @@ public class AlarmBinder implements List<PunchAlarmTime> {
         } else {
             //TODO: implement preference holder for old version
         }
+    }
+
+    public static AlarmBinder getInstance(Context context) {
+        if (ourInstance == null) {
+            assert (context != null);
+            preferences = context.getSharedPreferences(ALARM_SHARED_PREFS, Context.MODE_PRIVATE);
+            ourInstance = new AlarmBinder(preferences);
+        }
+        return ourInstance;
     }
 
     public void saveToPreferences() {

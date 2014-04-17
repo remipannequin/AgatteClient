@@ -27,8 +27,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 
-import com.agatteclient.R;
-
 /**
  *
  *
@@ -55,7 +53,8 @@ public class AgattePreferenceActivity extends PreferenceActivity {
                 preference.setSummary(
                         index >= 0
                                 ? listPreference.getEntries()[index]
-                                : null);
+                                : null
+                );
             } else {
                 // For all other preferences, set the summary to the value's
                 // simple string representation.
@@ -83,7 +82,8 @@ public class AgattePreferenceActivity extends PreferenceActivity {
         sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
                 PreferenceManager
                         .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+                        .getString(preference.getKey(), "")
+        );
     }
 
     @Override

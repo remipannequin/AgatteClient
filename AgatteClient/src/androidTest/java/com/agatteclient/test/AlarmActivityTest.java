@@ -11,6 +11,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.agatteclient.BuildConfig;
 import com.agatteclient.R;
 import com.agatteclient.alarm.AlarmActivity;
 import com.agatteclient.alarm.AlarmArrayAdapter;
@@ -31,6 +32,51 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
 
     public AlarmActivityTest() {
         super(AlarmActivity.class);
+    }
+
+    private static CompoundButton getEnableButton(ListView l, int i) {
+        FrameLayout row = (FrameLayout) l.getChildAt(i);
+        return (CompoundButton) ((RelativeLayout) (row.getChildAt(0))).getChildAt(1);
+    }
+
+    private static ToggleButton[] getDayButton(ListView l, int i) {
+        View row = l.getChildAt(i);
+        ToggleButton[] b = new ToggleButton[7];
+        b[0] = (ToggleButton) row.findViewById(R.id.toggleButton_monday);
+        b[1] = (ToggleButton) row.findViewById(R.id.toggleButton_tuesday);
+        b[2] = (ToggleButton) row.findViewById(R.id.toggleButton_wednesday);
+        b[3] = (ToggleButton) row.findViewById(R.id.toggleButton_thursday);
+        b[4] = (ToggleButton) row.findViewById(R.id.toggleButton_friday);
+        b[5] = (ToggleButton) row.findViewById(R.id.toggleButton_saturday);
+        b[6] = (ToggleButton) row.findViewById(R.id.toggleButton_sunday);
+        return b;
+    }
+
+    private static ToggleButton getDayButton(ListView l, int i, int day) {
+        View row = l.getChildAt(i);
+        if (BuildConfig.DEBUG && row == null) throw new RuntimeException();
+        switch (day) {
+            case 0:
+                return (ToggleButton) row.findViewById(R.id.toggleButton_monday);
+            case 1:
+                return (ToggleButton) row.findViewById(R.id.toggleButton_tuesday);
+            case 2:
+                return (ToggleButton) row.findViewById(R.id.toggleButton_wednesday);
+            case 3:
+                return (ToggleButton) row.findViewById(R.id.toggleButton_thursday);
+            case 4:
+                return (ToggleButton) row.findViewById(R.id.toggleButton_friday);
+            case 5:
+                return (ToggleButton) row.findViewById(R.id.toggleButton_saturday);
+            case 6:
+                return (ToggleButton) row.findViewById(R.id.toggleButton_sunday);
+        }
+        return null;
+    }
+
+    private static TextView getText(ListView l, int i) {
+        View row = l.getChildAt(i);
+        return (TextView) row.findViewById(R.id.alarmTimeTextView);
     }
 
     @Override
@@ -102,7 +148,6 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
 
     }
 
-
     @MediumTest
     public void testDayButton() throws Exception {
         ListView listView = (ListView) mActivity.findViewById(R.id.alarmListView);
@@ -160,50 +205,6 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
         assertTrue(a1.isEnabled());
         assertTrue(alarms.get(0).isEnabled());
 
-    }
-
-    private static CompoundButton getEnableButton(ListView l, int i) {
-        FrameLayout row = (FrameLayout) l.getChildAt(i);
-        return (CompoundButton) ((RelativeLayout) (row.getChildAt(0))).getChildAt(1);
-    }
-
-    private static ToggleButton[] getDayButton(ListView l, int i) {
-        View row = l.getChildAt(i);
-        ToggleButton[] b = new ToggleButton[7];
-        b[0] = (ToggleButton) row.findViewById(R.id.toggleButton_monday);
-        b[1] = (ToggleButton) row.findViewById(R.id.toggleButton_tuesday);
-        b[2] = (ToggleButton) row.findViewById(R.id.toggleButton_wednesday);
-        b[3] = (ToggleButton) row.findViewById(R.id.toggleButton_thursday);
-        b[4] = (ToggleButton) row.findViewById(R.id.toggleButton_friday);
-        b[5] = (ToggleButton) row.findViewById(R.id.toggleButton_saturday);
-        b[6] = (ToggleButton) row.findViewById(R.id.toggleButton_sunday);
-        return b;
-    }
-
-    private static ToggleButton getDayButton(ListView l, int i, int day) {
-        View row = l.getChildAt(i);
-        switch (day) {
-            case 0:
-                return (ToggleButton) row.findViewById(R.id.toggleButton_monday);
-            case 1:
-                return (ToggleButton) row.findViewById(R.id.toggleButton_tuesday);
-            case 2:
-                return (ToggleButton) row.findViewById(R.id.toggleButton_wednesday);
-            case 3:
-                return (ToggleButton) row.findViewById(R.id.toggleButton_thursday);
-            case 4:
-                return (ToggleButton) row.findViewById(R.id.toggleButton_friday);
-            case 5:
-                return (ToggleButton) row.findViewById(R.id.toggleButton_saturday);
-            case 6:
-                return (ToggleButton) row.findViewById(R.id.toggleButton_sunday);
-        }
-        return null;
-    }
-
-    private static TextView getText(ListView l, int i) {
-        View row = l.getChildAt(i);
-        return (TextView) row.findViewById(R.id.alarmTimeTextView);
     }
 
 

@@ -6,114 +6,114 @@
     android:layout_height="fill_parent">
 
     <TextView
+        android:id="@+id/alarmTimeTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/time_test"
-        android:id="@+id/alarmTimeTextView"
-        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@+id/toggleButton"
         android:layout_alignParentLeft="true"
-        android:layout_alignLeft="@+id/toggleButton" />
+        android:layout_alignParentTop="true"
+        android:text="@string/time_test"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <ToggleButton
+        android:id="@+id/toggleButton"
         android:layout_width="55dp"
         android:layout_height="wrap_content"
-        android:id="@+id/toggleButton"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/alarmTimeTextView"
+        android:width="10dp"
+        android:checked="true"
+        android:maxWidth="10dp"
         android:textOff="LUN."
         android:textOn="LUN."
-        android:width="10dp"
-        android:maxWidth="10dp"
-        android:textSize="12sp"
-        android:checked="true"
-        android:layout_below="@+id/alarmTimeTextView"
-        android:layout_alignParentLeft="true" />
+        android:textSize="12sp" />
 
     <ToggleButton
+        android:id="@+id/toggleButton2"
         android:layout_width="55dp"
         android:layout_height="wrap_content"
-        android:id="@+id/toggleButton2"
-        android:textOff="MAR."
-        android:textOn="MAR."
+        android:layout_below="@+id/alarmTimeTextView"
+        android:layout_toRightOf="@+id/toggleButton"
+        android:width="10dp"
+        android:checked="true"
         android:gravity="center_vertical|center_horizontal"
         android:maxWidth="10dp"
-        android:width="10dp"
-        android:textSize="12sp"
-        android:checked="true"
-        android:layout_below="@+id/alarmTimeTextView"
-        android:layout_toRightOf="@+id/toggleButton" />
+        android:textOff="MAR."
+        android:textOn="MAR."
+        android:textSize="12sp" />
 
     <ToggleButton
+        android:id="@+id/toggleButton3"
         android:layout_width="55dp"
         android:layout_height="wrap_content"
-        android:id="@+id/toggleButton3"
+        android:layout_below="@+id/alarmTimeTextView"
+        android:layout_toRightOf="@+id/toggleButton2"
+        android:width="10dp"
+        android:checked="true"
+        android:maxWidth="10dp"
         android:textOff="MER."
         android:textOn="MER."
-        android:width="10dp"
-        android:maxWidth="10dp"
-        android:textSize="12sp"
-        android:checked="true"
-        android:layout_below="@+id/alarmTimeTextView"
-        android:layout_toRightOf="@+id/toggleButton2" />
+        android:textSize="12sp" />
 
     <ToggleButton
+        android:id="@+id/toggleButton4"
         android:layout_width="55dp"
         android:layout_height="wrap_content"
-        android:id="@+id/toggleButton4"
+        android:layout_alignTop="@+id/toggleButton3"
+        android:layout_toRightOf="@+id/toggleButton3"
+        android:width="10dp"
+        android:checked="true"
+        android:maxWidth="10dp"
         android:textOff="JEU."
         android:textOn="JEU."
-        android:width="10dp"
-        android:maxWidth="10dp"
-        android:textSize="12sp"
-        android:checked="true"
-        android:layout_alignTop="@+id/toggleButton3"
-        android:layout_toRightOf="@+id/toggleButton3" />
+        android:textSize="12sp" />
 
     <ToggleButton
+        android:id="@+id/toggleButton5"
         android:layout_width="55dp"
         android:layout_height="wrap_content"
-        android:id="@+id/toggleButton5"
-        android:textOff="VEN."
-        android:textOn="VEN."
+        android:layout_below="@+id/alarmTimeTextView"
+        android:layout_toRightOf="@+id/toggleButton4"
         android:width="10dp"
-        android:maxWidth="10dp"
-        android:textSize="12sp"
         android:checked="true"
         android:enabled="true"
-        android:layout_toRightOf="@+id/toggleButton4"
-        android:layout_below="@+id/alarmTimeTextView" />
+        android:maxWidth="10dp"
+        android:textOff="VEN."
+        android:textOn="VEN."
+        android:textSize="12sp" />
 
     <ToggleButton
+        android:id="@+id/toggleButton_saturday"
         android:layout_width="55dp"
         android:layout_height="wrap_content"
-        android:id="@+id/toggleButton_saturday"
-        android:textOff="SAM."
-        android:textOn="SAM."
+        android:layout_below="@+id/alarmTimeTextView"
+        android:layout_toRightOf="@+id/toggleButton5"
         android:width="10dp"
         android:maxWidth="10dp"
-        android:textSize="12sp"
-        android:layout_toRightOf="@+id/toggleButton5"
-        android:layout_below="@+id/alarmTimeTextView" />
+        android:textOff="SAM."
+        android:textOn="SAM."
+        android:textSize="12sp" />
 
     <ToggleButton
+        android:id="@+id/toggleButton_sunday"
         android:layout_width="55dp"
         android:layout_height="wrap_content"
-        android:id="@+id/toggleButton_sunday"
+        android:layout_below="@+id/alarmTimeTextView"
+        android:layout_toRightOf="@+id/toggleButton_saturday"
+        android:width="10dp"
+        android:maxWidth="10dp"
         android:singleLine="false"
         android:textOff="DIM."
         android:textOn="DIM."
-        android:width="10dp"
-        android:maxWidth="10dp"
-        android:textSize="12sp"
-        android:layout_toRightOf="@+id/toggleButton_saturday"
-        android:layout_below="@+id/alarmTimeTextView" />
+        android:textSize="12sp" />
 
     <CheckBox
+        android:id="@+id/alarmEnabledCompoundButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/alarm_enable"
-        android:id="@+id/alarmEnabledCompoundButton"
+        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true" />
+        android:text="@string/alarm_enable" />
 
 </RelativeLayout>
 
