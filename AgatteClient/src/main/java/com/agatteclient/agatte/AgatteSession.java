@@ -40,6 +40,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -55,8 +56,13 @@ public class AgatteSession {
     static final String PUNCH_DIR = "/top/top.form";
     static final String PUNCH_OK_DIR = "/top/topOk.htm";
     static final String QUERY_DIR = "/";
+    static final String WEEK_COUNTER_DIR = "/top/feuille-top.form";
     static final String USER = "j_username";
     static final String PASSWORD = "j_password";
+    static final String COUNTER_CONTRACT_NUMBER = "numCtp";
+    static final String COUNTER_CONTRACT_YEAR = "codeAnu";
+    static final String COUNTER_WEEK = "numSem";
+    static final String COUNTER_TYPE = "nivCpt";
     static final String AGENT = "Mozilla/5.0 (Linux; U; Android 2.2; en-us; Nexus One Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
     private final BasicCookieStore cookieStore;
     private final List<NameValuePair> credentials;
@@ -68,6 +74,8 @@ public class AgatteSession {
     private HttpPost auth_rq;
     private HttpGet query_day_rq;
     private HttpGet query_top_ok_rq;
+    private HttpGet query_week_counter_rq1;
+
     private HttpPost exec_rq;
     private HttpContext httpContext;
 
@@ -170,7 +178,7 @@ public class AgatteSession {
      *
      * @return an AgatteResponse instance
      */
-    public AgatteResponse query_day() {
+    public AgatteResponse query_day() throws AgatteException {
         AndroidHttpClient client = null;
         try {
             client = AndroidHttpClient.newInstance(AGENT);
@@ -179,7 +187,8 @@ public class AgatteSession {
             HttpConnectionParams.setSoTimeout(httpParam, 5000);
             if (!mustLogin()) {
                 if (!login(client)) {
-                    return new AgatteResponse(AgatteResponse.Code.LoginFailed);
+                    //return new AgatteResponse(AgatteResponse.Code.LoginFailed);
+                    throw new AgatteLoginFailedException();
                 }
             }
             client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
@@ -188,7 +197,8 @@ public class AgatteSession {
             return AgatteParser.getInstance().parse_query_response(response);
         } catch (IOException e) {
             e.printStackTrace();
-            return new AgatteResponse(AgatteResponse.Code.IOError, e);
+            //return new AgatteResponse(AgatteResponse.Code.IOError, e);
+            throw new AgatteException(e);
         } finally {
             if (client != null) {
                 logout(client);
@@ -202,12 +212,13 @@ public class AgatteSession {
      *
      * @return an AgatteResponse instance
      */
-    public AgatteResponse doPunch() {
+    public AgatteResponse doPunch() throws AgatteException {
         AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
         try {
             if (!mustLogin()) {
                 if (!login(client)) {
-                    return new AgatteResponse(AgatteResponse.Code.LoginFailed);
+                    //return new AgatteResponse(AgatteResponse.Code.LoginFailed);
+                    throw new AgatteLoginFailedException();
                 }
             }
             //Make sure to follow redirection
@@ -218,21 +229,16 @@ public class AgatteSession {
             //Then send a punching request
             HttpResponse response1 = client.execute(exec_rq, httpContext);
             //should be a redirect to topOk
-            AgatteResponse.Code code = AgatteParser.getInstance().parse_punch_response(response1);
-            switch (code) {
-                case TemporaryOK:
 
-
-                    HttpResponse response2 = client.execute(query_top_ok_rq, httpContext);
-                    return AgatteParser.getInstance().parse_topOk_response(response2);
-                case NetworkNotAuthorized:
-                    return new AgatteResponse(code);
-                default:
-                    return new AgatteResponse(AgatteResponse.Code.UnknownError);
+            if (!AgatteParser.getInstance().parse_punch_response(response1)) {
+                throw new AgatteException();
             }
+            HttpResponse response2 = client.execute(query_top_ok_rq, httpContext);
+            return AgatteParser.getInstance().parse_topOk_response(response2);
+
         } catch (IOException e) {
             e.printStackTrace();
-            return new AgatteResponse(AgatteResponse.Code.IOError, e);
+            throw new AgatteException(e);
         } finally {
             if (client != null) {
                 logout(client);
@@ -242,18 +248,150 @@ public class AgatteSession {
     }
 
     /**
+     *
+     * @return
+     * @throws IOException
+     */
+    public CounterPage queryCounterContext() throws IOException, AgatteLoginFailedException {
+        AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
+
+        if (!mustLogin()) {
+            if (!login(client)) {
+                throw new AgatteLoginFailedException();
+            }
+        }
+
+        client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
+        client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
+        //Simulate a first query
+        client.execute(query_day_rq, httpContext).getEntity().consumeContent();
+
+        //HttpGet query_week_counter_rq = new HttpGet(new URI("https", this.getServer(), WEEK_COUNTER_DIR, null));
+        //TODO: possible optimisation : remember contract num and year and proceed to next step.
+        HttpResponse response1 = client.execute(query_week_counter_rq1, httpContext);
+
+        // Extract contract number (numCont) and year (codeAnu), detect a "counter unavailable" message
+        return AgatteParser.getInstance().parse_counter_response(response1);
+    }
+
+    /**
+     * @param type
+     * @param year
+     * @param week
+     * @param contract
+     * @param contract_year
+     * @return
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    public CounterPage queryCounter(AgatteCounterResponse.Type type, int year, int week, int contract, int contract_year) throws IOException, URISyntaxException, AgatteLoginFailedException {
+        String date = String.format("%04d%02d", year, week);
+        AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
+
+        if (!mustLogin()) {
+            if (!login(client)) {
+                throw new AgatteLoginFailedException();
+            }
+        }
+
+        client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
+        client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
+        // Create post request
+        HttpPost query_week_counter_rq2 = new HttpPost(new URI("https", this.getServer(), WEEK_COUNTER_DIR, null));
+        List<NameValuePair> request = new ArrayList<NameValuePair>(4);
+        request.add(0, new BasicNameValuePair(COUNTER_CONTRACT_NUMBER, String.format("%d", contract)));
+        request.add(0, new BasicNameValuePair(COUNTER_CONTRACT_YEAR, String.format("%d", contract_year)));
+        switch (type) {
+            case Year:
+                request.add(0, new BasicNameValuePair(COUNTER_TYPE, "A"));
+                break;
+            case Week:
+                request.add(0, new BasicNameValuePair(COUNTER_TYPE, "H"));
+                request.add(0, new BasicNameValuePair(COUNTER_WEEK, date));
+                break;
+            default:
+        }
+        query_week_counter_rq2.setEntity(new UrlEncodedFormEntity(request));
+        HttpResponse response2 = client.execute(query_week_counter_rq2, httpContext);
+
+        // Extract counter's value
+        return AgatteParser.getInstance().parse_counter_response(response2);
+    }
+
+
+    /**
+     * Get the counter page from the server, and parse the response.
+     *
+     * 1) Send a GET request to extract contract number and contract year, then
+     * 2) send a POST request to the server with the following content
+     *
+     * numSem:YYYYWW where YYYY is the year and WW is the week number in the year. Only in "A" mode
+     * numCont: 10259  number of the work contract
+     * nivCpt: X X="H" for weekly counter, X="A" for yearly
+     * codeAnu: YYYY where YYYY is the year of the contract
+     *
+     */
+    public AgatteCounterResponse queryCounterWeek(int year, int week) throws AgatteException {
+        try {
+            CounterPage r1 = queryCounterContext();
+            //if counter are unavailable, exit
+            if (r1.anomaly) {
+                return new AgatteCounterResponse(r1);
+            }
+            // Extract counter's value
+            CounterPage r2 = queryCounter(AgatteCounterResponse.Type.Week, year, week, r1.contract, r1.contract_year);
+            return new AgatteCounterResponse(r2);
+        } catch (IOException e) {
+            throw new AgatteException(e);
+        } catch (URISyntaxException e) {//can't happen
+            throw new AgatteException(e);
+        }
+    }
+
+    /**
+     * Get the counter value of the current week
+     *
+     * @return
+     */
+    public AgatteCounterResponse queryCounterCurrent() throws AgatteException {
+        Calendar now = Calendar.getInstance();
+        int year = now.get(Calendar.YEAR);
+        int week = now.get(Calendar.WEEK_OF_YEAR);
+        try {
+            CounterPage r1 = queryCounterContext();
+            //if counter are unavailable, exit
+            if (r1.anomaly) {
+                return new AgatteCounterResponse(r1);
+            }
+            // Extract counter's value
+            CounterPage r2 = queryCounter(AgatteCounterResponse.Type.Week, year, week, r1.contract, r1.contract_year);
+            CounterPage r3 = queryCounter(AgatteCounterResponse.Type.Week, year, week, r1.contract, r1.contract_year);
+            AgatteCounterResponse response = new AgatteCounterResponse(r2);
+            response.setValue(AgatteCounterResponse.Type.Week, r2.value);
+            response.setValue(AgatteCounterResponse.Type.Year, r3.value);
+            return response;
+        } catch (IOException e) {
+            throw new AgatteException(e);
+        } catch (URISyntaxException e) {//can't happen
+            throw new AgatteException(e);
+        }
+
+    }
+
+
+    /**
      * Request the "topOk" page from the server
      * <p/>
      * Useful for testing mainly
      *
      * @return
      */
-    public AgatteResponse queryPunchOk() {
+    public AgatteResponse queryPunchOk() throws AgatteException {
         AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
         try {
             if (!mustLogin()) {
                 if (!login(client)) {
-                    return new AgatteResponse(AgatteResponse.Code.LoginFailed);
+                    throw new AgatteLoginFailedException();
                 }
             }
 
@@ -268,7 +406,7 @@ public class AgatteSession {
 
         } catch (IOException e) {
             e.printStackTrace();
-            return new AgatteResponse(AgatteResponse.Code.IOError, e);
+            throw new AgatteException(e);
         } finally {
             if (client != null) {
                 logout(client);
@@ -301,6 +439,7 @@ public class AgatteSession {
         this.exec_rq = new HttpPost(new URI("https", this.getServer(), PUNCH_DIR, null));
         this.query_day_rq = new HttpGet(new URI("https", this.getServer(), QUERY_DIR, null));
         this.query_top_ok_rq = new HttpGet(new URI("https", this.getServer(), PUNCH_OK_DIR, null));
+        this.query_week_counter_rq1 = new HttpGet(new URI("https", this.getServer(), WEEK_COUNTER_DIR, null));
     }
 
     /**

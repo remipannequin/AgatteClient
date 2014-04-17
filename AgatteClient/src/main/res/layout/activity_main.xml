@@ -88,13 +88,13 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/time_test"
         android:id="@+id/day_textView"
         android:layout_alignParentRight="false"
         android:singleLine="true"
         android:typeface="sans"
-        android:textStyle="bold"
+
         android:layout_alignParentTop="false"
         android:layout_alignParentLeft="false"
         android:layout_alignTop="@+id/day_progress"
@@ -102,5 +102,61 @@
         android:gravity="center_vertical|center_horizontal"
         android:layout_alignBottom="@+id/day_progress"
         android:layout_alignRight="@+id/day_progress" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="-15h30"
+        android:id="@+id/week_textView"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/day_label_textView"
+        android:layout_alignLeft="@+id/day_progress"
+        android:gravity="center_horizontal"
+        android:layout_alignParentLeft="false"
+        android:layout_marginTop="15dp"
+        android:layout_toRightOf="@+id/day_progress" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="@string/week_label"
+        android:id="@+id/week_label_textView"
+        android:layout_below="@+id/week_textView"
+        android:layout_alignLeft="@+id/day_progress"
+        android:textAlignment="center"
+        android:singleLine="true"
+        android:gravity="center_horizontal"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/day_scrollview" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="+5j ½"
+        android:id="@+id/year_textView"
+        android:layout_below="@+id/week_label_textView"
+        android:gravity="center_horizontal"
+
+        android:layout_alignParentRight="true"
+        android:layout_alignLeft="@+id/day_progress"
+        android:layout_marginTop="15dp"
+        android:layout_toRightOf="@+id/day_scrollview" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="@string/year_label"
+        android:id="@+id/year_label_textView"
+        android:layout_below="@+id/year_textView"
+        android:layout_alignEnd="@+id/year_textView"
+        android:gravity="center_horizontal"
+        android:layout_alignLeft="@+id/day_progress"
+        android:layout_alignParentRight="true"
+
+        android:layout_toRightOf="@+id/day_scrollview" />
 
 </RelativeLayout>

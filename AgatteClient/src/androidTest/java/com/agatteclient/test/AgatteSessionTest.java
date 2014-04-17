@@ -2,11 +2,12 @@ package com.agatteclient.test;
 
 import android.test.AndroidTestCase;
 
+import com.agatteclient.agatte.AgatteCounterResponse;
 import com.agatteclient.agatte.AgatteResponse;
 import com.agatteclient.agatte.AgatteSession;
 
 /**
- * Created by remi on 08/11/13.
+ * Created by Rémi Pannequin on 08/11/13.
  */
 public class AgatteSessionTest extends AndroidTestCase {
 
@@ -32,7 +33,11 @@ public class AgatteSessionTest extends AndroidTestCase {
     public void testQueryTopOk() throws Exception {
         AgatteSession instance = new AgatteSession("agatte.univ-lorraine.fr", login, password);
         AgatteResponse rsp = instance.queryPunchOk();
+    }
 
+    public void testQueryCounter1() throws Exception {
+        AgatteSession instance = new AgatteSession("agatte.univ-lorraine.fr", login, password);
+        instance.queryCounter(AgatteCounterResponse.Type.Week, 2014, 10);
     }
 
 }

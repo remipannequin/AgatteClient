@@ -32,6 +32,8 @@
     <string name="about_description">AgatteClient : utilisez Agatte depuis votre smartphone.</string>
     <string name="about_disclaimer">AgatteClient est distribué dans l\'espoir qu\'il sera utile, mais SANS AUCUNE GARANTIE ; pas même la garantie implicite de COMMERCIABILISABILITÉ ni d\'ADÉQUATION à UN OBJECTIF PARTICULIER. Consultez la GNU GPL pour plus de détails.\n<b>Soyez conscients que les informations de décompte de temps peuvent être éronés et des pointage peuvent être perdus...</b></string>
     <string name="action_about">À propos</string>
+    <string name="about_author">© 2013 Rémi Pannequin (remi.pannequin@gmail.com)</string>
+    <string name="about_version">Version :</string>
     <string name="about_free_soft">
         Ce logiciel est libre ; vous pouvez le redistribuer ou le\n
         modifier suivant les termes de la GNU General Public\n
@@ -59,4 +61,6 @@
     <string name="action_alarms">Alarmes</string>
     <string name="title_activity_alarm">Alarmes</string>
     <string name="alarm_add">Ajouter</string>
+    <string name="week_label">Semaine</string>
+    <string name="year_label">Année</string>
 </resources>

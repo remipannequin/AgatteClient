@@ -31,6 +31,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.ToggleButton;
 
+import com.agatteclient.BuildConfig;
 import com.agatteclient.R;
 
 import java.text.SimpleDateFormat;
@@ -95,7 +96,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
         super(context, R.layout.view_alarm, objects);
         this.alarms = objects;
         Context ctx = getContext();
-        assert (ctx instanceof FragmentActivity);
+        if (BuildConfig.DEBUG && (ctx instanceof FragmentActivity)) throw new RuntimeException();
         fragment_manager = ((FragmentActivity) ctx).getSupportFragmentManager();
     }
 
@@ -155,7 +156,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
             });
         }
 
-        for (int i=0; i < 7; i++) {
+        for (int i = 0; i < 7; i++) {
             ToggleButton button = holder.getToggleButton()[i];
             final PunchAlarmTime.Day cur_day = PunchAlarmTime.Day.values()[i];
             button.setChecked(alarm.isFireAt(cur_day));
@@ -171,7 +172,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
             @Override
             public void onClick(View view) {
                 //display dialog to set alarm time
-                assert view instanceof TextView;
+                if (BuildConfig.DEBUG && view instanceof TextView) throw new RuntimeException();
                 TimePickerFragment newFragment = new TimePickerFragment();
                 int p = (Integer) view.getTag();
                 PunchAlarmTime a = alarms.get(p);

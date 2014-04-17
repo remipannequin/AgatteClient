@@ -32,6 +32,7 @@ import android.util.Pair;
 import com.agatteclient.MainActivity;
 import com.agatteclient.R;
 import com.agatteclient.agatte.AgatteResponse;
+import com.agatteclient.agatte.AgatteResultCode;
 import com.agatteclient.agatte.PunchService;
 
 import java.util.HashMap;
@@ -144,38 +145,44 @@ public class AlarmReceiver extends BroadcastReceiver {
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
 
-            AgatteResponse rsp = AgatteResponse.fromBundle(resultData);
+            AgatteResultCode code = AgatteResultCode.values()[resultCode];
             //set notification text and title based on result
             StringBuilder notification_text = new StringBuilder();
             StringBuilder notification_title = new StringBuilder();
 
             int icon;
-            if (rsp.isError()) {
-                notification_title.append(ctx.getString(R.string.programmed_punch_success_title));
-                icon = R.drawable.ic_stat_alerts_and_states_warning;
-            } else {
+            if (code == AgatteResultCode.punch_ok || code == AgatteResultCode.query_ok) {
                 notification_title.append(ctx.getString(R.string.programmed_punch_failed_title));
                 icon = R.drawable.ic_stat_agatte;
+            } else {
+                notification_title.append(ctx.getString(R.string.programmed_punch_success_title));
+                icon = R.drawable.ic_stat_alerts_and_states_warning;
             }
 
-            switch (rsp.getCode()) {
-                case NetworkNotAuthorized:
+            switch (code) {
+                case network_not_authorized:
                     notification_text.append(ctx.getString(R.string.unauthorized_network_toast));
                     break;
-                case UnknownError:
-
-                    break;
-                case LoginFailed:
-                    notification_text.append(ctx.getString(R.string.login_failed_toast));
-                    break;
-                case IOError:
+                case exception:
                     notification_text.append(ctx.getString(R.string.network_error_toast));
-                    if (rsp.hasDetail()) {
-                        notification_text.append(" : ").append(rsp.getDetail());
+                    String message = resultData.getString("message");
+                    if (message != null && message.length() != 0) {
+                        notification_text.append(" : ").append(message);
                     }
                     break;
-                case PunchOK:
-                case QueryOK:
+                case login_failed:
+                    notification_text.append(ctx.getString(R.string.login_failed_toast));
+                    break;
+                case io_exception:
+                    notification_text.append("Error");
+                    message = resultData.getString("message");
+                    if (message != null && message.length() != 0) {
+                        notification_text.append(" : ").append(message);
+                    }
+                    break;
+                case punch_ok:
+                case query_ok:
+                    AgatteResponse rsp = AgatteResponse.fromBundle(resultData);
                     notification_text.append(ctx.getString(R.string.successful_programmed_punch));
                     break;
                 default:

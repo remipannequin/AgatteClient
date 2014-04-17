@@ -1,0 +1,22 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_update"
+        android:title="@string/action_update"
+        android:showAsAction="ifRoom"
+        android:icon="@android:drawable/stat_notify_sync" />
+    <item
+        android:id="@+id/action_alarm"
+        android:title="@string/action_alarms"
+        android:icon="@android:drawable/ic_lock_idle_alarm"
+        android:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+    <item
+        android:id="@+id/action_about"
+        android:title="@string/action_about"
+        android:orderInCategory="90"
+        android:showAsAction="never" />
+</menu>
