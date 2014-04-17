@@ -5,24 +5,23 @@ Milestone 0 : Usable app (1.0 v1 -> 4)
  * about dialog, with disclaimer
 
 
-Milestone 1: More interaction
+Milestone 1: More interaction (version 1.1.1)
  * Gesture on DayCardView : zooming (pinch), changing area displayed (vertical move)
  * preference to hide punch confirm dialog
  * virtual punches ("Tops d'absence") in another color
 
 
- Milestone 2 : Automation
- * manage a list of "authorized" wifi SSID
- * automatically if authorized SSID is connected between hours
- * automatically send punches at times
- * notify user if wifi connection is lost and the day is odd (mean he/she forgot to do a punching)
- * try to refresh at launch ?
- * preference for the list of automation rules
-
-
- Milestone 3: Weeks
+ Milestone 2: Weeks (version 1.2)
  * get weekly / yearly totals from the server
  * display counters
+ * automatically send punches at times
+
+
+ Milestone 3 : Automation
+  * manage a list of "authorized" wifi SSID
+  * automatically if authorized SSID is connected between hours
+  * notify user if wifi connection is lost and the day is odd (mean he/she forgot to do a punching)
+  * preference for the list of automation rules
 
 
  Milestone 4: Diversity

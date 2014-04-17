@@ -65,7 +65,7 @@
     <string name="week_label">Week</string>
     <string name="year_label">Year</string>
     <string name="time_test_week">-15h30</string>
-    <string name="time_test_year">+5j ½</string>
+    <string name="time_test_year">+5d ½</string>
     <string name="year_counter">%1$dd%2$s</string>
     <string name="alarm_enable">Enable</string>
 </resources>
