@@ -35,6 +35,18 @@ import java.util.List;
  */
 public class DayCard implements Serializable {
 
+    //All these in milliseconds
+    public static final int NOON_PAUSE_MIN = 45 * 60 * 1000;
+    public static final int NOON_PAUSE_DEFAULT = 150 * 60 * 1000;
+    public static final int MORNING_START_MS = 9 * 60 * 60 * 1000;
+    public static final float MORNING_START = 9;
+    public static final int MORNING_END_MS = (11 * 60 + 30) * 60 * 1000;
+    public static final float MORNING_END = 11.5f;
+    public static final int AFTERNOON_START_MS = 14 * 60 * 60 * 1000;
+    public static final float AFTERNOON_START = 14;
+    public static final int AFTERNOON_END_MS = 16 * 60 * 60 * 1000;
+    public static final float AFTERNOON_END = 16;
+    public static final int DAY_END = 19 * 60 * 60 * 1000;
     private final List<Long> punches;
     private final List<Long> corrected_punches;
     private final int day;
@@ -185,9 +197,9 @@ public class DayCard implements Serializable {
     public void applyCorrection(Date now) {
         corrected_punches.clear();
         //compute non worked time at mid-day
-        long l1 = start + 11 * 60 * 60 * 1000;
-        long l2 = start + 14 * 60 * 60 * 1000;
-        long l3 = start + 19 * 60 * 60 * 1000;
+        long l1 = start + MORNING_END_MS;
+        long l2 = start + AFTERNOON_START_MS;
+        long l3 = start + DAY_END;
         long ti = start;//Doesn't matter
         long tf = start;
         int last_noon_tf = 0;
@@ -241,16 +253,16 @@ public class DayCard implements Serializable {
             i++;
         }
         //apply correction
-        if (has_noon && noon < (45 * 60 * 1000)) {
+        if (has_noon && noon < NOON_PAUSE_MIN) {
             long t = this.punches.get(last_noon_tf);
             this.corrected_punches.add(t);
-            this.corrected_punches.add(t + (45 * 60 * 1000) - noon);
+            this.corrected_punches.add(t + NOON_PAUSE_MIN - noon);
 
         }
         if (!has_noon) {
             //add 150min if there is no midday pause
-            this.corrected_punches.add(l1 + (15 * 60 * 1000));
-            this.corrected_punches.add(l2 - (15 * 60 * 1000));
+            this.corrected_punches.add(l1 + NOON_PAUSE_DEFAULT);
+            this.corrected_punches.add(l2 - NOON_PAUSE_DEFAULT);
         }
     }
 

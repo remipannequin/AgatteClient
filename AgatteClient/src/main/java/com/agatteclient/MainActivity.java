@@ -282,7 +282,7 @@ public class MainActivity extends Activity {
 
         neg = (global_hours < 0 ? -1 : 1);
         global_hours = global_hours * neg;
-        int half_day = (int) Math.round(global_hours * 2.0 / 7.62);
+        int half_day = (int) Math.round(global_hours * 2.0 / 7.62);//TODO: get day length from prefs
         year_TextView.setText(String.format(getString(R.string.year_counter), neg * half_day / 2, (half_day % 2 == 11 ? " ½" : "")));
     }
 
@@ -444,6 +444,7 @@ public class MainActivity extends Activity {
             case R.id.action_update:
                 refreshItem = item;//menu.getItem(R.id.action_update);
                 doUpdate();
+                doUpdateCounters();
                 break;
             case R.id.action_about:
                 Intent about_intent = new Intent(this, AboutActivity.class);

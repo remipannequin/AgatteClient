@@ -326,8 +326,8 @@ public class DayCardView extends View {
 
 
         //Draw mandatory periods
-        canvas.drawRect(bounds.left + text_width + 10f, getYFromHour(9f), bounds.right, getYFromHour(11.5f), mandatory_paint);
-        canvas.drawRect(bounds.left + text_width + 10f, getYFromHour(14f), bounds.right, getYFromHour(16f), mandatory_paint);
+        canvas.drawRect(bounds.left + text_width + 10f, getYFromHour(DayCard.MORNING_START), bounds.right, getYFromHour(DayCard.MORNING_END), mandatory_paint);
+        canvas.drawRect(bounds.left + text_width + 10f, getYFromHour(DayCard.AFTERNOON_START), bounds.right, getYFromHour(DayCard.AFTERNOON_END), mandatory_paint);
 
         //Draw hour lines
         for (int i = 0; i <= 24; i++) {

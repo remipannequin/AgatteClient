@@ -65,7 +65,6 @@ public class AlarmReceiver extends BroadcastReceiver {
         i.setAction(PunchService.DO_PUNCH);
         i.putExtra(PunchService.RESULT_RECEIVER, new PunchResultReceiver(context));
         context.startService(i);
-
         wl.release();
     }
 

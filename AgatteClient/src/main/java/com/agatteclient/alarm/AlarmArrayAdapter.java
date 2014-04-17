@@ -58,7 +58,8 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
         super(context, R.layout.view_alarm, objects);
         this.alarms = objects;
         Context ctx = getContext();
-        if (BuildConfig.DEBUG && (ctx instanceof FragmentActivity)) throw new RuntimeException();
+        if (BuildConfig.DEBUG && !(ctx instanceof FragmentActivity))
+            throw new RuntimeException("ctx is not a FragmentActivity");
         fragment_manager = ((FragmentActivity) ctx).getSupportFragmentManager();
     }
 
@@ -134,7 +135,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
             @Override
             public void onClick(View view) {
                 //display dialog to set alarm time
-                if (BuildConfig.DEBUG && view instanceof TextView) throw new RuntimeException();
+                if (BuildConfig.DEBUG && !(view instanceof TextView)) throw new RuntimeException();
                 TimePickerFragment newFragment = new TimePickerFragment();
                 int p = (Integer) view.getTag();
                 PunchAlarmTime a = alarms.get(p);
@@ -183,41 +184,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
         }
     }
 
-    public static class TimePickerFragment extends DialogFragment
-            implements TimePickerDialog.OnTimeSetListener {
 
-        private AlarmBinder binder;
-        private int position;
-        private TextView tv;
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            // Use the current time as the default values for the picker
-            final Calendar c = Calendar.getInstance();
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            int minute = c.get(Calendar.MINUTE);
-
-            // Create a new instance of TimePickerDialog and return it
-            return new TimePickerDialog(getActivity(), this, hour, minute,
-                    DateFormat.is24HourFormat(getActivity()));
-        }
-
-        public void setAlarm(AlarmBinder binder, int position) {
-            this.binder = binder;
-            this.position = position;
-        }
-
-        public void setView(TextView tv) {
-            this.tv = tv;
-        }
-
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            // Do something with the time chosen by the user
-            binder.setTime(position, hourOfDay, minute);
-            SimpleDateFormat df = new SimpleDateFormat("HH:mm");
-            tv.setText(df.format(binder.get(position).getTime()));
-        }
-    }
 
     /**
      * Created by Rémi Pannequin on 16/11/13.

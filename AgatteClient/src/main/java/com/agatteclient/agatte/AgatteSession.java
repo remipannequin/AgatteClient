@@ -49,6 +49,9 @@ import java.util.List;
  */
 public class AgatteSession {
 
+    public static final int TIMEOUT_CONEECTION = 3000;
+    public static final int TIMEOUT_SO = 5000;
+    public static final int SESSION_DELAY = 120000;
     private static final String LOGIN_DIR = "/app/login.form";
     private static final String LOGOUT_DIR = "/app/logout.form";
     private static final String AUTH_DIR = "/j_acegi_security_check";
@@ -179,8 +182,8 @@ public class AgatteSession {
         try {
             client = AndroidHttpClient.newInstance(AGENT);
             HttpParams httpParam = client.getParams();
-            HttpConnectionParams.setConnectionTimeout(httpParam, 3000);
-            HttpConnectionParams.setSoTimeout(httpParam, 5000);
+            HttpConnectionParams.setConnectionTimeout(httpParam, TIMEOUT_CONEECTION);
+            HttpConnectionParams.setSoTimeout(httpParam, TIMEOUT_SO);
             if (loginNotRequired()) {
                 if (!login(client)) {
                     //return new AgatteResponse(AgatteResponse.Code.LoginFailed);
@@ -244,12 +247,11 @@ public class AgatteSession {
     }
 
     /**
-     *
      * @return
      * @throws IOException
      */
-    CounterPage queryCounterContext() throws IOException, AgatteException {
-        AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
+    CounterPage queryCounterContext(AndroidHttpClient client) throws IOException, AgatteException {
+
 
         if (loginNotRequired()) {
             if (!login(client)) {
@@ -278,9 +280,8 @@ public class AgatteSession {
      * @throws IOException
      * @throws URISyntaxException
      */
-    CounterPage queryCounter(AgatteCounterResponse.Type type, int year, int week, int contract, int contract_year) throws IOException, URISyntaxException, AgatteException {
+    CounterPage queryCounter(AndroidHttpClient client, AgatteCounterResponse.Type type, int year, int week, int contract, int contract_year) throws IOException, URISyntaxException, AgatteException {
         String date = String.format("%04d%02d", year, week);
-        AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
 
         if (loginNotRequired()) {
             if (!login(client)) {
@@ -315,30 +316,33 @@ public class AgatteSession {
 
     /**
      * Get the counter page from the server, and parse the response.
-     *
+     * <p/>
      * 1) Send a GET request to extract contract number and contract year, then
      * 2) send a POST request to the server with the following content
-     *
+     * <p/>
      * numSem:YYYYWW where YYYY is the year and WW is the week number in the year. Only in "A" mode
      * numCont: 10259  number of the work contract
      * nivCpt: X X="H" for weekly counter, X="A" for yearly
      * codeAnu: YYYY where YYYY is the year of the contract
-     *
      */
     public AgatteCounterResponse queryCounterWeek(int year, int week) throws AgatteException {
+        AndroidHttpClient client = null;
         try {
-            CounterPage r1 = queryCounterContext();
+            client = AndroidHttpClient.newInstance(AGENT);
+            CounterPage r1 = queryCounterContext(client);
             //if counter are unavailable, exit
             if (r1.anomaly) {
                 return new AgatteCounterResponse(r1);
             }
             // Extract counter's value
-            CounterPage r2 = queryCounter(AgatteCounterResponse.Type.Week, year, week, r1.contract, r1.contract_year);
+            CounterPage r2 = queryCounter(client, AgatteCounterResponse.Type.Week, year, week, r1.contract, r1.contract_year);
             return new AgatteCounterResponse(r2);
         } catch (IOException e) {
             throw new AgatteException(e);
         } catch (URISyntaxException e) {//can't happen
             throw new AgatteException(e);
+        } finally {
+            if (client != null) client.close();
         }
     }
 
@@ -348,8 +352,10 @@ public class AgatteSession {
      * @return
      */
     public AgatteCounterResponse queryCounterCurrent() throws AgatteException {
+        AndroidHttpClient client = null;
         try {
-            CounterPage r1 = queryCounterContext();
+            client = AndroidHttpClient.newInstance(AGENT);
+            CounterPage r1 = queryCounterContext(client);
             AgatteCounterResponse response = new AgatteCounterResponse(r1);
             //if counter are unavailable, exit
             if (r1.anomaly) {
@@ -358,7 +364,7 @@ public class AgatteSession {
                 response.setValue(AgatteCounterResponse.Type.Week, r1.value);
             }
             // Extract counter's value
-            CounterPage r2 = queryCounter(AgatteCounterResponse.Type.Year, 0, 0, r1.contract, r1.contract_year);
+            CounterPage r2 = queryCounter(client, AgatteCounterResponse.Type.Year, 0, 0, r1.contract, r1.contract_year);
             response.setValue(AgatteCounterResponse.Type.Year, r2.value);
             return response;
         } catch (IOException e) {
@@ -461,6 +467,6 @@ public class AgatteSession {
      * @return false if a login must be made
      */
     boolean loginNotRequired() {
-        return (((this.session_id == null) || (this.session_expire >= System.currentTimeMillis() + 120000)));
+        return (((this.session_id == null) || (this.session_expire >= System.currentTimeMillis() + SESSION_DELAY)));
     }
 }

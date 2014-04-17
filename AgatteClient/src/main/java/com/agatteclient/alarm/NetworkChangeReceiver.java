@@ -74,18 +74,4 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
             //TODO
         }
     }
-
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        if (intent.getAction() != null && intent.getAction().equals("android.net.wifi.WIFI_STATE_CHANGED")) {
-            //TODO
-        }
-
-        String ssid = getCurrentSsid(context);
-        if (authorized_ssid.contains(ssid)) {
-            //TODO
-        }
-    }
-
-
 }

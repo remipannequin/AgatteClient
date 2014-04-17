@@ -5,7 +5,6 @@ import android.test.TouchUtils;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -35,8 +34,8 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
     }
 
     private static CompoundButton getEnableButton(ListView l, int i) {
-        FrameLayout row = (FrameLayout) l.getChildAt(i);
-        return (CompoundButton) ((RelativeLayout) (row.getChildAt(0))).getChildAt(1);
+        RelativeLayout row = (RelativeLayout) l.getChildAt(i);
+        return (CompoundButton) row.getChildAt(1);
     }
 
     private static ToggleButton[] getDayButton(ListView l, int i) {
