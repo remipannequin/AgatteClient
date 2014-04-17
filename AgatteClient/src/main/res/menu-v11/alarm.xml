@@ -3,7 +3,7 @@
     <item
         android:id="@+id/action_alarm_add"
         android:title="@string/alarm_add"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:orderInCategory="100"
         android:icon="@drawable/ic_action_device_access_alarms" />
     <item

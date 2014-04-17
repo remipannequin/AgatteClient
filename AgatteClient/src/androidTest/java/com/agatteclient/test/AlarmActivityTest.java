@@ -162,12 +162,12 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
 
     }
 
-    static CompoundButton getEnableButton(ListView l, int i) {
+    private static CompoundButton getEnableButton(ListView l, int i) {
         FrameLayout row = (FrameLayout) l.getChildAt(i);
         return (CompoundButton) ((RelativeLayout) (row.getChildAt(0))).getChildAt(1);
     }
 
-    static ToggleButton[] getDayButton(ListView l, int i) {
+    private static ToggleButton[] getDayButton(ListView l, int i) {
         View row = l.getChildAt(i);
         ToggleButton[] b = new ToggleButton[7];
         b[0] = (ToggleButton) row.findViewById(R.id.toggleButton_monday);
@@ -180,7 +180,7 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
         return b;
     }
 
-    static ToggleButton getDayButton(ListView l, int i, int day) {
+    private static ToggleButton getDayButton(ListView l, int i, int day) {
         View row = l.getChildAt(i);
         switch (day) {
             case 0:
@@ -201,7 +201,7 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
         return null;
     }
 
-    static TextView getText(ListView l, int i) {
+    private static TextView getText(ListView l, int i) {
         View row = l.getChildAt(i);
         return (TextView) row.findViewById(R.id.alarmTimeTextView);
     }

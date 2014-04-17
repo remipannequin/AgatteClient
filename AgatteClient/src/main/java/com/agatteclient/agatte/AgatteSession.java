@@ -40,7 +40,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -50,20 +49,20 @@ import java.util.List;
  */
 public class AgatteSession {
 
-    static final String LOGIN_DIR = "/app/login.form";
-    static final String LOGOUT_DIR = "/app/logout.form";
-    static final String AUTH_DIR = "/j_acegi_security_check";
-    static final String PUNCH_DIR = "/top/top.form";
-    static final String PUNCH_OK_DIR = "/top/topOk.htm";
-    static final String QUERY_DIR = "/";
-    static final String WEEK_COUNTER_DIR = "/top/feuille-top.form";
-    static final String USER = "j_username";
-    static final String PASSWORD = "j_password";
-    static final String COUNTER_CONTRACT_NUMBER = "numCtp";
-    static final String COUNTER_CONTRACT_YEAR = "codeAnu";
-    static final String COUNTER_WEEK = "numSem";
-    static final String COUNTER_TYPE = "nivCpt";
-    static final String AGENT = "Mozilla/5.0 (Linux; U; Android 2.2; en-us; Nexus One Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
+    private static final String LOGIN_DIR = "/app/login.form";
+    private static final String LOGOUT_DIR = "/app/logout.form";
+    private static final String AUTH_DIR = "/j_acegi_security_check";
+    private static final String PUNCH_DIR = "/top/top.form";
+    private static final String PUNCH_OK_DIR = "/top/topOk.htm";
+    private static final String QUERY_DIR = "/";
+    private static final String WEEK_COUNTER_DIR = "/top/feuille-top.form";
+    private static final String USER = "j_username";
+    private static final String PASSWORD = "j_password";
+    private static final String COUNTER_CONTRACT_NUMBER = "numCtp";
+    private static final String COUNTER_CONTRACT_YEAR = "codeAnu";
+    private static final String COUNTER_WEEK = "numSem";
+    private static final String COUNTER_TYPE = "nivCpt";
+    private static final String AGENT = "Mozilla/5.0 (Linux; U; Android 2.2; en-us; Nexus One Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
     private final BasicCookieStore cookieStore;
     private final List<NameValuePair> credentials;
     private String session_id;
@@ -77,7 +76,7 @@ public class AgatteSession {
     private HttpGet query_week_counter_rq1;
 
     private HttpPost exec_rq;
-    private HttpContext httpContext;
+    private final HttpContext httpContext;
 
 
     /**
@@ -86,14 +85,12 @@ public class AgatteSession {
      * @throws URISyntaxException           If server YRL is not correct
      * @throws UnsupportedEncodingException if username and password include chars unsupported in this encoding
      */
-    private AgatteSession() throws URISyntaxException, UnsupportedEncodingException {
+    private AgatteSession() {
         //super ("AgatteConnectionService");
         credentials = new ArrayList<NameValuePair>(2);
         httpContext = new BasicHttpContext();
         cookieStore = new BasicCookieStore();
         httpContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
-
-
     }
 
     /**
@@ -185,7 +182,7 @@ public class AgatteSession {
             HttpParams httpParam = client.getParams();
             HttpConnectionParams.setConnectionTimeout(httpParam, 3000);
             HttpConnectionParams.setSoTimeout(httpParam, 5000);
-            if (!mustLogin()) {
+            if (loginNotRequired()) {
                 if (!login(client)) {
                     //return new AgatteResponse(AgatteResponse.Code.LoginFailed);
                     throw new AgatteLoginFailedException();
@@ -215,7 +212,7 @@ public class AgatteSession {
     public AgatteResponse doPunch() throws AgatteException {
         AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
         try {
-            if (!mustLogin()) {
+            if (loginNotRequired()) {
                 if (!login(client)) {
                     //return new AgatteResponse(AgatteResponse.Code.LoginFailed);
                     throw new AgatteLoginFailedException();
@@ -252,10 +249,10 @@ public class AgatteSession {
      * @return
      * @throws IOException
      */
-    public CounterPage queryCounterContext() throws IOException, AgatteLoginFailedException {
+    CounterPage queryCounterContext() throws IOException, AgatteException {
         AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
 
-        if (!mustLogin()) {
+        if (loginNotRequired()) {
             if (!login(client)) {
                 throw new AgatteLoginFailedException();
             }
@@ -265,9 +262,7 @@ public class AgatteSession {
         client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
         //Simulate a first query
         client.execute(query_day_rq, httpContext).getEntity().consumeContent();
-
-        //HttpGet query_week_counter_rq = new HttpGet(new URI("https", this.getServer(), WEEK_COUNTER_DIR, null));
-        //TODO: possible optimisation : remember contract num and year and proceed to next step.
+        // First query : get context and week
         HttpResponse response1 = client.execute(query_week_counter_rq1, httpContext);
 
         // Extract contract number (numCont) and year (codeAnu), detect a "counter unavailable" message
@@ -284,11 +279,11 @@ public class AgatteSession {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public CounterPage queryCounter(AgatteCounterResponse.Type type, int year, int week, int contract, int contract_year) throws IOException, URISyntaxException, AgatteLoginFailedException {
+    CounterPage queryCounter(AgatteCounterResponse.Type type, int year, int week, int contract, int contract_year) throws IOException, URISyntaxException, AgatteException {
         String date = String.format("%04d%02d", year, week);
         AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
 
-        if (!mustLogin()) {
+        if (loginNotRequired()) {
             if (!login(client)) {
                 throw new AgatteLoginFailedException();
             }
@@ -354,21 +349,18 @@ public class AgatteSession {
      * @return
      */
     public AgatteCounterResponse queryCounterCurrent() throws AgatteException {
-        Calendar now = Calendar.getInstance();
-        int year = now.get(Calendar.YEAR);
-        int week = now.get(Calendar.WEEK_OF_YEAR);
         try {
             CounterPage r1 = queryCounterContext();
+            AgatteCounterResponse response = new AgatteCounterResponse(r1);
             //if counter are unavailable, exit
             if (r1.anomaly) {
-                return new AgatteCounterResponse(r1);
+                return response;
+            } else {
+                response.setValue(AgatteCounterResponse.Type.Week, r1.value);
             }
             // Extract counter's value
-            CounterPage r2 = queryCounter(AgatteCounterResponse.Type.Week, year, week, r1.contract, r1.contract_year);
-            CounterPage r3 = queryCounter(AgatteCounterResponse.Type.Week, year, week, r1.contract, r1.contract_year);
-            AgatteCounterResponse response = new AgatteCounterResponse(r2);
-            response.setValue(AgatteCounterResponse.Type.Week, r2.value);
-            response.setValue(AgatteCounterResponse.Type.Year, r3.value);
+            CounterPage r2 = queryCounter(AgatteCounterResponse.Type.Year, 0, 0, r1.contract, r1.contract_year);
+            response.setValue(AgatteCounterResponse.Type.Year, r2.value);
             return response;
         } catch (IOException e) {
             throw new AgatteException(e);
@@ -389,7 +381,7 @@ public class AgatteSession {
     public AgatteResponse queryPunchOk() throws AgatteException {
         AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
         try {
-            if (!mustLogin()) {
+            if (loginNotRequired()) {
                 if (!login(client)) {
                     throw new AgatteLoginFailedException();
                 }
@@ -469,7 +461,7 @@ public class AgatteSession {
      *
      * @return false if a login must be made
      */
-    boolean mustLogin() {
-        return ((this.session_id != null) && (this.session_expire < System.currentTimeMillis() + 120000));
+    boolean loginNotRequired() {
+        return (((this.session_id == null) || (this.session_expire >= System.currentTimeMillis() + 120000)));
     }
 }

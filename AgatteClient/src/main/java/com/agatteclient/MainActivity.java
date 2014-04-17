@@ -15,6 +15,7 @@
 
 package com.agatteclient;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -24,6 +25,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -58,6 +60,8 @@ import com.agatteclient.card.DayCardView;
 import com.agatteclient.card.TimeProfile;
 import com.agatteclient.card.TimeProgressDrawable;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
@@ -73,13 +77,16 @@ public class MainActivity extends Activity {
     public static final String SERVER_PREF = "server";
     public static final String LOGIN_PREF = "login";
     public static final String PASSWD_PREF = "password";
+    private static final String COUNTER_WEEK_PREF = "counter-week";
+    private static final String COUNTER_YEAR_PREF = "counter-year";
+    private static final String COUNTER_LAST_UPDATE_PREF = "counter-update";
     public static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";
     public static final String LOGIN_DEFAULT = "login";
     public static final String PASSWD_DEFAULT = "";
-    static final String DAY_CARD = "day-card";
+    private static final String DAY_CARD = "day-card";
     private static final String CONFIRM_PUNCH_PREF = "confirm_punch";
     private static final String PROFILE_PREF = "week_profile";
-    protected MenuItem refreshItem = null;
+    private MenuItem refreshItem = null;
     private ScaleGestureDetector mScaleDetector;
     private AgatteSession session;
     private DayCard cur_card;
@@ -100,7 +107,7 @@ public class MainActivity extends Activity {
      * @param outState outState
      */
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NotNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable(DAY_CARD, cur_card);
     }
@@ -181,8 +188,15 @@ public class MainActivity extends Activity {
         }
 
         updateCard();
-        //TODO: get last known value in the prefs.
-        updateCounter(false, 0, 0);
+        // Get last known value in the prefs, and request update if necessary
+        int last_update = preferences.getInt(COUNTER_LAST_UPDATE_PREF, -1);
+        if (last_update != cur_card.getDayOfYear() + 1000 * cur_card.getYear()) {
+            doUpdateCounters();
+        } else {
+            updateCounter(true,
+                    preferences.getFloat(COUNTER_WEEK_PREF, 0),
+                    preferences.getFloat(COUNTER_YEAR_PREF, 0));
+        }
     }
 
     @Override
@@ -236,31 +250,54 @@ public class MainActivity extends Activity {
     /**
      * Update view with new counter value
      */
-    private void updateCounter(boolean available, double week_hours, double global_hours) {
+    private void updateCounter(boolean available, float week_hours, float global_hours) {
 
-        //TODO: if unavailable display in italic / or red ?
+        // if available, record values in persistent storage
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        if (available) {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putFloat(COUNTER_YEAR_PREF, global_hours);
+            editor.putFloat(COUNTER_WEEK_PREF, week_hours);
+            editor.putInt(COUNTER_LAST_UPDATE_PREF, cur_card.getDayOfYear() + cur_card.getYear() * 1000);
+            editor.commit();
+        } else {
+            week_hours = preferences.getFloat(COUNTER_WEEK_PREF, 0);
+            global_hours = preferences.getFloat(COUNTER_YEAR_PREF, 0);
+        }
+
+        // if unavailable display in italic (or in red ?)
+        if (available) {
+            week_TextView.setTypeface(null, Typeface.BOLD);
+            year_TextView.setTypeface(null, Typeface.BOLD);
+        } else {
+            week_TextView.setTypeface(null, Typeface.BOLD_ITALIC);
+            year_TextView.setTypeface(null, Typeface.BOLD_ITALIC);
+        }
+
         int neg = (week_hours < 0 ? -1 : 1);
         week_hours = week_hours * neg;
         int h = (int) Math.floor(week_hours);
-        int m = (int) Math.round((week_hours - h) * 60);
+        int m = Math.round((week_hours - h) * 60);
         week_TextView.setText(String.format("%dh%02d", neg * h, m));
 
         neg = (global_hours < 0 ? -1 : 1);
         global_hours = global_hours * neg;
         int half_day = (int) Math.round(global_hours * 2.0 / 7.62);
-        year_TextView.setText(String.format("%d d%s", neg * half_day / 2, (half_day % 2 == 11 ? " ½" : "")));
+        year_TextView.setText(String.format(getString(R.string.year_counter), neg * half_day / 2, (half_day % 2 == 11 ? " ½" : "")));
     }
 
+
     @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
+    public boolean dispatchTouchEvent(@NotNull MotionEvent ev) {
         super.dispatchTouchEvent(ev);
         return mScaleDetector.onTouchEvent(ev);
     }
 
+
     /**
      * Stop refresh image animation
      */
-    protected void stopRefresh() {
+    void stopRefresh() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
             if (refreshItem != null && refreshItem.getActionView() != null) {
                 refreshItem.getActionView().clearAnimation();
@@ -269,10 +306,11 @@ public class MainActivity extends Activity {
         }
     }
 
+
     /**
      * Animate the refresh icon
      */
-    protected void runRefresh() {
+    void runRefresh() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
             if (getApplication() != null) {
                 LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -299,12 +337,69 @@ public class MainActivity extends Activity {
     /**
      * Try to update counters
      */
-    public void doUpdateCounters() {
+    void doUpdateCounters() {
         final Intent i = new Intent(this, PunchService.class);
         i.setAction(PunchService.QUERY_COUNTER);
         i.putExtra(PunchService.RESULT_RECEIVER, new AgatteResultReceiver());
         startService(i);
     }
+
+    /**
+     * Show confirmation dialog
+     * @param i
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private void showPunchConfirm(final Intent i) {
+        DialogFragment confirm = new DialogFragment() {
+            @Override
+            public Dialog onCreateDialog(Bundle savedInstanceState) {
+                // Use the Builder class for convenient dialog construction
+                Activity activity = getActivity();
+                if (activity != null) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                    builder.setMessage(R.string.dialog_confirm_punch)
+                            .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    startService(i);
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    // User cancelled the dialog
+                                }
+                            });
+                    // Create the AlertDialog object and return it
+                    return builder.create();
+                } else {
+                    return null;
+                }
+            }
+        };
+        confirm.show(getFragmentManager(), "confirm_punch");
+    }
+
+    /**
+     * Show confirmation dialog on older API
+     *
+     * @param i
+     */
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1)
+    private void showPunchConfirmOld(final Intent i) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.dialog_confirm_punch)
+                .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        startService(i);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User cancelled the dialog
+                    }
+                });
+        builder.show();
+    }
+
 
     /**
      * Send a punch to the server
@@ -317,57 +412,19 @@ public class MainActivity extends Activity {
         final Intent i = new Intent(this, PunchService.class);
         i.setAction(PunchService.DO_PUNCH);
         i.putExtra(PunchService.RESULT_RECEIVER, new AgatteResultReceiver());
-
         if (!mustConfirm) {
             startService(i);
         } else {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage(R.string.dialog_confirm_punch)
-                        .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                startService(i);
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                // User cancelled the dialog
-                            }
-                        });
-                builder.show();
+                showPunchConfirmOld(i);
             } else {
-                DialogFragment confirm = new DialogFragment() {
-                    @Override
-                    public Dialog onCreateDialog(Bundle savedInstanceState) {
-                        // Use the Builder class for convenient dialog construction
-                        Activity activity = getActivity();
-                        if (activity != null) {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                            builder.setMessage(R.string.dialog_confirm_punch)
-                                    .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            startService(i);
-                                        }
-                                    })
-                                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            // User cancelled the dialog
-                                        }
-                                    });
-                            // Create the AlertDialog object and return it
-                            return builder.create();
-                        } else {
-                            return null;
-                        }
-                    }
-                };
-                confirm.show(getFragmentManager(), "confirm_punch");
+                showPunchConfirm(i);
             }
         }
     }
 
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    public boolean onMenuItemSelected(int featureId, @NotNull MenuItem item) {
         Intent intent;
         switch (item.getItemId()) {
             case R.id.action_settings:
@@ -386,8 +443,7 @@ public class MainActivity extends Activity {
                 break;
             case R.id.action_update:
                 refreshItem = item;//menu.getItem(R.id.action_update);
-                //doUpdate();
-                doUpdateCounters();
+                doUpdate();
                 break;
             case R.id.action_about:
                 Intent about_intent = new Intent(this, AboutActivity.class);
@@ -426,7 +482,7 @@ public class MainActivity extends Activity {
             boolean isPunch = false;
             switch (AgatteResultCode.values()[resultCode]) {
                 case io_exception:
-                    toast.append(getString(R.string.punch_error_toast)).append(" ");
+                    toast.append(getString(R.string.error_toast)).append(" ");
                     toast.append(getString(R.string.network_error_toast));
                     String message = resultData.getString("message");
                     if (message.length() != 0) {
@@ -434,11 +490,11 @@ public class MainActivity extends Activity {
                     }
                     break;
                 case network_not_authorized:
-                    toast.append(getString(R.string.punch_error_toast)).append(" ");
+                    toast.append(getString(R.string.error_toast)).append(" ");
                     toast.append(getString(R.string.unauthorized_network_toast));
                     break;
                 case login_failed:
-                    toast.append(getString(R.string.punch_error_toast)).append(" ");
+                    toast.append(getString(R.string.error_toast)).append(" ");
                     toast.append(getString(R.string.login_failed_toast));
                     break;
                 case punch_ok:
@@ -461,18 +517,19 @@ public class MainActivity extends Activity {
                         toast.append(getString(R.string.punch_ok_toast));
                     }
                     break;
-                case query_counter_ok:
                 case query_counter_unavailable:
+                    toast.append("Counters unavailable");
+                case query_counter_ok:
                     AgatteCounterResponse counter = AgatteCounterResponse.fromBundle(resultData);
                     // update UI with result
-                    updateCounter(counter.isAnomaly(), counter.getValueWeek(), counter.getValueYear());
+                    updateCounter(counter.isAvailable(), counter.getValueWeek(), counter.getValueYear());
                     break;
                 case exception:
-                    toast.append(getString(R.string.punch_error_toast)).append(" ");
+                    toast.append(getString(R.string.error_toast)).append(" ");
                     toast.append(getString(R.string.error_toast));
             }
             Context context = getApplicationContext();
-            if (context != null) {
+            if (context != null && toast.length() != 0) {
 
                 Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
 
@@ -500,10 +557,10 @@ public class MainActivity extends Activity {
     /**
      *
      */
-    protected class AgattePreferenceListener implements SharedPreferences.OnSharedPreferenceChangeListener {
+    class AgattePreferenceListener implements SharedPreferences.OnSharedPreferenceChangeListener {
         private final AgatteSession session;
 
-        protected AgattePreferenceListener(AgatteSession session) {
+        AgattePreferenceListener(AgatteSession session) {
             this.session = session;
         }
 

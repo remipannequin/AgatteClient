@@ -1,9 +1,9 @@
 package com.agatteclient.agatte;
 
 /**
- * Created by remi on 14/04/14.
+ * Created by Rémi Pannequin on 14/04/14.
  */
-public class AgatteLoginFailedException extends AgatteException {
+class AgatteLoginFailedException extends AgatteException {
 
 
 }

@@ -18,14 +18,13 @@
     <string name="network_error_toast">Erreur réseau</string>
     <string name="unauthorized_network_toast">Réseau non autorisé</string>
     <string name="login_failed_toast">Connection refusée: nom d\'utilisateur ou mot de passe invalide</string>
-    <string name="error_toast">Erreur</string>
+    <string name="error_toast">La connection au serveur à échouée.</string>
     <string name="updating">Mise à jour…</string>
     <string name="punch_ok_toast">Pointage effectué</string>
     <string name="daily_time_count">Journée</string>
     <string name="time_count">Décomptes</string>
     <string name="time_test">5h30</string>
     <string name="week_goal_prefs_title">Temps de travail hebdomadaire</string>
-    <string name="week_goal_default_value">38h10</string>
     <string name="connection_preferences">Connexion</string>
     <string name="profile_preference">Profil</string>
     <string name="title_activity_about">À propos</string>
@@ -44,8 +43,6 @@
         Vous pouvez suivre le développement, soumettre\n
         des anomalies ou des souhaits \n
         sur <link>https://github.com/remipannequin/AgatteClient</link></string>
-    <string name="punch_error_toast">Erreur pendant le pointage:</string>
-    <string name="update_error_toast">Erreur pendant la mise à jour:</string>
     <string name="interface_preference">Interface</string>
     <string name="confirm_punch_title">Confirmer le pointage</string>
     <string name="short_sunday">DIM.</string>
@@ -63,4 +60,6 @@
     <string name="alarm_add">Ajouter</string>
     <string name="week_label">Semaine</string>
     <string name="year_label">Année</string>
+    <string name="year_counter">%1$dj%2$s</string>
+    <string name="alarm_enable">Enable</string>
 </resources>

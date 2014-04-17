@@ -110,7 +110,7 @@
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Enable"
+        android:text="@string/alarm_enable"
         android:id="@+id/alarmEnabledCompoundButton"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true" />

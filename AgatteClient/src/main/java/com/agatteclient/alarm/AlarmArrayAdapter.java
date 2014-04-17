@@ -42,7 +42,7 @@ import java.util.Calendar;
  */
 public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
 
-    private static int[] days = new int[]{R.id.toggleButton_monday,
+    private static final int[] days = new int[]{R.id.toggleButton_monday,
             R.id.toggleButton_tuesday,
             R.id.toggleButton_wednesday,
             R.id.toggleButton_thursday,
@@ -190,7 +190,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
      * Created by Rémi Pannequin on 16/11/13.
      */
     private class ViewHolder {
-        View row;
+        final View row;
 
         private TextView text = null;
         private ToggleButton[] day_button = null;

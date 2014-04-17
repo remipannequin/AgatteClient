@@ -60,7 +60,7 @@ public class AlarmActivity extends FragmentActivity {
                 return true;
             case R.id.action_alarm_add:
                 //add a new alarm
-                PunchAlarmTime new_alarm = new PunchAlarmTime(12, 00);
+                PunchAlarmTime new_alarm = new PunchAlarmTime(12, 0);
                 mAdapter.add(new_alarm);
                 return true;
         }

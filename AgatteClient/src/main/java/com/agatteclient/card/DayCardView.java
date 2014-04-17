@@ -67,7 +67,7 @@ public class DayCardView extends View {
     private RectF bounds;
     private Paint event_text_paint;
     private SimpleDateFormat fmt;
-    private Calendar cal = Calendar.getInstance();
+    private final Calendar cal = Calendar.getInstance();
     private Paint line_text_paint;
     private Paint mandatory_paint;
     private Paint event_paint;

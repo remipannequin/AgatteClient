@@ -2,7 +2,6 @@ package com.agatteclient.test;
 
 import android.test.AndroidTestCase;
 
-import com.agatteclient.agatte.AgatteCounterResponse;
 import com.agatteclient.agatte.AgatteResponse;
 import com.agatteclient.agatte.AgatteSession;
 
@@ -37,7 +36,7 @@ public class AgatteSessionTest extends AndroidTestCase {
 
     public void testQueryCounter1() throws Exception {
         AgatteSession instance = new AgatteSession("agatte.univ-lorraine.fr", login, password);
-        instance.queryCounter(AgatteCounterResponse.Type.Week, 2014, 10);
+        instance.queryCounterWeek(2014, 10);
     }
 
 }

@@ -48,7 +48,7 @@ import java.util.Set;
 public class AlarmReceiver extends BroadcastReceiver {
 
     //Manage a collection of alarm, with their fingerprint
-    Map<PunchAlarmTime, Pair<PendingIntent, Long>> pendingIntentMap;
+    private final Map<PunchAlarmTime, Pair<PendingIntent, Long>> pendingIntentMap;
 
 
     public AlarmReceiver() {

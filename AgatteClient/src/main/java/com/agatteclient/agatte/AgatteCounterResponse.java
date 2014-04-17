@@ -5,16 +5,18 @@ import android.os.Bundle;
 import java.io.Serializable;
 
 /**
+ * This file is part of AgatteClient
+ * <p/>
  * Created by Rémi Pannequin on 12/04/14.
  */
 public class AgatteCounterResponse implements Serializable {
 
     public enum Type {Year, Week}
 
-    private boolean anomaly;
-    private int contract_year;
-    private int contract;
-    private double value_week, value_year;
+    private final boolean anomaly;
+    private final int contract_year;
+    private final int contract;
+    private float value_week, value_year;
 
     private Type query_type;
     int queried_year;
@@ -28,8 +30,8 @@ public class AgatteCounterResponse implements Serializable {
     }
 
 
-    public boolean isAnomaly() {
-        return anomaly;
+    public boolean isAvailable() {
+        return !anomaly;
     }
 
 
@@ -43,12 +45,12 @@ public class AgatteCounterResponse implements Serializable {
     }
 
 
-    public double getValueWeek() {
+    public float getValueWeek() {
         return value_week;
     }
 
 
-    public void setValue(Type type, double value) {
+    public void setValue(Type type, float value) {
         switch (type) {
             case Week:
                 value_week = value;
@@ -59,7 +61,7 @@ public class AgatteCounterResponse implements Serializable {
     }
 
 
-    public double getValueYear() {
+    public float getValueYear() {
         return value_year;
     }
 

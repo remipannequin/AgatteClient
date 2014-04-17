@@ -21,13 +21,13 @@ import java.util.LinkedList;
  * Created by remi on 29/10/13.
  */
 public class CardBinder {
-    private static CardBinder ourInstance = new CardBinder();
+    private static final CardBinder ourInstance = new CardBinder();
 
     public static CardBinder getInstance() {
         return ourInstance;
     }
 
-    private LinkedList<DayCard> cards;
+    private final LinkedList<DayCard> cards;
     private DayCard current;
 
     private CardBinder() {
