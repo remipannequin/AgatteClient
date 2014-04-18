@@ -15,7 +15,6 @@
 
 package com.agatteclient.alarm;
 
-import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -27,7 +26,6 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.os.ResultReceiver;
 import android.support.v4.app.NotificationCompat;
-import android.util.Pair;
 
 import com.agatteclient.MainActivity;
 import com.agatteclient.R;
@@ -35,25 +33,12 @@ import com.agatteclient.agatte.AgatteResponse;
 import com.agatteclient.agatte.AgatteResultCode;
 import com.agatteclient.agatte.PunchService;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * Broadcast Receiver that is fired when an alarm expire.
  * <p/>
  * Created by Rémi Pannequin on 01/11/13.
  */
 public class AlarmReceiver extends BroadcastReceiver {
-
-    //Manage a collection of alarm, with their fingerprint
-    private final Map<PunchAlarmTime, Pair<PendingIntent, Long>> pendingIntentMap;
-
-
-    public AlarmReceiver() {
-        this.pendingIntentMap = new HashMap<PunchAlarmTime, Pair<PendingIntent, Long>>();
-    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -68,65 +53,6 @@ public class AlarmReceiver extends BroadcastReceiver {
         wl.release();
     }
 
-    public void updateAlarms(Context context, AlarmBinder binder) {
-        //Extract longs representing the alarms
-        Set<Long> alarms = new HashSet<Long>(binder.size());
-        for (PunchAlarmTime a : binder) {
-            alarms.add(a.toLong());
-        }
-
-        //Cancel alarms that are not in the binder any more
-        for (PunchAlarmTime a : pendingIntentMap.keySet()) {
-            if (!binder.contains(a)) {
-                cancelAlarm(context, a);
-            }
-        }
-
-        //Add alarms that are new, update the other ones
-        for (PunchAlarmTime a : binder) {
-            if (!pendingIntentMap.containsKey(a)) {
-                addAlarm(context, a);
-            } else {
-                updateAlarm(context, a);
-            }
-        }
-    }
-
-    private void addAlarm(Context context, PunchAlarmTime alarm) {
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent i = new Intent(context, AlarmReceiver.class);
-        //TODO: use request code
-        PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_ONE_SHOT);
-        pendingIntentMap.put(alarm, new Pair<PendingIntent, Long>(pi, alarm.toLong()));
-
-        long now = System.currentTimeMillis();
-        long delay = alarm.nextAlarm(now);
-        am.set(AlarmManager.RTC_WAKEUP, delay, pi);
-    }
-
-    private void cancelAlarm(Context context, PunchAlarmTime alarm) {
-        PendingIntent sender = pendingIntentMap.get(alarm).first;
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.cancel(sender);
-        pendingIntentMap.remove(alarm);
-
-    }
-
-    private void updateAlarm(Context context, PunchAlarmTime alarm) {
-        PendingIntent sender = pendingIntentMap.get(alarm).first;
-        long fingerprint = pendingIntentMap.get(alarm).second;
-        //check if alarm time has changed by comparing its current fingerprint with the stored one
-        if (alarm.toLong() != fingerprint) {
-            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            am.cancel(sender);
-            Intent i = new Intent(context, AlarmReceiver.class);
-            PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_ONE_SHOT);
-            pendingIntentMap.put(alarm, new Pair(pi, alarm.toLong()));
-            long now = System.currentTimeMillis();
-            long delay = alarm.nextAlarm(now);
-            am.set(AlarmManager.RTC_WAKEUP, delay, pi);
-        }
-    }
 
     private class PunchResultReceiver extends ResultReceiver {
 
@@ -164,7 +90,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                     break;
                 case exception:
                     notification_text.append(ctx.getString(R.string.network_error_toast));
-                    String message = resultData.getString("message");
+                    String message = resultData.getString("message"); //NON-NLS
                     if (message != null && message.length() != 0) {
                         notification_text.append(" : ").append(message);
                     }
@@ -173,8 +99,8 @@ public class AlarmReceiver extends BroadcastReceiver {
                     notification_text.append(ctx.getString(R.string.login_failed_toast));
                     break;
                 case io_exception:
-                    notification_text.append("Error");
-                    message = resultData.getString("message");
+                    notification_text.append(ctx.getString(R.string.error));
+                    message = resultData.getString("message"); //NON-NLS
                     if (message != null && message.length() != 0) {
                         notification_text.append(" : ").append(message);
                     }

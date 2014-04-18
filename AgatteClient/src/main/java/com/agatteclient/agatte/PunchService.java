@@ -30,18 +30,16 @@ import java.net.URISyntaxException;
 /**
  * This class create a AgatteSession, try to login, send a punch, and logout.
  * <p/>
- * <p/>
- * <p/>
  * Created by Rémi Pannequin on 29/10/13.
  */
 public class PunchService extends IntentService {
 
 
-    public static final String DO_PUNCH = "punch";
-    public static final String QUERY = "query";
-    public static final String QUERY_COUNTER = "query_counter";
-    public static final String RESULT_RECEIVER = "result_receiver";
-    private static final String TAG = "PunchService";
+    public static final String DO_PUNCH = "punch"; //NON-NLS
+    public static final String QUERY = "query"; //NON-NLS
+    public static final String QUERY_COUNTER = "query_counter"; //NON-NLS
+    public static final String RESULT_RECEIVER = "result_receiver"; //NON-NLS
+    private static final String TAG = "PunchService"; //NON-NLS
     private AgatteSession session;
 
     public PunchService() {
@@ -89,8 +87,8 @@ public class PunchService extends IntentService {
 
             } else if (intent.getAction().equals(QUERY_COUNTER)) {
                 AgatteCounterResponse rsp = session.queryCounterCurrent();
+                bundle = rsp.toBundle();
                 if (rsp.isAvailable()) {
-                    bundle = rsp.toBundle();
                     code = AgatteResultCode.query_counter_ok;
                 } else {
                     code = AgatteResultCode.query_counter_unavailable;

@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
  * <p/>
  * Created by Rémi Pannequin on 03/10/13.
  */
+@SuppressWarnings("HardCodedStringLiteral")
 public class AgatteParser {
 
     private static final String PATTERN_TOPS = ".*<li.*Top r.el.*([0-9][0-9]:[0-9][0-9])\\s*</li>.*";

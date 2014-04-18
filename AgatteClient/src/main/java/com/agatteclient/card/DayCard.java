@@ -47,6 +47,7 @@ public class DayCard implements Serializable {
     public static final int AFTERNOON_END_MS = 16 * 60 * 60 * 1000;
     public static final float AFTERNOON_END = 16;
     public static final int DAY_END = 19 * 60 * 60 * 1000;
+    public static final String HH_MM_FORMAT = "HH:mm";//NON-NLS
     private final List<Long> punches;
     private final List<Long> corrected_punches;
     private final int day;
@@ -153,7 +154,7 @@ public class DayCard implements Serializable {
         //1. Parse date
         Date date;
         Calendar cal = Calendar.getInstance();
-        SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat df = new SimpleDateFormat(HH_MM_FORMAT);
         date = df.parse(time);
         cal.setTime(date);
         cal.set(Calendar.MILLISECOND, 0);

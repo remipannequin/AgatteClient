@@ -145,10 +145,10 @@ public class AgattePreferenceActivity extends PreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("server"));
-            bindPreferenceSummaryToValue(findPreference("login"));
+            bindPreferenceSummaryToValue(findPreference("server")); //NON-NLS
+            bindPreferenceSummaryToValue(findPreference("login")); //NON-NLS
             //Don't bind password
-            bindPreferenceSummaryToValue(findPreference("week_profile"));
+            bindPreferenceSummaryToValue(findPreference("week_profile")); //NON-NLS
         }
     }
 }

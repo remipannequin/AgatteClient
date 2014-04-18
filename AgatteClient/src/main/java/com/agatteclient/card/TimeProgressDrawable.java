@@ -48,12 +48,12 @@ public class TimeProgressDrawable extends Drawable {
         paint_goal = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint_goal.setStyle(Paint.Style.STROKE);
         paint_goal.setStrokeWidth(WIDTH * density);
-        paint_goal.setColor(Color.parseColor("#AA66CC"));
+        paint_goal.setColor(Color.parseColor("#AA66CC")); //NON-NLS
 
         paint_done = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint_done.setStyle(Paint.Style.STROKE);
         paint_done.setStrokeWidth(WIDTH * density);
-        paint_done.setColor(Color.parseColor("#33B5E5"));
+        paint_done.setColor(Color.parseColor("#33B5E5")); //NON-NLS
 
 
     }

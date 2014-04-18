@@ -39,6 +39,13 @@ public class AgatteResponse {
         this.virtual_punches = virtual_punches.toArray(new String[punches.size()]);
     }
 
+    public static AgatteResponse fromBundle(Bundle bundle) {
+        AgatteResponse instance = new AgatteResponse();
+        instance.punches = bundle.getStringArray("punches"); //NON-NLS
+        instance.virtual_punches = bundle.getStringArray("virtual_punches"); //NON-NLS
+        return instance;
+    }
+
     public String[] getPunches() {
         return punches;
     }
@@ -53,16 +60,9 @@ public class AgatteResponse {
 
     public Bundle toBundle() {
         Bundle result = new Bundle();
-        result.putStringArray("punches", this.punches);
-        result.putStringArray("virtual_punches", this.virtual_punches);
+        result.putStringArray("punches", this.punches); //NON-NLS
+        result.putStringArray("virtual_punches", this.virtual_punches); //NON-NLS
         return result;
-    }
-
-    public static AgatteResponse fromBundle(Bundle bundle){
-        AgatteResponse instance = new AgatteResponse();
-        instance.punches = bundle.getStringArray("punches");
-        instance.virtual_punches = bundle.getStringArray("virtual_punches");
-        return instance;
     }
 
     public boolean hasPunches() {

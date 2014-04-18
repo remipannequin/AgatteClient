@@ -20,18 +20,22 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -54,6 +58,7 @@ import com.agatteclient.agatte.AgatteSession;
 import com.agatteclient.agatte.PunchService;
 import com.agatteclient.alarm.AlarmActivity;
 import com.agatteclient.alarm.AlarmBinder;
+import com.agatteclient.alarm.AlarmService;
 import com.agatteclient.card.CardBinder;
 import com.agatteclient.card.DayCard;
 import com.agatteclient.card.DayCardView;
@@ -74,18 +79,19 @@ import java.util.TimerTask;
  */
 public class MainActivity extends Activity {
 
-    public static final String SERVER_PREF = "server";
-    public static final String LOGIN_PREF = "login";
-    public static final String PASSWD_PREF = "password";
+    public static final String SERVER_PREF = "server"; //NON-NLS
+    public static final String LOGIN_PREF = "login"; //NON-NLS
+    public static final String PASSWD_PREF = "password"; //NON-NLS
     public static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";
-    public static final String LOGIN_DEFAULT = "login";
+    public static final String LOGIN_DEFAULT = "login"; //NON-NLS
     public static final String PASSWD_DEFAULT = "";
-    private static final String COUNTER_WEEK_PREF = "counter-week";
-    private static final String COUNTER_YEAR_PREF = "counter-year";
-    private static final String COUNTER_LAST_UPDATE_PREF = "counter-update";
-    private static final String DAY_CARD = "day-card";
-    private static final String CONFIRM_PUNCH_PREF = "confirm_punch";
-    private static final String PROFILE_PREF = "week_profile";
+    private static final String COUNTER_WEEK_PREF = "counter-week"; //NON-NLS
+    private static final String COUNTER_YEAR_PREF = "counter-year"; //NON-NLS
+    private static final String COUNTER_LAST_UPDATE_PREF = "counter-update"; //NON-NLS
+    private static final String DAY_CARD = "day-card"; //NON-NLS
+    private static final String CONFIRM_PUNCH_PREF = "confirm_punch"; //NON-NLS
+    private static final String PROFILE_PREF = "week_profile"; //NON-NLS
+    private static final String LOG_TAG = "com.agatteclient"; //NON-NLS
     private MenuItem refreshItem = null;
     private ScaleGestureDetector mScaleDetector;
     private AgatteSession session;
@@ -100,6 +106,7 @@ public class MainActivity extends Activity {
     private ScrollView day_sv;
     private TextView week_TextView;
     private TextView year_TextView;
+    private TextView anomaly_TextView;
 
     /**
      * Save the state of the activity (the DayCard)
@@ -166,6 +173,7 @@ public class MainActivity extends Activity {
         day_textView = (TextView) findViewById(R.id.day_textView);
         week_TextView = (TextView) findViewById(R.id.week_textView);
         year_TextView = (TextView) findViewById(R.id.year_textView);
+        anomaly_TextView = (TextView) findViewById(R.id.anomaly_textView);
         punch_button = (Button) findViewById(R.id.button_doPunch);
         day_sv = (ScrollView) findViewById(R.id.day_scrollview);
         //Schedule redraw in 1 minute (60 000 ms)
@@ -197,6 +205,11 @@ public class MainActivity extends Activity {
                     preferences.getFloat(COUNTER_WEEK_PREF, 0),
                     preferences.getFloat(COUNTER_YEAR_PREF, 0));
         }
+
+
+        //bind to alarm service (update alarms if needed)
+        doAlarmUpdate();
+
     }
 
     @Override
@@ -230,10 +243,10 @@ public class MainActivity extends Activity {
 
         double p = (cur_card.getCorrectedTotalTime());
         StringBuilder sb = new StringBuilder();
-        sb.append((int) Math.floor(p)).append("h");
+        sb.append(String.format(getString(R.string.duration_hour), (int) Math.floor(p)));
         int min = (int) (p * 60) % 60;
         if (min != 0) {
-            sb.append(String.format("%02d", min));
+            sb.append(String.format(getString(R.string.duration_minute), min));
         }
         day_textView.setText(sb.toString());
         day_progress.setIndeterminate(false);
@@ -241,7 +254,7 @@ public class MainActivity extends Activity {
         day_progress.invalidate();
         dc_view.invalidate();
 
-        SimpleDateFormat fmt = new SimpleDateFormat("E dd MMM yyyy");
+        SimpleDateFormat fmt = new SimpleDateFormat(getString(R.string.date_format));
         StringBuilder t = new StringBuilder().append(fmt.format(cur_card.getDay()));
         setTitle(t);
     }
@@ -269,16 +282,18 @@ public class MainActivity extends Activity {
         if (available) {
             week_TextView.setTypeface(null, Typeface.BOLD);
             year_TextView.setTypeface(null, Typeface.BOLD);
+            anomaly_TextView.setText("");
         } else {
             week_TextView.setTypeface(null, Typeface.BOLD_ITALIC);
             year_TextView.setTypeface(null, Typeface.BOLD_ITALIC);
+            anomaly_TextView.setText(getString(R.string.anomaly));
         }
 
         int neg = (week_hours < 0 ? -1 : 1);
         week_hours = week_hours * neg;
         int h = (int) Math.floor(week_hours);
         int m = Math.round((week_hours - h) * 60);
-        week_TextView.setText(String.format("%dh%02d", neg * h, m));
+        week_TextView.setText(String.format(getString(R.string.duration), neg * h, m));
 
         neg = (global_hours < 0 ? -1 : 1);
         global_hours = global_hours * neg;
@@ -344,6 +359,32 @@ public class MainActivity extends Activity {
         startService(i);
     }
 
+
+    /**
+     *
+     */
+    private void doAlarmUpdate() {
+        final ServiceConnection mServerConn = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder binder) {
+                Log.d(LOG_TAG, "Alarm Service Connected");
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                Log.d(LOG_TAG, "Alarm Service Disconnected");
+            }
+        };
+        final Intent i = new Intent(this, AlarmService.class);
+        //i.setAction("");
+        if (bindService(i, mServerConn, Context.BIND_AUTO_CREATE)) {
+            Log.i(LOG_TAG, "Alarm Service bound");
+        } else {
+            Log.e(LOG_TAG, "Alarm Service not bound");
+        }
+    }
+
+
     /**
      * Show confirmation dialog
      * @param i
@@ -375,7 +416,7 @@ public class MainActivity extends Activity {
                 }
             }
         };
-        confirm.show(getFragmentManager(), "confirm_punch");
+        confirm.show(getFragmentManager(), "confirm_punch"); //NON-NLS
     }
 
     /**
@@ -485,7 +526,7 @@ public class MainActivity extends Activity {
                 case io_exception:
                     toast.append(getString(R.string.error_toast)).append(" ");
                     toast.append(getString(R.string.network_error_toast));
-                    String message = resultData.getString("message");
+                    String message = resultData.getString("message"); //NON-NLS
                     if (message.length() != 0) {
                         toast.append(" : ").append(message);
                     }
@@ -519,12 +560,13 @@ public class MainActivity extends Activity {
                     }
                     break;
                 case query_counter_unavailable:
-                    toast.append("Counters unavailable");
+                    toast.append(getString(R.string.counter_unavailable));
                 case query_counter_ok:
                     AgatteCounterResponse counter = AgatteCounterResponse.fromBundle(resultData);
                     // update UI with result
+                    if (BuildConfig.DEBUG && counter == null)
+                        throw new RuntimeException("AgatteCounterResult is null");
                     updateCounter(counter.isAvailable(), counter.getValueWeek(), counter.getValueYear());
-                    break;
                 case exception:
                     toast.append(getString(R.string.error_toast)).append(" ");
                     toast.append(getString(R.string.error_toast));

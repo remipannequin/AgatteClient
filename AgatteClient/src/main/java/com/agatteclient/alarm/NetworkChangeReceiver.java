@@ -38,7 +38,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         authorized_ssid = new HashSet<String>();
         //TODO: get the list of authorized network from preference
         authorized_ssid.add("eduroam");
-
+        authorized_ssid.add("Personnels Univ-Lorraine");
     }
 
     /**
@@ -65,7 +65,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction() != null && intent.getAction().equals("android.net.wifi.WIFI_STATE_CHANGED")) {
+        if (intent.getAction() != null && intent.getAction().equals("android.net.wifi.WIFI_STATE_CHANGED")) { //NON-NLS
             //TODO
         }
 

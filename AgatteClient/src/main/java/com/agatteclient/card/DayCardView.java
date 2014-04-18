@@ -96,7 +96,7 @@ public class DayCardView extends View {
             text_height = a.getDimension(R.styleable.DayCardView_textHeight, 20);
             String fmt = a.getString(R.styleable.DayCardView_timeFormat);//, "hh:mm");
             if (fmt == null) {
-                date_fmt = "HH:mm";
+                date_fmt = context.getString(R.string.hour_format);
             } else {
                 date_fmt = fmt;
             }
@@ -432,11 +432,21 @@ public class DayCardView extends View {
                 //compute hours and minute difference
                 long h = (df.getTime() - di.getTime()) / (1000 * 60 * 60);
                 long m = ((df.getTime() - di.getTime()) / (1000 * 60)) % 60;
-                float w1 = duration_text_paint.measureText(String.format("%dh", h));
-                float w2 = duration_text_paint.measureText(String.format("%02d", m));
-                canvas.drawText(String.format("%dh", h), (rect_width - w1 - w2) / 2f + margin, (bottom - top + text_height) / 2f + top, duration_text_bold_paint);
+                float w1 = duration_text_paint.measureText(String.format(
+                        getContext().getString(R.string.duration_hour),
+                        h));
+                float w2 = duration_text_paint.measureText(String.format(
+                        getContext().getString(R.string.duration_minute),
+                        m));
+                canvas.drawText(
+                        String.format(getContext().getString(R.string.duration_hour), h),
+                        (rect_width - w1 - w2) / 2f + margin, (bottom - top + text_height) / 2f + top,
+                        duration_text_bold_paint);
                 if (m != 0) {
-                    canvas.drawText(String.format("%02d", m), (rect_width - w1 - w2) / 2f + margin + w1, (bottom - top + text_height) / 2f + top, duration_text_paint);
+                    canvas.drawText(
+                            String.format(getContext().getString(R.string.duration_minute), m),
+                            (rect_width - w1 - w2) / 2f + margin + w1, (bottom - top + text_height) / 2f + top,
+                            duration_text_paint);
                 }
             }
         }

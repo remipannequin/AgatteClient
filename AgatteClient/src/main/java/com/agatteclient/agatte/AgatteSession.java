@@ -47,6 +47,7 @@ import java.util.List;
  * <p/>
  * Created by Rémi Pannequin on 24/09/13.
  */
+@SuppressWarnings("HardCodedStringLiteral")
 public class AgatteSession {
 
     public static final int TIMEOUT_CONEECTION = 3000;
@@ -371,8 +372,9 @@ public class AgatteSession {
             throw new AgatteException(e);
         } catch (URISyntaxException e) {//can't happen
             throw new AgatteException(e);
+        } finally {
+            if (client != null) client.close();
         }
-
     }
 
 

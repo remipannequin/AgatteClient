@@ -26,7 +26,7 @@ public class AgatteCounterResponse implements Serializable {
     }
 
     public static AgatteCounterResponse fromBundle(Bundle bundle) {
-        return (AgatteCounterResponse) bundle.getSerializable("counter-response");
+        return (AgatteCounterResponse) bundle.getSerializable("counter-response"); //NON-NLS
     }
 
     public boolean isAvailable() {
@@ -66,7 +66,7 @@ public class AgatteCounterResponse implements Serializable {
 
     public Bundle toBundle() {
         Bundle result = new Bundle();
-        result.putSerializable("counter-response", this);
+        result.putSerializable("counter-response", this); //NON-NLS
         return result;
     }
 

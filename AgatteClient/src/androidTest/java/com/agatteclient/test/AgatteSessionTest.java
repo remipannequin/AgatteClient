@@ -8,6 +8,7 @@ import com.agatteclient.agatte.AgatteSession;
 /**
  * Created by Rémi Pannequin on 08/11/13.
  */
+@SuppressWarnings("HardCodedStringLiteral")
 public class AgatteSessionTest extends AndroidTestCase {
 
     private String login;

@@ -63,5 +63,13 @@
     <string name="time_test_week">-15h30</string>
     <string name="time_test_year">+5j ½</string>
     <string name="year_counter">%1$dj%2$s</string>
-    <string name="alarm_enable">Enable</string>
+    <string name="alarm_enable">Activer</string>
+    <string name="error">Erreur</string>
+    <string name="hour_format">HH:mm</string>
+    <string name="duration_hour">%1$dh</string>
+    <string name="duration_minute">%2$02d</string>
+    <string name="date_format">E dd MMM yyyy</string>
+    <string name="anomaly">anomalie</string>
+    <string name="duration">%1$dh%2$02d</string>
+    <string name="counter_unavailable">Compteurs non disponibles</string>
 </resources>

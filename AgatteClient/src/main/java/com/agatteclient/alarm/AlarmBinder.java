@@ -18,8 +18,8 @@ import java.util.Set;
  * Created by Rémi Pannequin on 10/11/13.
  */
 public class AlarmBinder implements List<PunchAlarmTime> {
-    private static final String ALARMS_PREF = "alarms-pref";
-    private static final String ALARM_SHARED_PREFS = "alarms";
+    private static final String ALARMS_PREF = "alarms-pref"; //NON-NLS
+    private static final String ALARM_SHARED_PREFS = "alarms"; //NON-NLS
     private static AlarmBinder ourInstance;
     private static SharedPreferences preferences;
     private final ArrayList<PunchAlarmTime> alarms;

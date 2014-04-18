@@ -25,7 +25,7 @@ public class AgatteException extends Exception {
 
     Bundle toBundle() {
         Bundle result = new Bundle();
-        result.putString("message", this.getLocalizedMessage());
+        result.putString("message", this.getLocalizedMessage()); //NON-NLS
         return result;
     }
 

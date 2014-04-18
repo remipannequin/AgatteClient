@@ -27,14 +27,13 @@ public class AlarmActivity extends FragmentActivity {
 
 
     private AlarmArrayAdapter mAdapter;
-    private ListView lv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm);
 
-        lv = (ListView) findViewById(R.id.alarmListView);
+        ListView lv = (ListView) findViewById(R.id.alarmListView);
         mAdapter = new AlarmArrayAdapter(this, AlarmBinder.getInstance(this));
         lv.setAdapter(mAdapter);
     }

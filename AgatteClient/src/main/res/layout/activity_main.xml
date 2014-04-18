@@ -65,10 +65,10 @@
         android:id="@+id/day_label_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/day_textView"
         android:layout_alignLeft="@+id/day_progress"
         android:layout_alignRight="@+id/day_progress"
-        android:gravity="center_horizontal|top"
+        android:layout_below="@+id/day_textView"
+        android:gravity="center_horizontal|bottom"
         android:singleLine="true"
         android:text="@string/daily_time_count"
         android:textAppearance="?android:attr/textAppearanceSmall" />
@@ -152,5 +152,21 @@
         android:gravity="center_horizontal"
         android:text="@string/year_label"
         android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/anomaly_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/year_label_textView"
+        android:layout_alignLeft="@+id/day_progress"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/year_label_textView"
+        android:layout_marginTop="15dp"
+        android:layout_toRightOf="@+id/day_scrollview"
+        android:gravity="center_horizontal"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="#c83232"
+        android:textStyle="italic" />
+
 
 </RelativeLayout>
