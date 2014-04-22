@@ -79,15 +79,17 @@ public class AlarmService extends Service {
 
 
     private void addAlarm(Context context, PunchAlarmTime alarm) {
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent i = new Intent(context, AlarmReceiver.class);
-        //TODO: use request code
-        PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_ONE_SHOT);
-        pendingIntentMap.put(alarm, new Pair<PendingIntent, Long>(pi, alarm.toLong()));
-
+        // Check if alarm does actually fire
         long now = System.currentTimeMillis();
-        long delay = alarm.nextAlarm(now);
-        am.set(AlarmManager.RTC_WAKEUP, delay, pi);
+        long time = alarm.nextAlarm(now);
+        if (time >= 0) {
+            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            Intent i = new Intent(context, AlarmReceiver.class);
+            //TODO: use request code
+            PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_ONE_SHOT);
+            pendingIntentMap.put(alarm, new Pair<PendingIntent, Long>(pi, alarm.toLong()));
+            am.set(AlarmManager.RTC_WAKEUP, time, pi);
+        }
     }
 
 
@@ -106,13 +108,16 @@ public class AlarmService extends Service {
         //check if alarm time has changed by comparing its current fingerprint with the stored one
         if (alarm.toLong() != fingerprint) {
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            am.cancel(sender);
-            Intent i = new Intent(context, AlarmReceiver.class);
-            PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_ONE_SHOT);
-            pendingIntentMap.put(alarm, new Pair(pi, alarm.toLong()));
             long now = System.currentTimeMillis();
-            long delay = alarm.nextAlarm(now);
-            am.set(AlarmManager.RTC_WAKEUP, delay, pi);
+            long time = alarm.nextAlarm(now);
+            //must cancel : either it it wring, or it does not fire
+            am.cancel(sender);
+            if (time >= 0) {
+                Intent i = new Intent(context, AlarmReceiver.class);
+                PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_ONE_SHOT);
+                pendingIntentMap.put(alarm, new Pair(pi, alarm.toLong()));
+                am.set(AlarmManager.RTC_WAKEUP, time, pi);
+            }
         }
     }
 

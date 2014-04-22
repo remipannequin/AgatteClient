@@ -2,6 +2,7 @@ package com.agatteclient.test;
 
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.TouchUtils;
+import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -91,9 +92,10 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
         }
         alarms.get(0).setEnabled(true);
         alarms.get(1).setEnabled(false);
+        setActivityInitialTouchMode(false);
         mActivity = (AlarmActivity) getActivity();
 
-        setActivityInitialTouchMode(false);
+
     }
 
     @MediumTest
@@ -148,6 +150,7 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
     }
 
     @MediumTest
+    @UiThreadTest
     public void testDayButton() throws Exception {
         ListView listView = (ListView) mActivity.findViewById(R.id.alarmListView);
         getInstrumentation().waitForIdleSync();

@@ -116,6 +116,7 @@ public class PunchAlarmTime {
                 }
                 cal.add(Calendar.DATE, 1);
             }
+            //TODO: log warning !
             return null;
         } else {
             //after alarm time: search next firing day
@@ -131,9 +132,17 @@ public class PunchAlarmTime {
         //cal.set
     }
 
+    /**
+     * Get the next time the alarm should be triggered, 0 if it should run immediately or -1 if it does not trigger
+     *
+     * @param currentTimeMillis
+     * @return
+     */
     public long nextAlarm(long currentTimeMillis) {
         Date d = new Date(currentTimeMillis);
-        return nextAlarm(d).getTime();
+        Date next = nextAlarm(d);
+        if (next == null) return -1;
+        return next.getTime();
     }
 
     public Date getTime() {

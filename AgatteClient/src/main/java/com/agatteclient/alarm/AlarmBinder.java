@@ -42,7 +42,16 @@ public class AlarmBinder implements List<PunchAlarmTime> {
                 }
             }
         } else {
-            //TODO: implement preference holder for old version
+            String alarms_s = preferences.getString(ALARMS_PREF, "");
+            int n_tok = alarms_s.length() / 8;
+            for (int i = 0; i < alarms_s.length() / 8; i++) {
+                try {
+                    long n = Long.parseLong(alarms_s.substring(i * 8, (i + 1) * 8), 16);
+                    alarms.add(PunchAlarmTime.fromLong(n));
+                } catch (NumberFormatException ex) {
+                    //TODO Manage error
+                }
+            }
         }
     }
 
@@ -56,8 +65,9 @@ public class AlarmBinder implements List<PunchAlarmTime> {
     }
 
     public void saveToPreferences() {
+        SharedPreferences.Editor editor = preferences.edit();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            SharedPreferences.Editor editor = preferences.edit();
+
             Set<String> alarms_s = new HashSet<String>(alarms.size());
             int i = 0;
             for (PunchAlarmTime a : alarms) {
@@ -65,10 +75,16 @@ public class AlarmBinder implements List<PunchAlarmTime> {
                 alarms_s.add(Long.toHexString(n));
             }
             editor.putStringSet(ALARMS_PREF, alarms_s); // value to store
-            editor.commit();
+
         } else {
-            //TODO: implement preference holder for old version
+            StringBuilder alarms_s = new StringBuilder();
+            for (PunchAlarmTime a : alarms) {
+                long n = a.toLong();
+                alarms_s.append(Long.toHexString(n));
+            }
+            editor.putString(ALARMS_PREF, alarms_s.toString());
         }
+        editor.commit();
     }
 
     public boolean add(PunchAlarmTime object) {

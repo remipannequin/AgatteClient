@@ -88,6 +88,7 @@ public class PunchAlarmTimeTest extends AndroidTestCase {
         cal.set(Calendar.HOUR_OF_DAY, 9);
         cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
         Date actual = instance.nextAlarm(cal.getTime());
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
         cal.set(Calendar.HOUR_OF_DAY, 10);
         cal.set(Calendar.MINUTE, 25);
         cal.set(Calendar.SECOND, 0);
