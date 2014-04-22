@@ -567,8 +567,9 @@ public class MainActivity extends Activity {
                     if (BuildConfig.DEBUG && counter == null)
                         throw new RuntimeException("AgatteCounterResult is null");
                     updateCounter(counter.isAvailable(), counter.getValueWeek(), counter.getValueYear());
+                    break;
                 case exception:
-                    toast.append(getString(R.string.error_toast)).append(" ");
+                    toast.append(getString(R.string.error)).append(" ");
                     toast.append(getString(R.string.error_toast));
             }
             Context context = getApplicationContext();
