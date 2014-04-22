@@ -85,13 +85,15 @@ public class MainActivity extends Activity {
     public static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";
     public static final String LOGIN_DEFAULT = "login"; //NON-NLS
     public static final String PASSWD_DEFAULT = "";
+    private static final String CONFIRM_PUNCH_PREF = "confirm_punch"; //NON-NLS
+    private static final String AUTO_QUERY_PREF = "auto_query"; //NON-NLS
+    private static final String PROFILE_PREF = "week_profile"; //NON-NLS
     private static final String COUNTER_WEEK_PREF = "counter-week"; //NON-NLS
     private static final String COUNTER_YEAR_PREF = "counter-year"; //NON-NLS
     private static final String COUNTER_LAST_UPDATE_PREF = "counter-update"; //NON-NLS
     private static final String DAY_CARD = "day-card"; //NON-NLS
-    private static final String CONFIRM_PUNCH_PREF = "confirm_punch"; //NON-NLS
-    private static final String PROFILE_PREF = "week_profile"; //NON-NLS
     private static final String LOG_TAG = "com.agatteclient"; //NON-NLS
+
     private MenuItem refreshItem = null;
     private ScaleGestureDetector mScaleDetector;
     private AgatteSession session;
@@ -151,6 +153,10 @@ public class MainActivity extends Activity {
         if (!preferences.contains(CONFIRM_PUNCH_PREF)) {
             editor.putBoolean(CONFIRM_PUNCH_PREF, true); // value to store
         }
+        if (!preferences.contains(AUTO_QUERY_PREF)) {
+            editor.putBoolean(AUTO_QUERY_PREF, false); // value to store
+        }
+
         editor.commit();
 
         mScaleDetector = new ScaleGestureDetector(getApplicationContext(), new ScaleListener());
@@ -196,17 +202,21 @@ public class MainActivity extends Activity {
         }
 
         updateCard();
-        // Get last known value in the prefs, and request update if necessary
-        int last_update = preferences.getInt(COUNTER_LAST_UPDATE_PREF, -1);
-        if (last_update != cur_card.getDayOfYear() + 1000 * cur_card.getYear()) {
-            doUpdateCounters();
-        } else {
-            updateCounter(true,
-                    preferences.getFloat(COUNTER_WEEK_PREF, 0),
-                    preferences.getFloat(COUNTER_YEAR_PREF, 0));
+        boolean auto_query = preferences.getBoolean(AUTO_QUERY_PREF, true);
+        if (auto_query) {
+        /* Get last known value in the prefs, and request update if necessary */
+            if (!preferences.contains(COUNTER_LAST_UPDATE_PREF)) {
+                //TODO: if old value does not exist ?
+            }
+            int last_update = preferences.getInt(COUNTER_LAST_UPDATE_PREF, -1);
+            if (last_update != cur_card.getDayOfYear() + 1000 * cur_card.getYear()) {
+                doUpdateCounters();
+            } else {
+                updateCounter(true,
+                        preferences.getFloat(COUNTER_WEEK_PREF, 0),
+                        preferences.getFloat(COUNTER_YEAR_PREF, 0));
+            }
         }
-
-
         //bind to alarm service (update alarms if needed)
         doAlarmUpdate();
 
@@ -297,7 +307,10 @@ public class MainActivity extends Activity {
 
         neg = (global_hours < 0 ? -1 : 1);
         global_hours = global_hours * neg;
-        int half_day = (int) Math.round(global_hours * 2.0 / 7.62);//TODO: get day length from prefs
+        String profile = preferences.getString(PROFILE_PREF, "1");
+        int profile_n = Integer.decode(profile) - 1;
+        float day_goal = TimeProfile.values()[profile_n].daily_time;
+        int half_day = (int) Math.round(global_hours * 2.0 / day_goal);
         year_TextView.setText(String.format(getString(R.string.year_counter), neg * half_day / 2, (half_day % 2 == 11 ? " ½" : "")));
     }
 

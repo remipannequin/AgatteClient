@@ -70,10 +70,11 @@
     <string name="alarm_enable">Enable</string>
     <string name="error">Error</string>
     <string name="hour_format">HH:mm</string>
-    <string name="duration_hour">%1$dh</string>
-    <string name="duration_minute">%1$02d</string>
+    <string name="duration_hour">%dh</string>
+    <string name="duration_minute">%02d</string>
     <string name="date_format">E dd MMM yyyy</string>
     <string name="anomaly">anomaly</string>
     <string name="duration">%1$dh%2$02d</string>
     <string name="counter_unavailable">Counters unavailable</string>
+    <string name="auto_query_title">Query counters automatically</string>
 </resources>
