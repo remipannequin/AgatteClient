@@ -80,7 +80,7 @@ public class AlarmBinder implements List<PunchAlarmTime> {
             StringBuilder alarms_s = new StringBuilder();
             for (PunchAlarmTime a : alarms) {
                 long n = a.toLong();
-                alarms_s.append(Long.toHexString(n));
+                alarms_s.append(String.format("%016X", n));
             }
             editor.putString(ALARMS_PREF, alarms_s.toString());
         }

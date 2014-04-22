@@ -9,14 +9,14 @@
         android:id="@+id/alarmTimeTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/toggleButton"
+        android:layout_alignLeft="@+id/toggleButton_monday"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:text="@string/time_test"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <ToggleButton
-        android:id="@+id/toggleButton"
+        android:id="@+id/toggleButton_monday"
         android:layout_width="55dp"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -29,11 +29,11 @@
         android:textSize="12sp" />
 
     <ToggleButton
-        android:id="@+id/toggleButton2"
+        android:id="@+id/toggleButton_tuesday"
         android:layout_width="55dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/alarmTimeTextView"
-        android:layout_toRightOf="@+id/toggleButton"
+        android:layout_toRightOf="@+id/toggleButton_monday"
         android:width="10dp"
         android:checked="true"
         android:gravity="center_vertical|center_horizontal"
@@ -43,11 +43,11 @@
         android:textSize="12sp" />
 
     <ToggleButton
-        android:id="@+id/toggleButton3"
+        android:id="@+id/toggleButton_wednesday"
         android:layout_width="55dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/alarmTimeTextView"
-        android:layout_toRightOf="@+id/toggleButton2"
+        android:layout_toRightOf="@+id/toggleButton_tuesday"
         android:width="10dp"
         android:checked="true"
         android:maxWidth="10dp"
@@ -56,11 +56,11 @@
         android:textSize="12sp" />
 
     <ToggleButton
-        android:id="@+id/toggleButton4"
+        android:id="@+id/toggleButton_thursday"
         android:layout_width="55dp"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/toggleButton3"
-        android:layout_toRightOf="@+id/toggleButton3"
+        android:layout_below="@+id/alarmTimeTextView"
+        android:layout_toRightOf="@+id/toggleButton_wednesday"
         android:width="10dp"
         android:checked="true"
         android:maxWidth="10dp"
@@ -69,11 +69,11 @@
         android:textSize="12sp" />
 
     <ToggleButton
-        android:id="@+id/toggleButton5"
+        android:id="@+id/toggleButton_friday"
         android:layout_width="55dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/alarmTimeTextView"
-        android:layout_toRightOf="@+id/toggleButton4"
+        android:layout_toRightOf="@+id/toggleButton_thursday"
         android:width="10dp"
         android:checked="true"
         android:enabled="true"
@@ -87,7 +87,7 @@
         android:layout_width="55dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/alarmTimeTextView"
-        android:layout_toRightOf="@+id/toggleButton5"
+        android:layout_toRightOf="@+id/toggleButton_friday"
         android:width="10dp"
         android:maxWidth="10dp"
         android:textOff="SAM."
