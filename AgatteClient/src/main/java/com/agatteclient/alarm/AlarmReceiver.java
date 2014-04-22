@@ -26,12 +26,17 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.os.ResultReceiver;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.agatteclient.MainActivity;
 import com.agatteclient.R;
 import com.agatteclient.agatte.AgatteResponse;
 import com.agatteclient.agatte.AgatteResultCode;
 import com.agatteclient.agatte.PunchService;
+import com.agatteclient.card.CardBinder;
+import com.agatteclient.card.DayCard;
+
+import java.text.ParseException;
 
 /**
  * Broadcast Receiver that is fired when an alarm expire.
@@ -109,6 +114,18 @@ public class AlarmReceiver extends BroadcastReceiver {
                 case query_ok:
                     AgatteResponse rsp = AgatteResponse.fromBundle(resultData);
                     notification_text.append(ctx.getString(R.string.successful_programmed_punch));
+                    /* update day view with new punch times */
+                    try {
+                        DayCard cur_card = CardBinder.getInstance().getTodayCard();
+                        if (rsp.hasVirtualPunches()) {
+                            cur_card.addPunches(rsp.getVirtualPunches(), true);
+                        }
+                        if (rsp.hasPunches()) {
+                            cur_card.addPunches(rsp.getPunches(), false);
+                        }
+                    } catch (ParseException e) {
+                        Log.e(MainActivity.LOG_TAG, "Parse exception when updating the punch-card");
+                    }
                     break;
                 default:
 

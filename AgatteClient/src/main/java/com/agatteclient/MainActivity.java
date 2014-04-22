@@ -85,6 +85,7 @@ public class MainActivity extends Activity {
     public static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";
     public static final String LOGIN_DEFAULT = "login"; //NON-NLS
     public static final String PASSWD_DEFAULT = "";
+    public static final String LOG_TAG = "com.agatteclient"; //NON-NLS
     private static final String CONFIRM_PUNCH_PREF = "confirm_punch"; //NON-NLS
     private static final String AUTO_QUERY_PREF = "auto_query"; //NON-NLS
     private static final String PROFILE_PREF = "week_profile"; //NON-NLS
@@ -92,7 +93,6 @@ public class MainActivity extends Activity {
     private static final String COUNTER_YEAR_PREF = "counter-year"; //NON-NLS
     private static final String COUNTER_LAST_UPDATE_PREF = "counter-update"; //NON-NLS
     private static final String DAY_CARD = "day-card"; //NON-NLS
-    private static final String LOG_TAG = "com.agatteclient"; //NON-NLS
 
     private MenuItem refreshItem = null;
     private ScaleGestureDetector mScaleDetector;
@@ -530,8 +530,6 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-
-
             //display error (in a Toast)
             StringBuilder toast = new StringBuilder();
             boolean isPunch = false;
