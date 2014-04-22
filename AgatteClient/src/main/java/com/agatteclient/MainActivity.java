@@ -400,6 +400,7 @@ public class MainActivity extends Activity {
 
     /**
      * Show confirmation dialog
+     *
      * @param i
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
