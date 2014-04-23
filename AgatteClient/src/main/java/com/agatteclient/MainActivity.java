@@ -40,7 +40,6 @@ import android.os.Looper;
 import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -110,6 +109,7 @@ public class MainActivity extends Activity {
     private TextView week_TextView;
     private TextView year_TextView;
     private TextView anomaly_TextView;
+    private ImageView refresh_action_iv;
 
     /**
      * Save the state of the activity (the DayCard)
@@ -330,7 +330,6 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
             if (refreshItem != null && refreshItem.getActionView() != null) {
                 refreshItem.getActionView().clearAnimation();
-                refreshItem.setActionView(null);
             }
         }
     }
@@ -342,15 +341,10 @@ public class MainActivity extends Activity {
     void runRefresh() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
             if (getApplication() != null) {
-                LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                ImageView refresh_action_iv = (ImageView) inflater.inflate(R.layout.update_action_view, null);
                 Animation rotation = AnimationUtils.loadAnimation(getApplication(), R.anim.clockwise_refresh);
-                assert rotation != null;
-                assert refresh_action_iv != null;
                 rotation.setRepeatCount(Animation.INFINITE);
                 /* Attach a rotating ImageView to the refresh item as an ActionView */
-                refresh_action_iv.startAnimation(rotation);
-                refreshItem.setActionView(refresh_action_iv);
+                refreshItem.getActionView().startAnimation(rotation);
             }
         }
     }
@@ -359,7 +353,14 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-
+        final Menu m = menu;
+        refreshItem = menu.findItem(R.id.action_update);
+        refreshItem.getActionView().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                m.performIdentifierAction(refreshItem.getItemId(), 0);
+            }
+        });
         return true;
     }
 
