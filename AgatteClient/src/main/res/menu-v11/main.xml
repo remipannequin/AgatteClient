@@ -20,6 +20,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_update"
+        style="@android:style/Widget.ActionButton"
         android:icon="@android:drawable/stat_notify_sync"
         android:showAsAction="ifRoom"
         android:title="@string/action_update" />

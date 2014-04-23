@@ -109,12 +109,13 @@
                     android:id="@+id/rate_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignBottom="@+id/textView9"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentTop="true"
+                    android:minLines="2"
                     android:onClick="doOpenPlayStore"
-                    android:text="@string/about_rate_button" />
+                    android:text="@string/about_rate_button"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
 
                 <TextView
                     android:id="@+id/textView9"

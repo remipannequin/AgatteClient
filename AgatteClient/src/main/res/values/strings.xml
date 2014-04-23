@@ -47,7 +47,7 @@
     <string name="connection_preferences">Connexion</string>
     <string name="profile_preference">Profile</string>
     <string name="title_activity_about">About</string>
-    <string name="about_description">AgatteClient : use Agatte from your smart phone</string>
+    <string name="about_description">Use Agatte from your smart phone</string>
     <string name="about_author">© 2013 Rémi Pannequin (remi.pannequin@gmail.com)</string>
     <string name="about_version">AgatteClient (version %s)</string>
     <string name="action_about">Help</string>
@@ -64,21 +64,32 @@
         but WITHOUT ANY WARRANTY; without even the implied warranty of
         MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
         GNU General Public License for more details.\n
-        <u>Beware that time counters might be wrong, and punches might be lost...</u></string>
-    <string name="about_getting_involved">You are welcome to follow development, submit bugs or
-        wishes on GitHub (<link>https://github.com/remipannequin/AgatteClient</link>).</string>
-    <string name="about_privacy">To enable you to send your punching in a fast and easy manner,
+        <u>Beware that time counters might be wrong, and punches might be lost...</u>
+    </string>
+    <string name="about_getting_involved">
+        You are welcome to follow development, submit bugs or
+        wishes on GitHub (<link>https://github.com/remipannequin/AgatteClient</link>).
+    </string>
+    <string name="about_privacy">
+        To enable you to send your punching in a fast and easy manner,
         AgatteClient stores your credential to the Agatte server. It communicate only
         with this server : your login and password won\'t be send to any other party.
         Nervertheless, they might be vulnerable to a malicious application with root
-        access to your phone.</string>
-    <string name="about_rate">Please take to time to rate this app and give some feedback.</string>
-    <string name="about_rate_button">Rate on Play Store</string>
+        access to your phone.
+    </string>
+    <string name="about_rate">
+        Please take to time to rate this app. Your feedback will be really
+        appreciated.
+    </string>
+    <string name="about_rate_button">Rate on\nPlay Store</string>
     <string name="about_getting_started">
         Before you can connect to the Agatte server, you will have
-        to first enter your password and login.</string>
+        to first enter your password and login.
+    </string>
     <string name="About_getting_started_title">Getting started</string>
     <string name="About_getting_involved_title">Getting involved</string>
+    <string name="about_privacy_title">Privacy</string>
+    <string name="about_licence_title">Licence</string>
     <string name="interface_preference">Interface</string>
     <string name="confirm_punch_title">Confirm Punch</string>
     <string name="short_sunday">SUN</string>
@@ -109,8 +120,4 @@
     <string name="duration">%1$dh%2$02d</string>
     <string name="counter_unavailable">Counters unavailable</string>
     <string name="auto_query_title">Query counters automatically</string>
-    <string name="about_privacy_title">Privacy</string>
-    <string name="about_licence_title">Licence</string>
-
-
 </resources>

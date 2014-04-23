@@ -430,8 +430,8 @@ public class DayCardView extends View {
             // i.e. (bottom - top) > text_height + 4
             if ((bottom - top) > (text_height + 4)) {
                 //compute hours and minute difference
-                long h = (df.getTime() - di.getTime()) / (1000 * 60 * 60);
-                long m = ((df.getTime() - di.getTime()) / (1000 * 60)) % 60;
+                int h = (int) (df.getTime() - di.getTime()) / (1000 * 60 * 60);
+                int m = (int) ((df.getTime() - di.getTime()) / (1000 * 60)) % 60;
                 float w1 = duration_text_paint.measureText(String.format(
                         getContext().getString(R.string.duration_hour),
                         h));

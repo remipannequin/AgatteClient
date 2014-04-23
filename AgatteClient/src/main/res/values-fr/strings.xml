@@ -45,24 +45,24 @@
     <string name="week_goal_prefs_title">Temps de travail hebdomadaire</string>
     <string name="connection_preferences">Connexion</string>
     <string name="profile_preference">Profil</string>
-    <string name="title_activity_about">À propos</string>
-    <string name="about_description">AgatteClient : utilisez Agatte depuis votre smartphone.</string>
+    <string name="title_activity_about">Aide</string>
+    <string name="about_description">Utilisez Agatte depuis votre smartphone.</string>
     <string name="action_about">Aide</string>
     <string name="about_author">© 2013 Rémi Pannequin (remi.pannequin@gmail.com)</string>
     <string name="about_version">AgatteClient (version %s)</string>
     <string name="about_free_soft">
         Ce logiciel est libre ; vous pouvez le redistribuer ou le modifier suivant les termes de la
         GNU General Public License telle que publiée par la Free Software Foundation ; soit la
-        version 3 de la licence, soit (à votre gré) toute version ultérieure.
+        version 3 de la licence, soit (à votre gré) toute version ultérieure.\n
         \n
-        Consultez <link>http://www.gnu.org/licenses</link>.
+        Pour plus de renseignment, consultez <link>http://www.gnu.org/licenses</link>.\n
         \n
         AgatteClient est distribué dans l\'espoir qu\'il sera utile,
         mais SANS AUCUNE GARANTIE ; pas même la garantie implicite de COMMERCIABILISABILITÉ ni
         d\'ADÉQUATION à UN OBJECTIF PARTICULIER. Consultez la GNU GPL pour plus de détails.
         \n
-        <u>Attention : les informations de décompte de temps peuvent être éronés et des
-            pointage peuvent être perdus...</u>
+        <u>Attention : les informations de décompte de temps peuvent être éronées et des
+            pointages peuvent être perdus...</u>
     </string>
     <string name="About_getting_involved_title">Participer</string>
     <string name="about_getting_involved">
@@ -80,11 +80,13 @@
         Merci de prendre le temps d\'évaluer cette application. Vos
         commentaires nous sont précieux !
     </string>
-    <string name="about_rate_button">Évaluer sur le Play Store</string>
+    <string name="about_rate_button">Évaluer sur\nPlay Store</string>
     <string name="about_getting_started">
         Avant tout chose, vous devrez renseigner vos identifiants et login dans les préférences.
     </string>
     <string name="About_getting_started_title">Première utilisation</string>
+    <string name="about_privacy_title">Données personnelles</string>
+    <string name="about_licence_title">License</string>
     <string name="interface_preference">Interface</string>
     <string name="confirm_punch_title">Confirmer le pointage</string>
     <string name="short_sunday">DIM</string>
@@ -115,6 +117,5 @@
     <string name="duration">%1$dh%2$02d</string>
     <string name="counter_unavailable">Compteurs non disponibles</string>
     <string name="auto_query_title">Récupération auto. des compteurs</string>
-    <string name="about_privacy_title">Privacy</string>
-    <string name="about_licence_title">Licence</string>
+
 </resources>
