@@ -20,14 +20,20 @@
 package com.agatteclient;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class AboutActivity extends Activity {
 
@@ -38,10 +44,8 @@ public class AboutActivity extends Activity {
         // Show the Up button in the action bar.
         setupActionBar();
         String version = getVersionNumber();
-        String name = getApplicationName();
-
         TextView text = (TextView) findViewById(R.id.version_textView);
-        text.setText(getString(R.string.about_version) + getApplicationName() + " " + getVersionNumber());
+        text.setText(String.format(getString(R.string.about_version), version));
     }
 
     /**
@@ -90,24 +94,29 @@ public class AboutActivity extends Activity {
             PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
             version = pi.versionName;
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            Log.e(MainActivity.LOG_TAG, e.getMessage());
         }
         return version;
     }
 
+
     /**
-     * Get application name.
-     *
-     * @return
+     * Open Play Store or a browser to rate the app.
      */
-    private String getApplicationName() {
-        String name = "?";
+    public void doOpenPlayStore(View ignored) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse("market://details?id=com.agatteclient"));
         try {
-            PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
-            name = getString(pi.applicationInfo.labelRes);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            startActivity(intent);
+        } catch (ActivityNotFoundException ignored2) {
+            //Market (Google play) app seems not installed, let's try to open a webbrowser
+            intent.setData(Uri.parse("https://play.google.com/store/apps/details?id=com.agatteclient"));
+            try {
+                startActivity(intent);
+            } catch (ActivityNotFoundException ignored3) {
+                //Well if this also fails, we have run out of options, inform the user.
+                Toast.makeText(this, "Could not open Google Play, please install it.", Toast.LENGTH_SHORT).show();
+            }
         }
-        return name;
     }
 }

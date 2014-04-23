@@ -47,20 +47,44 @@
     <string name="profile_preference">Profil</string>
     <string name="title_activity_about">À propos</string>
     <string name="about_description">AgatteClient : utilisez Agatte depuis votre smartphone.</string>
-    <string name="about_disclaimer">AgatteClient est distribué dans l\'espoir qu\'il sera utile, mais SANS AUCUNE GARANTIE ; pas même la garantie implicite de COMMERCIABILISABILITÉ ni d\'ADÉQUATION à UN OBJECTIF PARTICULIER. Consultez la GNU GPL pour plus de détails.\n<b>Soyez conscients que les informations de décompte de temps peuvent être éronés et des pointage peuvent être perdus...</b></string>
-    <string name="action_about">À propos</string>
+    <string name="action_about">Aide</string>
     <string name="about_author">© 2013 Rémi Pannequin (remi.pannequin@gmail.com)</string>
-    <string name="about_version">Version :</string>
+    <string name="about_version">AgatteClient (version %s)</string>
     <string name="about_free_soft">
-        Ce logiciel est libre ; vous pouvez le redistribuer ou le\n
-        modifier suivant les termes de la GNU General Public\n
-        License telle que publiée par la Free Software\n
-        Foundation ; soit la version 3 de la licence,\n
-        soit (à votre gré) toute version ultérieure.\n
-        Consultez <link>http://www.gnu.org/licenses</link>.\n\n
+        Ce logiciel est libre ; vous pouvez le redistribuer ou le modifier suivant les termes de la
+        GNU General Public License telle que publiée par la Free Software Foundation ; soit la
+        version 3 de la licence, soit (à votre gré) toute version ultérieure.
+        \n
+        Consultez <link>http://www.gnu.org/licenses</link>.
+        \n
+        AgatteClient est distribué dans l\'espoir qu\'il sera utile,
+        mais SANS AUCUNE GARANTIE ; pas même la garantie implicite de COMMERCIABILISABILITÉ ni
+        d\'ADÉQUATION à UN OBJECTIF PARTICULIER. Consultez la GNU GPL pour plus de détails.
+        \n
+        <u>Attention : les informations de décompte de temps peuvent être éronés et des
+            pointage peuvent être perdus...</u>
+    </string>
+    <string name="About_getting_involved_title">Participer</string>
+    <string name="about_getting_involved">
         Vous pouvez suivre le développement, soumettre\n
         des anomalies ou des souhaits \n
-        sur <link>https://github.com/remipannequin/AgatteClient</link></string>
+        sur <link>https://github.com/remipannequin/AgatteClient</link>
+    </string>
+    <string name="about_privacy">
+        Pour vous permetre de pointer rapidement et simplement,
+        AgatteClient enregistre vos identifiants de connection. Ceux ci ne sont communiqués qu\'au
+        serveur Agatte, et ne seront divulgé à aucun tier. Cependant, une application malveillante
+        ayant un accès root sur votre téléphone pourrait y avoir accès.
+    </string>
+    <string name="about_rate">
+        Merci de prendre le temps d\'évaluer cette application. Vos
+        commentaires nous sont précieux !
+    </string>
+    <string name="about_rate_button">Évaluer sur le Play Store</string>
+    <string name="about_getting_started">
+        Avant tout chose, vous devrez renseigner vos identifiants et login dans les préférences.
+    </string>
+    <string name="About_getting_started_title">Première utilisation</string>
     <string name="interface_preference">Interface</string>
     <string name="confirm_punch_title">Confirmer le pointage</string>
     <string name="short_sunday">DIM</string>
@@ -91,4 +115,6 @@
     <string name="duration">%1$dh%2$02d</string>
     <string name="counter_unavailable">Compteurs non disponibles</string>
     <string name="auto_query_title">Récupération auto. des compteurs</string>
+    <string name="about_privacy_title">Privacy</string>
+    <string name="about_licence_title">Licence</string>
 </resources>
