@@ -63,13 +63,13 @@
         sur <link>https://github.com/remipannequin/AgatteClient</link></string>
     <string name="interface_preference">Interface</string>
     <string name="confirm_punch_title">Confirmer le pointage</string>
-    <string name="short_sunday">DIM.</string>
-    <string name="short_saturday">SAM.</string>
-    <string name="short_friday">VEN.</string>
-    <string name="short_thursday">JEU.</string>
-    <string name="short_wednesday">MER.</string>
-    <string name="short_tuesday">MAR.</string>
-    <string name="short_monday">LUN.</string>
+    <string name="short_sunday">DIM</string>
+    <string name="short_saturday">SAM</string>
+    <string name="short_friday">VEN</string>
+    <string name="short_thursday">JEU</string>
+    <string name="short_wednesday">MER</string>
+    <string name="short_tuesday">MAR</string>
+    <string name="short_monday">LUN</string>
     <string name="successful_programmed_punch">Le pointage programmé a été effectué</string>
     <string name="programmed_punch_success_title">Échec du pointage</string>
     <string name="programmed_punch_failed_title">Pointage effectué</string>

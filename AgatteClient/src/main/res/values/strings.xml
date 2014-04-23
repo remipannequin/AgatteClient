@@ -67,13 +67,13 @@
     Follow development, submit bugs or wishes at\n <link>https://github.com/remipannequin/AgatteClient</link></string>
     <string name="interface_preference">Interface</string>
     <string name="confirm_punch_title">Confirm Punch</string>
-    <string name="short_sunday">SUN.</string>
-    <string name="short_saturday">SAT.</string>
-    <string name="short_friday">FRI.</string>
-    <string name="short_thursday">THU.</string>
-    <string name="short_wednesday">WED.</string>
-    <string name="short_tuesday">TUE.</string>
-    <string name="short_monday">MON.</string>
+    <string name="short_sunday">SUN</string>
+    <string name="short_saturday">SAT</string>
+    <string name="short_friday">FRI</string>
+    <string name="short_thursday">THU</string>
+    <string name="short_wednesday">WED</string>
+    <string name="short_tuesday">TUE</string>
+    <string name="short_monday">MON</string>
     <string name="title_activity_alarm">Alarms</string>
     <string name="successful_programmed_punch">Programmed punching has been successfully made</string>
     <string name="programmed_punch_success_title">Programmed punching failed</string>
