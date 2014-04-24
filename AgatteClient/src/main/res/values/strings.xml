@@ -20,14 +20,14 @@
 <resources>
 
     <string name="app_name">Agatte</string>
-    <string name="action_settings">Parameters</string>
+    <string name="action_settings">Preferences</string>
     <string name="server_prefs_title">Agatte server</string>
     <string name="server_default_value">agatte.univ-lorraine.fr</string>
     <string name="login_prefs_title">User name</string>
     <string name="login_default_value">name5</string>
     <string name="password_prefs_title">Password</string>
     <string name="password_default_value">******</string>
-    <string name="title_activity_settings">Parameters</string>
+    <string name="title_activity_settings">Preferences</string>
     <string name="action_update">Update</string>
     <string name="dialog_confirm_punch">Confirm sending punch ?</string>
     <string name="send">Punch</string>
@@ -107,9 +107,8 @@
     <string name="alarm_add">Add</string>
     <string name="week_label">Week</string>
     <string name="year_label">Year</string>
-    <string name="time_test_week">-15h30</string>
-    <string name="time_test_year">+5d ½</string>
-    <string name="year_counter">%1$dd%2$s</string>
+    <string name="time_test_week">0h</string>
+    <string name="time_test_year">0d</string>
     <string name="alarm_enable">Enable</string>
     <string name="error">Error</string>
     <string name="hour_format">HH:mm</string>
@@ -117,11 +116,14 @@
     <string name="duration_minute">%02d</string>
     <string name="date_format">E dd MMM yyyy</string>
     <string name="anomaly">anomaly</string>
-    <string name="duration">%1$dh%2$02d</string>
+    <string name="counter_duration_min">+02dmin</string>
+    <string name="counter_duration">%1$+dh%2$02d</string>
+    <string name="counter_year">+%1$dd%2$s</string>
     <string name="counter_unavailable">Counters unavailable</string>
     <string name="auto_query_title">Query counters automatically</string>
     <string name="alarm_delete_confirm">Delete this alarm (at %s)</string>
     <string name="alarm_delete_confirm_question">Delete?</string>
     <string name="alarm_delete_confirm_cancel">Cancel</string>
     <string name="alarm_delete_confirm_ok">OK</string>
+    <string name="store_open_failed">Could not open Google Play.</string>
 </resources>

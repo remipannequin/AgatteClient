@@ -304,15 +304,18 @@ public class MainActivity extends Activity {
         week_hours = week_hours * neg;
         int h = (int) Math.floor(week_hours);
         int m = Math.round((week_hours - h) * 60);
-        week_TextView.setText(String.format(getString(R.string.duration), neg * h, m));
-
+        if (h == 0) {
+            week_TextView.setText(String.format(getString(R.string.counter_duration_min), neg * h, m));
+        } else {
+            week_TextView.setText(String.format(getString(R.string.counter_duration), neg * h, m));
+        }
         neg = (global_hours < 0 ? -1 : 1);
         global_hours = global_hours * neg;
         String profile = preferences.getString(PROFILE_PREF, "1");
         int profile_n = Integer.decode(profile) - 1;
         float day_goal = TimeProfile.values()[profile_n].daily_time;
         int half_day = (int) Math.round(global_hours * 2.0 / day_goal);
-        year_TextView.setText(String.format(getString(R.string.year_counter), neg * half_day / 2, (half_day % 2 == 11 ? " ½" : "")));
+        year_TextView.setText(String.format(getString(R.string.counter_year), neg * half_day / 2, (half_day % 2 == 11 ? " ½" : "")));
     }
 
 
@@ -353,14 +356,16 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        final Menu m = menu;
-        refreshItem = menu.findItem(R.id.action_update);
-        refreshItem.getActionView().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                m.performIdentifierAction(refreshItem.getItemId(), 0);
-            }
-        });
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
+            final Menu m = menu;
+            refreshItem = menu.findItem(R.id.action_update);
+            refreshItem.getActionView().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    m.performIdentifierAction(refreshItem.getItemId(), 0);
+                }
+            });
+        }
         return true;
     }
 

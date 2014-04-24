@@ -105,17 +105,17 @@ public class AboutActivity extends Activity {
      */
     public void doOpenPlayStore(View ignored) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("market://details?id=com.agatteclient"));
+        intent.setData(Uri.parse("market://details?id=com.agatteclient"));//NON-NLS
         try {
             startActivity(intent);
         } catch (ActivityNotFoundException ignored2) {
             //Market (Google play) app seems not installed, let's try to open a webbrowser
-            intent.setData(Uri.parse("https://play.google.com/store/apps/details?id=com.agatteclient"));
+            intent.setData(Uri.parse("https://play.google.com/store/apps/details?id=com.agatteclient"));//NON-NLS
             try {
                 startActivity(intent);
             } catch (ActivityNotFoundException ignored3) {
                 //Well if this also fails, we have run out of options, inform the user.
-                Toast.makeText(this, "Could not open Google Play, please install it.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.store_open_failed), Toast.LENGTH_SHORT).show();
             }
         }
     }
