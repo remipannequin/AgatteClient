@@ -23,9 +23,6 @@ import android.os.Bundle;
 
 import java.util.Collection;
 
-/**
- * Created by Rémi Pannequin on 06/10/13.
- */
 public class AgatteResponse {
 
     private String[] punches;

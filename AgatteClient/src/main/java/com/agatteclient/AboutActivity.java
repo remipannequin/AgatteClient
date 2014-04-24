@@ -86,7 +86,7 @@ public class AboutActivity extends Activity {
     /**
      * Get current version number.
      *
-     * @return
+     * @return the version number string
      */
     private String getVersionNumber() {
         String version = "?";

@@ -27,7 +27,6 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Typeface;
@@ -35,7 +34,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Messenger;
 import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
 import android.view.Menu;
@@ -46,7 +44,6 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -107,9 +104,6 @@ public class MainActivity extends Activity {
     private TextView week_TextView;
     private TextView year_TextView;
     private TextView anomaly_TextView;
-    private ImageView refresh_action_iv;
-    private Messenger alarm_service_messenger;
-    private ServiceConnection alarm_service_conn;
 
     /**
      * Save the state of the activity (the DayCard)
@@ -235,7 +229,7 @@ public class MainActivity extends Activity {
             //get Y position from dc_view
             int top = dc_view.getFirstPunchY();
             day_sv.scrollTo(0, top);
-            super.onWindowFocusChanged(hasFocus);
+            super.onWindowFocusChanged(true);
         }
     }
 
@@ -391,7 +385,7 @@ public class MainActivity extends Activity {
     /**
      * Show confirmation dialog
      *
-     * @param i
+     * @param i the intent to start if the dialog is confirmed
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void showPunchConfirm(final Intent i) {
@@ -426,7 +420,7 @@ public class MainActivity extends Activity {
     /**
      * Show confirmation dialog on older API
      *
-     * @param i
+     * @param i the intent to start if the dialog is confirmed
      */
     @TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1)
     private void showPunchConfirmOld(final Intent i) {

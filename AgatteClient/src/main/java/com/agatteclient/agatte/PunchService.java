@@ -67,13 +67,13 @@ public class PunchService extends IntentService {
     }
 
     /**
-     * @param intent
+     * @param intent the result received
      */
     @Override
     protected void onHandleIntent(Intent intent) {
         Object receiver_raw = intent.getParcelableExtra(RESULT_RECEIVER);
-        Bundle bundle = new Bundle();
-        AgatteResultCode code = AgatteResultCode.exception;
+        Bundle bundle;
+        AgatteResultCode code;
         try {
             if (intent.getAction() == null) {
                 throw new AgatteException("Null intent");

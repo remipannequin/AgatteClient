@@ -26,9 +26,6 @@ import com.agatteclient.alarm.PunchAlarmTime;
 import java.util.Calendar;
 import java.util.Date;
 
-/**
- * Created by Rémi Pannequin on 01/11/13.
- */
 public class PunchAlarmTimeTest extends AndroidTestCase {
 
     public void testFireAt() throws Exception {

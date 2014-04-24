@@ -22,9 +22,6 @@ package com.agatteclient.alarm;
 import java.util.Calendar;
 import java.util.Date;
 
-/**
- * Created by Rémi Pannequin on 01/11/13.
- */
 public class PunchAlarmTime {
 
     private static final Calendar cal = Calendar.getInstance();
@@ -95,8 +92,8 @@ public class PunchAlarmTime {
      * Compute the next date when the alarm should be fired.
      * Result is null if there is no next occurrence (i.e. no firing days)
      *
-     * @param now
-     * @return
+     * @param now the current time
+     * @return the Date when the alarm should go off next
      */
     public Date nextAlarm(Date now) {
         cal.setTime(now);
@@ -139,8 +136,8 @@ public class PunchAlarmTime {
     /**
      * Get the next time the alarm should be triggered, 0 if it should run immediately or -1 if it does not trigger
      *
-     * @param currentTimeMillis
-     * @return
+     * @param currentTimeMillis now
+     * @return the time of the next alarm (in milliseconds)
      */
     public long nextAlarm(long currentTimeMillis) {
         Date d = new Date(currentTimeMillis);

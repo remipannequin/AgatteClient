@@ -115,7 +115,7 @@ public class AgatteParser {
     /**
      * Search for the contract number
      *
-     * @param result
+     * @param result the HTML page to parse
      * @return the contract number, or -1 if not found
      */
     private int searchForNumContract(String result) {
@@ -134,7 +134,7 @@ public class AgatteParser {
     /**
      * Search if counter are (said to be) unavailable
      *
-     * @param result
+     * @param result  the HTML page to parse
      * @return true if counter are *not* available
      */
     private boolean searchForCounterUnavailable(String result) {
@@ -147,7 +147,7 @@ public class AgatteParser {
     /**
      * Search for contract year
      *
-     * @param result
+     * @param result  the HTML page to parse
      * @return the year, or -1 if not found
      */
     private int searchForYearContract(String result) {
@@ -166,8 +166,8 @@ public class AgatteParser {
     /**
      * Get the value of the counter (in hours)
      *
-     * @param result
-     * @return
+     * @param result the HTML page to parse
+     * @return the value for the counter, or 0, if not found
      */
     private float searchForValue(String result) {
         Pattern p = Pattern.compile(PATTERN_COUNTER_VALUE);

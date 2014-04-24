@@ -45,7 +45,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     /**
      * Return the current SSID
      *
-     * @param context
+     * @param context calling application context
      * @return the currently connected SSID, or null if no wifi network is connected
      */
     private static String getCurrentSsid(Context context) {
