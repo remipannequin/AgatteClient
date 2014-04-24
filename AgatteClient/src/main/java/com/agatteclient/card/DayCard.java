@@ -1,3 +1,22 @@
+/*
+ * This file is part of AgatteClient.
+ *
+ * AgatteClient is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AgatteClient is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+ */
+
 /*This file is part of AgatteClient.
 
     AgatteClient is free software: you can redistribute it and/or modify
@@ -145,9 +164,11 @@ public class DayCard implements Serializable {
     }
 
     /**
+     * Add Punching data to the card
+     *
      * @param time    the date to add
      * @param virtual if true the punches added are virtual ones
-     * @return
+     * @return true if some correction need to be applied
      * @throws ParseException
      */
     private boolean addPunchRaw(String time, boolean virtual) throws ParseException {
@@ -186,14 +207,14 @@ public class DayCard implements Serializable {
     }
 
     /**
-     *
+     * Apply work time corrections
      */
     public void applyCorrection() {
         applyCorrection(now());
     }
 
     /**
-     *
+     * Apply work time corrections
      */
     public void applyCorrection(Date now) {
         corrected_punches.clear();
@@ -364,7 +385,7 @@ public class DayCard implements Serializable {
      * Compute the total worked time between punches (if event) or between punches and now (if odd)
      *
      * @param now the date representing the current time
-     * @return
+     * @return the total time computed
      */
     public double getTotalTime(Date now) {
         double result = 0.;
@@ -408,8 +429,8 @@ public class DayCard implements Serializable {
     }
 
     /**
-     * @param now
-     * @return
+     * @param now the current time
+     * @return the worked time in hours
      */
     public double getCorrectedTotalTime(Date now) {
         double correction = 0.;
@@ -492,7 +513,7 @@ public class DayCard implements Serializable {
             result[i++] = new Date(date_l);
         }
         if (isOdd()) {
-            result[i++] = now();
+            result[i] = now();
         }
         return result;
 
@@ -502,7 +523,7 @@ public class DayCard implements Serializable {
     /**
      * Return the first punch of the card or null if there is no punches in the card
      *
-     * @return
+     * @return the date of the first punch of the day
      */
     public Date getFirstPunch() {
         boolean empty = (this.punches.size() == 0);

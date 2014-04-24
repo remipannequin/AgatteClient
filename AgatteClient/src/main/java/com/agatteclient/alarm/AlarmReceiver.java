@@ -1,17 +1,21 @@
-/*This file is part of AgatteClient.
-
-    AgatteClient is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    AgatteClient is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.*/
+/*
+ * This file is part of AgatteClient.
+ *
+ * AgatteClient is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AgatteClient is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+ */
 
 package com.agatteclient.alarm;
 
@@ -26,12 +30,17 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.os.ResultReceiver;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.agatteclient.MainActivity;
 import com.agatteclient.R;
 import com.agatteclient.agatte.AgatteResponse;
 import com.agatteclient.agatte.AgatteResultCode;
 import com.agatteclient.agatte.PunchService;
+import com.agatteclient.card.CardBinder;
+import com.agatteclient.card.DayCard;
+
+import java.text.ParseException;
 
 /**
  * Broadcast Receiver that is fired when an alarm expire.
@@ -109,6 +118,18 @@ public class AlarmReceiver extends BroadcastReceiver {
                 case query_ok:
                     AgatteResponse rsp = AgatteResponse.fromBundle(resultData);
                     notification_text.append(ctx.getString(R.string.successful_programmed_punch));
+                    /* update day view with new punch times */
+                    try {
+                        DayCard cur_card = CardBinder.getInstance().getTodayCard();
+                        if (rsp.hasVirtualPunches()) {
+                            cur_card.addPunches(rsp.getVirtualPunches(), true);
+                        }
+                        if (rsp.hasPunches()) {
+                            cur_card.addPunches(rsp.getPunches(), false);
+                        }
+                    } catch (ParseException e) {
+                        Log.e(MainActivity.LOG_TAG, "Parse exception when updating the punch-card");
+                    }
                     break;
                 default:
 

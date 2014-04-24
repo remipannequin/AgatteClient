@@ -1,14 +1,29 @@
+/*
+ * This file is part of AgatteClient.
+ *
+ * AgatteClient is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AgatteClient is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+ */
+
 package com.agatteclient.alarm;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.IBinder;
 import android.util.Pair;
-
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,8 +31,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This file is part of AgatteClient
- * <p/>
  * This service has a map of pending intents corresponding to to all the scheduled alarms in the
  * system.
  * <p/>
@@ -26,31 +39,24 @@ import java.util.Set;
  * <p/>
  * Created by Rémi Pannequin on 18/04/14.
  */
-public class AlarmService extends Service {
+public class AlarmRegistry {
 
+    private static AlarmRegistry ourInstance;
     //Manage a collection of alarm, with their fingerprint
     private final Map<PunchAlarmTime, Pair<PendingIntent, Long>> pendingIntentMap;
 
-    public AlarmService() {
+    private AlarmRegistry() {
         this.pendingIntentMap = new HashMap<PunchAlarmTime, Pair<PendingIntent, Long>>();
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
+    public static AlarmRegistry getInstance() {
+        if (ourInstance == null) {
+            ourInstance = new AlarmRegistry();
+        }
+        return ourInstance;
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        //TODO: remove all intents
-    }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        //TODO: introduce various types of intent : UPDATE, CLEAR_ALL, ?
-        Context context = getApplicationContext();
+    public void update(Context context) {
         AlarmBinder binder = AlarmBinder.getInstance(context);
 
         //Extract longs representing the alarms
@@ -74,20 +80,21 @@ public class AlarmService extends Service {
                 updateAlarm(context, a);
             }
         }
-        return null;
     }
 
 
     private void addAlarm(Context context, PunchAlarmTime alarm) {
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent i = new Intent(context, AlarmReceiver.class);
-        //TODO: use request code
-        PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_ONE_SHOT);
-        pendingIntentMap.put(alarm, new Pair<PendingIntent, Long>(pi, alarm.toLong()));
-
+        // Check if alarm does actually fire
         long now = System.currentTimeMillis();
-        long delay = alarm.nextAlarm(now);
-        am.set(AlarmManager.RTC_WAKEUP, delay, pi);
+        long time = alarm.nextAlarm(now);
+        if (time >= 0) {
+            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            Intent i = new Intent(context, AlarmReceiver.class);
+            //TODO: use request code
+            PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_ONE_SHOT);
+            pendingIntentMap.put(alarm, new Pair<PendingIntent, Long>(pi, alarm.toLong()));
+            am.set(AlarmManager.RTC_WAKEUP, time, pi);
+        }
     }
 
 
@@ -106,13 +113,16 @@ public class AlarmService extends Service {
         //check if alarm time has changed by comparing its current fingerprint with the stored one
         if (alarm.toLong() != fingerprint) {
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            am.cancel(sender);
-            Intent i = new Intent(context, AlarmReceiver.class);
-            PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_ONE_SHOT);
-            pendingIntentMap.put(alarm, new Pair(pi, alarm.toLong()));
             long now = System.currentTimeMillis();
-            long delay = alarm.nextAlarm(now);
-            am.set(AlarmManager.RTC_WAKEUP, delay, pi);
+            long time = alarm.nextAlarm(now);
+            //must cancel : either it it wring, or it does not fire
+            am.cancel(sender);
+            if (time >= 0) {
+                Intent i = new Intent(context, AlarmReceiver.class);
+                PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_ONE_SHOT);
+                pendingIntentMap.put(alarm, new Pair(pi, alarm.toLong()));
+                am.set(AlarmManager.RTC_WAKEUP, time, pi);
+            }
         }
     }
 

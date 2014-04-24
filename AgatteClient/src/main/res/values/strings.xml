@@ -1,15 +1,33 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ This file is part of AgatteClient.
+  ~
+  ~ AgatteClient is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ AgatteClient is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+  ~
+  ~ Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+  -->
+
 <resources>
 
     <string name="app_name">Agatte</string>
-    <string name="action_settings">Parameters</string>
+    <string name="action_settings">Preferences</string>
     <string name="server_prefs_title">Agatte server</string>
     <string name="server_default_value">agatte.univ-lorraine.fr</string>
     <string name="login_prefs_title">User name</string>
     <string name="login_default_value">name5</string>
     <string name="password_prefs_title">Password</string>
     <string name="password_default_value">******</string>
-    <string name="title_activity_settings">Parameters</string>
+    <string name="title_activity_settings">Preferences</string>
     <string name="action_update">Update</string>
     <string name="dialog_confirm_punch">Confirm sending punch ?</string>
     <string name="send">Punch</string>
@@ -29,33 +47,58 @@
     <string name="connection_preferences">Connexion</string>
     <string name="profile_preference">Profile</string>
     <string name="title_activity_about">About</string>
-    <string name="about_description">AgatteClient : use Agatte from your smart phone</string>
+    <string name="about_description">Use Agatte from your smart phone</string>
     <string name="about_author">© 2013 Rémi Pannequin (remi.pannequin@gmail.com)</string>
-    <string name="about_version">Version :</string>
-    <string name="about_disclaimer">This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-    <b>Beware that time counters might be wrong, and punches might be lost...</b></string>
-    <string name="action_about">About</string>
-    <string name="about_free_soft">This is free software : you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.\n
-    \n
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <link>http://www.gnu.org/licenses</link>>\n
-    \n
-    Follow development, submit bugs or wishes at\n <link>https://github.com/remipannequin/AgatteClient</link></string>
+    <string name="about_version">AgatteClient (version %s)</string>
+    <string name="action_about">Help</string>
+    <string name="about_free_soft">
+        This is free software : you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.\n
+        \n
+        You can get a copy of the GNU General Public License at this address
+        <link>http://www.gnu.org/licenses</link>
+        \n
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.\n
+        <u>Beware that time counters might be wrong, and punches might be lost...</u>
+    </string>
+    <string name="about_getting_involved">
+        You are welcome to follow development, submit bugs or
+        wishes on GitHub (<link>https://github.com/remipannequin/AgatteClient</link>).
+    </string>
+    <string name="about_privacy">
+        To enable you to send your punching in a fast and easy manner,
+        AgatteClient stores your credential to the Agatte server. It communicate only
+        with this server : your login and password won\'t be send to any other party.
+        Nervertheless, they might be vulnerable to a malicious application with root
+        access to your phone.
+    </string>
+    <string name="about_rate">
+        Please take to time to rate this app. Your feedback will be really
+        appreciated.
+    </string>
+    <string name="about_rate_button">Rate on\nPlay Store</string>
+    <string name="about_getting_started">
+        Before you can connect to the Agatte server, you will have
+        to first enter your password and login.
+    </string>
+    <string name="About_getting_started_title">Getting started</string>
+    <string name="About_getting_involved_title">Getting involved</string>
+    <string name="about_privacy_title">Privacy</string>
+    <string name="about_licence_title">Licence</string>
     <string name="interface_preference">Interface</string>
     <string name="confirm_punch_title">Confirm Punch</string>
-    <string name="short_sunday">SUN.</string>
-    <string name="short_saturday">SAT.</string>
-    <string name="short_friday">FRI.</string>
-    <string name="short_thursday">THU.</string>
-    <string name="short_wednesday">WED.</string>
-    <string name="short_tuesday">TUE.</string>
-    <string name="short_monday">MON.</string>
+    <string name="short_sunday">SUN</string>
+    <string name="short_saturday">SAT</string>
+    <string name="short_friday">FRI</string>
+    <string name="short_thursday">THU</string>
+    <string name="short_wednesday">WED</string>
+    <string name="short_tuesday">TUE</string>
+    <string name="short_monday">MON</string>
     <string name="title_activity_alarm">Alarms</string>
     <string name="successful_programmed_punch">Programmed punching has been successfully made</string>
     <string name="programmed_punch_success_title">Programmed punching failed</string>
@@ -64,9 +107,8 @@
     <string name="alarm_add">Add</string>
     <string name="week_label">Week</string>
     <string name="year_label">Year</string>
-    <string name="time_test_week">-15h30</string>
-    <string name="time_test_year">+5d ½</string>
-    <string name="year_counter">%1$dd%2$s</string>
+    <string name="time_test_week">0h</string>
+    <string name="time_test_year">0d</string>
     <string name="alarm_enable">Enable</string>
     <string name="error">Error</string>
     <string name="hour_format">HH:mm</string>
@@ -74,7 +116,14 @@
     <string name="duration_minute">%02d</string>
     <string name="date_format">E dd MMM yyyy</string>
     <string name="anomaly">anomaly</string>
-    <string name="duration">%1$dh%2$02d</string>
+    <string name="counter_duration_min">+02dmin</string>
+    <string name="counter_duration">%1$+dh%2$02d</string>
+    <string name="counter_year">+%1$dd%2$s</string>
     <string name="counter_unavailable">Counters unavailable</string>
     <string name="auto_query_title">Query counters automatically</string>
+    <string name="alarm_delete_confirm">Delete this alarm (at %s)</string>
+    <string name="alarm_delete_confirm_question">Delete?</string>
+    <string name="alarm_delete_confirm_cancel">Cancel</string>
+    <string name="alarm_delete_confirm_ok">OK</string>
+    <string name="store_open_failed">Could not open Google Play.</string>
 </resources>

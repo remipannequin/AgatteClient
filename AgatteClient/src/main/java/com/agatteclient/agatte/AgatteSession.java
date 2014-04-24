@@ -1,17 +1,21 @@
-/*This file is part of AgatteClient.
-
-    AgatteClient is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    AgatteClient is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.*/
+/*
+ * This file is part of AgatteClient.
+ *
+ * AgatteClient is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AgatteClient is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+ */
 
 package com.agatteclient.agatte;
 
@@ -84,9 +88,6 @@ public class AgatteSession {
 
     /**
      * Create a new Agatte session.
-     *
-     * @throws URISyntaxException           If server YRL is not correct
-     * @throws UnsupportedEncodingException if username and password include chars unsupported in this encoding
      */
     private AgatteSession() {
         //super ("AgatteConnectionService");
@@ -240,20 +241,21 @@ public class AgatteSession {
             e.printStackTrace();
             throw new AgatteException(e);
         } finally {
-            if (client != null) {
-                logout(client);
-                client.close();
-            }
+            logout(client);
+            client.close();
         }
     }
 
     /**
-     * @return
-     * @throws IOException
+     * Query the agatte server to get the default counter. It also get contract num, and other data
+     * that can be useful in following queries
+     *
+     * @param client the http client to use
+     * @return a CountPage instance
+     * @throws IOException if the network connection fail
+     * @throws AgatteException if the server send an error
      */
     CounterPage queryCounterContext(AndroidHttpClient client) throws IOException, AgatteException {
-
-
         if (loginNotRequired()) {
             if (!login(client)) {
                 throw new AgatteLoginFailedException();
@@ -272,14 +274,16 @@ public class AgatteSession {
     }
 
     /**
-     * @param type
-     * @param year
-     * @param week
-     * @param contract
-     * @param contract_year
-     * @return
-     * @throws IOException
-     * @throws URISyntaxException
+     * Query the agatte server to get a specific counter.
+     *
+     * @param type the type of counter to query (week or year)
+     * @param year the year to query counter for
+     * @param week the week to query counter for (if applicable) value in range 1-52
+     * @param contract the contract number
+     * @param contract_year the accounting year
+     * @return a CounterPage instance
+     * @throws IOException if the network connection fail
+     * @throws URISyntaxException if the server send an error
      */
     CounterPage queryCounter(AndroidHttpClient client, AgatteCounterResponse.Type type, int year, int week, int contract, int contract_year) throws IOException, URISyntaxException, AgatteException {
         String date = String.format("%04d%02d", year, week);
@@ -326,6 +330,24 @@ public class AgatteSession {
      * nivCpt: X X="H" for weekly counter, X="A" for yearly
      * codeAnu: YYYY where YYYY is the year of the contract
      */
+
+
+    /**
+     * Get the counter page from the server, and parse the response.
+     * <p/>
+     * 1) Send a GET request to extract contract number and contract year, then
+     * 2) send a POST request to the server with the following content
+     * <p/>
+     * numSem:YYYYWW where YYYY is the year and WW is the week number in the year. Only in "A" mode
+     * numCont: 10259  number of the work contract
+     * nivCpt: X X="H" for weekly counter, X="A" for yearly
+     * codeAnu: YYYY where YYYY is the year of the contract
+     *
+     * @param year the year to query
+     * @param week the week number to query
+     * @return an AgatteCounterResponse instance
+     * @throws AgatteException
+     */
     public AgatteCounterResponse queryCounterWeek(int year, int week) throws AgatteException {
         AndroidHttpClient client = null;
         try {
@@ -348,9 +370,9 @@ public class AgatteSession {
     }
 
     /**
-     * Get the counter value of the current week
+     * Get the counter value for the current week
      *
-     * @return
+     * @return an AgatteCounterResponse
      */
     public AgatteCounterResponse queryCounterCurrent() throws AgatteException {
         AndroidHttpClient client = null;
@@ -383,7 +405,7 @@ public class AgatteSession {
      * <p/>
      * Useful for testing mainly
      *
-     * @return
+     * @return an AgatteResponse instance
      */
     public AgatteResponse queryPunchOk() throws AgatteException {
         AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
@@ -407,10 +429,8 @@ public class AgatteSession {
             e.printStackTrace();
             throw new AgatteException(e);
         } finally {
-            if (client != null) {
-                logout(client);
-                client.close();
-            }
+            logout(client);
+            client.close();
         }
     }
 

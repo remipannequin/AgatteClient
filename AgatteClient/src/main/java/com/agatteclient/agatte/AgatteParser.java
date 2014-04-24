@@ -1,17 +1,21 @@
-/*This file is part of AgatteClient.
-
-    AgatteClient is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    AgatteClient is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.*/
+/*
+ * This file is part of AgatteClient.
+ *
+ * AgatteClient is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AgatteClient is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+ */
 
 package com.agatteclient.agatte;
 
@@ -111,7 +115,7 @@ public class AgatteParser {
     /**
      * Search for the contract number
      *
-     * @param result
+     * @param result the HTML page to parse
      * @return the contract number, or -1 if not found
      */
     private int searchForNumContract(String result) {
@@ -130,7 +134,7 @@ public class AgatteParser {
     /**
      * Search if counter are (said to be) unavailable
      *
-     * @param result
+     * @param result  the HTML page to parse
      * @return true if counter are *not* available
      */
     private boolean searchForCounterUnavailable(String result) {
@@ -143,7 +147,7 @@ public class AgatteParser {
     /**
      * Search for contract year
      *
-     * @param result
+     * @param result  the HTML page to parse
      * @return the year, or -1 if not found
      */
     private int searchForYearContract(String result) {
@@ -162,8 +166,8 @@ public class AgatteParser {
     /**
      * Get the value of the counter (in hours)
      *
-     * @param result
-     * @return
+     * @param result the HTML page to parse
+     * @return the value for the counter, or 0, if not found
      */
     private float searchForValue(String result) {
         Pattern p = Pattern.compile(PATTERN_COUNTER_VALUE);

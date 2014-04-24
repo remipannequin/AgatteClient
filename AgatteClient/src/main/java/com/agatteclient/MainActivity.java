@@ -1,17 +1,21 @@
-/*This file is part of AgatteClient.
-
-    AgatteClient is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    AgatteClient is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.*/
+/*
+ * This file is part of AgatteClient.
+ *
+ * AgatteClient is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AgatteClient is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+ */
 
 package com.agatteclient;
 
@@ -20,23 +24,18 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
 import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -45,7 +44,6 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -58,7 +56,7 @@ import com.agatteclient.agatte.AgatteSession;
 import com.agatteclient.agatte.PunchService;
 import com.agatteclient.alarm.AlarmActivity;
 import com.agatteclient.alarm.AlarmBinder;
-import com.agatteclient.alarm.AlarmService;
+import com.agatteclient.alarm.AlarmRegistry;
 import com.agatteclient.card.CardBinder;
 import com.agatteclient.card.DayCard;
 import com.agatteclient.card.DayCardView;
@@ -74,9 +72,6 @@ import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- *
- */
 public class MainActivity extends Activity {
 
     public static final String SERVER_PREF = "server"; //NON-NLS
@@ -85,6 +80,7 @@ public class MainActivity extends Activity {
     public static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";
     public static final String LOGIN_DEFAULT = "login"; //NON-NLS
     public static final String PASSWD_DEFAULT = "";
+    public static final String LOG_TAG = "com.agatteclient"; //NON-NLS
     private static final String CONFIRM_PUNCH_PREF = "confirm_punch"; //NON-NLS
     private static final String AUTO_QUERY_PREF = "auto_query"; //NON-NLS
     private static final String PROFILE_PREF = "week_profile"; //NON-NLS
@@ -92,7 +88,6 @@ public class MainActivity extends Activity {
     private static final String COUNTER_YEAR_PREF = "counter-year"; //NON-NLS
     private static final String COUNTER_LAST_UPDATE_PREF = "counter-update"; //NON-NLS
     private static final String DAY_CARD = "day-card"; //NON-NLS
-    private static final String LOG_TAG = "com.agatteclient"; //NON-NLS
 
     private MenuItem refreshItem = null;
     private ScaleGestureDetector mScaleDetector;
@@ -234,7 +229,7 @@ public class MainActivity extends Activity {
             //get Y position from dc_view
             int top = dc_view.getFirstPunchY();
             day_sv.scrollTo(0, top);
-            super.onWindowFocusChanged(hasFocus);
+            super.onWindowFocusChanged(true);
         }
     }
 
@@ -303,15 +298,18 @@ public class MainActivity extends Activity {
         week_hours = week_hours * neg;
         int h = (int) Math.floor(week_hours);
         int m = Math.round((week_hours - h) * 60);
-        week_TextView.setText(String.format(getString(R.string.duration), neg * h, m));
-
+        if (h == 0) {
+            week_TextView.setText(String.format(getString(R.string.counter_duration_min), neg * h, m));
+        } else {
+            week_TextView.setText(String.format(getString(R.string.counter_duration), neg * h, m));
+        }
         neg = (global_hours < 0 ? -1 : 1);
         global_hours = global_hours * neg;
         String profile = preferences.getString(PROFILE_PREF, "1");
         int profile_n = Integer.decode(profile) - 1;
         float day_goal = TimeProfile.values()[profile_n].daily_time;
         int half_day = (int) Math.round(global_hours * 2.0 / day_goal);
-        year_TextView.setText(String.format(getString(R.string.year_counter), neg * half_day / 2, (half_day % 2 == 11 ? " ½" : "")));
+        year_TextView.setText(String.format(getString(R.string.counter_year), neg * half_day / 2, (half_day % 2 == 11 ? " ½" : "")));
     }
 
 
@@ -329,7 +327,6 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
             if (refreshItem != null && refreshItem.getActionView() != null) {
                 refreshItem.getActionView().clearAnimation();
-                refreshItem.setActionView(null);
             }
         }
     }
@@ -341,15 +338,10 @@ public class MainActivity extends Activity {
     void runRefresh() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
             if (getApplication() != null) {
-                LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                ImageView refresh_action_iv = (ImageView) inflater.inflate(R.layout.update_action_view, null);
                 Animation rotation = AnimationUtils.loadAnimation(getApplication(), R.anim.clockwise_refresh);
-                assert rotation != null;
-                assert refresh_action_iv != null;
                 rotation.setRepeatCount(Animation.INFINITE);
                 /* Attach a rotating ImageView to the refresh item as an ActionView */
-                refresh_action_iv.startAnimation(rotation);
-                refreshItem.setActionView(refresh_action_iv);
+                refreshItem.getActionView().startAnimation(rotation);
             }
         }
     }
@@ -358,7 +350,16 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
+            final Menu m = menu;
+            refreshItem = menu.findItem(R.id.action_update);
+            refreshItem.getActionView().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    m.performIdentifierAction(refreshItem.getItemId(), 0);
+                }
+            });
+        }
         return true;
     }
 
@@ -374,34 +375,17 @@ public class MainActivity extends Activity {
 
 
     /**
-     *
+     * Update the alarms Scheduled in the alarm manager.
      */
     private void doAlarmUpdate() {
-        final ServiceConnection mServerConn = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder binder) {
-                Log.d(LOG_TAG, "Alarm Service Connected");
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                Log.d(LOG_TAG, "Alarm Service Disconnected");
-            }
-        };
-        final Intent i = new Intent(this, AlarmService.class);
-        //i.setAction("");
-        if (bindService(i, mServerConn, Context.BIND_AUTO_CREATE)) {
-            Log.i(LOG_TAG, "Alarm Service bound");
-        } else {
-            Log.e(LOG_TAG, "Alarm Service not bound");
-        }
+        AlarmRegistry.getInstance().update(getApplicationContext());
     }
 
 
     /**
      * Show confirmation dialog
      *
-     * @param i
+     * @param i the intent to start if the dialog is confirmed
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void showPunchConfirm(final Intent i) {
@@ -436,7 +420,7 @@ public class MainActivity extends Activity {
     /**
      * Show confirmation dialog on older API
      *
-     * @param i
+     * @param i the intent to start if the dialog is confirmed
      */
     @TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1)
     private void showPunchConfirmOld(final Intent i) {
@@ -531,8 +515,6 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-
-
             //display error (in a Toast)
             StringBuilder toast = new StringBuilder();
             boolean isPunch = false;
@@ -666,4 +648,5 @@ public class MainActivity extends Activity {
             return true;
         }
     }
+
 }
