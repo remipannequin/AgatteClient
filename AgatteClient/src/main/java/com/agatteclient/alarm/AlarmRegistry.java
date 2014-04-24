@@ -21,13 +21,9 @@ package com.agatteclient.alarm;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.IBinder;
 import android.util.Pair;
-
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,31 +39,24 @@ import java.util.Set;
  * <p/>
  * Created by Rémi Pannequin on 18/04/14.
  */
-public class AlarmService extends Service {
+public class AlarmRegistry {
 
+    private static AlarmRegistry ourInstance;
     //Manage a collection of alarm, with their fingerprint
     private final Map<PunchAlarmTime, Pair<PendingIntent, Long>> pendingIntentMap;
 
-    public AlarmService() {
+    private AlarmRegistry() {
         this.pendingIntentMap = new HashMap<PunchAlarmTime, Pair<PendingIntent, Long>>();
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
+    public static AlarmRegistry getInstance() {
+        if (ourInstance == null) {
+            ourInstance = new AlarmRegistry();
+        }
+        return ourInstance;
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        //TODO: remove all intents
-    }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        //TODO: introduce various types of intent : UPDATE, CLEAR_ALL, ?
-        Context context = getApplicationContext();
+    public void update(Context context) {
         AlarmBinder binder = AlarmBinder.getInstance(context);
 
         //Extract longs representing the alarms
@@ -91,7 +80,6 @@ public class AlarmService extends Service {
                 updateAlarm(context, a);
             }
         }
-        return null;
     }
 
 

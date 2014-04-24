@@ -123,5 +123,5 @@
     <string name="alarm_delete_confirm_question">Supprimer ?</string>
     <string name="alarm_delete_confirm_cancel">Annuler</string>
     <string name="alarm_delete_confirm_ok">OK</string>
-    <string name="store_open_failed">Impossible d'ouvrir Google Play.</string>
+    <string name="store_open_failed">Impossible d\'ouvrir Google Play.</string>
 </resources>

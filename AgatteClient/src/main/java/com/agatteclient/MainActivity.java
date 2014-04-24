@@ -24,7 +24,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -35,11 +34,10 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
+import android.os.Messenger;
 import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -61,7 +59,7 @@ import com.agatteclient.agatte.AgatteSession;
 import com.agatteclient.agatte.PunchService;
 import com.agatteclient.alarm.AlarmActivity;
 import com.agatteclient.alarm.AlarmBinder;
-import com.agatteclient.alarm.AlarmService;
+import com.agatteclient.alarm.AlarmRegistry;
 import com.agatteclient.card.CardBinder;
 import com.agatteclient.card.DayCard;
 import com.agatteclient.card.DayCardView;
@@ -110,6 +108,8 @@ public class MainActivity extends Activity {
     private TextView year_TextView;
     private TextView anomaly_TextView;
     private ImageView refresh_action_iv;
+    private Messenger alarm_service_messenger;
+    private ServiceConnection alarm_service_conn;
 
     /**
      * Save the state of the activity (the DayCard)
@@ -381,27 +381,10 @@ public class MainActivity extends Activity {
 
 
     /**
-     *
+     * Update the alarms Scheduled in the alarm manager.
      */
     private void doAlarmUpdate() {
-        final ServiceConnection mServerConn = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder binder) {
-                Log.d(LOG_TAG, "Alarm Service Connected");
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                Log.d(LOG_TAG, "Alarm Service Disconnected");
-            }
-        };
-        final Intent i = new Intent(this, AlarmService.class);
-        //i.setAction("");
-        if (bindService(i, mServerConn, Context.BIND_AUTO_CREATE)) {
-            Log.i(LOG_TAG, "Alarm Service bound");
-        } else {
-            Log.e(LOG_TAG, "Alarm Service not bound");
-        }
+        AlarmRegistry.getInstance().update(getApplicationContext());
     }
 
 
@@ -671,4 +654,5 @@ public class MainActivity extends Activity {
             return true;
         }
     }
+
 }

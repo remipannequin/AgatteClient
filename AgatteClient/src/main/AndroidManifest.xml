@@ -87,11 +87,6 @@
                 android:value="MainActivity" />
         </activity>
 
-        <service
-            android:name=".alarm.AlarmService"
-            android:enabled="true"
-            android:label="AlarmService" />
-
     </application>
 
 </manifest>
