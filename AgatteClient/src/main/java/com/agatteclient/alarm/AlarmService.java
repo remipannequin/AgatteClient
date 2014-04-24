@@ -1,3 +1,22 @@
+/*
+ * This file is part of AgatteClient.
+ *
+ * AgatteClient is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AgatteClient is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+ */
+
 package com.agatteclient.alarm;
 
 import android.app.AlarmManager;
@@ -16,8 +35,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This file is part of AgatteClient
- * <p/>
  * This service has a map of pending intents corresponding to to all the scheduled alarms in the
  * system.
  * <p/>
@@ -79,15 +96,17 @@ public class AlarmService extends Service {
 
 
     private void addAlarm(Context context, PunchAlarmTime alarm) {
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent i = new Intent(context, AlarmReceiver.class);
-        //TODO: use request code
-        PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_ONE_SHOT);
-        pendingIntentMap.put(alarm, new Pair<PendingIntent, Long>(pi, alarm.toLong()));
-
+        // Check if alarm does actually fire
         long now = System.currentTimeMillis();
-        long delay = alarm.nextAlarm(now);
-        am.set(AlarmManager.RTC_WAKEUP, delay, pi);
+        long time = alarm.nextAlarm(now);
+        if (time >= 0) {
+            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            Intent i = new Intent(context, AlarmReceiver.class);
+            //TODO: use request code
+            PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_ONE_SHOT);
+            pendingIntentMap.put(alarm, new Pair<PendingIntent, Long>(pi, alarm.toLong()));
+            am.set(AlarmManager.RTC_WAKEUP, time, pi);
+        }
     }
 
 
@@ -106,13 +125,16 @@ public class AlarmService extends Service {
         //check if alarm time has changed by comparing its current fingerprint with the stored one
         if (alarm.toLong() != fingerprint) {
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            am.cancel(sender);
-            Intent i = new Intent(context, AlarmReceiver.class);
-            PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_ONE_SHOT);
-            pendingIntentMap.put(alarm, new Pair(pi, alarm.toLong()));
             long now = System.currentTimeMillis();
-            long delay = alarm.nextAlarm(now);
-            am.set(AlarmManager.RTC_WAKEUP, delay, pi);
+            long time = alarm.nextAlarm(now);
+            //must cancel : either it it wring, or it does not fire
+            am.cancel(sender);
+            if (time >= 0) {
+                Intent i = new Intent(context, AlarmReceiver.class);
+                PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_ONE_SHOT);
+                pendingIntentMap.put(alarm, new Pair(pi, alarm.toLong()));
+                am.set(AlarmManager.RTC_WAKEUP, time, pi);
+            }
         }
     }
 

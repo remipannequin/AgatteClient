@@ -1,4 +1,22 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ This file is part of AgatteClient.
+  ~
+  ~ AgatteClient is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ AgatteClient is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+  ~
+  ~ Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+  -->
+
 <resources>
     <string name="app_name">Agatte</string>
     <string name="action_settings">Paramètres</string>
@@ -27,31 +45,57 @@
     <string name="week_goal_prefs_title">Temps de travail hebdomadaire</string>
     <string name="connection_preferences">Connexion</string>
     <string name="profile_preference">Profil</string>
-    <string name="title_activity_about">À propos</string>
-    <string name="about_description">AgatteClient : utilisez Agatte depuis votre smartphone.</string>
-    <string name="about_disclaimer">AgatteClient est distribué dans l\'espoir qu\'il sera utile, mais SANS AUCUNE GARANTIE ; pas même la garantie implicite de COMMERCIABILISABILITÉ ni d\'ADÉQUATION à UN OBJECTIF PARTICULIER. Consultez la GNU GPL pour plus de détails.\n<b>Soyez conscients que les informations de décompte de temps peuvent être éronés et des pointage peuvent être perdus...</b></string>
-    <string name="action_about">À propos</string>
+    <string name="title_activity_about">Aide</string>
+    <string name="about_description">Utilisez Agatte depuis votre smartphone.</string>
+    <string name="action_about">Aide</string>
     <string name="about_author">© 2013 Rémi Pannequin (remi.pannequin@gmail.com)</string>
-    <string name="about_version">Version :</string>
+    <string name="about_version">AgatteClient (version %s)</string>
     <string name="about_free_soft">
-        Ce logiciel est libre ; vous pouvez le redistribuer ou le\n
-        modifier suivant les termes de la GNU General Public\n
-        License telle que publiée par la Free Software\n
-        Foundation ; soit la version 3 de la licence,\n
-        soit (à votre gré) toute version ultérieure.\n
-        Consultez <link>http://www.gnu.org/licenses</link>.\n\n
+        Ce logiciel est libre ; vous pouvez le redistribuer ou le modifier suivant les termes de la
+        GNU General Public License telle que publiée par la Free Software Foundation ; soit la
+        version 3 de la licence, soit (à votre gré) toute version ultérieure.\n
+        \n
+        Pour plus de renseignment, consultez <link>http://www.gnu.org/licenses</link>.\n
+        \n
+        AgatteClient est distribué dans l\'espoir qu\'il sera utile,
+        mais SANS AUCUNE GARANTIE ; pas même la garantie implicite de COMMERCIABILISABILITÉ ni
+        d\'ADÉQUATION à UN OBJECTIF PARTICULIER. Consultez la GNU GPL pour plus de détails.
+        \n
+        <u>Attention : les informations de décompte de temps peuvent être éronées et des
+            pointages peuvent être perdus...</u>
+    </string>
+    <string name="About_getting_involved_title">Participer</string>
+    <string name="about_getting_involved">
         Vous pouvez suivre le développement, soumettre\n
         des anomalies ou des souhaits \n
-        sur <link>https://github.com/remipannequin/AgatteClient</link></string>
+        sur <link>https://github.com/remipannequin/AgatteClient</link>
+    </string>
+    <string name="about_privacy">
+        Pour vous permetre de pointer rapidement et simplement,
+        AgatteClient enregistre vos identifiants de connection. Ceux ci ne sont communiqués qu\'au
+        serveur Agatte, et ne seront divulgé à aucun tier. Cependant, une application malveillante
+        ayant un accès root sur votre téléphone pourrait y avoir accès.
+    </string>
+    <string name="about_rate">
+        Merci de prendre le temps d\'évaluer cette application. Vos
+        commentaires nous sont précieux !
+    </string>
+    <string name="about_rate_button">Évaluer sur\nPlay Store</string>
+    <string name="about_getting_started">
+        Avant tout chose, vous devrez renseigner vos identifiants et login dans les préférences.
+    </string>
+    <string name="About_getting_started_title">Première utilisation</string>
+    <string name="about_privacy_title">Données personnelles</string>
+    <string name="about_licence_title">License</string>
     <string name="interface_preference">Interface</string>
     <string name="confirm_punch_title">Confirmer le pointage</string>
-    <string name="short_sunday">DIM.</string>
-    <string name="short_saturday">SAM.</string>
-    <string name="short_friday">VEN.</string>
-    <string name="short_thursday">JEU.</string>
-    <string name="short_wednesday">MER.</string>
-    <string name="short_tuesday">MAR.</string>
-    <string name="short_monday">LUN.</string>
+    <string name="short_sunday">DIM</string>
+    <string name="short_saturday">SAM</string>
+    <string name="short_friday">VEN</string>
+    <string name="short_thursday">JEU</string>
+    <string name="short_wednesday">MER</string>
+    <string name="short_tuesday">MAR</string>
+    <string name="short_monday">LUN</string>
     <string name="successful_programmed_punch">Le pointage programmé a été effectué</string>
     <string name="programmed_punch_success_title">Échec du pointage</string>
     <string name="programmed_punch_failed_title">Pointage effectué</string>
@@ -73,4 +117,8 @@
     <string name="duration">%1$dh%2$02d</string>
     <string name="counter_unavailable">Compteurs non disponibles</string>
     <string name="auto_query_title">Récupération auto. des compteurs</string>
+    <string name="alarm_delete_confirm">Supprimer l\'alarme (à %s) ?</string>
+    <string name="alarm_delete_confirm_question">Supprimer ?</string>
+    <string name="alarm_delete_confirm_cancel">Annuler</string>
+    <string name="alarm_delete_confirm_ok">OK</string>
 </resources>

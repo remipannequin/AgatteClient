@@ -1,17 +1,21 @@
-/*This file is part of AgatteClient.
-
-    AgatteClient is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    AgatteClient is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.*/
+/*
+ * This file is part of AgatteClient.
+ *
+ * AgatteClient is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AgatteClient is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+ */
 
 package com.agatteclient;
 
@@ -36,7 +40,6 @@ import android.os.Looper;
 import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -74,9 +77,6 @@ import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- *
- */
 public class MainActivity extends Activity {
 
     public static final String SERVER_PREF = "server"; //NON-NLS
@@ -85,6 +85,7 @@ public class MainActivity extends Activity {
     public static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";
     public static final String LOGIN_DEFAULT = "login"; //NON-NLS
     public static final String PASSWD_DEFAULT = "";
+    public static final String LOG_TAG = "com.agatteclient"; //NON-NLS
     private static final String CONFIRM_PUNCH_PREF = "confirm_punch"; //NON-NLS
     private static final String AUTO_QUERY_PREF = "auto_query"; //NON-NLS
     private static final String PROFILE_PREF = "week_profile"; //NON-NLS
@@ -92,7 +93,6 @@ public class MainActivity extends Activity {
     private static final String COUNTER_YEAR_PREF = "counter-year"; //NON-NLS
     private static final String COUNTER_LAST_UPDATE_PREF = "counter-update"; //NON-NLS
     private static final String DAY_CARD = "day-card"; //NON-NLS
-    private static final String LOG_TAG = "com.agatteclient"; //NON-NLS
 
     private MenuItem refreshItem = null;
     private ScaleGestureDetector mScaleDetector;
@@ -109,6 +109,7 @@ public class MainActivity extends Activity {
     private TextView week_TextView;
     private TextView year_TextView;
     private TextView anomaly_TextView;
+    private ImageView refresh_action_iv;
 
     /**
      * Save the state of the activity (the DayCard)
@@ -329,7 +330,6 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
             if (refreshItem != null && refreshItem.getActionView() != null) {
                 refreshItem.getActionView().clearAnimation();
-                refreshItem.setActionView(null);
             }
         }
     }
@@ -341,15 +341,10 @@ public class MainActivity extends Activity {
     void runRefresh() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
             if (getApplication() != null) {
-                LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                ImageView refresh_action_iv = (ImageView) inflater.inflate(R.layout.update_action_view, null);
                 Animation rotation = AnimationUtils.loadAnimation(getApplication(), R.anim.clockwise_refresh);
-                assert rotation != null;
-                assert refresh_action_iv != null;
                 rotation.setRepeatCount(Animation.INFINITE);
                 /* Attach a rotating ImageView to the refresh item as an ActionView */
-                refresh_action_iv.startAnimation(rotation);
-                refreshItem.setActionView(refresh_action_iv);
+                refreshItem.getActionView().startAnimation(rotation);
             }
         }
     }
@@ -358,7 +353,14 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-
+        final Menu m = menu;
+        refreshItem = menu.findItem(R.id.action_update);
+        refreshItem.getActionView().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                m.performIdentifierAction(refreshItem.getItemId(), 0);
+            }
+        });
         return true;
     }
 
@@ -531,8 +533,6 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-
-
             //display error (in a Toast)
             StringBuilder toast = new StringBuilder();
             boolean isPunch = false;

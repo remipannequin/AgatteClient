@@ -1,13 +1,32 @@
+<!--
+  ~ This file is part of AgatteClient.
+  ~
+  ~ AgatteClient is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ AgatteClient is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+  ~
+  ~ Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+  -->
+
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_alarm_add"
-        android:title="@string/alarm_add"
-        app:showAsAction="always"
+        android:icon="@drawable/ic_action_device_access_alarms"
         android:orderInCategory="100"
-        android:icon="@drawable/ic_action_device_access_alarms" />
+        android:title="@string/alarm_add"
+        app:showAsAction="always" />
     <item
         android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="100" />
+        android:orderInCategory="100"
+        android:title="@string/action_settings" />
 </menu>
