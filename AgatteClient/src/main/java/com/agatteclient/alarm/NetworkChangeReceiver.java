@@ -27,19 +27,12 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
-    private final Set<String> authorized_ssid;
 
     public NetworkChangeReceiver() {
         super();
-        authorized_ssid = new HashSet<String>();
-        //TODO: get the list of authorized network from preference
-        authorized_ssid.add("eduroam");
-        authorized_ssid.add("Personnels Univ-Lorraine");
+
     }
 
     /**
@@ -69,10 +62,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         if (intent.getAction() != null && intent.getAction().equals("android.net.wifi.WIFI_STATE_CHANGED")) { //NON-NLS
             //TODO
         }
-
         String ssid = getCurrentSsid(context);
-        if (authorized_ssid.contains(ssid)) {
-            //TODO
-        }
+        NetworkChangeRegistry.getInstance().setCurrentSSID(ssid);
     }
 }
