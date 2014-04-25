@@ -122,4 +122,8 @@
     <string name="alarm_delete_confirm_cancel">Annuler</string>
     <string name="alarm_delete_confirm_ok">OK</string>
     <string name="store_open_failed">Impossible d\'ouvrir Google Play.</string>
+    <string name="conter_autoquery_descativated">
+        Compteurs indisponibles, désactivation de la mise à jour automatique pour rlimiter la
+        consommation de données
+    </string>
 </resources>

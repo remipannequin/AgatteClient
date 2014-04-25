@@ -282,7 +282,7 @@ public class MainActivity extends Activity {
                 //set auto-update to false
                 editor.putBoolean(AUTO_QUERY_PREF, false);
                 // and notify the user
-                Toast.makeText(getApplicationContext(), "Counter are not currently available, deactivating automatic query to save bandwidth", Toast.LENGTH_LONG);
+                Toast.makeText(getApplicationContext(), getString(R.string.conter_autoquery_descativated), Toast.LENGTH_LONG).show();
                 editor.commit();
             }
             week_hours = preferences.getFloat(COUNTER_WEEK_PREF, 0);
