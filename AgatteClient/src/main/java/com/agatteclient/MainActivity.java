@@ -299,7 +299,7 @@ public class MainActivity extends Activity {
         int h = (int) Math.floor(week_hours);
         int m = Math.round((week_hours - h) * 60);
         if (h == 0) {
-            week_TextView.setText(String.format(getString(R.string.counter_duration_min), neg * h, m));
+            week_TextView.setText(String.format(getString(R.string.counter_duration_min), m));
         } else {
             week_TextView.setText(String.format(getString(R.string.counter_duration), neg * h, m));
         }
