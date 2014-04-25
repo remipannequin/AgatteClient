@@ -43,10 +43,13 @@ public class AlarmRegistry {
 
     private static AlarmRegistry ourInstance;
     //Manage a collection of alarm, with their fingerprint
-    private final Map<PunchAlarmTime, Pair<PendingIntent, Long>> pendingIntentMap;
+    private final Map<PunchAlarmTime, Pair<PendingIntent, Long>> pending_intent_map;
+    private final Map<PunchAlarmTime, Integer> request_code_map;
+    private int next_request_code = 0;
 
     private AlarmRegistry() {
-        this.pendingIntentMap = new HashMap<PunchAlarmTime, Pair<PendingIntent, Long>>();
+        this.pending_intent_map = new HashMap<PunchAlarmTime, Pair<PendingIntent, Long>>();
+        this.request_code_map = new HashMap<PunchAlarmTime, Integer>();
     }
 
     public static AlarmRegistry getInstance() {
@@ -56,6 +59,19 @@ public class AlarmRegistry {
         return ourInstance;
     }
 
+    /**
+     * Compute the next unused requestCode
+     *
+     * @return the next unused requestCode
+     */
+    private int getFreeRequestCode() {
+        return next_request_code++;
+    }
+
+
+    /**
+     * @param context
+     */
     public void update(Context context) {
         AlarmBinder binder = AlarmBinder.getInstance(context);
 
@@ -66,7 +82,7 @@ public class AlarmRegistry {
         }
 
         //Cancel alarms that are not in the binder any more
-        for (PunchAlarmTime a : pendingIntentMap.keySet()) {
+        for (PunchAlarmTime a : pending_intent_map.keySet()) {
             if (!binder.contains(a)) {
                 cancelAlarm(context, a);
             }
@@ -74,7 +90,7 @@ public class AlarmRegistry {
 
         //Add alarms that are new, update the other ones
         for (PunchAlarmTime a : binder) {
-            if (!pendingIntentMap.containsKey(a)) {
+            if (!pending_intent_map.containsKey(a)) {
                 addAlarm(context, a);
             } else {
                 updateAlarm(context, a);
@@ -82,7 +98,10 @@ public class AlarmRegistry {
         }
     }
 
-
+    /**
+     * @param context
+     * @param alarm
+     */
     private void addAlarm(Context context, PunchAlarmTime alarm) {
         // Check if alarm does actually fire
         long now = System.currentTimeMillis();
@@ -90,38 +109,54 @@ public class AlarmRegistry {
         if (time >= 0) {
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             Intent i = new Intent(context, AlarmReceiver.class);
-            //TODO: use request code
-            PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_ONE_SHOT);
-            pendingIntentMap.put(alarm, new Pair<PendingIntent, Long>(pi, alarm.toLong()));
+            int rc = getFreeRequestCode();
+            PendingIntent pi = PendingIntent.getBroadcast(context, rc, i, PendingIntent.FLAG_ONE_SHOT);
+            request_code_map.put(alarm, rc);
+            pending_intent_map.put(alarm, new Pair<PendingIntent, Long>(pi, alarm.toLong()));
             am.set(AlarmManager.RTC_WAKEUP, time, pi);
         }
     }
 
-
+    /**
+     *
+     * @param context
+     * @param alarm
+     */
     private void cancelAlarm(Context context, PunchAlarmTime alarm) {
-        PendingIntent sender = pendingIntentMap.get(alarm).first;
+        PendingIntent sender = pending_intent_map.get(alarm).first;
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(sender);
-        pendingIntentMap.remove(alarm);
+        pending_intent_map.remove(alarm);
+        request_code_map.remove(alarm);
 
     }
 
-
+    /**
+     *
+     * @param context
+     * @param alarm
+     */
     private void updateAlarm(Context context, PunchAlarmTime alarm) {
-        PendingIntent sender = pendingIntentMap.get(alarm).first;
-        long fingerprint = pendingIntentMap.get(alarm).second;
+        PendingIntent sender = pending_intent_map.get(alarm).first;
+        long fingerprint = pending_intent_map.get(alarm).second;
         //check if alarm time has changed by comparing its current fingerprint with the stored one
         if (alarm.toLong() != fingerprint) {
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             long now = System.currentTimeMillis();
             long time = alarm.nextAlarm(now);
-            //must cancel : either it it wring, or it does not fire
-            am.cancel(sender);
+
             if (time >= 0) {
                 Intent i = new Intent(context, AlarmReceiver.class);
-                PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_ONE_SHOT);
-                pendingIntentMap.put(alarm, new Pair(pi, alarm.toLong()));
+                //using the same request code, the previous alarm is replaced
+                int rc = request_code_map.get(alarm);
+                PendingIntent pi = PendingIntent.getBroadcast(context, rc, i, PendingIntent.FLAG_ONE_SHOT);
+                pending_intent_map.put(alarm, new Pair(pi, alarm.toLong()));
                 am.set(AlarmManager.RTC_WAKEUP, time, pi);
+            } else {
+                //must cancel
+                am.cancel(sender);
+                pending_intent_map.remove(alarm);
+                request_code_map.remove(alarm);
             }
         }
     }
