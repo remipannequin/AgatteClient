@@ -19,6 +19,10 @@
 
 package com.agatteclient.alarm;
 
+import android.util.Log;
+
+import com.agatteclient.MainActivity;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -93,9 +97,13 @@ public class PunchAlarmTime {
      * Result is null if there is no next occurrence (i.e. no firing days)
      *
      * @param now the current time
-     * @return the Date when the alarm should go off next
+     * @return the Date when the alarm should go off next or null if it is not activated
      */
     public Date nextAlarm(Date now) {
+        if (!isEnabled()) {
+            return null;
+        }
+
         cal.setTime(now);
         //get the number of minute of day
         int num_min = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
@@ -117,7 +125,7 @@ public class PunchAlarmTime {
                 }
                 cal.add(Calendar.DATE, 1);
             }
-            //TODO: log warning !
+            Log.w(MainActivity.LOG_TAG, "Alarm will not fire in the next 7 days.");
             return null;
         } else {
             //after alarm time: search next firing day
@@ -146,6 +154,9 @@ public class PunchAlarmTime {
         return next.getTime();
     }
 
+    /**
+     * @return
+     */
     public Date getTime() {
         cal.set(Calendar.HOUR_OF_DAY, this.time_of_day / 60);
         cal.set(Calendar.MINUTE, this.time_of_day % 60);
@@ -154,6 +165,11 @@ public class PunchAlarmTime {
         return cal.getTime();
     }
 
+    /**
+     *
+     * @param o
+     * @return
+     */
     @Override
     public boolean equals(Object o) {
         if (o instanceof PunchAlarmTime) {

@@ -48,89 +48,72 @@
         android:layout_below="@+id/alarmEnabledCompoundButton">
 
         <ToggleButton
-        android:id="@+id/toggleButton_monday"
+            android:id="@+id/toggleButton_monday"
             android:layout_width="0dp"
-        android:layout_height="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-        android:width="10dp"
-        android:checked="true"
-        android:maxWidth="10dp"
-        android:textOff="LUN."
-        android:textOn="LUN."
-        android:textSize="12sp" />
+            android:checked="true"
+            android:textOff="@string/short_monday"
+            android:textOn="@string/short_monday"
+            android:textSize="12sp" />
 
-    <ToggleButton
-        android:id="@+id/toggleButton_tuesday"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:width="10dp"
-        android:checked="true"
-        android:gravity="center_vertical|center_horizontal"
-        android:maxWidth="10dp"
-        android:textOff="MAR."
-        android:textOn="MAR."
-        android:textSize="12sp" />
+        <ToggleButton
+            android:id="@+id/toggleButton_tuesday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:textOff="@string/short_tuesday"
+            android:textOn="@string/short_tuesday"
+            android:textSize="12sp" />
 
-    <ToggleButton
-        android:id="@+id/toggleButton_wednesday"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:width="10dp"
-        android:checked="true"
-        android:maxWidth="10dp"
-        android:textOff="MER."
-        android:textOn="MER."
-        android:textSize="12sp" />
+        <ToggleButton
+            android:id="@+id/toggleButton_wednesday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:textOff="@string/short_wednesday"
+            android:textOn="@string/short_wednesday"
+            android:textSize="12sp" />
 
-    <ToggleButton
-        android:id="@+id/toggleButton_thursday"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:width="10dp"
-        android:checked="true"
-        android:maxWidth="10dp"
-        android:textOff="JEU."
-        android:textOn="JEU."
-        android:textSize="12sp" />
+        <ToggleButton
+            android:id="@+id/toggleButton_thursday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:textOff="@string/short_thursday"
+            android:textOn="@string/short_thursday"
+            android:textSize="12sp" />
 
-    <ToggleButton
-        android:id="@+id/toggleButton_friday"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:width="10dp"
-        android:checked="true"
-        android:enabled="true"
-        android:maxWidth="10dp"
-        android:textOff="VEN."
-        android:textOn="VEN."
-        android:textSize="12sp" />
+        <ToggleButton
+            android:id="@+id/toggleButton_friday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:textOff="@string/short_friday"
+            android:textOn="@string/short_friday"
+            android:textSize="12sp" />
 
-    <ToggleButton
-        android:id="@+id/toggleButton_saturday"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:width="10dp"
-        android:maxWidth="10dp"
-        android:textOff="SAM."
-        android:textOn="SAM."
-        android:textSize="12sp" />
+        <ToggleButton
+            android:id="@+id/toggleButton_saturday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textOff="@string/short_saturday"
+            android:textOn="@string/short_saturday"
+            android:textSize="12sp" />
 
-    <ToggleButton
-        android:id="@+id/toggleButton_sunday"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:width="10dp"
-        android:maxWidth="10dp"
-        android:singleLine="false"
-        android:textOff="DIM."
-        android:textOn="DIM."
-        android:textSize="12sp" />
+        <ToggleButton
+            android:id="@+id/toggleButton_sunday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textOff="@string/short_sunday"
+            android:textOn="@string/short_sunday"
+            android:textSize="12sp" />
 
     </LinearLayout>
 
