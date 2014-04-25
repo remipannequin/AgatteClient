@@ -53,21 +53,20 @@
     <string name="about_free_soft">
         Ce logiciel est libre ; vous pouvez le redistribuer ou le modifier suivant les termes de la
         GNU General Public License telle que publiée par la Free Software Foundation ; soit la
-        version 3 de la licence, soit (à votre gré) toute version ultérieure.%n
-        %n
-        Pour plus de renseignment, consultez <link>http://www.gnu.org/licenses</link>.%n
-        %n
+        version 3 de la licence, soit (à votre gré) toute version ultérieure.\n
+        \n
+        Pour plus de renseignment, consultez <link>http://www.gnu.org/licenses</link>.\n
+        \n
         AgatteClient est distribué dans l\'espoir qu\'il sera utile,
         mais SANS AUCUNE GARANTIE ; pas même la garantie implicite de COMMERCIABILISABILITÉ ni
         d\'ADÉQUATION à UN OBJECTIF PARTICULIER. Consultez la GNU GPL pour plus de détails.
-        %n
+        \n
         <u>Attention : les informations de décompte de temps peuvent être éronées et des
             pointages peuvent être perdus...</u>
     </string>
     <string name="About_getting_involved_title">Participer</string>
     <string name="about_getting_involved">
-        Vous pouvez suivre le développement, soumettre%n
-        des anomalies ou des souhaits %n
+        Vous pouvez suivre le développement, soumettre des anomalies ou des souhaits
         sur <link>https://github.com/remipannequin/AgatteClient</link>
     </string>
     <string name="about_privacy">
@@ -80,7 +79,7 @@
         Merci de prendre le temps d\'évaluer cette application. Vos
         commentaires nous sont précieux !
     </string>
-    <string name="about_rate_button">Évaluer sur%nPlay Store</string>
+    <string name="about_rate_button">Évaluer sur\nPlay Store</string>
     <string name="about_getting_started">
         Avant tout chose, vous devrez renseigner vos identifiants et login dans les préférences.
     </string>
@@ -113,9 +112,9 @@
     <string name="duration_minute">%02d</string>
     <string name="date_format">E dd MMM yyyy</string>
     <string name="anomaly">anomalie</string>
-    <string name="counter_year">%1$dj%2$s</string>
-    <string name="counter_duration_min">+02dmin</string>
-    <string name="counter_duration">%1$dh%2$02d</string>
+    <string name="counter_year">%1$+dj%2$s</string>
+    <string name="counter_duration_min">%1$+02dmin</string>
+    <string name="counter_duration">%1$+dh%2$02d</string>
     <string name="counter_unavailable">Compteurs non disponibles</string>
     <string name="auto_query_title">Récupération auto. des compteurs</string>
     <string name="alarm_delete_confirm">Supprimer l\'alarme (à %s) ?</string>

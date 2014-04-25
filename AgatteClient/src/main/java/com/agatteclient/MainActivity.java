@@ -200,9 +200,6 @@ public class MainActivity extends Activity {
         boolean auto_query = preferences.getBoolean(AUTO_QUERY_PREF, true);
         if (auto_query) {
         /* Get last known value in the prefs, and request update if necessary */
-            if (!preferences.contains(COUNTER_LAST_UPDATE_PREF)) {
-                //TODO: if old value does not exist ?
-            }
             int last_update = preferences.getInt(COUNTER_LAST_UPDATE_PREF, -1);
             if (last_update != cur_card.getDayOfYear() + 1000 * cur_card.getYear()) {
                 doUpdateCounters();
@@ -279,6 +276,15 @@ public class MainActivity extends Activity {
             editor.putInt(COUNTER_LAST_UPDATE_PREF, cur_card.getDayOfYear() + cur_card.getYear() * 1000);
             editor.commit();
         } else {
+            if (!preferences.contains(COUNTER_LAST_UPDATE_PREF)) {
+                // if old value does not exist AND counter are unavailable
+                SharedPreferences.Editor editor = preferences.edit();
+                //set auto-update to false
+                editor.putBoolean(AUTO_QUERY_PREF, false);
+                // and notify the user
+                Toast.makeText(getApplicationContext(), "Counter are not currently available, deactivating automatic query to save bandwidth", Toast.LENGTH_LONG);
+                editor.commit();
+            }
             week_hours = preferences.getFloat(COUNTER_WEEK_PREF, 0);
             global_hours = preferences.getFloat(COUNTER_YEAR_PREF, 0);
         }
@@ -299,7 +305,7 @@ public class MainActivity extends Activity {
         int h = (int) Math.floor(week_hours);
         int m = Math.round((week_hours - h) * 60);
         if (h == 0) {
-            week_TextView.setText(String.format(getString(R.string.counter_duration_min), neg * h, m));
+            week_TextView.setText(String.format(getString(R.string.counter_duration_min), m));
         } else {
             week_TextView.setText(String.format(getString(R.string.counter_duration), neg * h, m));
         }
