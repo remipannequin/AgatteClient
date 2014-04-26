@@ -25,8 +25,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Pair;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,6 +44,7 @@ import java.util.Set;
 public class AlarmRegistry {
 
     private static AlarmRegistry ourInstance;
+
     //Manage a collection of alarm, with their fingerprint
     private final Map<PunchAlarmTime, Pair<PendingIntent, Long>> pending_intent_map;
     private final Map<PunchAlarmTime, Integer> request_code_map;
@@ -59,6 +62,10 @@ public class AlarmRegistry {
         return ourInstance;
     }
 
+    public static void reset() {
+        ourInstance = null;
+    }
+
     /**
      * Compute the next unused requestCode
      *
@@ -68,6 +75,13 @@ public class AlarmRegistry {
         return next_request_code++;
     }
 
+    public Map<PunchAlarmTime, Pair<PendingIntent, Long>> getPending_intent_map() {
+        return pending_intent_map;
+    }
+
+    public Map<PunchAlarmTime, Integer> getRequest_code_map() {
+        return request_code_map;
+    }
 
     /**
      * @param context
@@ -82,11 +96,16 @@ public class AlarmRegistry {
         }
 
         //Cancel alarms that are not in the binder any more
+        List<PunchAlarmTime> to_remove = new ArrayList<PunchAlarmTime>(pending_intent_map.size());
         for (PunchAlarmTime a : pending_intent_map.keySet()) {
             if (!binder.contains(a)) {
-                cancelAlarm(context, a);
+                to_remove.add(a);
             }
         }
+        for (PunchAlarmTime a : to_remove) {
+            cancelAlarm(context, a);
+        }
+
 
         //Add alarms that are new, update the other ones
         for (PunchAlarmTime a : binder) {
@@ -132,7 +151,6 @@ public class AlarmRegistry {
     }
 
     /**
-     *
      * @param context
      * @param alarm
      */
@@ -160,6 +178,4 @@ public class AlarmRegistry {
             }
         }
     }
-
-
 }
