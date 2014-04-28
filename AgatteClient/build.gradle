@@ -17,6 +17,12 @@
  * Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
  */
 
+
+
+
+
+
+
 buildscript {
     repositories {
         mavenCentral()
@@ -61,7 +67,6 @@ android {
 dependencies {
     compile 'com.android.support:appcompat-v7:19.1.0'
     compile 'com.android.support:support-v4:19.1.0'
-    compile 'com.intellij:annotations:+@jar'
 }
 
 task askForPasswords << {

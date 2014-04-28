@@ -113,8 +113,6 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
         alarms.get(1).setEnabled(false);
         setActivityInitialTouchMode(false);
         mActivity = (AlarmActivity) getActivity();
-
-
     }
 
     @MediumTest

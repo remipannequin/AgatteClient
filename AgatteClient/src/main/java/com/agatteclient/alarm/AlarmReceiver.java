@@ -58,7 +58,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         final Intent i = new Intent(context, PunchService.class);
         i.setAction(PunchService.DO_PUNCH);
         i.putExtra(PunchService.RESULT_RECEIVER, new PunchResultReceiver(context));
-        context.startService(i);
+        //context.startService(i);
         wl.release();
     }
 
@@ -128,7 +128,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                             cur_card.addPunches(rsp.getPunches(), false);
                         }
                     } catch (ParseException e) {
-                        Log.e(MainActivity.LOG_TAG, "Parse exception when updating the punch-card");
+                        Log.e(MainActivity.LOG_TAG, "Parse exception when updating the punch-card");//NON-NLS
                     }
                     break;
                 default:
@@ -144,6 +144,9 @@ public class AlarmReceiver extends BroadcastReceiver {
                     new Intent(ctx, MainActivity.class), 0);
 
             mNotifyManager.notify(0, mBuilder.build());
+
+            //Update the AlarmRegistry
+            AlarmRegistry.getInstance().update(ctx);
         }
     }
 
