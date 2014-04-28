@@ -23,7 +23,6 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,13 +45,12 @@ public class AlarmRegistry {
     private static AlarmRegistry ourInstance;
 
     //Manage a collection of alarm, with their fingerprint
-    private final Map<PunchAlarmTime, Pair<PendingIntent, Long>> pending_intent_map;
-    private final Map<PunchAlarmTime, Integer> request_code_map;
+    private final Map<PunchAlarmTime, Alarm> pending_intent_map;
     private int next_request_code = 0;
 
     private AlarmRegistry() {
-        this.pending_intent_map = new HashMap<PunchAlarmTime, Pair<PendingIntent, Long>>();
-        this.request_code_map = new HashMap<PunchAlarmTime, Integer>();
+        this.pending_intent_map = new HashMap<PunchAlarmTime, Alarm>();
+
     }
 
     public static AlarmRegistry getInstance() {
@@ -67,6 +65,19 @@ public class AlarmRegistry {
     }
 
     /**
+     * Cancel and remove all scheduled alarms
+     *
+     * @param context
+     */
+    public void cancelAll(Context context) {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        for (Alarm a : pending_intent_map.values()) {
+            alarmManager.cancel(a.intent);
+        }
+        pending_intent_map.clear();
+    }
+
+    /**
      * Compute the next unused requestCode
      *
      * @return the next unused requestCode
@@ -75,12 +86,20 @@ public class AlarmRegistry {
         return next_request_code++;
     }
 
-    public Map<PunchAlarmTime, Pair<PendingIntent, Long>> getPending_intent_map() {
+    public Map<PunchAlarmTime, Alarm> getPending_intent_map() {
         return pending_intent_map;
     }
 
-    public Map<PunchAlarmTime, Integer> getRequest_code_map() {
-        return request_code_map;
+    public long getFingerPrint(PunchAlarmTime a) {
+        return pending_intent_map.get(a).finger_print;
+    }
+
+    public long getRequestCode(PunchAlarmTime a) {
+        return pending_intent_map.get(a).request_code;
+    }
+
+    public long getTime(PunchAlarmTime a) {
+        return pending_intent_map.get(a).time;
     }
 
     /**
@@ -130,8 +149,8 @@ public class AlarmRegistry {
             Intent i = new Intent(context, AlarmReceiver.class);
             int rc = getFreeRequestCode();
             PendingIntent pi = PendingIntent.getBroadcast(context, rc, i, PendingIntent.FLAG_ONE_SHOT);
-            request_code_map.put(alarm, rc);
-            pending_intent_map.put(alarm, new Pair<PendingIntent, Long>(pi, alarm.toLong()));
+            Alarm o = new Alarm(pi, alarm.toLong(), rc, time);
+            pending_intent_map.put(alarm, o);
             am.set(AlarmManager.RTC_WAKEUP, time, pi);
         }
     }
@@ -142,12 +161,10 @@ public class AlarmRegistry {
      * @param alarm
      */
     private void cancelAlarm(Context context, PunchAlarmTime alarm) {
-        PendingIntent sender = pending_intent_map.get(alarm).first;
+        PendingIntent sender = pending_intent_map.get(alarm).intent;
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(sender);
         pending_intent_map.remove(alarm);
-        request_code_map.remove(alarm);
-
     }
 
     /**
@@ -155,8 +172,8 @@ public class AlarmRegistry {
      * @param alarm
      */
     private void updateAlarm(Context context, PunchAlarmTime alarm) {
-        PendingIntent sender = pending_intent_map.get(alarm).first;
-        long fingerprint = pending_intent_map.get(alarm).second;
+        PendingIntent sender = pending_intent_map.get(alarm).intent;
+        long fingerprint = pending_intent_map.get(alarm).finger_print;
         //check if alarm time has changed by comparing its current fingerprint with the stored one
         if (alarm.toLong() != fingerprint) {
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -166,16 +183,30 @@ public class AlarmRegistry {
             if (time >= 0) {
                 Intent i = new Intent(context, AlarmReceiver.class);
                 //using the same request code, the previous alarm is replaced
-                int rc = request_code_map.get(alarm);
+                int rc = pending_intent_map.get(alarm).request_code;
                 PendingIntent pi = PendingIntent.getBroadcast(context, rc, i, PendingIntent.FLAG_ONE_SHOT);
-                pending_intent_map.put(alarm, new Pair(pi, alarm.toLong()));
+                pending_intent_map.put(alarm, new Alarm(pi, fingerprint, rc, time));
                 am.set(AlarmManager.RTC_WAKEUP, time, pi);
             } else {
                 //must cancel
                 am.cancel(sender);
                 pending_intent_map.remove(alarm);
-                request_code_map.remove(alarm);
             }
+        }
+    }
+
+    //public for debugging purposes
+    public class Alarm {
+        public PendingIntent intent;
+        public long finger_print;
+        public int request_code;
+        public long time;
+
+        Alarm(PendingIntent intent, long finger_print, int request_code, long time) {
+            this.intent = intent;
+            this.finger_print = finger_print;
+            this.request_code = request_code;
+            this.time = time;
         }
     }
 }
