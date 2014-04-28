@@ -19,8 +19,6 @@
 
 package com.agatteclient.alarm;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,7 +27,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.os.ResultReceiver;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.agatteclient.MainActivity;
@@ -66,14 +63,10 @@ public class AlarmReceiver extends BroadcastReceiver {
     private class PunchResultReceiver extends ResultReceiver {
 
         private final Context ctx;
-        private final NotificationManager mNotifyManager;
-        private final NotificationCompat.Builder mBuilder;
 
         public PunchResultReceiver(Context ctx) {
             super(new Handler(Looper.getMainLooper()));
             this.ctx = ctx;
-            mNotifyManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
-            mBuilder = new NotificationCompat.Builder(ctx);
         }
 
         @Override
@@ -82,16 +75,6 @@ public class AlarmReceiver extends BroadcastReceiver {
             AgatteResultCode code = AgatteResultCode.values()[resultCode];
             //set notification text and title based on result
             StringBuilder notification_text = new StringBuilder();
-            StringBuilder notification_title = new StringBuilder();
-
-            int icon;
-            if (code == AgatteResultCode.punch_ok || code == AgatteResultCode.query_ok) {
-                notification_title.append(ctx.getString(R.string.programmed_punch_failed_title));
-                icon = R.drawable.ic_stat_agatte;
-            } else {
-                notification_title.append(ctx.getString(R.string.programmed_punch_success_title));
-                icon = R.drawable.ic_stat_alerts_and_states_warning;
-            }
 
             switch (code) {
                 case network_not_authorized:
@@ -135,15 +118,8 @@ public class AlarmReceiver extends BroadcastReceiver {
 
 
             }
+            AlarmDoneNotification.notify(ctx, code, notification_text.toString(), 0);
 
-            mBuilder.setContentTitle(notification_title)
-                    .setContentText(notification_text)
-                    .setSmallIcon(icon);
-
-            PendingIntent contentIntent = PendingIntent.getActivity(ctx, 0,
-                    new Intent(ctx, MainActivity.class), 0);
-
-            mNotifyManager.notify(0, mBuilder.build());
 
             //Update the AlarmRegistry
             AlarmRegistry.getInstance().update(ctx);
