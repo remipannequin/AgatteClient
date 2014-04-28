@@ -53,15 +53,17 @@ public class AlarmRegistryTest extends AndroidTestCase {
         binder = AlarmBinder.getInstance(ctx);
         Calendar cal = Calendar.getInstance();
         now = cal.getTimeInMillis();
-        cal.add(Calendar.MINUTE, 2);
+        cal.add(Calendar.HOUR_OF_DAY, 2);
+        cal.set(Calendar.MILLISECOND, 0);
+        cal.set(Calendar.SECOND, 0);
         t1 = cal.getTimeInMillis();
         a1 = new PunchAlarmTime(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
         binder.add(a1);
-        cal.add(Calendar.MINUTE, 4);
+        cal.add(Calendar.HOUR_OF_DAY, 4);
         t2 = cal.getTimeInMillis();
         a2 = new PunchAlarmTime(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
         binder.add(a2);
-        cal.add(Calendar.MINUTE, 8);
+        cal.add(Calendar.HOUR_OF_DAY, 8);
         t3 = cal.getTimeInMillis();
         a3 = new PunchAlarmTime(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
         binder.add(a3);
@@ -132,7 +134,24 @@ public class AlarmRegistryTest extends AndroidTestCase {
         instance.update(ctx);
         Map<PunchAlarmTime, AlarmRegistry.Alarm> pim = instance.getPending_intent_map();
 
-        //TODO: check times
+        // check times
+        assertEquals(t1, instance.getTime(a1));
+        assertEquals(t2, instance.getTime(a2));
+        assertEquals(t3, instance.getTime(a3));
+
+        Calendar cal = Calendar.getInstance();
+
+        cal.add(Calendar.HOUR_OF_DAY, 12);
+        cal.add(Calendar.MINUTE, 12);
+        cal.set(Calendar.MILLISECOND, 0);
+        cal.set(Calendar.SECOND, 0);
+        long t2_bis = cal.getTimeInMillis();
+        a2.setTime(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
+        instance.update(ctx);
+        assertEquals(t1, instance.getTime(a1));
+        assertEquals(t2_bis, instance.getTime(a2));
+        assertEquals(t3, instance.getTime(a3));
+
 
         instance.cancelAll(ctx);
     }
