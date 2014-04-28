@@ -179,7 +179,7 @@ public class DayCardView extends View {
         mandatory_paint.setStyle(Paint.Style.FILL);
         mandatory_paint.setColor(mandatory_color);
 
-        cal.set(Calendar.HOUR, 12);
+        cal.set(Calendar.HOUR_OF_DAY, 12);
         cal.set(Calendar.MINUTE, 22);
         text_width = event_text_paint.measureText(fmt.format(cal.getTime()));
 

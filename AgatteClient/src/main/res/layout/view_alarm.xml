@@ -25,7 +25,7 @@
     android:layout_height="fill_parent"
     android:longClickable="true">
 
-    <TextView
+<TextView
         android:id="@+id/alarmTimeTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -52,11 +52,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:width="10dp"
             android:checked="true"
-            android:maxWidth="10dp"
-            android:textOff="LUN."
-            android:textOn="LUN."
+            android:textOff="@string/short_monday"
+            android:textOn="@string/short_monday"
             android:textSize="12sp" />
 
         <ToggleButton
@@ -64,12 +62,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:width="10dp"
             android:checked="true"
-            android:gravity="center_vertical|center_horizontal"
-            android:maxWidth="10dp"
-            android:textOff="MAR."
-            android:textOn="MAR."
+            android:textOff="@string/short_tuesday"
+            android:textOn="@string/short_tuesday"
             android:textSize="12sp" />
 
         <ToggleButton
@@ -77,11 +72,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:width="10dp"
             android:checked="true"
-            android:maxWidth="10dp"
-            android:textOff="MER."
-            android:textOn="MER."
+            android:textOff="@string/short_wednesday"
+            android:textOn="@string/short_wednesday"
             android:textSize="12sp" />
 
         <ToggleButton
@@ -89,11 +82,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:width="10dp"
             android:checked="true"
-            android:maxWidth="10dp"
-            android:textOff="JEU."
-            android:textOn="JEU."
+            android:textOff="@string/short_thursday"
+            android:textOn="@string/short_thursday"
             android:textSize="12sp" />
 
         <ToggleButton
@@ -101,12 +92,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:width="10dp"
             android:checked="true"
-            android:enabled="true"
-            android:maxWidth="10dp"
-            android:textOff="VEN."
-            android:textOn="VEN."
+            android:textOff="@string/short_friday"
+            android:textOn="@string/short_friday"
             android:textSize="12sp" />
 
         <ToggleButton
@@ -114,10 +102,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:width="10dp"
-            android:maxWidth="10dp"
-            android:textOff="SAM."
-            android:textOn="SAM."
+            android:textOff="@string/short_saturday"
+            android:textOn="@string/short_saturday"
             android:textSize="12sp" />
 
         <ToggleButton
@@ -125,11 +111,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:width="10dp"
-            android:maxWidth="10dp"
-            android:singleLine="false"
-            android:textOff="DIM."
-            android:textOn="DIM."
+            android:textOff="@string/short_sunday"
+            android:textOn="@string/short_sunday"
             android:textSize="12sp" />
 
     </LinearLayout>

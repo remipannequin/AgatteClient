@@ -128,7 +128,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                             cur_card.addPunches(rsp.getPunches(), false);
                         }
                     } catch (ParseException e) {
-                        Log.e(MainActivity.LOG_TAG, "Parse exception when updating the punch-card");
+                        Log.e(MainActivity.LOG_TAG, "Parse exception when updating the punch-card");//NON-NLS
                     }
                     break;
                 default:
@@ -144,6 +144,9 @@ public class AlarmReceiver extends BroadcastReceiver {
                     new Intent(ctx, MainActivity.class), 0);
 
             mNotifyManager.notify(0, mBuilder.build());
+
+            //Update the AlarmRegistry
+            AlarmRegistry.getInstance().update(ctx);
         }
     }
 
