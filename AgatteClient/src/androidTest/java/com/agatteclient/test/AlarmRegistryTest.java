@@ -156,4 +156,5 @@ public class AlarmRegistryTest extends AndroidTestCase {
         instance.cancelAll(ctx);
     }
 
+
 }

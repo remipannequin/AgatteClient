@@ -173,13 +173,13 @@ public class AlarmRegistry {
      */
     private void updateAlarm(Context context, PunchAlarmTime alarm) {
         PendingIntent sender = pending_intent_map.get(alarm).intent;
+        long now = System.currentTimeMillis();
         long fingerprint = pending_intent_map.get(alarm).finger_print;
         //check if alarm time has changed by comparing its current fingerprint with the stored one
-        if (alarm.toLong() != fingerprint) {
+        //If alarm is in the past, update time
+        if (alarm.toLong() != fingerprint || pending_intent_map.get(alarm).time < now) {
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            long now = System.currentTimeMillis();
             long time = alarm.nextAlarm(now);
-
             if (time >= 0) {
                 Intent i = new Intent(context, AlarmReceiver.class);
                 //using the same request code, the previous alarm is replaced
