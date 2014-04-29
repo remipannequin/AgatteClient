@@ -225,6 +225,38 @@ public class MainActivity extends Activity {
         }
     }
 
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        Intent intent;
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                //display Settings activity
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                    intent = new Intent(this, AgattePreferenceActivity.class);
+                } else {
+                    intent = new Intent(this, AgattePreferenceActivity.class);
+                }
+                startActivity(intent);
+                break;
+            case R.id.action_alarm:
+                intent = new Intent(this, AlarmActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.action_update:
+                refreshItem = item;//menu.getItem(R.id.action_update);
+                doUpdate();
+                doUpdateCounters();
+                break;
+            case R.id.action_about:
+                Intent about_intent = new Intent(this, AboutActivity.class);
+                startActivity(about_intent);
+
+        }
+        return true;
+    }
+
+
     /**
      * Update view to reflect the current state of the card
      */
@@ -311,6 +343,12 @@ public class MainActivity extends Activity {
         float day_goal = TimeProfile.values()[profile_n].daily_time;
         int half_day = (int) Math.round(global_hours * 2.0 / day_goal);
         year_TextView.setText(String.format(getString(R.string.counter_year), neg * half_day / 2, (half_day % 2 == 11 ? " ½" : "")));
+    }
+
+
+    private void updateAuthNetwork(boolean auth) {
+        int ic_auth = (auth ? R.drawable.ic_auth_green : R.drawable.ic_auth_grey);
+        punch_button.setCompoundDrawablesWithIntrinsicBounds(0, 0, ic_auth, 0);
     }
 
 
@@ -463,36 +501,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        Intent intent;
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                //display Settings activity
-
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                    intent = new Intent(this, AgattePreferenceActivity.class);
-                } else {
-                    intent = new Intent(this, AgattePreferenceActivity.class);
-                }
-                startActivity(intent);
-                break;
-            case R.id.action_alarm:
-                intent = new Intent(this, AlarmActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.action_update:
-                refreshItem = item;//menu.getItem(R.id.action_update);
-                doUpdate();
-                doUpdateCounters();
-                break;
-            case R.id.action_about:
-                Intent about_intent = new Intent(this, AboutActivity.class);
-                startActivity(about_intent);
-
-        }
-        return true;
-    }
 
     private void doUpdate() {
         Intent i = new Intent(this, PunchService.class);
