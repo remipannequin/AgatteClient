@@ -56,6 +56,7 @@ import com.agatteclient.agatte.PunchService;
 import com.agatteclient.alarm.AlarmActivity;
 import com.agatteclient.alarm.AlarmBinder;
 import com.agatteclient.alarm.AlarmRegistry;
+import com.agatteclient.alarm.NetworkChangeRegistry;
 import com.agatteclient.card.CardBinder;
 import com.agatteclient.card.DayCard;
 import com.agatteclient.card.DayCardView;
@@ -156,16 +157,6 @@ public class MainActivity extends Activity {
         dc_view = (DayCardView) findViewById(R.id.day_card_view);
         dc_view.setCard(cur_card);
         day_progress = (ProgressBar) findViewById(R.id.day_progress);
-        /*String profile = preferences.getString(PROFILE_PREF, "1");
-        int profile_n = Integer.decode(profile) - 1;
-        float day_goal = TimeProfile.values()[profile_n].daily_time;
-
-        Resources r = getResources();
-        float scale = r.getDisplayMetrics().density;
-
-        day_progress.setProgressDrawable(new TimeProgressDrawable(1200, day_goal, 100, scale));
-        day_progress.setMax(1200);
-        */
         day_textView = (TextView) findViewById(R.id.day_textView);
         week_TextView = (TextView) findViewById(R.id.week_textView);
         year_TextView = (TextView) findViewById(R.id.year_textView);
@@ -598,6 +589,7 @@ public class MainActivity extends Activity {
                 @Override
                 public void run() {
                     updateCard();
+                    updateAuthNetwork(NetworkChangeRegistry.getInstance().isOnAuthorizeNetwork());
                 }
             });
         }
