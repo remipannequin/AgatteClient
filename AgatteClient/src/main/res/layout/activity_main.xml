@@ -30,14 +30,18 @@
 
     <ScrollView
         android:id="@+id/day_scrollview"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:layout_above="@+id/button_doPunch"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/day_progress"
-        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingBottom="15dp"
+        android:paddingRight="15dp"
         android:scrollbars="none">
 
-        <view
+
+    <view
             android:id="@+id/day_card_view"
             class="com.agatteclient.card.DayCardView"
             android:layout_width="fill_parent"
@@ -64,13 +68,17 @@
         android:layout_alignLeft="@+id/day_scrollview"
         android:layout_alignParentBottom="true"
         android:layout_alignRight="@+id/day_progress"
+        android:background="@android:color/transparent"
         android:onClick="doPunch"
         android:singleLine="true"
-        android:text="@string/punch_button1" />
+        android:text="@string/punch_button1"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textStyle="bold" />
 
-    <ProgressBar
+    <view
         android:id="@+id/day_progress"
         style="?android:attr/progressBarStyleLarge"
+        class="com.agatteclient.card.TimeProgress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
@@ -85,6 +93,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/day_progress"
+        android:layout_alignParentRight="true"
         android:layout_alignRight="@+id/day_progress"
         android:layout_below="@+id/day_textView"
         android:gravity="center_horizontal|bottom"
@@ -96,9 +105,8 @@
         android:id="@+id/time_count_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/day_progress"
-        android:layout_alignRight="@+id/day_progress"
-        android:layout_alignTop="@+id/day_scrollview"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
         android:gravity="center_horizontal|top"
         android:singleLine="false"
         android:text="@string/time_count"
@@ -110,6 +118,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/day_progress"
         android:layout_alignLeft="@+id/day_progress"
+        android:layout_alignParentRight="true"
         android:layout_alignRight="@+id/day_progress"
         android:layout_alignTop="@+id/day_progress"
         android:gravity="center_vertical|center_horizontal"

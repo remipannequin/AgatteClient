@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<!--
   ~ This file is part of AgatteClient.
   ~
   ~ AgatteClient is free software: you can redistribute it and/or modify
@@ -17,22 +17,13 @@
   ~ Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
   -->
 
+<!-- TODO: define real attributes and implements them in TimeProgress & TimeProgressDrawable -->
+
 <resources>
-    <declare-styleable name="DayCardView">
-        <attr name="textHeight" format="dimension" />
-        <attr name="textEventTimeColor" format="color" />
-        <attr name="textDurationColor" format="color" />
-        <attr name="dayStartHour" format="integer" />
-        <attr name="hourLineColor" format="color" />
-        <attr name="hourLineWidth" format="dimension" />
-        <attr name="durationColor" format="color" />
-        <attr name="durationVirtualColor" format="color" />
-        <attr name="timeFormat" format="string" />
-        <attr name="mandatoryColor" format="color" />
-        <attr name="hourIncrement" format="integer" />
-        <attr name="hourHeight" format="dimension" />
-        <attr name="hatchingColor" format="color" />
+    <declare-styleable name="TimeProgress">
+        <attr name="exampleString" format="string" />
+        <attr name="exampleDimension" format="dimension" />
+        <attr name="exampleColor" format="color" />
+        <attr name="exampleDrawable" format="color|reference" />
     </declare-styleable>
-
-
 </resources>

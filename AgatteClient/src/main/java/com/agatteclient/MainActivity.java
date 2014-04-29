@@ -28,7 +28,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -61,7 +60,6 @@ import com.agatteclient.card.CardBinder;
 import com.agatteclient.card.DayCard;
 import com.agatteclient.card.DayCardView;
 import com.agatteclient.card.TimeProfile;
-import com.agatteclient.card.TimeProgressDrawable;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
@@ -79,9 +77,9 @@ public class MainActivity extends Activity {
     public static final String LOGIN_DEFAULT = "login"; //NON-NLS
     public static final String PASSWD_DEFAULT = "";
     public static final String LOG_TAG = "com.agatteclient"; //NON-NLS
+    public static final String PROFILE_PREF = "week_profile"; //NON-NLS
     private static final String CONFIRM_PUNCH_PREF = "confirm_punch"; //NON-NLS
     private static final String AUTO_QUERY_PREF = "auto_query"; //NON-NLS
-    private static final String PROFILE_PREF = "week_profile"; //NON-NLS
     private static final String COUNTER_WEEK_PREF = "counter-week"; //NON-NLS
     private static final String COUNTER_YEAR_PREF = "counter-year"; //NON-NLS
     private static final String COUNTER_LAST_UPDATE_PREF = "counter-update"; //NON-NLS
@@ -149,7 +147,6 @@ public class MainActivity extends Activity {
         if (!preferences.contains(AUTO_QUERY_PREF)) {
             editor.putBoolean(AUTO_QUERY_PREF, false); // value to store
         }
-
         editor.commit();
 
         mScaleDetector = new ScaleGestureDetector(getApplicationContext(), new ScaleListener());
@@ -158,17 +155,17 @@ public class MainActivity extends Activity {
 
         dc_view = (DayCardView) findViewById(R.id.day_card_view);
         dc_view.setCard(cur_card);
-
-        String profile = preferences.getString(PROFILE_PREF, "1");
+        day_progress = (ProgressBar) findViewById(R.id.day_progress);
+        /*String profile = preferences.getString(PROFILE_PREF, "1");
         int profile_n = Integer.decode(profile) - 1;
         float day_goal = TimeProfile.values()[profile_n].daily_time;
 
         Resources r = getResources();
         float scale = r.getDisplayMetrics().density;
-        day_progress = (ProgressBar) findViewById(R.id.day_progress);
+
         day_progress.setProgressDrawable(new TimeProgressDrawable(1200, day_goal, 100, scale));
         day_progress.setMax(1200);
-
+        */
         day_textView = (TextView) findViewById(R.id.day_textView);
         week_TextView = (TextView) findViewById(R.id.week_textView);
         year_TextView = (TextView) findViewById(R.id.year_textView);
