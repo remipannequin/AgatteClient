@@ -16,6 +16,7 @@
   ~
   ~ Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
   -->
+
 <resources>
 
     <string name="app_name">Agatte</string>
@@ -50,7 +51,7 @@
     <string name="about_author">© 2013 Rémi Pannequin (remi.pannequin@gmail.com)</string>
     <string name="about_version">AgatteClient (version %s)</string>
     <string name="action_about">Help</string>
-    <string name="about_free_soft">        This is free software : you can redistribute it and/or modify
+    <string name="about_free_soft">This is free software : you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
         (at your option) any later version.\n
@@ -60,22 +61,37 @@
         but WITHOUT ANY WARRANTY; without even the implied warranty of
         MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
         GNU General Public License for more details.\n <u>Beware that time counters might be wrong, and punches might be lost...</u></string>
-    <string name="about_getting_involved">        You are welcome to follow development, submit bugs or
-        wishes on GitHub (<link>https://github.com/remipannequin/AgatteClient</link>).</string>
-    <string name="about_privacy">        To enable you to send your punching in a fast and easy manner,
+    <string name="about_getting_involved">If you wan\'t to get in touch with the authors, follow
+        developpement, become a tester or make some sugesstion, you can register to the AgatteClient
+        Google+ community (<link>http://gplus.to/AgatteClient</link>).\n
+        \n
+        If you wan\'t to take part in development, submit bugs or translation go to GitHub
+        (<link>https://github.com/remipannequin/AgatteClient</link>).</string>
+    <string name="about_privacy">To enable you to send your punching in a fast and easy manner,
         AgatteClient stores your credential to the Agatte server. It communicate only
         with this server : your login and password won\'t be send to any other party.
         Nervertheless, they might be vulnerable to a malicious application with root
         access to your phone.</string>
-    <string name="about_rate">        Please take to time to rate this app. Your feedback will be really
+    <string name="about_rate">Please take to time to rate this app. Your feedback will be really
         appreciated.</string>
     <string name="about_rate_button">Rate on\nPlay Store</string>
-    <string name="about_getting_started">        Before you can connect to the Agatte server, you will have
+    <string name="about_getting_started">Before you can connect to the Agatte server, you will have
         to first enter your password and login.</string>
     <string name="About_getting_started_title">Getting started</string>
     <string name="About_getting_involved_title">Getting involved</string>
     <string name="about_privacy_title">Privacy</string>
     <string name="about_licence_title">Licence</string>
+    <string name="about_alarms_title">Alarms</string>
+    <string name="about_alarm">You may schedule punching, by choosing Alarms in the app main menu.
+        At the chosen time and days, the app will try to reach the agatte server and send a
+        punching request. For each alarm, you can change the time, select on which days it is active,
+        or enable/disable it. To delete an alarm, long tap on it.\n
+        \n
+        Please notice that if the phone is not on a wifi network authorized for sending punches,
+        this will fail. Likewise, don\'t forget to disactivate alarms if you do a manual punching:
+        this feature is dumb, and won\'t try to correct forgotten punching or disactivate itself if
+        you already manually punched. More intelligent behaviour might be implemented in the future.
+    </string>
     <string name="interface_preference">Interface</string>
     <string name="confirm_punch_title">Confirm Punch</string>
     <string name="short_sunday">SUN</string>
@@ -86,7 +102,7 @@
     <string name="short_tuesday">TUE</string>
     <string name="short_monday">MON</string>
     <string name="title_activity_alarm">Alarms</string>
-    <string name="successful_programmed_punch">Programmed punching has been successfully made</string>
+    <string name="successful_programmed_punch">Programmed punching has been successfully made at %s</string>
     <string name="programmed_punch_success_title">Programmed punching failed</string>
     <string name="programmed_punch_failed_title">Programmed punching done</string>
     <string name="action_alarms">Alarms</string>

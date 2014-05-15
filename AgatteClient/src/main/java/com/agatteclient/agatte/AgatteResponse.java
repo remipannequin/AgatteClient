@@ -69,4 +69,14 @@ public class AgatteResponse {
     public boolean hasPunches() {
         return (punches != null && punches.length != 0);
     }
+
+    /**
+     * Return the last punch
+     *
+     * @return
+     */
+    public String getLastPunch() {
+        if (punches.length > 0) return punches[punches.length - 1];
+        else return "";//TODO: throw exception ? can't happen ?
+    }
 }

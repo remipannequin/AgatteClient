@@ -80,6 +80,10 @@ public class AlarmReceiver extends BroadcastReceiver {
                 case network_not_authorized:
                     notification_text.append(ctx.getString(R.string.unauthorized_network_toast));
                     break;
+                case query_counter_ok:
+                    break;
+                case query_counter_unavailable:
+                    break;
                 case exception:
                     notification_text.append(ctx.getString(R.string.network_error_toast));
                     String message = resultData.getString("message"); //NON-NLS
@@ -100,7 +104,8 @@ public class AlarmReceiver extends BroadcastReceiver {
                 case punch_ok:
                 case query_ok:
                     AgatteResponse rsp = AgatteResponse.fromBundle(resultData);
-                    notification_text.append(ctx.getString(R.string.successful_programmed_punch));
+                    String time = rsp.getLastPunch();
+                    notification_text.append(String.format(ctx.getString(R.string.successful_programmed_punch), time));
                     /* update day view with new punch times */
                     try {
                         DayCard cur_card = CardBinder.getInstance().getTodayCard();
@@ -121,7 +126,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             AlarmDoneNotification.notify(ctx, code, notification_text.toString(), 0);
 
 
-            //Update the AlarmRegistry
+            //Update the AlarmRegistry: re-schedule next event
             AlarmRegistry.getInstance().update(ctx);
         }
     }
