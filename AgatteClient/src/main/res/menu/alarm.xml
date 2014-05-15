@@ -23,10 +23,7 @@
         android:id="@+id/action_alarm_add"
         android:icon="@drawable/ic_action_alerts_and_states_add_alarm"
         android:orderInCategory="1"
+        android:showAsAction="always"
         android:title="@string/alarm_add"
         app:showAsAction="always" />
-    <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings" />
 </menu>
