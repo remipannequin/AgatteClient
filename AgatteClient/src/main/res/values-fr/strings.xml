@@ -65,27 +65,46 @@
             pointages peuvent être perdus...</u>
     </string>
     <string name="About_getting_involved_title">Participer</string>
-    <string name="about_getting_involved">
-        Vous pouvez suivre le développement, soumettre des anomalies ou des souhaits
-        sur <link>https://github.com/remipannequin/AgatteClient</link>
+    <string name="about_getting_involved">Pour entrer en contact avec l\'auteur, suivre le développement, participer aux tests des
+        nouvelles versions, donner votre avis ou demander des améliorations, vous pouvez vous
+        inscrire à la communeauté Google+ AgatteClient (<link>http://gplus.to/AgatteClient</link>).\n
+        \n
+        Pour participer au développement, consulter le code source, soumettre des anomalies, dirigez
+        vous vers GitHub (<link>https://github.com/remipannequin/AgatteClient</link>).
     </string>
-    <string name="about_privacy">
-        Pour vous permetre de pointer rapidement et simplement,
+    <string name="about_privacy">Pour vous permetre de pointer rapidement et simplement,
         AgatteClient enregistre vos identifiants de connection. Ceux ci ne sont communiqués qu\'au
         serveur Agatte, et ne seront divulgé à aucun tier. Cependant, une application malveillante
         ayant un accès root sur votre téléphone pourrait y avoir accès.
     </string>
-    <string name="about_rate">
-        Merci de prendre le temps d\'évaluer cette application. Vos
+    <string name="about_rate">Merci de prendre le temps d\'évaluer cette application. Vos
         commentaires nous sont précieux !
     </string>
     <string name="about_rate_button">Évaluer sur\nPlay Store</string>
-    <string name="about_getting_started">
-        Avant tout chose, vous devrez renseigner vos identifiants et login dans les préférences.
+    <string name="about_getting_started">Avant tout chose, vous devrez renseigner vos identifiants et login dans les préférences.
     </string>
     <string name="About_getting_started_title">Première utilisation</string>
     <string name="about_privacy_title">Données personnelles</string>
     <string name="about_licence_title">License</string>
+    <string name="about_alarms_title">Alarmes</string>
+    <string name="about_alarm">Vous pouvez programmer des pointages, en choisissant "Alarmes" dans le
+        menu principal de l\'application. À l\'heure et au jours choisis, l\'application tentera de se
+        connecter au serveur Agatte pour effectuer un pointage. Pour chaque alarme, vous pouvez
+        changer l\'heure de déclenchement, sélectionner les jours de la semaine où elle est active, ou
+        encore l\'activer ou la désactiver totalement. Enfin, pour supprimer une alarme, faites un
+        appui long.\n
+        \n
+        Notez cependant, que si le téléphone n\'est pas connecté à un réseau wifi autorisé pour le
+        pointage, celui-ci échouera. De même, veillez à désactitiver les alarmes si vous pointez
+        manuellement. Par exemple, si vous avez
+        programmé deux alarmes, à 12h15 et à 13h, mais que vous quittez votre lieux de travail à
+        11h50 et revenez à 12h45 (en effectuant des pointages manuels), l\'alarme de 12h15 échouera,
+        mais l\'alarme de 13h sera effectuée, pointant un départ !\n
+        \n
+        Cette fonctionnalité est donc à utilisée avec précaution. Dans une prochaine version, des
+        comportement plus évolués (par exemple ne pointer que si le nombre de pointage est pair)
+        pourrons ête introduits.
+    </string>
     <string name="interface_preference">Interface</string>
     <string name="confirm_punch_title">Confirmer le pointage</string>
     <string name="short_sunday">DIM</string>
@@ -123,7 +142,7 @@
     <string name="alarm_delete_confirm_ok">OK</string>
     <string name="store_open_failed">Impossible d\'ouvrir Google Play.</string>
     <string name="conter_autoquery_descativated">
-        Compteurs indisponibles, désactivation de la mise à jour automatique pour rlimiter la
+        Compteurs indisponibles, désactivation de la mise à jour automatique pour limiter la
         consommation de données
     </string>
 </resources>

@@ -22,9 +22,9 @@
     <item
         android:id="@+id/action_alarm_add"
         android:icon="@drawable/ic_action_alerts_and_states_add_alarm"
-        android:orderInCategory="100"
+        android:orderInCategory="1"
         android:title="@string/alarm_add"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"

@@ -63,6 +63,7 @@ public class AlarmActivity extends FragmentActivity {
                 return true;
             }
         });
+
     }
 
     public AlarmArrayAdapter getAdapter() {

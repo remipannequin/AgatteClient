@@ -21,12 +21,12 @@
     <item
         android:id="@+id/action_update"
         android:actionLayout="@layout/update_action_view"
-        android:icon="@android:drawable/stat_notify_sync"
+        android:icon="@drawable/ic_action_navigation_refresh"
         android:showAsAction="ifRoom"
         android:title="@string/action_update" />
     <item
         android:id="@+id/action_alarm"
-        android:icon="@android:drawable/ic_lock_idle_alarm"
+        android:icon="@drawable/ic_action_device_access_alarms"
         android:showAsAction="ifRoom"
         android:title="@string/action_alarms" />
     <item
