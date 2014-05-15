@@ -1,48 +1,45 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ This file is part of AgatteClient.
+  ~
+  ~ AgatteClient is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ AgatteClient is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+  ~
+  ~ Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+  -->
+
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="256"
-   height="256"
-   id="svg2"
-   version="1.1"
-   inkscape:version="0.48.4 r9939"
-   inkscape:export-filename="ic_stat_notify.png"
-   inkscape:export-xdpi="580"
-   inkscape:export-ydpi="580"
-   sodipodi:docname="ic_stat_notify.svg">
-  <defs
+<svg xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" height="850.39368" id="svg2"
+    version="1.1" width="850.39368" xmlns="http://www.w3.org/2000/svg"
+    inkscape:export-filename="ic_stat_notify.png" inkscape:export-xdpi="580"
+    inkscape:export-ydpi="580" inkscape:version="0.48.4 r9939" sodipodi:docname="agatte.svg">
+    <defs
      id="defs4" />
-  <sodipodi:namedview
+  <sodipodi:namedview bordercolor="#666666" borderlayer="false" borderopacity="1.0"
+      fit-margin-bottom="0" fit-margin-left="0" fit-margin-right="0" fit-margin-top="0"
      id="base"
-     pagecolor="#000000"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="1.4"
-     inkscape:cx="193.10633"
-     inkscape:cy="-5.1554143"
-     inkscape:document-units="px"
-     inkscape:current-layer="g3952"
-     showgrid="false"
-     width="256px"
-     inkscape:showpageshadow="true"
-     borderlayer="false"
-     showborder="true"
-     inkscape:window-width="1280"
-     inkscape:window-height="970"
-     inkscape:window-x="0"
-     inkscape:window-y="48"
-     inkscape:window-maximized="1" />
-  <metadata
+     pagecolor="#000000" showborder="true"
+     showgrid="false" units="cm"
+     width="256px" inkscape:current-layer="g3952" inkscape:cx="299.54287" inkscape:cy="534.0081"
+      inkscape:document-units="cm" inkscape:pageopacity="1" inkscape:pageshadow="2"
+     inkscape:showpageshadow="true" inkscape:window-height="988" inkscape:window-maximized="1"
+     inkscape:window-width="1280" inkscape:window-x="1280" inkscape:window-y="0"
+      inkscape:zoom="0.35" />
+    <metadata
      id="metadata7">
     <rdf:RDF>
       <cc:Work
@@ -55,25 +52,20 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="Calque 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(0,-796.3622)">
-    <g
+     id="layer1" transform="translate(-15.821102,-375.53976)" inkscape:groupmode="layer"
+      inkscape:label="Calque 1">
+      <g
        id="g3952">
       <path
-         transform="matrix(0.72474553,0,0,0.76551414,-57.856605,797.45661)"
-         d="m 405.57626,168.36926 c 0,78.80223 -65.2386,142.68405 -145.7145,142.68405 -80.47591,0 -145.71451,-63.88182 -145.71451,-142.68405 0,-78.802223 65.2386,-142.684049 145.71451,-142.684049 80.4759,0 145.7145,63.881826 145.7145,142.684049 z"
-         sodipodi:ry="142.68405"
-         sodipodi:rx="145.71451"
-         sodipodi:cy="168.36926"
-         sodipodi:cx="259.86176"
-         id="path3950"
-         style="fill:none;fill-opacity:1;stroke:#ffffff;stroke-width:16.11060556;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+          style="fill:none;stroke:#ffffff;stroke-width:26.0569706;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+          d="m 405.57626,168.36926 a 145.71451,142.68405 0 1 1 -291.42901,0 145.71451,142.68405 0 1 1 291.42901,0 z"
+          id="path3950" transform="matrix(2.3416785,0.00793402,0,2.3913992,-167.49473,396.03672)"
+         sodipodi:cx="259.86176" sodipodi:cy="168.36926" sodipodi:rx="145.71451"
+          sodipodi:ry="142.68405"
          sodipodi:type="arc" />
       <path
          style="fill:#ffffff;fill-opacity:1;stroke:none"
-         d="m 104.73705,888.15887 c 26.26397,32.07235 30.92461,55.14136 45.20433,83.84267 14.27972,28.70126 34.34518,38.89086 34.34518,38.89086 -26.26531,-6.4585 -51.19937,-39.74197 -64.14468,-64.14468 -9.20581,-17.72121 -11.11168,-37.12311 -14.89975,-47.98224 -3.64567,-10.45093 -14.142134,-25.25382 -22.475892,-33.84011 -8.333759,-8.5863 -17.561619,-14.34754 -10.354064,-20.45559 7.207555,-6.10805 24.313209,27.47267 26.76904,33.58757 25.287366,19.75937 51.625336,46.1034 63.639616,65.40737 12.01428,19.30398 27.80957,51.53652 20.70812,67.68018 -2.27284,-5.3032 -10.30146,-19.95326 -22.98097,-39.90097 -12.67951,-19.94772 -20.54821,-55.08983 -55.81093,-83.08506 z"
+          d="M 351.46952,676.06551 C 455.2124,777.63689 472.77541,856.86791 529.56491,948.15435 586.35432,1039.4405 666.56409,1065.6439 666.56409,1065.6439 535.48694,1049.6315 460.78502,957.28296 409.35756,879.70262 372.77338,823.3556 368.9812,744.60937 353.8055,710.00278 c -14.60512,-33.30572 -47.78106,-75.48129 -97.9258,-97.578 -39.81792,-17.54619 -60.19855,-55.00521 -32.23757,-74.86647 27.96099,-19.86137 104.49705,81.31336 114.30396,100.78706 118.04901,56.06914 207.87644,128.99887 255.49103,190.29421 47.61454,61.29546 97.37836,185.85752 70.17454,237.84502 -9.06398,-16.8826 -29.93138,-64.2024 -80.16788,-127.53066 C 533.20721,875.62567 490.24318,764.202 351.46952,676.06551 z"
          id="path3962"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="czccsszczczc" />
