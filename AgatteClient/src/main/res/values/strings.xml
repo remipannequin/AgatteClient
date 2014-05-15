@@ -102,7 +102,7 @@
     <string name="short_tuesday">TUE</string>
     <string name="short_monday">MON</string>
     <string name="title_activity_alarm">Alarms</string>
-    <string name="successful_programmed_punch">Programmed punching has been successfully made</string>
+    <string name="successful_programmed_punch">Programmed punching has been successfully made at %s</string>
     <string name="programmed_punch_success_title">Programmed punching failed</string>
     <string name="programmed_punch_failed_title">Programmed punching done</string>
     <string name="action_alarms">Alarms</string>

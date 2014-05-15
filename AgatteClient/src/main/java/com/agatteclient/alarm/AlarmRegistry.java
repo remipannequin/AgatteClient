@@ -75,6 +75,7 @@ public class AlarmRegistry {
             alarmManager.cancel(a.intent);
         }
         pending_intent_map.clear();
+        //TODO: remove all alarms for the AM. But is it even possible ?
     }
 
     /**
