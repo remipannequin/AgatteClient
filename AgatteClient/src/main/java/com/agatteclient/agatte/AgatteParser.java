@@ -19,7 +19,6 @@
 
 package com.agatteclient.agatte;
 
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
@@ -208,17 +207,15 @@ public class AgatteParser {
 
 
     public boolean parse_punch_response(HttpResponse response) throws IOException, AgatteException {
-        response.getEntity().consumeContent();
-        //verify that response is a redirection to topOk.htm (ie punchOkDir)
-        //This is actually a chain of redirection that should lead there...
-        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
-            for (Header h : response.getHeaders("Location")) {
-                if (h.getValue().contains("app/accesInterdit.htm")) {
-                    throw new AgatteNetworkNotAuthorizedException();
-                }
-            }
+        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            throw new AgatteException(response.getStatusLine().getReasonPhrase());
         }
-        //SO, BE LAZY, AND DON'T REALLY TEST
+        //get response as a string
+        String result = entityToString(response);
+        if (searchNetworkNotAuthorized(result)) {
+            throw new AgatteNetworkNotAuthorizedException();
+        }
+        //else return true
         return true;
     }
 
