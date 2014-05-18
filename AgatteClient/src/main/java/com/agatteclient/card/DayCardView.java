@@ -106,6 +106,8 @@ public class DayCardView extends View {
     private float scale;
     private Paint hatching_paint;
     private Paint alarm_paint;
+    private Paint alarm_text_paint;
+    private Paint alarm_fill_paint;
 
 
     public DayCardView(Context context, AttributeSet attrs) {
@@ -177,8 +179,7 @@ public class DayCardView extends View {
         duration_text_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         duration_text_paint.setTextSize(text_height);
         duration_text_paint.setColor(text_duration_color);
-        ColorFilter filter = new LightingColorFilter(text_duration_color, 1);
-        duration_text_paint.setColorFilter(filter);
+
 
         duration_text_bold_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         duration_text_bold_paint.setTextSize(text_height);
@@ -191,10 +192,18 @@ public class DayCardView extends View {
         mandatory_paint.setColor(mandatory_color);
 
         alarm_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        alarm_paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        alarm_paint.setStyle(Paint.Style.STROKE);
         alarm_paint.setColor(alarm_color);
-        alarm_paint.setStrokeWidth(pxToDp(line_width));
+        alarm_paint.setStrokeWidth(pxToDp(line_width/2));
         alarm_paint.setStrokeJoin(Paint.Join.ROUND);
+
+        alarm_text_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        alarm_text_paint.setTextSize(text_height);
+        alarm_text_paint.setColor(alarm_color);
+
+        alarm_fill_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        alarm_fill_paint.setStyle(Paint.Style.FILL);
+        alarm_fill_paint.setColor(Color.WHITE);
 
 
         cal.set(Calendar.HOUR_OF_DAY, 12);
@@ -437,7 +446,7 @@ public class DayCardView extends View {
 
         //Draw alarms
         //TODO: testing
-        cal.set(Calendar.HOUR, 12);
+        cal.set(Calendar.HOUR, 10);
         cal.set(Calendar.MINUTE, 15);
         drawAlarm(canvas, cal.getTime());
 
@@ -513,37 +522,37 @@ public class DayCardView extends View {
         float y = getYFromHour(alarm);
         String t = fmt.format(alarm);
         //the width of the tag
-        //TODO : measure text, take min
+        //measure text, take min
         float t_width = duration_text_paint.measureText(t);
         float h = text_height + 10;
         float w = t_width + h + 5;
+        float pad = dpToPx(5);
 
         alarm_path = new Path();
         alarm_path.reset();
         alarm_path.rLineTo(0,                         0);
-        alarm_path.rLineTo(rect_width - w - (h / 2),  0);
+        alarm_path.rLineTo(rect_width - w - (h / 2) - pad,  0);
         alarm_path.rLineTo(h / 2,                     h/2);
         alarm_path.rLineTo(w,                         0);
         alarm_path.rLineTo(0,                         -h);
         alarm_path.rLineTo(- w,                       0);
         alarm_path.rLineTo(-(h / 2),                  h/2);
-        alarm_path.rLineTo(-rect_width + w + (h / 2), 0);
+        alarm_path.rLineTo(-rect_width + w + (h / 2) + pad, 0);
         alarm_path.close();
         alarm_path.offset(margin, y);
+        canvas.drawPath(alarm_path, alarm_fill_paint);
         canvas.drawPath(alarm_path, alarm_paint);
-
 
         Rect bounds = new Rect();
         duration_text_paint.getTextBounds(t, 0, t.length(), bounds);
-        canvas.drawText(t, rect_width, y+(bounds.bottom-bounds.top)/2, duration_text_paint);
+        canvas.drawText(t, rect_width - pad, y+(bounds.bottom-bounds.top)/2, alarm_text_paint);
 
         Bitmap b = BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_device_access_alarms);
 
         canvas.drawBitmap(Bitmap.createScaledBitmap(b, (int)text_height, (int)text_height, false),
-                          rect_width - w + margin,
+                          rect_width - w + margin - pad,
                           y - (h/2) + 5,
-                          duration_text_paint);
-
+                          alarm_paint);
     }
 
     /**
