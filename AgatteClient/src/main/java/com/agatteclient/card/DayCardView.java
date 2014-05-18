@@ -55,6 +55,7 @@ import android.util.TypedValue;
 import android.view.View;
 
 import com.agatteclient.R;
+import com.agatteclient.alarm.AlarmStatus;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -446,13 +447,17 @@ public class DayCardView extends View {
 
         //Draw alarms
         //TODO: testing
-        cal.set(Calendar.HOUR, 10);
+        cal.set(Calendar.HOUR_OF_DAY, 12);
         cal.set(Calendar.MINUTE, 15);
-        drawAlarm(canvas, cal.getTime());
+        drawAlarm(canvas, cal.getTime(), AlarmStatus.done);
 
-        cal.set(Calendar.HOUR, 13);
+        cal.set(Calendar.HOUR_OF_DAY, 13);
         cal.set(Calendar.MINUTE, 0);
-        drawAlarm(canvas, cal.getTime());
+        drawAlarm(canvas, cal.getTime(), AlarmStatus.failed);
+
+        cal.set(Calendar.HOUR_OF_DAY, 17);
+        cal.set(Calendar.MINUTE, 30);
+        drawAlarm(canvas, cal.getTime(), AlarmStatus.scheduled);
 
 
     }
@@ -517,7 +522,7 @@ public class DayCardView extends View {
      * @param canvas the canvas where to draw
      * @param alarm
      */
-    private void drawAlarm(Canvas canvas, Date alarm) {
+    private void drawAlarm(Canvas canvas, Date alarm, AlarmStatus status) {
         //get the y coordinate where to draw
         float y = getYFromHour(alarm);
         String t = fmt.format(alarm);
@@ -547,7 +552,23 @@ public class DayCardView extends View {
         duration_text_paint.getTextBounds(t, 0, t.length(), bounds);
         canvas.drawText(t, rect_width - pad, y+(bounds.bottom-bounds.top)/2, alarm_text_paint);
 
-        Bitmap b = BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_device_access_alarms);
+        int ic;
+        switch(status) {
+            case done:
+                ic = R.drawable.ic_navigation_accept;
+                break;
+            case failed:
+                   ic = R.drawable.ic_alerts_and_states_warning;
+                break;
+            case scheduled:
+               ic = R.drawable.ic_device_access_alarms;
+                break;
+            default:
+                ic = R.drawable.ic_alerts_and_states_warning;
+        }
+
+
+        Bitmap b = BitmapFactory.decodeResource(getResources(), ic);
 
         canvas.drawBitmap(Bitmap.createScaledBitmap(b, (int)text_height, (int)text_height, false),
                           rect_width - w + margin - pad,
