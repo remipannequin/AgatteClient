@@ -19,6 +19,8 @@
 
 package com.agatteclient.alarm;
 
+import android.content.Context;
+
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -26,7 +28,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * This singleton record networf (SSID) changes to triiger punching at given times of the day
+ * This singleton record networf (SSID) changes to trigger punching at given times of the day
  * <p/>
  * <p/>
  * Created by remi on 25/04/14.
@@ -50,14 +52,26 @@ public class NetworkChangeRegistry {
     }
 
     /**
+     * Force update (with the current networ SSID)
+     */
+    public void update(Context ctx) {
+        String ssid = NetworkChangeReceiver.getCurrentSsid(ctx);
+        setCurrentSSID(ssid);
+    }
+
+    /**
      * Set the current Network SSID. Record the ssid and date
      *
-     * @param ssid
+     * @param ssid The current SSID of the wifi network, or "" (empty string) if no wifi connection
      */
     public void setCurrentSSID(String ssid) {
         long now = System.currentTimeMillis();
-        ssid_history.put(now, ssid);
-        ssid_current = ssid;
+
+        //TODO : check that value changed
+        if (ssid != ssid_current) {
+            ssid_history.put(now, ssid);
+            ssid_current = ssid;
+        }
     }
 
     public boolean addAuthorizedSsid(String object) {

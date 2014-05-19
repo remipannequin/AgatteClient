@@ -39,10 +39,10 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
      * Return the current SSID
      *
      * @param context calling application context
-     * @return the currently connected SSID, or null if no wifi network is connected
+     * @return the currently connected SSID, or "" if no wifi network is connected
      */
-    private static String getCurrentSsid(Context context) {
-        String ssid = null;
+    public static String getCurrentSsid(Context context) {
+        String ssid = "";
         ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         if (networkInfo.isConnected()) {
