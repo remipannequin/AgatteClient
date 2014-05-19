@@ -211,6 +211,8 @@ public class AgatteSession {
     /**
      * Send a "punch" to the server
      *
+     *
+     *
      * @return an AgatteResponse instance
      */
     public AgatteResponse doPunch() throws AgatteException {
@@ -238,7 +240,7 @@ public class AgatteSession {
             return AgatteParser.getInstance().parse_topOk_response(response2);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace();//TODO: display log message instead
             throw new AgatteException(e);
         } finally {
             logout(client);
