@@ -38,11 +38,15 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.LightingColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.util.AttributeSet;
@@ -51,6 +55,7 @@ import android.util.TypedValue;
 import android.view.View;
 
 import com.agatteclient.R;
+import com.agatteclient.alarm.AlarmStatus;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -79,6 +84,7 @@ public class DayCardView extends View {
     private final int text_event_color;
     private final int duration_color;
     private final int mandatory_color;
+    private final int alarm_color;
     private final String date_fmt;
     private final Calendar cal = Calendar.getInstance();
     private float text_width = 0;
@@ -94,11 +100,15 @@ public class DayCardView extends View {
     private Paint duration_text_paint;
     private Paint duration_text_bold_paint;
     private Path odd_path;
+    private Path alarm_path;
     private float rect_width;
     private float margin;
     private float block;
     private float scale;
     private Paint hatching_paint;
+    private Paint alarm_paint;
+    private Paint alarm_text_paint;
+    private Paint alarm_fill_paint;
 
 
     public DayCardView(Context context, AttributeSet attrs) {
@@ -126,6 +136,7 @@ public class DayCardView extends View {
             duration_color = a.getColor(R.styleable.DayCardView_durationColor, Color.BLUE);
             duration_virtual_color = a.getColor(R.styleable.DayCardView_durationVirtualColor, Color.BLUE);
             mandatory_color = a.getColor(R.styleable.DayCardView_mandatoryColor, Color.RED);
+            alarm_color = a.getColor(R.styleable.DayCardView_alarmColor, Color.BLACK);
             min = a.getInteger(R.styleable.DayCardView_dayStartHour, 8);
             hourIncrement = a.getInteger(R.styleable.DayCardView_hourIncrement, 3);
             hourHeight = a.getDimension(R.styleable.DayCardView_hourHeight, 25);
@@ -170,14 +181,31 @@ public class DayCardView extends View {
         duration_text_paint.setTextSize(text_height);
         duration_text_paint.setColor(text_duration_color);
 
+
         duration_text_bold_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         duration_text_bold_paint.setTextSize(text_height);
         duration_text_bold_paint.setColor(text_duration_color);
         duration_text_bold_paint.setFlags(Paint.FAKE_BOLD_TEXT_FLAG);
 
+
         mandatory_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mandatory_paint.setStyle(Paint.Style.FILL);
         mandatory_paint.setColor(mandatory_color);
+
+        alarm_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        alarm_paint.setStyle(Paint.Style.STROKE);
+        alarm_paint.setColor(alarm_color);
+        alarm_paint.setStrokeWidth(pxToDp(line_width/2));
+        alarm_paint.setStrokeJoin(Paint.Join.ROUND);
+
+        alarm_text_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        alarm_text_paint.setTextSize(text_height);
+        alarm_text_paint.setColor(alarm_color);
+
+        alarm_fill_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        alarm_fill_paint.setStyle(Paint.Style.FILL);
+        alarm_fill_paint.setColor(Color.WHITE);
+
 
         cal.set(Calendar.HOUR_OF_DAY, 12);
         cal.set(Calendar.MINUTE, 22);
@@ -296,6 +324,7 @@ public class DayCardView extends View {
         rect_width = bounds.width() - text_width - 10f;
 
         odd_path = new Path();
+        alarm_path = new Path();
         updateBlock();
     }
 
@@ -415,6 +444,22 @@ public class DayCardView extends View {
                 canvas.drawPath(odd_path, event_paint);
             }
         }
+
+        //Draw alarms
+        //TODO: testing
+        cal.set(Calendar.HOUR_OF_DAY, 12);
+        cal.set(Calendar.MINUTE, 15);
+        drawAlarm(canvas, cal.getTime(), AlarmStatus.done);
+
+        cal.set(Calendar.HOUR_OF_DAY, 13);
+        cal.set(Calendar.MINUTE, 0);
+        drawAlarm(canvas, cal.getTime(), AlarmStatus.failed);
+
+        cal.set(Calendar.HOUR_OF_DAY, 17);
+        cal.set(Calendar.MINUTE, 30);
+        drawAlarm(canvas, cal.getTime(), AlarmStatus.scheduled);
+
+
     }
 
     /**
@@ -470,6 +515,65 @@ public class DayCardView extends View {
             }
         }
         return bottom;
+    }
+
+    /**
+     * Draw an Alarm on the View
+     * @param canvas the canvas where to draw
+     * @param alarm
+     */
+    private void drawAlarm(Canvas canvas, Date alarm, AlarmStatus status) {
+        //get the y coordinate where to draw
+        float y = getYFromHour(alarm);
+        String t = fmt.format(alarm);
+        //the width of the tag
+        //measure text, take min
+        float t_width = duration_text_paint.measureText(t);
+        float h = text_height + 10;
+        float w = t_width + h + 5;
+        float pad = dpToPx(5);
+
+        alarm_path = new Path();
+        alarm_path.reset();
+        alarm_path.rLineTo(0,                         0);
+        alarm_path.rLineTo(rect_width - w - (h / 2) - pad,  0);
+        alarm_path.rLineTo(h / 2,                     h/2);
+        alarm_path.rLineTo(w,                         0);
+        alarm_path.rLineTo(0,                         -h);
+        alarm_path.rLineTo(- w,                       0);
+        alarm_path.rLineTo(-(h / 2),                  h/2);
+        alarm_path.rLineTo(-rect_width + w + (h / 2) + pad, 0);
+        alarm_path.close();
+        alarm_path.offset(margin, y);
+        canvas.drawPath(alarm_path, alarm_fill_paint);
+        canvas.drawPath(alarm_path, alarm_paint);
+
+        Rect bounds = new Rect();
+        duration_text_paint.getTextBounds(t, 0, t.length(), bounds);
+        canvas.drawText(t, rect_width - pad, y+(bounds.bottom-bounds.top)/2, alarm_text_paint);
+
+        int ic;
+        switch(status) {
+            case done:
+                ic = R.drawable.ic_navigation_accept;
+                break;
+            case failed:
+                   ic = R.drawable.ic_alerts_and_states_warning;
+                break;
+            case scheduled:
+               ic = R.drawable.ic_device_access_alarms;
+                break;
+            default:
+                ic = R.drawable.ic_alerts_and_states_warning;
+        }
+
+
+        Bitmap b = BitmapFactory.decodeResource(getResources(), ic);
+
+        canvas.drawBitmap(Bitmap.createScaledBitmap(b, (int)text_height, (int)text_height, false),
+                          rect_width - w + margin - pad,
+                          y - (h/2) + 5,
+                          alarm_paint);
     }
 
     /**

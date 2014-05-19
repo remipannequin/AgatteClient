@@ -57,6 +57,7 @@
             custom:textDurationColor="#FFFFFF"
             custom:textEventTimeColor="#0099CC"
             custom:textHeight="15dp"
+            custom:alarmColor="#222222"
             custom:timeFormat="HH:mm" />
 
     </ScrollView>
