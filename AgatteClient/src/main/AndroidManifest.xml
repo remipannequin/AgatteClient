@@ -20,7 +20,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.agatteclient"
-    android:versionCode="23"
+    android:versionCode="24"
     android:versionName="1.3">
 
     <uses-permission android:name="android.permission.INTERNET" />
