@@ -42,8 +42,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.LightingColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
@@ -55,6 +53,7 @@ import android.util.TypedValue;
 import android.view.View;
 
 import com.agatteclient.R;
+import com.agatteclient.alarm.AlarmRegistry;
 import com.agatteclient.alarm.AlarmStatus;
 
 import java.text.SimpleDateFormat;
@@ -109,6 +108,7 @@ public class DayCardView extends View {
     private Paint alarm_paint;
     private Paint alarm_text_paint;
     private Paint alarm_fill_paint;
+    private AlarmRegistry alarms;
 
 
     public DayCardView(Context context, AttributeSet attrs) {
@@ -446,20 +446,12 @@ public class DayCardView extends View {
         }
 
         //Draw alarms
-        //TODO: testing
-        cal.set(Calendar.HOUR_OF_DAY, 12);
-        cal.set(Calendar.MINUTE, 15);
-        drawAlarm(canvas, cal.getTime(), AlarmStatus.done);
-
-        cal.set(Calendar.HOUR_OF_DAY, 13);
-        cal.set(Calendar.MINUTE, 0);
-        drawAlarm(canvas, cal.getTime(), AlarmStatus.failed);
-
-        cal.set(Calendar.HOUR_OF_DAY, 17);
-        cal.set(Calendar.MINUTE, 30);
-        drawAlarm(canvas, cal.getTime(), AlarmStatus.scheduled);
-
-
+        if (alarms != null) {
+            for (Date a : alarms.getScheduledAlarms(card.getDay())) {
+                drawAlarm(canvas, a, AlarmStatus.scheduled);
+            }
+            //TODO: done & failed alarms
+        }
     }
 
     /**
@@ -613,6 +605,15 @@ public class DayCardView extends View {
     public void setCard(DayCard card) {
         if (card != this.card) {
             this.card = card;
+            invalidate();
+            requestLayout();
+        }
+    }
+
+
+    public void setAlarmRegistry(AlarmRegistry alarms) {
+        if (alarms != this.alarms) {
+            this.alarms = alarms;
             invalidate();
             requestLayout();
         }

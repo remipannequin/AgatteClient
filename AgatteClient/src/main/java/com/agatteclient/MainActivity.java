@@ -129,6 +129,9 @@ public class MainActivity extends Activity {
             cur_card = (DayCard) savedInstanceState.getSerializable(DAY_CARD);
         }
 
+        //Update network authentication status
+        NetworkChangeRegistry.getInstance().update(getApplicationContext());
+
         AlarmBinder.getInstance(this);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -156,6 +159,7 @@ public class MainActivity extends Activity {
 
         dc_view = (DayCardView) findViewById(R.id.day_card_view);
         dc_view.setCard(cur_card);
+        dc_view.setAlarmRegistry(AlarmRegistry.getInstance());
         day_progress = (ProgressBar) findViewById(R.id.day_progress);
         day_textView = (TextView) findViewById(R.id.day_textView);
         week_TextView = (TextView) findViewById(R.id.week_textView);
