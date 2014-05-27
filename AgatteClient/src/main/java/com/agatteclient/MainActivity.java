@@ -84,7 +84,6 @@ public class MainActivity extends Activity {
     private static final String COUNTER_WEEK_PREF = "counter-week"; //NON-NLS
     private static final String COUNTER_YEAR_PREF = "counter-year"; //NON-NLS
     private static final String COUNTER_LAST_UPDATE_PREF = "counter-update"; //NON-NLS
-    private static final String DAY_CARD = "day-card"; //NON-NLS
 
     private MenuItem refreshItem = null;
     private ScaleGestureDetector mScaleDetector;
