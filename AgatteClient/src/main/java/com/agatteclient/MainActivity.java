@@ -28,7 +28,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -103,16 +102,6 @@ public class MainActivity extends Activity {
     private TextView year_TextView;
     private TextView anomaly_TextView;
 
-    /**
-     * Save the state of the activity (the DayCard)
-     *
-     * @param outState outState
-     */
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putSerializable(DAY_CARD, cur_card);
-    }
 
     /**
      * Restore the state of the activity (the DayCard)
@@ -156,7 +145,6 @@ public class MainActivity extends Activity {
 
         String profile = preferences.getString(PROFILE_PREF, "1");
         int profile_n = Integer.decode(profile) - 1;
-        float day_goal = TimeProfile.values()[profile_n].daily_time;
 
         day_progress = (ProgressBar) findViewById(R.id.day_progress);
         day_textView = (TextView) findViewById(R.id.day_textView);
@@ -186,6 +174,7 @@ public class MainActivity extends Activity {
 
     }
 
+
     @Override
     protected void onPostResume() {
         super.onPostResume();
@@ -207,10 +196,7 @@ public class MainActivity extends Activity {
         }
         //bind to alarm service (update alarms if needed)
         doAlarmUpdate();
-
         updateCard();
-
-
     }
 
 
@@ -223,6 +209,7 @@ public class MainActivity extends Activity {
             super.onWindowFocusChanged(true);
         }
     }
+
 
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
@@ -384,6 +371,7 @@ public class MainActivity extends Activity {
         }
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -400,6 +388,7 @@ public class MainActivity extends Activity {
         }
         return true;
     }
+
 
     /**
      * Try to update counters
@@ -454,6 +443,7 @@ public class MainActivity extends Activity {
         };
         confirm.show(getFragmentManager(), "confirm_punch"); //NON-NLS
     }
+
 
     /**
      * Show confirmation dialog on older API
@@ -587,6 +577,7 @@ public class MainActivity extends Activity {
         }
     }
 
+
     /**
      *
      */
@@ -602,6 +593,7 @@ public class MainActivity extends Activity {
             });
         }
     }
+
 
     /**
      *
@@ -643,6 +635,7 @@ public class MainActivity extends Activity {
             }
         }
     }
+
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
