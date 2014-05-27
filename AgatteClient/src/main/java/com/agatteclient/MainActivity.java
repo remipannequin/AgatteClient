@@ -124,12 +124,12 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         //Get old instance or create a new one
-        if (savedInstanceState == null) {
+        /*if (savedInstanceState == null) {
             cur_card = CardBinder.getInstance().getTodayCard();
         } else {
             cur_card = (DayCard) savedInstanceState.getSerializable(DAY_CARD);
-        }
-
+        }*/
+        //create alarm binder instance in this context
         AlarmBinder.getInstance(this);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -157,7 +157,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         dc_view = (DayCardView) findViewById(R.id.day_card_view);
-        dc_view.setCard(cur_card);
+        //
 
         String profile = preferences.getString(PROFILE_PREF, "1");
         int profile_n = Integer.decode(profile) - 1;
@@ -194,7 +194,14 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
 
-        updateCard();
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        cur_card = CardBinder.getInstance().getTodayCard();
+        dc_view.setCard(cur_card);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         boolean auto_query = preferences.getBoolean(AUTO_QUERY_PREF, true);
         if (auto_query) {
         /* Get last known value in the prefs, and request update if necessary */
@@ -210,13 +217,11 @@ public class MainActivity extends Activity {
         //bind to alarm service (update alarms if needed)
         doAlarmUpdate();
 
+        updateCard();
+
+
     }
 
-    @Override
-    protected void onPostResume() {
-        super.onPostResume();
-        updateCard();
-    }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
