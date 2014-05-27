@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -122,13 +123,6 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Get old instance or create a new one
-        if (savedInstanceState == null) {
-            cur_card = CardBinder.getInstance().getTodayCard();
-        } else {
-            cur_card = (DayCard) savedInstanceState.getSerializable(DAY_CARD);
-        }
-
         //Update network authentication status
         NetworkChangeRegistry.getInstance().update(getApplicationContext());
 
@@ -158,8 +152,12 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         dc_view = (DayCardView) findViewById(R.id.day_card_view);
-        dc_view.setCard(cur_card);
-        dc_view.setAlarmRegistry(AlarmRegistry.getInstance());
+        //
+
+        String profile = preferences.getString(PROFILE_PREF, "1");
+        int profile_n = Integer.decode(profile) - 1;
+        float day_goal = TimeProfile.values()[profile_n].daily_time;
+
         day_progress = (ProgressBar) findViewById(R.id.day_progress);
         day_textView = (TextView) findViewById(R.id.day_textView);
         week_TextView = (TextView) findViewById(R.id.week_textView);
@@ -186,7 +184,15 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
 
-        updateCard();
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        cur_card = CardBinder.getInstance().getTodayCard();
+        dc_view.setCard(cur_card);
+        dc_view.setAlarmRegistry(AlarmRegistry.getInstance());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         boolean auto_query = preferences.getBoolean(AUTO_QUERY_PREF, true);
         if (auto_query) {
         /* Get last known value in the prefs, and request update if necessary */
@@ -202,13 +208,11 @@ public class MainActivity extends Activity {
         //bind to alarm service (update alarms if needed)
         doAlarmUpdate();
 
+        updateCard();
+
+
     }
 
-    @Override
-    protected void onPostResume() {
-        super.onPostResume();
-        updateCard();
-    }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {

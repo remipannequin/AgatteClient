@@ -116,8 +116,8 @@
     <string name="alarm_add">Ajouter</string>
     <string name="week_label">Semaine</string>
     <string name="year_label">Année</string>
-    <string name="time_test_week">-15h30</string>
-    <string name="time_test_year">+5j ½</string>
+    <string name="time_test_week">0h</string>
+    <string name="time_test_year">0j</string>
     <string name="alarm_enable">Activer</string>
     <string name="error">Erreur</string>
     <string name="hour_format">HH:mm</string>
