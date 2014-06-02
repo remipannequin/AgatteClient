@@ -1,17 +1,21 @@
-/*This file is part of AgatteClient.
-
-    AgatteClient is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    AgatteClient is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.*/
+/*
+ * This file is part of AgatteClient.
+ *
+ * AgatteClient is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AgatteClient is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+ */
 
 package com.agatteclient;
 
@@ -27,10 +31,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 
-/**
- *
- *
- */
 public class AgattePreferenceActivity extends PreferenceActivity {
 
 
@@ -53,7 +53,8 @@ public class AgattePreferenceActivity extends PreferenceActivity {
                 preference.setSummary(
                         index >= 0
                                 ? listPreference.getEntries()[index]
-                                : null);
+                                : null
+                );
             } else {
                 // For all other preferences, set the summary to the value's
                 // simple string representation.
@@ -81,15 +82,17 @@ public class AgattePreferenceActivity extends PreferenceActivity {
         sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
                 PreferenceManager
                         .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+                        .getString(preference.getKey(), "")
+        );
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(null);
         //setupActionBar();
 
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
+            //noinspection deprecation
             addPreferencesFromResource(R.xml.preferences);
         } else {
             getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -132,7 +135,7 @@ public class AgattePreferenceActivity extends PreferenceActivity {
      * activity is showing a two-pane settings UI.
      */
     @TargetApi(11)
-    public static class PrefsFragment extends PreferenceFragment {
+    private static class PrefsFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -142,10 +145,10 @@ public class AgattePreferenceActivity extends PreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("server"));
-            bindPreferenceSummaryToValue(findPreference("login"));
+            bindPreferenceSummaryToValue(findPreference("server")); //NON-NLS
+            bindPreferenceSummaryToValue(findPreference("login")); //NON-NLS
             //Don't bind password
-            bindPreferenceSummaryToValue(findPreference("week_profile"));
+            bindPreferenceSummaryToValue(findPreference("week_profile")); //NON-NLS
         }
     }
 }

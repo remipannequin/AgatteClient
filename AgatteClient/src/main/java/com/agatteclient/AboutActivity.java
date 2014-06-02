@@ -1,29 +1,39 @@
-/*This file is part of AgatteClient.
-
-    AgatteClient is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    AgatteClient is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.*/
+/*
+ * This file is part of AgatteClient.
+ *
+ * AgatteClient is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AgatteClient is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+ */
 
 package com.agatteclient;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class AboutActivity extends Activity {
 
@@ -34,14 +44,8 @@ public class AboutActivity extends Activity {
         // Show the Up button in the action bar.
         setupActionBar();
         String version = getVersionNumber();
-        String name = getApplicationName();
-
         TextView text = (TextView) findViewById(R.id.version_textView);
-        StringBuilder sb = new StringBuilder(getString(R.string.about_version));
-        sb.append(getApplicationName());
-        sb.append(" ");
-        sb.append(getVersionNumber());
-        text.setText(sb.toString());
+        text.setText(String.format(getString(R.string.about_version), version));
     }
 
     /**
@@ -82,7 +86,7 @@ public class AboutActivity extends Activity {
     /**
      * Get current version number.
      *
-     * @return
+     * @return the version number string
      */
     private String getVersionNumber() {
         String version = "?";
@@ -90,24 +94,29 @@ public class AboutActivity extends Activity {
             PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
             version = pi.versionName;
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            Log.e(MainActivity.LOG_TAG, e.getMessage());
         }
         return version;
     }
 
+
     /**
-     * Get application name.
-     *
-     * @return
+     * Open Play Store or a browser to rate the app.
      */
-    private String getApplicationName() {
-        String name = "?";
+    public void doOpenPlayStore(View ignored) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse("market://details?id=com.agatteclient"));//NON-NLS
         try {
-            PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
-            name = getString(pi.applicationInfo.labelRes);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            startActivity(intent);
+        } catch (ActivityNotFoundException ignored2) {
+            //Market (Google play) app seems not installed, let's try to open a webbrowser
+            intent.setData(Uri.parse("https://play.google.com/store/apps/details?id=com.agatteclient"));//NON-NLS
+            try {
+                startActivity(intent);
+            } catch (ActivityNotFoundException ignored3) {
+                //Well if this also fails, we have run out of options, inform the user.
+                Toast.makeText(this, getString(R.string.store_open_failed), Toast.LENGTH_SHORT).show();
+            }
         }
-        return name;
     }
 }

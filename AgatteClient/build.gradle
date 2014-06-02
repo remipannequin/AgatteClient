@@ -1,11 +1,37 @@
+/*
+ * This file is part of AgatteClient.
+ *
+ * AgatteClient is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AgatteClient is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+ */
+
+
+
+
+
+
+
 buildscript {
     repositories {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.6.+'
+        classpath 'com.android.tools.build:gradle:0.9.+'
     }
 }
+
 apply plugin: 'android'
 
 repositories {
@@ -13,16 +39,47 @@ repositories {
 }
 
 android {
-    compileSdkVersion 18
-    buildToolsVersion "18.1.1"
+    compileSdkVersion 19
+    buildToolsVersion "19.0.3"
 
     defaultConfig {
         minSdkVersion 10
-        targetSdkVersion 18
+        targetSdkVersion 19
+    }
+
+    signingConfigs {
+        release {
+            storeFile file(System.properties['user.home'] + "/android_key.jks")
+            storePassword "*****"
+            keyAlias "Rémi Pannequin"
+            keyPassword "*****"
+        }
+    }
+
+    buildTypes {
+        release {
+            //noinspection GroovyAssignabilityCheck
+            signingConfig signingConfigs.release
+        }
     }
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:18.0.0'
-    compile 'com.android.support:support-v4:18.0.0'
+    compile 'com.android.support:appcompat-v7:19.1.0'
+    compile 'com.android.support:support-v4:19.1.0'
+}
+
+task askForPasswords << {
+    // Must create String because System.readPassword() returns char[]
+    // (and assigning that below fails silently)
+    def keyPw = new String(System.console().readPassword("Key password: "))
+
+    android.signingConfigs.release.storePassword = keyPw
+    android.signingConfigs.release.keyPassword = keyPw
+}
+
+tasks.whenTaskAdded { theTask ->
+    if (theTask.name.equals("packageRelease")) {
+        theTask.dependsOn "askForPasswords"
+    }
 }

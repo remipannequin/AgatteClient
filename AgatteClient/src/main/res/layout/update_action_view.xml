@@ -1,9 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+  ~ This file is part of AgatteClient.
+  ~
+  ~ AgatteClient is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ AgatteClient is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+  ~
+  ~ Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+  -->
+
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/searchProgressWrapper"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@android:drawable/stat_notify_sync"
-    android:contentDescription="@string/updating">
+    android:minWidth="@dimen/abc_action_button_min_width">
 
-</ImageView>
+    <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_gravity="center"
+        android:background="@drawable/ic_action_navigation_refresh"
+        android:contentDescription="@string/updating" />
+</FrameLayout>

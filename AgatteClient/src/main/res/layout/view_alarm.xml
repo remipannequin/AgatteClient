@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!--
+  ~ This file is part of AgatteClient.
+  ~
+  ~ AgatteClient is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ AgatteClient is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+  ~
+  ~ Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:longClickable="true">
+
+<TextView
+        android:id="@+id/alarmTimeTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/alarmEnabledCompoundButton"
+        android:layout_alignParentLeft="true"
+        android:text="@string/time_test"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <CheckBox
+        android:id="@+id/alarmEnabledCompoundButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/alarm_enable" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/alarmEnabledCompoundButton">
+
+        <ToggleButton
+            android:id="@+id/toggleButton_monday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:textOff="@string/short_monday"
+            android:textOn="@string/short_monday"
+            android:textSize="12sp" />
+
+        <ToggleButton
+            android:id="@+id/toggleButton_tuesday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:textOff="@string/short_tuesday"
+            android:textOn="@string/short_tuesday"
+            android:textSize="12sp" />
+
+        <ToggleButton
+            android:id="@+id/toggleButton_wednesday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:textOff="@string/short_wednesday"
+            android:textOn="@string/short_wednesday"
+            android:textSize="12sp" />
+
+        <ToggleButton
+            android:id="@+id/toggleButton_thursday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:textOff="@string/short_thursday"
+            android:textOn="@string/short_thursday"
+            android:textSize="12sp" />
+
+        <ToggleButton
+            android:id="@+id/toggleButton_friday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:textOff="@string/short_friday"
+            android:textOn="@string/short_friday"
+            android:textSize="12sp" />
+
+        <ToggleButton
+            android:id="@+id/toggleButton_saturday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textOff="@string/short_saturday"
+            android:textOn="@string/short_saturday"
+            android:textSize="12sp" />
+
+        <ToggleButton
+            android:id="@+id/toggleButton_sunday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textOff="@string/short_sunday"
+            android:textOn="@string/short_sunday"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+</RelativeLayout>
+

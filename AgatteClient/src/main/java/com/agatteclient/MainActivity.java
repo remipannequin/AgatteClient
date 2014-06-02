@@ -1,20 +1,25 @@
-/*This file is part of AgatteClient.
-
-    AgatteClient is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    AgatteClient is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.*/
+/*
+ * This file is part of AgatteClient.
+ *
+ * AgatteClient is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AgatteClient is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+ */
 
 package com.agatteclient;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -24,11 +29,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.os.AsyncTask;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -37,11 +44,24 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.agatteclient.agatte.AgatteCounterResponse;
+import com.agatteclient.agatte.AgatteResponse;
+import com.agatteclient.agatte.AgatteResultCode;
+import com.agatteclient.agatte.AgatteSession;
+import com.agatteclient.agatte.PunchService;
+import com.agatteclient.alarm.AlarmActivity;
+import com.agatteclient.alarm.AlarmBinder;
+import com.agatteclient.alarm.AlarmRegistry;
+import com.agatteclient.card.CardBinder;
+import com.agatteclient.card.DayCard;
+import com.agatteclient.card.DayCardView;
+import com.agatteclient.card.TimeProfile;
+import com.agatteclient.card.TimeProgressDrawable;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
@@ -50,21 +70,24 @@ import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- *
- */
 public class MainActivity extends Activity {
 
-    static final String SERVER_PREF = "server";
-    static final String LOGIN_PREF = "login";
-    static final String PASSWD_PREF = "password";
-    static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";
-    static final String LOGIN_DEFAULT = "login";
-    static final String PASSWD_DEFAULT = "";
-    static final String DAY_CARD = "day-card";
-    private static final String CONFIRM_PUNCH_PREF = "confirm_punch";
-    private static final String PROFILE_PREF = "week_profile";
-    protected MenuItem refreshItem = null;
+    public static final String SERVER_PREF = "server"; //NON-NLS
+    public static final String LOGIN_PREF = "login"; //NON-NLS
+    public static final String PASSWD_PREF = "password"; //NON-NLS
+    public static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";
+    public static final String LOGIN_DEFAULT = "login"; //NON-NLS
+    public static final String PASSWD_DEFAULT = "";
+    public static final String LOG_TAG = "com.agatteclient"; //NON-NLS
+    private static final String CONFIRM_PUNCH_PREF = "confirm_punch"; //NON-NLS
+    private static final String AUTO_QUERY_PREF = "auto_query"; //NON-NLS
+    private static final String PROFILE_PREF = "week_profile"; //NON-NLS
+    private static final String COUNTER_WEEK_PREF = "counter-week"; //NON-NLS
+    private static final String COUNTER_YEAR_PREF = "counter-year"; //NON-NLS
+    private static final String COUNTER_LAST_UPDATE_PREF = "counter-update"; //NON-NLS
+    private static final String DAY_CARD = "day-card"; //NON-NLS
+
+    private MenuItem refreshItem = null;
     private ScaleGestureDetector mScaleDetector;
     private AgatteSession session;
     private DayCard cur_card;
@@ -76,6 +99,9 @@ public class MainActivity extends Activity {
     private AgattePreferenceListener pref_listener;//need to be explicitly declared to avoid garbage collection
     private Button punch_button;
     private ScrollView day_sv;
+    private TextView week_TextView;
+    private TextView year_TextView;
+    private TextView anomaly_TextView;
 
     /**
      * Save the state of the activity (the DayCard)
@@ -98,11 +124,13 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         //Get old instance or create a new one
-        if (savedInstanceState == null) {
-            cur_card = new DayCard();
+        /*if (savedInstanceState == null) {
+            cur_card = CardBinder.getInstance().getTodayCard();
         } else {
             cur_card = (DayCard) savedInstanceState.getSerializable(DAY_CARD);
-        }
+        }*/
+        //create alarm binder instance in this context
+        AlarmBinder.getInstance(this);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor editor = preferences.edit();
@@ -118,6 +146,10 @@ public class MainActivity extends Activity {
         if (!preferences.contains(CONFIRM_PUNCH_PREF)) {
             editor.putBoolean(CONFIRM_PUNCH_PREF, true); // value to store
         }
+        if (!preferences.contains(AUTO_QUERY_PREF)) {
+            editor.putBoolean(AUTO_QUERY_PREF, false); // value to store
+        }
+
         editor.commit();
 
         mScaleDetector = new ScaleGestureDetector(getApplicationContext(), new ScaleListener());
@@ -125,10 +157,10 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         dc_view = (DayCardView) findViewById(R.id.day_card_view);
-        dc_view.setCard(cur_card);
+        //
 
-        String profile = preferences.getString(PROFILE_PREF,"1");
-        int profile_n = Integer.decode(profile)-1;
+        String profile = preferences.getString(PROFILE_PREF, "1");
+        int profile_n = Integer.decode(profile) - 1;
         float day_goal = TimeProfile.values()[profile_n].daily_time;
 
         Resources r = getResources();
@@ -138,6 +170,9 @@ public class MainActivity extends Activity {
         day_progress.setMax(1200);
 
         day_textView = (TextView) findViewById(R.id.day_textView);
+        week_TextView = (TextView) findViewById(R.id.week_textView);
+        year_TextView = (TextView) findViewById(R.id.year_textView);
+        anomaly_TextView = (TextView) findViewById(R.id.anomaly_textView);
         punch_button = (Button) findViewById(R.id.button_doPunch);
         day_sv = (ScrollView) findViewById(R.id.day_scrollview);
         //Schedule redraw in 1 minute (60 000 ms)
@@ -158,25 +193,35 @@ public class MainActivity extends Activity {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        /*/TESTING !
-        try {
-            //cur_card.addPunch("5:00", true);
-            //cur_card.addPunch("7:30", true);
-            cur_card.addPunch("8:00");
-            cur_card.addPunch("15:00");
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }/*/
 
-
-        updateCard();
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
+        cur_card = CardBinder.getInstance().getTodayCard();
+        dc_view.setCard(cur_card);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        boolean auto_query = preferences.getBoolean(AUTO_QUERY_PREF, true);
+        if (auto_query) {
+        /* Get last known value in the prefs, and request update if necessary */
+            int last_update = preferences.getInt(COUNTER_LAST_UPDATE_PREF, -1);
+            if (last_update != cur_card.getDayOfYear() + 1000 * cur_card.getYear()) {
+                doUpdateCounters();
+            } else {
+                updateCounter(true,
+                        preferences.getFloat(COUNTER_WEEK_PREF, 0),
+                        preferences.getFloat(COUNTER_YEAR_PREF, 0));
+            }
+        }
+        //bind to alarm service (update alarms if needed)
+        doAlarmUpdate();
+
         updateCard();
+
+
     }
+
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -184,7 +229,7 @@ public class MainActivity extends Activity {
             //get Y position from dc_view
             int top = dc_view.getFirstPunchY();
             day_sv.scrollTo(0, top);
-            super.onWindowFocusChanged(hasFocus);
+            super.onWindowFocusChanged(true);
         }
     }
 
@@ -193,22 +238,20 @@ public class MainActivity extends Activity {
      */
     private void updateCard() {
 
-        if (!cur_card.isCurrentDay()) {
-            cur_card = new DayCard();
-            dc_view.setCard(cur_card);
-        }
+        cur_card = CardBinder.getInstance().getTodayCard();
         if (cur_card.isEven()) {
             punch_button.setText(R.string.punch_button1);
         } else {
+            cur_card.applyCorrection();
             punch_button.setText(R.string.punch_button2);
         }
 
         double p = (cur_card.getCorrectedTotalTime());
         StringBuilder sb = new StringBuilder();
-        sb.append((int) Math.floor(p)).append("h");
+        sb.append(String.format(getString(R.string.duration_hour), (int) Math.floor(p)));
         int min = (int) (p * 60) % 60;
         if (min != 0) {
-            sb.append(String.format("%02d", min));
+            sb.append(String.format(getString(R.string.duration_minute), min));
         }
         day_textView.setText(sb.toString());
         day_progress.setIndeterminate(false);
@@ -216,10 +259,68 @@ public class MainActivity extends Activity {
         day_progress.invalidate();
         dc_view.invalidate();
 
-        SimpleDateFormat fmt = new SimpleDateFormat("E dd MMM yyyy");
-        StringBuilder t = new StringBuilder("Agatte : ").append(fmt.format(cur_card.getDay()));
+        SimpleDateFormat fmt = new SimpleDateFormat(getString(R.string.date_format));
+        StringBuilder t = new StringBuilder().append(fmt.format(cur_card.getDay()));
         setTitle(t);
     }
+
+
+    /**
+     * Update view with new counter value
+     */
+    private void updateCounter(boolean available, float week_hours, float global_hours) {
+
+        // if available, record values in persistent storage
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        if (available) {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putFloat(COUNTER_YEAR_PREF, global_hours);
+            editor.putFloat(COUNTER_WEEK_PREF, week_hours);
+            editor.putInt(COUNTER_LAST_UPDATE_PREF, cur_card.getDayOfYear() + cur_card.getYear() * 1000);
+            editor.commit();
+        } else {
+            if (!preferences.contains(COUNTER_LAST_UPDATE_PREF)) {
+                // if old value does not exist AND counter are unavailable
+                SharedPreferences.Editor editor = preferences.edit();
+                //set auto-update to false
+                editor.putBoolean(AUTO_QUERY_PREF, false);
+                // and notify the user
+                Toast.makeText(getApplicationContext(), getString(R.string.conter_autoquery_descativated), Toast.LENGTH_LONG).show();
+                editor.commit();
+            }
+            week_hours = preferences.getFloat(COUNTER_WEEK_PREF, 0);
+            global_hours = preferences.getFloat(COUNTER_YEAR_PREF, 0);
+        }
+
+        // if unavailable display in italic (or in red ?)
+        if (available) {
+            week_TextView.setTypeface(null, Typeface.BOLD);
+            year_TextView.setTypeface(null, Typeface.BOLD);
+            anomaly_TextView.setText("");
+        } else {
+            week_TextView.setTypeface(null, Typeface.BOLD_ITALIC);
+            year_TextView.setTypeface(null, Typeface.BOLD_ITALIC);
+            anomaly_TextView.setText(getString(R.string.anomaly));
+        }
+
+        int neg = (week_hours < 0 ? -1 : 1);
+        week_hours = week_hours * neg;
+        int h = (int) Math.floor(week_hours);
+        int m = Math.round((week_hours - h) * 60);
+        if (h == 0) {
+            week_TextView.setText(String.format(getString(R.string.counter_duration_min), m));
+        } else {
+            week_TextView.setText(String.format(getString(R.string.counter_duration), neg * h, m));
+        }
+        neg = (global_hours < 0 ? -1 : 1);
+        global_hours = global_hours * neg;
+        String profile = preferences.getString(PROFILE_PREF, "1");
+        int profile_n = Integer.decode(profile) - 1;
+        float day_goal = TimeProfile.values()[profile_n].daily_time;
+        int half_day = (int) Math.round(global_hours * 2.0 / day_goal);
+        year_TextView.setText(String.format(getString(R.string.counter_year), neg * half_day / 2, (half_day % 2 == 11 ? " ½" : "")));
+    }
+
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
@@ -227,33 +328,29 @@ public class MainActivity extends Activity {
         return mScaleDetector.onTouchEvent(ev);
     }
 
+
     /**
      * Stop refresh image animation
      */
-    protected void stopRefresh() {
+    void stopRefresh() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
             if (refreshItem != null && refreshItem.getActionView() != null) {
                 refreshItem.getActionView().clearAnimation();
-                refreshItem.setActionView(null);
             }
         }
     }
 
+
     /**
      * Animate the refresh icon
      */
-    protected void runRefresh() {
+    void runRefresh() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
             if (getApplication() != null) {
-                LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                ImageView refresh_action_iv = (ImageView) inflater.inflate(R.layout.update_action_view, null);
                 Animation rotation = AnimationUtils.loadAnimation(getApplication(), R.anim.clockwise_refresh);
-                assert rotation != null;
-                assert refresh_action_iv != null;
                 rotation.setRepeatCount(Animation.INFINITE);
                 /* Attach a rotating ImageView to the refresh item as an ActionView */
-                refresh_action_iv.startAnimation(rotation);
-                refreshItem.setActionView(refresh_action_iv);
+                refreshItem.getActionView().startAnimation(rotation);
             }
         }
     }
@@ -262,9 +359,95 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
+            final Menu m = menu;
+            refreshItem = menu.findItem(R.id.action_update);
+            refreshItem.getActionView().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    m.performIdentifierAction(refreshItem.getItemId(), 0);
+                }
+            });
+        }
         return true;
     }
+
+    /**
+     * Try to update counters
+     */
+    void doUpdateCounters() {
+        final Intent i = new Intent(this, PunchService.class);
+        i.setAction(PunchService.QUERY_COUNTER);
+        i.putExtra(PunchService.RESULT_RECEIVER, new AgatteResultReceiver());
+        startService(i);
+    }
+
+
+    /**
+     * Update the alarms Scheduled in the alarm manager.
+     */
+    private void doAlarmUpdate() {
+        AlarmRegistry.getInstance().update(getApplicationContext());
+    }
+
+
+    /**
+     * Show confirmation dialog
+     *
+     * @param i the intent to start if the dialog is confirmed
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private void showPunchConfirm(final Intent i) {
+        DialogFragment confirm = new DialogFragment() {
+            @Override
+            public Dialog onCreateDialog(Bundle savedInstanceState) {
+                // Use the Builder class for convenient dialog construction
+                Activity activity = getActivity();
+                if (activity != null) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                    builder.setMessage(R.string.dialog_confirm_punch)
+                            .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    startService(i);
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    // User cancelled the dialog
+                                }
+                            });
+                    // Create the AlertDialog object and return it
+                    return builder.create();
+                } else {
+                    return null;
+                }
+            }
+        };
+        confirm.show(getFragmentManager(), "confirm_punch"); //NON-NLS
+    }
+
+    /**
+     * Show confirmation dialog on older API
+     *
+     * @param i the intent to start if the dialog is confirmed
+     */
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1)
+    private void showPunchConfirmOld(final Intent i) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.dialog_confirm_punch)
+                .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        startService(i);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User cancelled the dialog
+                    }
+                });
+        builder.show();
+    }
+
 
     /**
      * Send a punch to the server
@@ -274,67 +457,27 @@ public class MainActivity extends Activity {
     public void doPunch(View v) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         boolean mustConfirm = pref.getBoolean(CONFIRM_PUNCH_PREF, true);
+        final Intent i = new Intent(this, PunchService.class);
+        i.setAction(PunchService.DO_PUNCH);
+        i.putExtra(PunchService.RESULT_RECEIVER, new AgatteResultReceiver());
         if (!mustConfirm) {
-            AgatteDoPunchTask punchTask = new AgatteDoPunchTask();
-            punchTask.execute();
+            startService(i);
         } else {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage(R.string.dialog_confirm_punch)
-                        .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                //Create Async Task and Send it
-                                AgatteDoPunchTask punchTask = new AgatteDoPunchTask();
-                                punchTask.execute();
-
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                // User cancelled the dialog
-                            }
-                        });
-                builder.show();
+                showPunchConfirmOld(i);
             } else {
-                DialogFragment confirm = new DialogFragment() {
-                    @Override
-                    public Dialog onCreateDialog(Bundle savedInstanceState) {
-                        // Use the Builder class for convenient dialog construction
-                        Activity activity = getActivity();
-                        if (activity != null) {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                            builder.setMessage(R.string.dialog_confirm_punch)
-                                    .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            //Create Async Task and Send it
-                                            AgatteDoPunchTask punchTask = new AgatteDoPunchTask();
-                                            punchTask.execute();
-
-                                        }
-                                    })
-                                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            // User cancelled the dialog
-                                        }
-                                    });
-                            // Create the AlertDialog object and return it
-                            return builder.create();
-                        } else {
-                            return null;
-                        }
-                    }
-                };
-                confirm.show(getFragmentManager(), "confirm_punch");
+                showPunchConfirm(i);
             }
         }
     }
 
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
             case R.id.action_settings:
                 //display Settings activity
-                Intent intent;
+
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
                     intent = new Intent(this, AgattePreferenceActivity.class);
                 } else {
@@ -342,10 +485,14 @@ public class MainActivity extends Activity {
                 }
                 startActivity(intent);
                 break;
+            case R.id.action_alarm:
+                intent = new Intent(this, AlarmActivity.class);
+                startActivity(intent);
+                break;
             case R.id.action_update:
-                AgatteQueryTask queryTask = new AgatteQueryTask();
                 refreshItem = item;//menu.getItem(R.id.action_update);
-                queryTask.execute();
+                doUpdate();
+                doUpdateCounters();
                 break;
             case R.id.action_about:
                 Intent about_intent = new Intent(this, AboutActivity.class);
@@ -353,6 +500,92 @@ public class MainActivity extends Activity {
 
         }
         return true;
+    }
+
+    private void doUpdate() {
+        Intent i = new Intent(this, PunchService.class);
+        i.setAction(PunchService.QUERY);
+        i.putExtra(PunchService.RESULT_RECEIVER, new AgatteResultReceiver());
+        startService(i);
+        runRefresh();
+    }
+
+
+    private class AgatteResultReceiver extends ResultReceiver {
+
+        /**
+         * Create a new ResultReceive to receive results.  Your
+         * {@link #onReceiveResult} method will be called from the thread running
+         * <var>handler</var> if given, or from an arbitrary thread if null.
+         */
+        public AgatteResultReceiver() {
+            super(new Handler(Looper.getMainLooper()));
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            //display error (in a Toast)
+            StringBuilder toast = new StringBuilder();
+            boolean isPunch = false;
+            switch (AgatteResultCode.values()[resultCode]) {
+                case io_exception:
+                    toast.append(getString(R.string.error_toast)).append(" ");
+                    toast.append(getString(R.string.network_error_toast));
+                    String message = resultData.getString("message"); //NON-NLS
+                    if (message.length() != 0) {
+                        toast.append(" : ").append(message);
+                    }
+                    break;
+                case network_not_authorized:
+                    toast.append(getString(R.string.error_toast)).append(" ");
+                    toast.append(getString(R.string.unauthorized_network_toast));
+                    break;
+                case login_failed:
+                    toast.append(getString(R.string.error_toast)).append(" ");
+                    toast.append(getString(R.string.login_failed_toast));
+                    break;
+                case punch_ok:
+                    isPunch = true;
+                case query_ok:
+                    AgatteResponse rsp = AgatteResponse.fromBundle(resultData);
+                    try {
+                        DayCard cur_card = CardBinder.getInstance().getTodayCard();
+                        if (rsp.hasVirtualPunches()) {
+                            cur_card.addPunches(rsp.getVirtualPunches(), true);
+                        }
+                        if (rsp.hasPunches()) {
+                            cur_card.addPunches(rsp.getPunches(), false);
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    //Only if it was a punching request
+                    if (isPunch) {
+                        toast.append(getString(R.string.punch_ok_toast));
+                    }
+                    break;
+                case query_counter_unavailable:
+                    toast.append(getString(R.string.counter_unavailable));
+                case query_counter_ok:
+                    AgatteCounterResponse counter = AgatteCounterResponse.fromBundle(resultData);
+                    // update UI with result
+                    if (BuildConfig.DEBUG && counter == null)
+                        throw new RuntimeException("AgatteCounterResult is null");
+                    updateCounter(counter.isAvailable(), counter.getValueWeek(), counter.getValueYear());
+                    break;
+                case exception:
+                    toast.append(getString(R.string.error)).append(" ");
+                    toast.append(getString(R.string.error_toast));
+            }
+            Context context = getApplicationContext();
+            if (context != null && toast.length() != 0) {
+
+                Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
+
+            }
+            updateCard();
+            stopRefresh();
+        }
     }
 
     /**
@@ -373,130 +606,10 @@ public class MainActivity extends Activity {
     /**
      *
      */
-    private class AgatteQueryTask extends AsyncTask<Void, Void, AgatteResponse> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            //start animation
-            runRefresh();
-        }
-
-        @Override
-        protected AgatteResponse doInBackground(Void... voids) {
-            return session.query_day();
-        }
-
-        @Override
-        protected void onPostExecute(AgatteResponse rsp) {
-            //check for status
-            if (rsp.isError()) {
-                //display error (in a Toast)
-                StringBuilder toast = new StringBuilder();
-                toast.append(getString(R.string.update_error_toast));
-                toast.append(" ");
-                switch (rsp.getCode()) {
-                    case IOError:
-                        toast.append(getString(R.string.network_error_toast));
-                        if (rsp.hasDetail()) {
-                            toast.append(": ").append(rsp.getDetail());
-                        }
-                        break;
-                    case NetworkNotAuthorized:
-                        toast.append(getString(R.string.unauthorized_network_toast));
-                        break;
-                    case LoginFailed:
-                        toast.append(getString(R.string.login_failed_toast));
-                        break;
-                    case UnknownError:
-                        toast.append(getString(R.string.error_toast));
-                }
-                Context context = getApplicationContext();
-                if (context != null) Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
-
-            }
-            if (rsp.getCode() == AgatteResponse.Code.QueryOK) {
-                try {
-                    if (rsp.hasVirtualTops()) {
-                        cur_card.addPunches(rsp.getVirtualTops(), true);
-                    }
-                    if (rsp.hasTops()) {
-                        cur_card.addPunches(rsp.getTops(), false);
-                    }
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-            updateCard();
-            //stop animation, restore button
-            stopRefresh();
-        }
-    }
-
-    /**
-     *
-     */
-    private class AgatteDoPunchTask extends AsyncTask<Void, Void, AgatteResponse> {
-        @Override
-        protected AgatteResponse doInBackground(Void... voids) {
-            return session.doPunch();
-        }
-
-        @Override
-        protected void onPostExecute(AgatteResponse rsp) {
-            //check for status
-
-            //display error (in a Toast)
-            StringBuilder toast = new StringBuilder();
-            switch (rsp.getCode()) {
-                case IOError:
-                    toast.append(getString(R.string.punch_error_toast)).append(" ");
-                    toast.append(getString(R.string.network_error_toast));
-                    if (rsp.hasDetail()) {
-                        toast.append(" : ").append(rsp.getDetail());
-                    }
-                    break;
-                case NetworkNotAuthorized:
-                    toast.append(getString(R.string.punch_error_toast)).append(" ");
-                    toast.append(getString(R.string.unauthorized_network_toast));
-                    break;
-                case LoginFailed:
-                    toast.append(getString(R.string.punch_error_toast)).append(" ");
-                    toast.append(getString(R.string.login_failed_toast));
-                    break;
-                case PunchOK:
-                case QueryOK:
-                    try {
-                        if (rsp.hasVirtualTops()) {
-                            cur_card.addPunches(rsp.getVirtualTops(), true);
-                        }
-                        if (rsp.hasTops()) {
-                            cur_card.addPunches(rsp.getTops(), false);
-                        }
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-
-                    toast.append(getString(R.string.punch_ok_toast));
-                    break;
-                case UnknownError:
-                    toast.append(getString(R.string.punch_error_toast)).append(" ");
-                    toast.append(getString(R.string.error_toast));
-            }
-            Context context = getApplicationContext();
-            updateCard();
-            if (context != null) {
-                Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    /**
-     *
-     */
-    protected class AgattePreferenceListener implements SharedPreferences.OnSharedPreferenceChangeListener {
+    class AgattePreferenceListener implements SharedPreferences.OnSharedPreferenceChangeListener {
         private final AgatteSession session;
 
-        protected AgattePreferenceListener(AgatteSession session) {
+        AgattePreferenceListener(AgatteSession session) {
             this.session = session;
         }
 
@@ -544,4 +657,5 @@ public class MainActivity extends Activity {
             return true;
         }
     }
+
 }

@@ -1,54 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!--
+  ~ This file is part of AgatteClient.
+  ~
+  ~ AgatteClient is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ AgatteClient is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+  ~
+  ~ Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+  -->
+
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory android:title="@string/connection_preferences">
 
         <EditTextPreference
-            android:key="server"
-            android:title="@string/server_prefs_title"
             android:defaultValue="@string/server_default_value"
-            android:selectAllOnFocus="true"
             android:inputType="textUri"
+            android:key="server"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:maxLines="1" />
+            android:title="@string/server_prefs_title" />
 
         <EditTextPreference
-            android:key="login"
-            android:title="@string/login_prefs_title"
+            android:capitalize="none"
             android:defaultValue="@string/login_default_value"
-            android:selectAllOnFocus="true"
             android:inputType="textNoSuggestions"
-            android:capitalize="none"
+            android:key="login"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:maxLines="1" />
+            android:title="@string/login_prefs_title" />
 
         <EditTextPreference
-            android:key="password"
-            android:title="@string/password_prefs_title"
-            android:defaultValue="@string/password_default_value"
-            android:selectAllOnFocus="true"
-            android:inputType="textPassword"
             android:capitalize="none"
+            android:defaultValue="@string/password_default_value"
+            android:inputType="textPassword"
+            android:key="password"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:maxLines="1" />
+            android:title="@string/password_prefs_title" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/profile_preference">
         <ListPreference
-            android:key="week_profile"
-            android:title="@string/week_goal_prefs_title"
             android:defaultValue="3"
             android:entries="@array/week_profile_array"
-            android:entryValues="@array/week_profile_values" />
+            android:entryValues="@array/week_profile_values"
+            android:key="week_profile"
+            android:title="@string/week_goal_prefs_title" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/interface_preference">
         <CheckBoxPreference
+            android:checked="true"
             android:key="confirm_punch"
-            android:title="@string/confirm_punch_title"
             android:selectAllOnFocus="true"
-            android:checked="true"/>
+            android:title="@string/confirm_punch_title" />
+
+        <CheckBoxPreference
+            android:checked="false"
+            android:key="auto_query"
+            android:selectAllOnFocus="true"
+            android:title="@string/auto_query_title" />
 
 
     </PreferenceCategory>
