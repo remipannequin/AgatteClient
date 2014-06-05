@@ -68,6 +68,16 @@ public class PunchAlarmTime {
         return time_of_day + (((long) firing_days) << 32) + (enabled ? 1l << 48 : 0);
     }
 
+    /**
+     * Compute the fingerprint of this alarm. This value should be different for each alarms, taking
+     * into accounts, hour/minutes, days, but not enabled/disabled.
+     *
+     * @return the fingerprint, as a signed int (32 bits)
+     */
+    public int shortFingerPrint() {
+        return time_of_day + (firing_days << 16);
+    }
+
     public boolean isEnabled() {
         return enabled;
     }
