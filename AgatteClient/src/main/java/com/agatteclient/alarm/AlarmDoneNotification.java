@@ -28,6 +28,8 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
@@ -71,6 +73,7 @@ public class AlarmDoneNotification {
         }
 
         final String ticker = title;
+        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
 
@@ -93,7 +96,8 @@ public class AlarmDoneNotification {
                         // Provide a large icon, shown with the notification in the
                         // notification drawer on devices running Android 3.0 or later.
                 .setLargeIcon(picture)
-
+                        // Set a notification sound to play
+                .setSound(alarmSound)
                         // Set ticker text (preview) information for this notification.
                 .setTicker(ticker)
 
