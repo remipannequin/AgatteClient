@@ -49,7 +49,6 @@ public class AlarmRegistry {
 
     //Manage a collection of alarm, with their fingerprint
     private final Map<PunchAlarmTime, Alarm> pending_intent_map;
-    private int next_request_code = 0;
 
     private AlarmRegistry() {
         this.pending_intent_map = new HashMap<PunchAlarmTime, Alarm>();
@@ -81,25 +80,12 @@ public class AlarmRegistry {
         //TODO: remove all alarms for the AM. But is it even possible ?
     }
 
-    /**
-     * Compute the next unused requestCode
-     *
-     * @return the next unused requestCode
-     */
-    private int getFreeRequestCode() {
-        return next_request_code++;
-    }
-
     public Map<PunchAlarmTime, Alarm> getPending_intent_map() {
         return pending_intent_map;
     }
 
     public long getFingerPrint(PunchAlarmTime a) {
         return pending_intent_map.get(a).finger_print;
-    }
-
-    public long getRequestCode(PunchAlarmTime a) {
-        return pending_intent_map.get(a).request_code;
     }
 
     public long getTime(PunchAlarmTime a) {
@@ -151,9 +137,9 @@ public class AlarmRegistry {
         if (time >= 0) {
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             Intent i = new Intent(context, AlarmReceiver.class);
-            int rc = getFreeRequestCode();
-            PendingIntent pi = PendingIntent.getBroadcast(context, rc, i, PendingIntent.FLAG_ONE_SHOT);
-            Alarm o = new Alarm(pi, alarm.toLong(), rc, time);
+            int fingerPrint = alarm.shortFingerPrint();
+            PendingIntent pi = PendingIntent.getBroadcast(context, fingerPrint, i, PendingIntent.FLAG_ONE_SHOT);
+            Alarm o = new Alarm(pi, fingerPrint, time);
             pending_intent_map.put(alarm, o);
             am.set(AlarmManager.RTC_WAKEUP, time, pi);
         }
@@ -177,18 +163,17 @@ public class AlarmRegistry {
     private void updateAlarm(Context context, PunchAlarmTime alarm) {
         PendingIntent sender = pending_intent_map.get(alarm).intent;
         long now = System.currentTimeMillis();
-        long fingerprint = pending_intent_map.get(alarm).finger_print;
+        int fingerprint = pending_intent_map.get(alarm).finger_print;
         //check if alarm time has changed by comparing its current fingerprint with the stored one
         //If alarm is in the past, update time
-        if (alarm.toLong() != fingerprint || pending_intent_map.get(alarm).time < now) {
+        if (alarm.shortFingerPrint() != fingerprint || pending_intent_map.get(alarm).time < now) {
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             long time = alarm.nextAlarm(now);
             if (time >= 0) {
                 Intent i = new Intent(context, AlarmReceiver.class);
                 //using the same request code, the previous alarm is replaced
-                int rc = pending_intent_map.get(alarm).request_code;
-                PendingIntent pi = PendingIntent.getBroadcast(context, rc, i, PendingIntent.FLAG_ONE_SHOT);
-                pending_intent_map.put(alarm, new Alarm(pi, fingerprint, rc, time));
+                PendingIntent pi = PendingIntent.getBroadcast(context, fingerprint, i, PendingIntent.FLAG_ONE_SHOT);
+                pending_intent_map.put(alarm, new Alarm(pi, fingerprint, time));
                 am.set(AlarmManager.RTC_WAKEUP, time, pi);
             } else {
                 //must cancel
@@ -223,14 +208,12 @@ public class AlarmRegistry {
     //public for debugging purposes
     public class Alarm {
         public PendingIntent intent;
-        public long finger_print;
-        public int request_code;
+        public int finger_print;//This is also used as request code
         public long time;
 
-        Alarm(PendingIntent intent, long finger_print, int request_code, long time) {
+        Alarm(PendingIntent intent, int finger_print, long time) {
             this.intent = intent;
             this.finger_print = finger_print;
-            this.request_code = request_code;
             this.time = time;
         }
     }
