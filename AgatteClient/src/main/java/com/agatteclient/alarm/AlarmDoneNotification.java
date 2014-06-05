@@ -25,10 +25,13 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 
 import com.agatteclient.MainActivity;
@@ -71,12 +74,14 @@ public class AlarmDoneNotification {
         }
 
         final String ticker = title;
-
+        final Uri alarmSound;
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String rt_uri = preferences.getString("notification_sound", "");
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
 
                 // Set appropriate defaults for the notification light, sound,
                 // and vibration.
-                .setDefaults(Notification.DEFAULT_ALL)
+                .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS)
 
                         // Set required fields, including the small icon, the
                         // notification title, and text.
@@ -85,7 +90,7 @@ public class AlarmDoneNotification {
                 .setContentText(message)
 
                         // All fields below this line are optional.
-
+                .setSound(Uri.parse(rt_uri))
                         // Use a default priority (recognized on devices running Android
                         // 4.1 or later)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -93,7 +98,6 @@ public class AlarmDoneNotification {
                         // Provide a large icon, shown with the notification in the
                         // notification drawer on devices running Android 3.0 or later.
                 .setLargeIcon(picture)
-
                         // Set ticker text (preview) information for this notification.
                 .setTicker(ticker)
 
@@ -117,7 +121,6 @@ public class AlarmDoneNotification {
                 )
                         // Automatically dismiss the notification when it is touched.
                 .setAutoCancel(true);
-
         notify(context, builder.build());
     }
 

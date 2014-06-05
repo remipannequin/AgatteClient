@@ -74,6 +74,10 @@
             android:key="auto_query"
             android:selectAllOnFocus="true"
             android:title="@string/auto_query_title" />
+        <RingtonePreference
+            android:key="notification_sound"
+            android:ringtoneType="notification"
+            android:title="@string/preference_notification_sound" />
 
 
     </PreferenceCategory>
