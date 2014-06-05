@@ -56,25 +56,29 @@
             custom:timeFormat="HH:mm" />
 
     </ScrollView>
-
     <Button
         android:id="@+id/button_doPunch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/day_scrollview"
+        android:layout_centerHorizontal="true"
+        android:background="@android:color/transparent"
+        android:drawablePadding="15dp"
+        android:drawableRight="@drawable/ic_auth_grey"
         android:onClick="doPunch"
         android:singleLine="true"
-        android:text="@string/punch_button1" />
+        android:text="@string/punch_button1"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textStyle="bold" />
 
-    <ProgressBar
+    <view
         android:id="@+id/day_progress"
         style="?android:attr/progressBarStyleLarge"
+        class="com.agatteclient.card.TimeProgress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentRight="false"
         android:layout_below="@+id/time_count_textView"
-        android:layout_marginRight="10dp"
         android:layout_toLeftOf="@+id/week_label_textView"
         android:indeterminate="false"
         android:indeterminateOnly="false"
@@ -85,9 +89,10 @@
         android:id="@+id/day_label_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/year_label_textView"
         android:layout_alignLeft="@+id/day_progress"
+        android:layout_alignParentRight="false"
         android:layout_alignRight="@+id/day_progress"
-        android:layout_below="@+id/day_textView"
         android:gravity="center_horizontal|bottom"
         android:singleLine="true"
         android:text="@string/daily_time_count"
@@ -100,7 +105,7 @@
         android:layout_alignLeft="@+id/day_progress"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="15dp"
         android:gravity="center_horizontal|top"
         android:singleLine="false"
         android:text="@string/time_count"
@@ -112,6 +117,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/day_progress"
         android:layout_alignLeft="@+id/day_progress"
+        android:layout_alignParentRight="false"
         android:layout_alignRight="@+id/day_progress"
         android:layout_alignTop="@+id/day_progress"
         android:gravity="center_vertical|center_horizontal"
@@ -126,6 +132,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/time_count_textView"
+        android:layout_marginLeft="33dp"
         android:gravity="center_horizontal"
         android:text="@string/time_test_week"
         android:textAppearance="?android:attr/textAppearanceSmall"
@@ -137,19 +144,19 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/week_textView"
+        android:layout_marginLeft="15dp"
         android:gravity="center_horizontal"
         android:singleLine="true"
         android:text="@string/week_label"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
-
     <TextView
         android:id="@+id/year_label_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@id/day_label_textView"
         android:layout_alignEnd="@+id/year_textView"
         android:layout_alignParentRight="true"
+        android:layout_below="@+id/year_textView"
         android:gravity="center_horizontal"
         android:text="@string/year_label"
         android:textAppearance="?android:attr/textAppearanceSmall" />
@@ -159,8 +166,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/day_progress"
+        android:layout_alignParentBottom="false"
         android:layout_alignParentRight="true"
-        android:gravity="center_horizontal"
         android:text="@string/time_test_year"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textStyle="bold" />
@@ -169,10 +176,11 @@
         android:id="@+id/anomaly_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/time_count_textView"
+        android:layout_alignEnd="@+id/year_label_textView"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/day_label_textView"
-        android:layout_marginTop="10dp"
+        android:layout_below="@+id/day_label_textView"
+        android:layout_marginTop="15dp"
+        android:layout_toRightOf="@+id/day_scrollview"
         android:gravity="center_horizontal"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="#c83232"
