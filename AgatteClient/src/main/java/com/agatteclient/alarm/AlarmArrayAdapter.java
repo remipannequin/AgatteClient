@@ -77,20 +77,41 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
-        final PunchAlarmTime alarm = getItem(position);
-        ViewHolder holder;
-
+        View v;
         if (convertView == null) {
-            convertView = getInflater(parent).inflate(R.layout.view_alarm, parent, false);
-            assert convertView != null;
-            holder = new ViewHolder(convertView);
-            //views.set(position, holder);
-            convertView.setTag(holder);
+            v = newView(parent);
         } else {
-            holder = (ViewHolder) convertView.getTag();
+            v = convertView;
         }
+        bindView(v, position);
+        return v;
+    }
 
+    /**
+     * Create a new view for a list item.
+     *
+     * @param parent
+     * @return
+     */
+    private View newView(ViewGroup parent) {
+        View view = getInflater(parent).inflate(R.layout.view_alarm, parent, false);
+        if (BuildConfig.DEBUG && view == null)
+            throw new RuntimeException("View should not be null");
+        ViewHolder holder = new ViewHolder(view);
+        //views.set(position, holder);
+        view.setTag(holder);
+        return view;
+    }
+
+    /**
+     * Bind the view of this tiem to the actual data
+     *
+     * @param v
+     * @param position
+     */
+    private void bindView(View v, int position) {
+        ViewHolder holder = (ViewHolder) v.getTag();
+        final PunchAlarmTime alarm = getItem(position);
         CompoundButton cb = holder.getEnabled();
         cb.setTag(position);
         cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -146,8 +167,8 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
 
             }
         });
-        return convertView;
     }
+
 
     public static class TimePickerFragment extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
