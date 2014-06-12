@@ -44,6 +44,8 @@ import com.agatteclient.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Set;
 
 public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
 
@@ -57,8 +59,10 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
     private final android.support.v4.app.FragmentManager fragment_manager;
     private final AlarmBinder alarms;
     private final Context context;
-    //Used for testing
+    //private final ListView list;
+    private Set<Integer> expanded = new HashSet<Integer>();
     private LayoutInflater inflater;
+
 
     public AlarmArrayAdapter(Context context, AlarmBinder objects) {
         super(context, R.layout.view_alarm, objects);
@@ -68,6 +72,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
             throw new RuntimeException("ctx is not a FragmentActivity");
         fragment_manager = ((FragmentActivity) context).getSupportFragmentManager();
     }
+
 
     private LayoutInflater getInflater(ViewGroup parent) {
 
@@ -80,11 +85,12 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
         return inflater;
     }
 
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View v;
         if (convertView == null) {
-            v = newView(parent);
+            v = newView(parent, position);
         } else {
             v = convertView;
         }
@@ -92,21 +98,23 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
         return v;
     }
 
+
     /**
      * Create a new view for a list item.
      *
      * @param parent
      * @return
      */
-    private View newView(ViewGroup parent) {
+    private View newView(ViewGroup parent, int position) {
         View view = getInflater(parent).inflate(R.layout.view_alarm, parent, false);
         if (BuildConfig.DEBUG && view == null)
             throw new RuntimeException("View should not be null");
-        ViewHolder holder = new ViewHolder(view);
+        ViewHolder holder = new ViewHolder(view, position);
         //views.set(position, holder);
         view.setTag(holder);
         return view;
     }
+
 
     /**
      * Bind the view of this tiem to the actual data
@@ -115,8 +123,9 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
      * @param position
      */
     private void bindView(View v, int position) {
-        ViewHolder holder = (ViewHolder) v.getTag();
+        final ViewHolder holder = (ViewHolder) v.getTag();
         final PunchAlarmTime alarm = getItem(position);
+        /* get and binf enabled button */
         CompoundButton cb = holder.getEnabled();
         cb.setTag(position);
         cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -129,7 +138,9 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
                 }
             }
         });
+        cb.setChecked(alarm.isEnabled());
 
+        /* get and bind day button */
         for (int i = 0; i < 7; i++) {
             ToggleButton button = holder.getToggleButton()[i];
             button.setTag(position);
@@ -145,15 +156,13 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
                 }
             });
         }
-
         for (int i = 0; i < 7; i++) {
             ToggleButton button = holder.getToggleButton()[i];
             final PunchAlarmTime.Day cur_day = PunchAlarmTime.Day.values()[i];
             button.setChecked(alarm.isFireAt(cur_day));
         }
 
-        holder.getEnabled().setChecked(alarm.isEnabled());
-
+        /* get and bind delete button */
         ImageButton del_button = holder.getDeleteButton();
         del_button.setTag(position);
         del_button.setOnClickListener(new Button.OnClickListener() {
@@ -175,7 +184,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
             }
         });
 
-
+        /* Time textview */
         TextView tv = holder.getText();
         SimpleDateFormat df = new SimpleDateFormat("HH:mm");
         tv.setTag(position);
@@ -194,6 +203,49 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
 
             }
         });
+        //TODO set summary form selected days
+
+
+        /* bind view to collapse/expand */
+        final View info = holder.getInfoArea();
+        info.setTag(position);
+        info.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int p = (Integer) v.getTag();
+                expand(p);
+            }
+        });
+        /* get and bind delete button */
+        final ImageButton collapse_button = holder.getCollapse();
+        collapse_button.setTag(position);
+        collapse_button.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int p = (Integer) v.getTag();
+                collapse(p);
+            }
+        });
+
+        if (expanded.contains(position)) {
+            holder.getInfoArea().setVisibility(View.GONE);
+            holder.getExpandArea().setVisibility(View.VISIBLE);
+        } else {
+            holder.getInfoArea().setVisibility(View.VISIBLE);
+            holder.getExpandArea().setVisibility(View.GONE);
+        }
+    }
+
+
+    private void expand(int p) {
+        expanded.add(p);
+        notifyDataSetChanged();
+    }
+
+
+    private void collapse(int p) {
+        expanded.remove(p);
+        notifyDataSetChanged();
     }
 
 
@@ -239,6 +291,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
      */
     private class ViewHolder {
         final View row;
+        final int position;
 
         TextView text = null;
         ToggleButton[] day_button = null;
@@ -246,9 +299,12 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
         View expandArea = null;
         View infoArea = null;
         ImageButton deleteButton = null;
+        View alarmItem = null;
+        private ImageButton collapse = null;
 
-        public ViewHolder(View row) {
+        public ViewHolder(View row, int position) {
             this.row = row;
+            this.position = position;
         }
 
         public TextView getText() {
@@ -296,6 +352,20 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
                 deleteButton = (ImageButton) row.findViewById(R.id.deleteButton);
             }
             return deleteButton;
+        }
+
+        public View getAlarmItem() {
+            if (alarmItem == null) {
+                alarmItem = row.findViewById(R.id.alarmItem);
+            }
+            return alarmItem;
+        }
+
+        public ImageButton getCollapse() {
+            if (collapse == null) {
+                collapse = (ImageButton) row.findViewById(R.id.collapse);
+            }
+            return collapse;
         }
     }
 }
