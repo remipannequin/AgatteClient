@@ -30,6 +30,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -213,10 +214,12 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
     private class ViewHolder {
         final View row;
 
-        private TextView text = null;
-        private ToggleButton[] day_button = null;
-        private CompoundButton enabled = null;
-
+        TextView text = null;
+        ToggleButton[] day_button = null;
+        CompoundButton enabled = null;
+        View expandArea = null;
+        View infoArea = null;
+        Button deleteButton = null;
 
         public ViewHolder(View row) {
             this.row = row;
@@ -248,6 +251,25 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
             return enabled;
         }
 
+        public View getExpandArea() {
+            if (this.expandArea == null) {
+                this.expandArea = row.findViewById(R.id.expandArea);
+            }
+            return this.expandArea;
+        }
 
+        public View getInfoArea() {
+            if (this.infoArea == null) {
+                this.infoArea = row.findViewById(R.id.infoArea);
+            }
+            return this.infoArea;
+        }
+
+        public Button getDeleteButton() {
+            if (deleteButton == null) {
+                deleteButton = (CompoundButton) row.findViewById(R.id.deleteButton);
+            }
+            return deleteButton;
+        }
     }
 }
