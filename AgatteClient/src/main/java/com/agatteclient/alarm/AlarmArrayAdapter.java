@@ -19,9 +19,11 @@
 
 package com.agatteclient.alarm;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -32,6 +34,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.ToggleButton;
@@ -53,16 +56,17 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
             R.id.toggleButton_sunday};
     private final android.support.v4.app.FragmentManager fragment_manager;
     private final AlarmBinder alarms;
+    private final Context context;
     //Used for testing
     private LayoutInflater inflater;
 
     public AlarmArrayAdapter(Context context, AlarmBinder objects) {
         super(context, R.layout.view_alarm, objects);
         this.alarms = objects;
-        Context ctx = getContext();
-        if (BuildConfig.DEBUG && !(ctx instanceof FragmentActivity))
+        this.context = context;
+        if (BuildConfig.DEBUG && !(context instanceof FragmentActivity))
             throw new RuntimeException("ctx is not a FragmentActivity");
-        fragment_manager = ((FragmentActivity) ctx).getSupportFragmentManager();
+        fragment_manager = ((FragmentActivity) context).getSupportFragmentManager();
     }
 
     private LayoutInflater getInflater(ViewGroup parent) {
@@ -150,6 +154,28 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
 
         holder.getEnabled().setChecked(alarm.isEnabled());
 
+        ImageButton del_button = holder.getDeleteButton();
+        del_button.setTag(position);
+        del_button.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int p = (Integer) v.getTag();
+                final PunchAlarmTime a = alarms.get(p);
+                AlertDialog.Builder adb = new AlertDialog.Builder(context);
+                adb.setTitle(context.getString(R.string.alarm_delete_confirm_question));
+                adb.setMessage(String.format(context.getString(R.string.alarm_delete_confirm), new SimpleDateFormat("H:mm").format(a.getTime())));
+                adb.setNegativeButton(context.getString(R.string.alarm_delete_confirm_cancel), null);
+                adb.setPositiveButton(context.getString(R.string.alarm_delete_confirm_ok), new AlertDialog.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        alarms.remove(a);
+                        notifyDataSetChanged();
+                    }
+                });
+                adb.show();
+            }
+        });
+
+
         TextView tv = holder.getText();
         SimpleDateFormat df = new SimpleDateFormat("HH:mm");
         tv.setTag(position);
@@ -219,7 +245,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
         CompoundButton enabled = null;
         View expandArea = null;
         View infoArea = null;
-        Button deleteButton = null;
+        ImageButton deleteButton = null;
 
         public ViewHolder(View row) {
             this.row = row;
@@ -265,9 +291,9 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
             return this.infoArea;
         }
 
-        public Button getDeleteButton() {
+        public ImageButton getDeleteButton() {
             if (deleteButton == null) {
-                deleteButton = (CompoundButton) row.findViewById(R.id.deleteButton);
+                deleteButton = (ImageButton) row.findViewById(R.id.deleteButton);
             }
             return deleteButton;
         }
