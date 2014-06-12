@@ -43,19 +43,44 @@ import com.agatteclient.BuildConfig;
 import com.agatteclient.R;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
 
-    private static final int[] days = new int[]{R.id.toggleButton_monday,
+    private static final int[] days = new int[]{
+            R.id.toggleButton_monday,
             R.id.toggleButton_tuesday,
             R.id.toggleButton_wednesday,
             R.id.toggleButton_thursday,
             R.id.toggleButton_friday,
             R.id.toggleButton_saturday,
             R.id.toggleButton_sunday};
+
+    private static final int[] days_names = new int[]{
+            R.string.short_monday,
+            R.string.short_tuesday,
+            R.string.short_wednesday,
+            R.string.short_thursday,
+            R.string.short_friday,
+            R.string.short_saturday,
+            R.string.short_sunday
+    };
+
+    private static final int[] days_names_long = new int[]{
+            R.string.monday,
+            R.string.tuesday,
+            R.string.wednesday,
+            R.string.thursday,
+            R.string.friday,
+            R.string.saturday,
+            R.string.sunday
+    };
+
+
     private final android.support.v4.app.FragmentManager fragment_manager;
     private final AlarmBinder alarms;
     private final Context context;
@@ -203,7 +228,31 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
 
             }
         });
-        //TODO set summary form selected days
+        /* set summary form selected days */
+        TextView summary = holder.getSummary();
+
+        List<Integer> active_days = new ArrayList<Integer>(7);
+        for (int i = 0; i < 7; i++) {
+            final PunchAlarmTime.Day cur_day = PunchAlarmTime.Day.values()[i];
+            if (alarm.isFireAt(cur_day)) {
+                active_days.add(i);
+            }
+        }
+        if (active_days.size() > 1) {
+            StringBuilder days_summary = new StringBuilder();
+            boolean first = true;
+            for (int i : active_days) {
+                if (!first) {
+                    days_summary.append(", ");
+                } else {
+                    first = false;
+                }
+                days_summary.append(context.getText(days_names[active_days.get(i)]));
+                summary.setText(days_summary.toString());
+            }
+        } else if (active_days.size() == 1) {
+            summary.setText(context.getText(days_names_long[active_days.get(0)]));
+        }
 
 
         /* bind view to collapse/expand */
@@ -286,9 +335,6 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
     }
 
 
-    /**
-     * Created by Rémi Pannequin on 16/11/13.
-     */
     private class ViewHolder {
         final View row;
         final int position;
@@ -301,6 +347,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
         ImageButton deleteButton = null;
         View alarmItem = null;
         private ImageButton collapse = null;
+        private TextView summary;
 
         public ViewHolder(View row, int position) {
             this.row = row;
@@ -366,6 +413,13 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
                 collapse = (ImageButton) row.findViewById(R.id.collapse);
             }
             return collapse;
+        }
+
+        public TextView getSummary() {
+            if (summary == null) {
+                summary = (TextView) row.findViewById(R.id.alarmSummary);
+            }
+            return summary;
         }
     }
 }
