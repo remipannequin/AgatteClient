@@ -247,7 +247,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
                 } else {
                     first = false;
                 }
-                days_summary.append(context.getText(days_names[active_days.get(i)]));
+                days_summary.append(context.getText(days_names[i]));
                 summary.setText(days_summary.toString());
             }
         } else if (active_days.size() == 1) {
