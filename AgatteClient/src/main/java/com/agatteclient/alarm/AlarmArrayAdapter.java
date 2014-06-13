@@ -193,7 +193,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
         del_button.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int p = (Integer) v.getTag();
+                final int p = (Integer) v.getTag();
                 final PunchAlarmTime a = alarms.get(p);
                 AlertDialog.Builder adb = new AlertDialog.Builder(context);
                 adb.setTitle(context.getString(R.string.alarm_delete_confirm_question));
@@ -202,6 +202,8 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
                 adb.setPositiveButton(context.getString(R.string.alarm_delete_confirm_ok), new AlertDialog.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         alarms.remove(a);
+                        /* also remove index from expanded list */
+                        expanded.remove(p);
                         notifyDataSetChanged();
                     }
                 });
@@ -265,7 +267,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
                 expand(p);
             }
         });
-        /* get and bind delete button */
+        /* expand or collapse item */
         final ImageButton collapse_button = holder.getCollapse();
         collapse_button.setTag(position);
         collapse_button.setOnClickListener(new Button.OnClickListener() {
@@ -283,6 +285,8 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
             holder.getInfoArea().setVisibility(View.VISIBLE);
             holder.getExpandArea().setVisibility(View.GONE);
         }
+
+        //TODO: populate the spinner according to the alarm type...
     }
 
 
