@@ -135,7 +135,7 @@ public class AgattePreferenceActivity extends PreferenceActivity {
      * activity is showing a two-pane settings UI.
      */
     @TargetApi(11)
-    private static class PrefsFragment extends PreferenceFragment {
+    public static class PrefsFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
