@@ -132,7 +132,7 @@ public class PunchAlarmTimeTest extends AndroidTestCase {
     public void testToLong() throws Exception {
         PunchAlarmTime instance = new PunchAlarmTime(10, 25);
         long actual = instance.toLong();
-        long expected = 281608120697457l;
+        long expected = 281608120697457l;//0x1001F00000271
         assertEquals(expected, actual);
     }
 
@@ -142,6 +142,40 @@ public class PunchAlarmTimeTest extends AndroidTestCase {
         PunchAlarmTime actual = PunchAlarmTime.fromLong(412l + 365072220160l);
         assertTrue(expected.equals(actual));
         assertEquals(expected, actual);
+        assertEquals(PunchAlarmTime.Type.unconstraigned, actual.getType());
+    }
+
+    public void testToLongWithType() throws Exception {
+        PunchAlarmTime instance = new PunchAlarmTime(10, 25);
+        instance.setType(PunchAlarmTime.Type.arrival);
+        long actual = instance.toLong();
+        long expected = 1407508027540081l;//0x5001F00000271
+        assertEquals(expected, actual);
+
+        instance.setType(PunchAlarmTime.Type.leaving);
+        actual = instance.toLong();
+        expected = 844558074118769l;//0x3001F00000271
+        assertEquals(expected, actual);
+    }
+
+    public void testFromLongWithType1() throws Exception {
+        PunchAlarmTime actual = PunchAlarmTime.fromLong(412l + 365072220160l + (1l << 49));
+        assertEquals(PunchAlarmTime.Type.leaving, actual.getType());
+    }
+
+    public void testFromLongWithType2() throws Exception {
+        PunchAlarmTime actual = PunchAlarmTime.fromLong(412l + 365072220160l + (1l << 50));
+        assertEquals(PunchAlarmTime.Type.arrival, actual.getType());
+    }
+
+    public void testToFromLong() throws Exception {
+        PunchAlarmTime instance = new PunchAlarmTime(10, 25);
+        for (PunchAlarmTime.Type t : PunchAlarmTime.Type.values()) {
+            instance.setType(t);
+            long l = instance.toLong();
+            PunchAlarmTime instance2 = PunchAlarmTime.fromLong(l);
+            assertEquals(t, instance2.getType());
+        }
     }
 
 }
