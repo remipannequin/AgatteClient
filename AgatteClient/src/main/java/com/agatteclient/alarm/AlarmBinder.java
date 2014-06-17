@@ -307,6 +307,16 @@ public class AlarmBinder implements List<PunchAlarmTime> {
         saveToPreferences();
     }
 
+    public void setType(int i, PunchAlarmTime.Type t) {
+        PunchAlarmTime a = alarms.get(i);
+        a.setType(t);
+        if (listener != null) {
+            listener.onAlarmModified(a);
+        }
+        saveToPreferences();
+    }
+
+
     public void setAlarmChangeListener(AlarmChangeListener listener) {
         this.listener = listener;
     }

@@ -303,9 +303,8 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 int p = (Integer) parent.getTag();
-                PunchAlarmTime a = alarms.get(p);
                 PunchAlarmTime.Type new_type = PunchAlarmTime.Type.values()[position];
-                a.setType(new_type);
+                alarms.setType(p, new_type);
             }
 
             @Override
