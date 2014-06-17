@@ -19,13 +19,25 @@
 
 package com.agatteclient.agatte;
 
-public enum AgatteResultCode {
-    punch_ok,
-    query_ok,
-    query_counter_ok,
-    query_counter_unavailable,
-    exception,
-    io_exception,
-    login_failed,
-    invalidPunchingCondition, network_not_authorized
+/**
+ * This file is part of AgatteClient
+ * <p/>
+ * Created by remi on 17/06/14.
+ */
+public class InvalidPunchingConditionException extends AgatteException {
+
+    public InvalidPunchingConditionException(String detailMessage) {
+        super(detailMessage);
+    }
+
+    public InvalidPunchingConditionException(String detailMessage, Throwable throwable) {
+        super(detailMessage, throwable);
+    }
+
+    public InvalidPunchingConditionException(Throwable throwable) {
+        super(throwable);
+    }
+
+    public InvalidPunchingConditionException() {
+    }
 }

@@ -51,9 +51,24 @@ public class AlarmReceiver extends BroadcastReceiver {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
         wl.acquire();
+        //get the type of the alarm
+        PunchAlarmTime.Type t = PunchAlarmTime.Type.values()[intent.getIntExtra(AlarmRegistry.ALARM_TYPE,
+                PunchAlarmTime.Type.unconstraigned.ordinal())];
         //Do the punch by calling the punching service
         final Intent i = new Intent(context, PunchService.class);
-        i.setAction(PunchService.DO_PUNCH);
+        switch (t) {
+            case unconstraigned:
+                i.setAction(PunchService.DO_PUNCH);
+                break;
+            case arrival:
+                i.setAction(PunchService.DO_PUNCH_ARRIVAL);
+                break;
+            case leaving:
+                i.setAction(PunchService.DO_PUNCH_LEAVING);
+                break;
+            default:
+                //TODO: log error
+        }
         i.putExtra(PunchService.RESULT_RECEIVER, new PunchResultReceiver(context));
         context.startService(i);
         wl.release();
