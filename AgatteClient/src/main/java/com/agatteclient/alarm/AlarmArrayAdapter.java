@@ -31,10 +31,12 @@ import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.ToggleButton;
@@ -286,7 +288,32 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
             holder.getExpandArea().setVisibility(View.GONE);
         }
 
-        //TODO: populate the spinner according to the alarm type...
+        //populate the spinner according to the alarm type...
+        final Spinner type_spinner = holder.getAlarmTypeSpinner();
+        type_spinner.setTag(position);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(context,
+                R.array.alarm_type_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        type_spinner.setAdapter(adapter);
+        //TODO: select the right one from alarm type
+        type_spinner.setSelection(1);
+        //bind item selection
+        type_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                int p = (Integer) parent.getTag();
+                PunchAlarmTime a = alarms.get(p);
+
+                //PunchAlarmTime.Type new_type = PunchAlarmTime.Type.values()[position];
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                int p = (Integer) parent.getTag();
+                PunchAlarmTime a = alarms.get(p);
+                //TODO ? is this possible ??
+            }
+        });
     }
 
 
@@ -352,6 +379,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
         View alarmItem = null;
         private ImageButton collapse = null;
         private TextView summary;
+        private Spinner alarmTypeSpinner;
 
         public ViewHolder(View row, int position) {
             this.row = row;
@@ -424,6 +452,13 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
                 summary = (TextView) row.findViewById(R.id.alarmSummary);
             }
             return summary;
+        }
+
+        public Spinner getAlarmTypeSpinner() {
+            if (alarmTypeSpinner == null) {
+                alarmTypeSpinner = (Spinner) row.findViewById(R.id.alarmTypeSpinner);
+            }
+            return alarmTypeSpinner;
         }
     }
 }
