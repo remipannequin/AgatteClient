@@ -28,11 +28,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * This service has a map of pending intents corresponding to to all the scheduled alarms in the
@@ -45,6 +43,7 @@ import java.util.Set;
  */
 public class AlarmRegistry {
 
+    public static final String ALARM_TYPE = "alarm-type";//NON-NLS
     private static AlarmRegistry ourInstance;
 
     //Manage a collection of alarm, with their fingerprint
@@ -98,12 +97,6 @@ public class AlarmRegistry {
     public void update(Context context) {
         AlarmBinder binder = AlarmBinder.getInstance(context);
 
-        //Extract longs representing the alarms
-        Set<Long> alarms = new HashSet<Long>(binder.size());
-        for (PunchAlarmTime a : binder) {
-            alarms.add(a.toLong());
-        }
-
         //Cancel alarms that are not in the binder any more
         List<PunchAlarmTime> to_remove = new ArrayList<PunchAlarmTime>(pending_intent_map.size());
         for (PunchAlarmTime a : pending_intent_map.keySet()) {
@@ -114,7 +107,6 @@ public class AlarmRegistry {
         for (PunchAlarmTime a : to_remove) {
             cancelAlarm(context, a);
         }
-
 
         //Add alarms that are new, update the other ones
         for (PunchAlarmTime a : binder) {
@@ -137,6 +129,7 @@ public class AlarmRegistry {
         if (time >= 0) {
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             Intent i = new Intent(context, AlarmReceiver.class);
+            i.putExtra(ALARM_TYPE, alarm.getType().ordinal());
             int fingerPrint = alarm.shortFingerPrint();
             PendingIntent pi = PendingIntent.getBroadcast(context, fingerPrint, i, PendingIntent.FLAG_ONE_SHOT);
             Alarm o = new Alarm(pi, fingerPrint, time);
@@ -171,6 +164,7 @@ public class AlarmRegistry {
             long time = alarm.nextAlarm(now);
             if (time >= 0) {
                 Intent i = new Intent(context, AlarmReceiver.class);
+                i.putExtra(ALARM_TYPE, alarm.getType().ordinal());
                 //using the same request code, the previous alarm is replaced
                 PendingIntent pi = PendingIntent.getBroadcast(context, fingerprint, i, PendingIntent.FLAG_ONE_SHOT);
                 pending_intent_map.put(alarm, new Alarm(pi, fingerprint, time));
