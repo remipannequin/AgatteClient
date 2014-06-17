@@ -29,9 +29,9 @@
         <item>"3"</item>
     </string-array>
     <string-array name="alarm_type_array">
-        <item>"Both Arrival and Leaving"</item>
-        <item>"Arrival only"</item>
-        <item>"Leaving only"</item>
+        <item>"Punch arrivals or leavings"</item>
+        <item>"Punch arrivals only"</item>
+        <item>"Punch leavings only"</item>
     </string-array>
     <string-array name="alarm_type_value">
         <item>"1"</item>
