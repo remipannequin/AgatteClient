@@ -61,10 +61,10 @@ public class AlarmBinder implements List<PunchAlarmTime> {
             }
         } else {
             String alarms_s = preferences.getString(ALARMS_PREF, "");
-            int n_tok = alarms_s.length() / 8;
-            for (int i = 0; i < alarms_s.length() / 8; i++) {
+            int n_tok = alarms_s.length() / 16;
+            for (int i = 0; i < alarms_s.length() / 16; i++) {
                 try {
-                    long n = Long.parseLong(alarms_s.substring(i * 8, (i + 1) * 8), 16);
+                    long n = Long.parseLong(alarms_s.substring(i * 16, (i + 1) * 16), 16);
                     alarms.add(PunchAlarmTime.fromLong(n));
                 } catch (NumberFormatException ex) {
                     Log.e(MainActivity.LOG_TAG, String.format("NumberFormatException when restoring alarms: %s", ex.getMessage()));//NON-NLS

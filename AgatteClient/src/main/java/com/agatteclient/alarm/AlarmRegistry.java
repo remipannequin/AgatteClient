@@ -165,8 +165,8 @@ public class AlarmRegistry {
         long now = System.currentTimeMillis();
         int fingerprint = pending_intent_map.get(alarm).finger_print;
         //check if alarm time has changed by comparing its current fingerprint with the stored one
-        //If alarm is in the past, update time
-        if (alarm.shortFingerPrint() != fingerprint || pending_intent_map.get(alarm).time < now) {
+        //If alarm is in the past, update time. If alarm is not enabled any more, check it (cancel)
+        if (alarm.shortFingerPrint() != fingerprint || pending_intent_map.get(alarm).time < now || !alarm.isEnabled()) {
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             long time = alarm.nextAlarm(now);
             if (time >= 0) {
