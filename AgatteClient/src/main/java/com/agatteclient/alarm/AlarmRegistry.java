@@ -183,17 +183,19 @@ public class AlarmRegistry {
      * @param now the day to consider
      * @return
      */
-    public Iterable<? extends Date> getScheduledAlarms(Date now) {
-        LinkedList<Date> result = new LinkedList<Date>();
+    public Iterable<PunchAlarmTime> getScheduledAlarms(Date now) {
+        LinkedList<PunchAlarmTime> result = new LinkedList<PunchAlarmTime>();
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);
         int day = cal.get(Calendar.DAY_OF_YEAR);
-        for (Alarm al : pending_intent_map.values()) {
+        for (Map.Entry<PunchAlarmTime, Alarm> entry : pending_intent_map.entrySet()) {
+            Alarm al = entry.getValue();
             Date d = new Date(al.time);
             //check if same day
             cal.setTime(d);
             if (cal.get(Calendar.DAY_OF_YEAR) == day) {
-                result.add(d);
+
+                result.add(entry.getKey());
             }
         }
         return result;

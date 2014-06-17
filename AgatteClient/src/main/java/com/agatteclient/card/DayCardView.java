@@ -55,6 +55,7 @@ import android.view.View;
 import com.agatteclient.R;
 import com.agatteclient.alarm.AlarmRegistry;
 import com.agatteclient.alarm.AlarmStatus;
+import com.agatteclient.alarm.PunchAlarmTime;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -447,8 +448,9 @@ public class DayCardView extends View {
 
         //Draw alarms
         if (alarms != null) {
-            for (Date a : alarms.getScheduledAlarms(card.getDay())) {
-                drawAlarm(canvas, a, AlarmStatus.scheduled);
+            for (PunchAlarmTime a : alarms.getScheduledAlarms(card.getDay())) {
+                Date d = a.getTime();
+                drawAlarm(canvas, d, a.getType(), AlarmStatus.scheduled);
             }
             //TODO: done & failed alarms
         }
@@ -513,8 +515,9 @@ public class DayCardView extends View {
      * Draw an Alarm on the View
      * @param canvas the canvas where to draw
      * @param alarm
+     * @param type
      */
-    private void drawAlarm(Canvas canvas, Date alarm, AlarmStatus status) {
+    private void drawAlarm(Canvas canvas, Date alarm, PunchAlarmTime.Type type, AlarmStatus status) {
         //get the y coordinate where to draw
         float y = getYFromHour(alarm);
         String t = fmt.format(alarm);
@@ -566,6 +569,24 @@ public class DayCardView extends View {
                           rect_width - w + margin - pad,
                           y - (h/2) + 5,
                           alarm_paint);
+
+        //TODO : display smth to show arrival/leaving constraints
+        if (type == PunchAlarmTime.Type.arrival) {
+            Path alarm_constr_path = new Path();
+            alarm_constr_path.reset();
+            float required_h = pxToDp(ODD_H / 2);
+            int num = (int) Math.floor(rect_width / (2 * required_h));
+            float real_h = rect_width / (2 * num);
+            alarm_constr_path.rLineTo(0, real_h);
+            for (int i = 0; i < num; i++) {
+                alarm_constr_path.rLineTo(real_h, -real_h);
+                alarm_constr_path.rLineTo(real_h, real_h);
+            }
+            alarm_constr_path.rLineTo(0, -real_h);
+            alarm_constr_path.close();
+            alarm_constr_path.offset(margin, y);
+            canvas.drawPath(alarm_constr_path, alarm_paint);
+        }
     }
 
     /**
