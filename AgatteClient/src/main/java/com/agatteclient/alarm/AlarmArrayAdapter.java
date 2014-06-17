@@ -295,23 +295,24 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
                 R.array.alarm_type_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         type_spinner.setAdapter(adapter);
-        //TODO: select the right one from alarm type
-        type_spinner.setSelection(1);
+        //Select the right one from alarm type
+        PunchAlarmTime.Type t = alarm.getType();
+        type_spinner.setSelection(t.ordinal());
         //bind item selection
         type_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 int p = (Integer) parent.getTag();
                 PunchAlarmTime a = alarms.get(p);
-
-                //PunchAlarmTime.Type new_type = PunchAlarmTime.Type.values()[position];
+                PunchAlarmTime.Type new_type = PunchAlarmTime.Type.values()[position];
+                a.setType(new_type);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 int p = (Integer) parent.getTag();
                 PunchAlarmTime a = alarms.get(p);
-                //TODO ? is this possible ??
+                //TODO ? is this possible ?? can't happen ?!
             }
         });
     }
