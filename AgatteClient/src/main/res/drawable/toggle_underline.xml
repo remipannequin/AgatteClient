@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
   ~ This file is part of AgatteClient.
   ~
   ~ AgatteClient is free software: you can redistribute it and/or modify
@@ -17,26 +19,8 @@
   ~ Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
   -->
 
-<resources>
-    <string-array name="week_profile_array">
-        <item>"38h10"</item>
-        <item>"37h30"</item>
-        <item>"36h40"</item>
-    </string-array>
-    <string-array name="week_profile_values">
-        <item>"1"</item>
-        <item>"2"</item>
-        <item>"3"</item>
-    </string-array>
-    <string-array name="alarm_type_array">
-        <item>"Both Arrival and Leaving"</item>
-        <item>"Arrival only"</item>
-        <item>"Leaving only"</item>
-    </string-array>
-    <string-array name="alarm_type_value">
-        <item>"1"</item>
-        <item>"2"</item>
-        <item>"3"</item>
-    </string-array>
-
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/toggle_underline_activated" android:state_pressed="true" android:state_window_focused="true" />
+    <item android:drawable="@drawable/toggle_underline_activated" android:state_checked="true" />
+    <item android:drawable="@drawable/toggle_underline_normal" />
+</selector>

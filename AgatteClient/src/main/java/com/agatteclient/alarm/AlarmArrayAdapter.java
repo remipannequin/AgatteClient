@@ -19,9 +19,11 @@
 
 package com.agatteclient.alarm;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -29,8 +31,12 @@ import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.ToggleButton;
@@ -39,30 +45,61 @@ import com.agatteclient.BuildConfig;
 import com.agatteclient.R;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
 
-    private static final int[] days = new int[]{R.id.toggleButton_monday,
+    private static final int[] days = new int[]{
+            R.id.toggleButton_monday,
             R.id.toggleButton_tuesday,
             R.id.toggleButton_wednesday,
             R.id.toggleButton_thursday,
             R.id.toggleButton_friday,
             R.id.toggleButton_saturday,
             R.id.toggleButton_sunday};
+
+    private static final int[] days_names = new int[]{
+            R.string.short_monday,
+            R.string.short_tuesday,
+            R.string.short_wednesday,
+            R.string.short_thursday,
+            R.string.short_friday,
+            R.string.short_saturday,
+            R.string.short_sunday
+    };
+
+    private static final int[] days_names_long = new int[]{
+            R.string.monday,
+            R.string.tuesday,
+            R.string.wednesday,
+            R.string.thursday,
+            R.string.friday,
+            R.string.saturday,
+            R.string.sunday
+    };
+
+
     private final android.support.v4.app.FragmentManager fragment_manager;
     private final AlarmBinder alarms;
-    //Used for testing
+    private final Context context;
+    //private final ListView list;
+    private Set<Integer> expanded = new HashSet<Integer>();
     private LayoutInflater inflater;
+
 
     public AlarmArrayAdapter(Context context, AlarmBinder objects) {
         super(context, R.layout.view_alarm, objects);
         this.alarms = objects;
-        Context ctx = getContext();
-        if (BuildConfig.DEBUG && !(ctx instanceof FragmentActivity))
+        this.context = context;
+        if (BuildConfig.DEBUG && !(context instanceof FragmentActivity))
             throw new RuntimeException("ctx is not a FragmentActivity");
-        fragment_manager = ((FragmentActivity) ctx).getSupportFragmentManager();
+        fragment_manager = ((FragmentActivity) context).getSupportFragmentManager();
     }
+
 
     private LayoutInflater getInflater(ViewGroup parent) {
 
@@ -75,22 +112,47 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
         return inflater;
     }
 
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
-        final PunchAlarmTime alarm = getItem(position);
-        ViewHolder holder;
-
+        View v;
         if (convertView == null) {
-            convertView = getInflater(parent).inflate(R.layout.view_alarm, parent, false);
-            assert convertView != null;
-            holder = new ViewHolder(convertView);
-            //views.set(position, holder);
-            convertView.setTag(holder);
+            v = newView(parent, position);
         } else {
-            holder = (ViewHolder) convertView.getTag();
+            v = convertView;
         }
+        bindView(v, position);
+        return v;
+    }
 
+
+    /**
+     * Create a new view for a list item.
+     *
+     * @param parent
+     * @return
+     */
+    private View newView(ViewGroup parent, int position) {
+        View view = getInflater(parent).inflate(R.layout.view_alarm, parent, false);
+        if (BuildConfig.DEBUG && view == null)
+            throw new RuntimeException("View should not be null");
+        ViewHolder holder = new ViewHolder(view, position);
+        //views.set(position, holder);
+        view.setTag(holder);
+        return view;
+    }
+
+
+    /**
+     * Bind the view of this tiem to the actual data
+     *
+     * @param v
+     * @param position
+     */
+    private void bindView(View v, int position) {
+        final ViewHolder holder = (ViewHolder) v.getTag();
+        final PunchAlarmTime alarm = getItem(position);
+        /* get and binf enabled button */
         CompoundButton cb = holder.getEnabled();
         cb.setTag(position);
         cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -103,7 +165,9 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
                 }
             }
         });
+        cb.setChecked(alarm.isEnabled());
 
+        /* get and bind day button */
         for (int i = 0; i < 7; i++) {
             ToggleButton button = holder.getToggleButton()[i];
             button.setTag(position);
@@ -119,15 +183,37 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
                 }
             });
         }
-
         for (int i = 0; i < 7; i++) {
             ToggleButton button = holder.getToggleButton()[i];
             final PunchAlarmTime.Day cur_day = PunchAlarmTime.Day.values()[i];
             button.setChecked(alarm.isFireAt(cur_day));
         }
 
-        holder.getEnabled().setChecked(alarm.isEnabled());
+        /* get and bind delete button */
+        ImageButton del_button = holder.getDeleteButton();
+        del_button.setTag(position);
+        del_button.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final int p = (Integer) v.getTag();
+                final PunchAlarmTime a = alarms.get(p);
+                AlertDialog.Builder adb = new AlertDialog.Builder(context);
+                adb.setTitle(context.getString(R.string.alarm_delete_confirm_question));
+                adb.setMessage(String.format(context.getString(R.string.alarm_delete_confirm), new SimpleDateFormat("H:mm").format(a.getTime())));
+                adb.setNegativeButton(context.getString(R.string.alarm_delete_confirm_cancel), null);
+                adb.setPositiveButton(context.getString(R.string.alarm_delete_confirm_ok), new AlertDialog.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        alarms.remove(a);
+                        /* also remove index from expanded list */
+                        expanded.remove(p);
+                        notifyDataSetChanged();
+                    }
+                });
+                adb.show();
+            }
+        });
 
+        /* Time textview */
         TextView tv = holder.getText();
         SimpleDateFormat df = new SimpleDateFormat("HH:mm");
         tv.setTag(position);
@@ -146,8 +232,102 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
 
             }
         });
-        return convertView;
+        /* set summary form selected days */
+        TextView summary = holder.getSummary();
+
+        List<Integer> active_days = new ArrayList<Integer>(7);
+        for (int i = 0; i < 7; i++) {
+            final PunchAlarmTime.Day cur_day = PunchAlarmTime.Day.values()[i];
+            if (alarm.isFireAt(cur_day)) {
+                active_days.add(i);
+            }
+        }
+        if (active_days.size() > 1) {
+            StringBuilder days_summary = new StringBuilder();
+            boolean first = true;
+            for (int i : active_days) {
+                if (!first) {
+                    days_summary.append(", ");
+                } else {
+                    first = false;
+                }
+                days_summary.append(context.getText(days_names[i]));
+                summary.setText(days_summary.toString());
+            }
+        } else if (active_days.size() == 1) {
+            summary.setText(context.getText(days_names_long[active_days.get(0)]));
+        }
+
+
+        /* bind view to collapse/expand */
+        final View info = holder.getInfoArea();
+        info.setTag(position);
+        info.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int p = (Integer) v.getTag();
+                expand(p);
+            }
+        });
+        /* expand or collapse item */
+        final ImageButton collapse_button = holder.getCollapse();
+        collapse_button.setTag(position);
+        collapse_button.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int p = (Integer) v.getTag();
+                collapse(p);
+            }
+        });
+
+        if (expanded.contains(position)) {
+            holder.getInfoArea().setVisibility(View.GONE);
+            holder.getExpandArea().setVisibility(View.VISIBLE);
+        } else {
+            holder.getInfoArea().setVisibility(View.VISIBLE);
+            holder.getExpandArea().setVisibility(View.GONE);
+        }
+
+        //populate the spinner according to the alarm type...
+        final Spinner type_spinner = holder.getAlarmTypeSpinner();
+        type_spinner.setTag(position);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(context,
+                R.array.alarm_type_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        type_spinner.setAdapter(adapter);
+        //TODO: select the right one from alarm type
+        type_spinner.setSelection(1);
+        //bind item selection
+        type_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                int p = (Integer) parent.getTag();
+                PunchAlarmTime a = alarms.get(p);
+
+                //PunchAlarmTime.Type new_type = PunchAlarmTime.Type.values()[position];
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                int p = (Integer) parent.getTag();
+                PunchAlarmTime a = alarms.get(p);
+                //TODO ? is this possible ??
+            }
+        });
     }
+
+
+    private void expand(int p) {
+        expanded.add(p);
+        notifyDataSetChanged();
+    }
+
+
+    private void collapse(int p) {
+        expanded.remove(p);
+        notifyDataSetChanged();
+    }
+
 
     public static class TimePickerFragment extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
@@ -186,19 +366,24 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
     }
 
 
-    /**
-     * Created by Rémi Pannequin on 16/11/13.
-     */
     private class ViewHolder {
         final View row;
+        final int position;
 
-        private TextView text = null;
-        private ToggleButton[] day_button = null;
-        private CompoundButton enabled = null;
+        TextView text = null;
+        ToggleButton[] day_button = null;
+        CompoundButton enabled = null;
+        View expandArea = null;
+        View infoArea = null;
+        ImageButton deleteButton = null;
+        View alarmItem = null;
+        private ImageButton collapse = null;
+        private TextView summary;
+        private Spinner alarmTypeSpinner;
 
-
-        public ViewHolder(View row) {
+        public ViewHolder(View row, int position) {
             this.row = row;
+            this.position = position;
         }
 
         public TextView getText() {
@@ -227,6 +412,53 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
             return enabled;
         }
 
+        public View getExpandArea() {
+            if (this.expandArea == null) {
+                this.expandArea = row.findViewById(R.id.expandArea);
+            }
+            return this.expandArea;
+        }
 
+        public View getInfoArea() {
+            if (this.infoArea == null) {
+                this.infoArea = row.findViewById(R.id.infoArea);
+            }
+            return this.infoArea;
+        }
+
+        public ImageButton getDeleteButton() {
+            if (deleteButton == null) {
+                deleteButton = (ImageButton) row.findViewById(R.id.deleteButton);
+            }
+            return deleteButton;
+        }
+
+        public View getAlarmItem() {
+            if (alarmItem == null) {
+                alarmItem = row.findViewById(R.id.alarmItem);
+            }
+            return alarmItem;
+        }
+
+        public ImageButton getCollapse() {
+            if (collapse == null) {
+                collapse = (ImageButton) row.findViewById(R.id.collapse);
+            }
+            return collapse;
+        }
+
+        public TextView getSummary() {
+            if (summary == null) {
+                summary = (TextView) row.findViewById(R.id.alarmSummary);
+            }
+            return summary;
+        }
+
+        public Spinner getAlarmTypeSpinner() {
+            if (alarmTypeSpinner == null) {
+                alarmTypeSpinner = (Spinner) row.findViewById(R.id.alarmTypeSpinner);
+            }
+            return alarmTypeSpinner;
+        }
     }
 }

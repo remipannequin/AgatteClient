@@ -108,6 +108,13 @@
     <string name="short_wednesday">MER</string>
     <string name="short_tuesday">MAR</string>
     <string name="short_monday">LUN</string>
+    <string name="sunday">Dimanche</string>
+    <string name="saturday">Samedi</string>
+    <string name="friday">Vendredi</string>
+    <string name="thursday">Jeudi</string>
+    <string name="wednesday">Mercredi</string>
+    <string name="tuesday">Mardi</string>
+    <string name="monday">Lundi</string>
     <string name="successful_programmed_punch">Le pointage programmé a été effectué à %s</string>
     <string name="programmed_punch_success_title">Échec du pointage</string>
     <string name="programmed_punch_failed_title">Pointage effectué</string>
