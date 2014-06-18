@@ -38,7 +38,7 @@ import com.agatteclient.alarm.AlarmList;
 import com.agatteclient.alarm.PunchAlarmTime;
 
 /**
- * Test the Alarm View
+ * Test the ScheduledAlarm View
  * <p/>
  * Created by Rémi Pannequin on 07/11/13.
  */

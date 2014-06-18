@@ -454,11 +454,11 @@ public class DayCardView extends View {
                 drawAlarm(canvas, d, a.getType(), AlarmStatus.scheduled);
             }
             /* done & failed alarms */
-            for (Date d : alarms.getDoneAlarms(card.getDay())) {
-                drawAlarm(canvas, d, PunchAlarmTime.Type.unconstraigned, AlarmStatus.done);
+            for (AlarmRegistry.RecordedAlarm a : alarms.getDoneAlarms(card.getDay())) {
+                drawAlarm(canvas, a.date_executed, a.type, AlarmStatus.done);
             }
-            for (Date d : alarms.getFailedAlarms(card.getDay())) {
-                drawAlarm(canvas, d, PunchAlarmTime.Type.unconstraigned, AlarmStatus.failed);
+            for (AlarmRegistry.RecordedAlarm a : alarms.getFailedAlarms(card.getDay())) {
+                drawAlarm(canvas, a.date_executed, a.type, AlarmStatus.failed);
             }
         }
     }
@@ -519,7 +519,7 @@ public class DayCardView extends View {
     }
 
     /**
-     * Draw an Alarm on the View
+     * Draw an ScheduledAlarm on the View
      * @param canvas the canvas where to draw
      * @param alarm
      * @param type

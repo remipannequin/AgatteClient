@@ -82,7 +82,7 @@ public class AlarmRegistryTest extends AndroidTestCase {
         assertEquals(3, binder.size());
         AlarmRegistry instance = AlarmRegistry.getInstance();
         instance.update(ctx);
-        Map<PunchAlarmTime, AlarmRegistry.Alarm> pim = instance.getPending_intent_map();
+        Map<PunchAlarmTime, AlarmRegistry.ScheduledAlarm> pim = instance.getPending_intent_map();
         assertEquals(3, pim.size());
         assertTrue(pim.containsKey(a1));
         assertEquals(a1.toLong(), (long) pim.get(a1).finger_print);
@@ -97,7 +97,7 @@ public class AlarmRegistryTest extends AndroidTestCase {
         AlarmRegistry instance = AlarmRegistry.getInstance();
         a2.setEnabled(false);
         instance.update(ctx);
-        Map<PunchAlarmTime, AlarmRegistry.Alarm> pim = instance.getPending_intent_map();
+        Map<PunchAlarmTime, AlarmRegistry.ScheduledAlarm> pim = instance.getPending_intent_map();
         assertEquals(2, pim.size());
         assertTrue(pim.containsKey(a1));
         assertEquals(a1.toLong(), (long) pim.get(a1).finger_print);
@@ -122,7 +122,7 @@ public class AlarmRegistryTest extends AndroidTestCase {
         a2.setEnabled(false);
         a3.setEnabled(false);
         instance.update(ctx);
-        Map<PunchAlarmTime, AlarmRegistry.Alarm> pim = instance.getPending_intent_map();
+        Map<PunchAlarmTime, AlarmRegistry.ScheduledAlarm> pim = instance.getPending_intent_map();
         assertEquals(0, pim.size());
         instance.cancelAll(ctx);
     }
@@ -132,7 +132,7 @@ public class AlarmRegistryTest extends AndroidTestCase {
 
         AlarmRegistry instance = AlarmRegistry.getInstance();
         instance.update(ctx);
-        Map<PunchAlarmTime, AlarmRegistry.Alarm> pim = instance.getPending_intent_map();
+        Map<PunchAlarmTime, AlarmRegistry.ScheduledAlarm> pim = instance.getPending_intent_map();
 
         // check times
         assertEquals(t1, instance.getTime(a1));

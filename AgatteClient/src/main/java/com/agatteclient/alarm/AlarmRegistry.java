@@ -51,13 +51,13 @@ public class AlarmRegistry {
     private static AlarmRegistry ourInstance;
 
     //Manage a collection of alarm, with their fingerprint
-    private final Map<PunchAlarmTime, Alarm> pending_intent_map;
+    private final Map<PunchAlarmTime, ScheduledAlarm> pending_intent_map;
     // Map of alarms reported to have been done, number of day in year is the key
-    private final Multimap<Integer, Date> done_history;
-    private final Multimap<Integer, Date> failed_history;
+    private final Multimap<Integer, RecordedAlarm> done_history;
+    private final Multimap<Integer, RecordedAlarm> failed_history;
 
     private AlarmRegistry() {
-        this.pending_intent_map = new HashMap<PunchAlarmTime, Alarm>();
+        this.pending_intent_map = new HashMap<PunchAlarmTime, ScheduledAlarm>();
         this.done_history = ArrayListMultimap.create();
         this.failed_history = ArrayListMultimap.create();
     }
@@ -80,14 +80,14 @@ public class AlarmRegistry {
      */
     public void cancelAll(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        for (Alarm a : pending_intent_map.values()) {
+        for (ScheduledAlarm a : pending_intent_map.values()) {
             alarmManager.cancel(a.intent);
         }
         pending_intent_map.clear();
         //TODO: remove all alarms for the AM. But is it even possible ?
     }
 
-    public Map<PunchAlarmTime, Alarm> getPending_intent_map() {
+    public Map<PunchAlarmTime, ScheduledAlarm> getPending_intent_map() {
         return pending_intent_map;
     }
 
@@ -141,7 +141,7 @@ public class AlarmRegistry {
             int fingerPrint = alarm.shortFingerPrint();
             i.putExtra(ALARM_ID, fingerPrint);
             PendingIntent pi = PendingIntent.getBroadcast(context, fingerPrint, i, PendingIntent.FLAG_ONE_SHOT);
-            Alarm o = new Alarm(pi, fingerPrint, time);
+            ScheduledAlarm o = new ScheduledAlarm(pi, fingerPrint, time);
             pending_intent_map.put(alarm, o);
             am.set(AlarmManager.RTC_WAKEUP, time, pi);
         }
@@ -177,7 +177,7 @@ public class AlarmRegistry {
                 i.putExtra(ALARM_ID, fingerprint);
                 //using the same request code, the previous alarm is replaced
                 PendingIntent pi = PendingIntent.getBroadcast(context, fingerprint, i, PendingIntent.FLAG_ONE_SHOT);
-                pending_intent_map.put(alarm, new Alarm(pi, fingerprint, time));
+                pending_intent_map.put(alarm, new ScheduledAlarm(pi, fingerprint, time));
                 am.set(AlarmManager.RTC_WAKEUP, time, pi);
             } else {
                 //must cancel
@@ -198,8 +198,8 @@ public class AlarmRegistry {
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);
         int day = cal.get(Calendar.DAY_OF_YEAR);
-        for (Map.Entry<PunchAlarmTime, Alarm> entry : pending_intent_map.entrySet()) {
-            Alarm al = entry.getValue();
+        for (Map.Entry<PunchAlarmTime, ScheduledAlarm> entry : pending_intent_map.entrySet()) {
+            ScheduledAlarm al = entry.getValue();
             Date d = new Date(al.time);
             //check if same day
             cal.setTime(d);
@@ -217,7 +217,7 @@ public class AlarmRegistry {
      * @param now the day to consider
      * @return
      */
-    public Iterable<Date> getDoneAlarms(Date now) {
+    public Iterable<RecordedAlarm> getDoneAlarms(Date now) {
         LinkedList<PunchAlarmTime> result = new LinkedList<PunchAlarmTime>();
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);
@@ -231,7 +231,7 @@ public class AlarmRegistry {
      * @param now the day to consider
      * @return
      */
-    public Iterable<Date> getFailedAlarms(Date now) {
+    public Iterable<RecordedAlarm> getFailedAlarms(Date now) {
         LinkedList<PunchAlarmTime> result = new LinkedList<PunchAlarmTime>();
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);
@@ -248,8 +248,9 @@ public class AlarmRegistry {
         Calendar cal = Calendar.getInstance();
         //compute exec. date
         Date off = a.getTime();
+        RecordedAlarm rec = new RecordedAlarm(off, a.getType());
         cal.setTime(off);
-        done_history.put(cal.get(Calendar.DAY_OF_YEAR), off);
+        done_history.put(cal.get(Calendar.DAY_OF_YEAR), rec);
     }
 
     /**
@@ -261,8 +262,9 @@ public class AlarmRegistry {
         Calendar cal = Calendar.getInstance();
         //compute exec. date
         Date off = a.getTime();
+        RecordedAlarm rec = new RecordedAlarm(off, a.getType());
         cal.setTime(off);
-        failed_history.put(cal.get(Calendar.DAY_OF_YEAR), off);
+        failed_history.put(cal.get(Calendar.DAY_OF_YEAR), rec);
     }
 
 
@@ -271,15 +273,25 @@ public class AlarmRegistry {
 
 
     //public for debugging purposes
-    public class Alarm {
+    public class ScheduledAlarm {
         public PendingIntent intent;
         public int finger_print;//This is also used as request code
         public long time;
 
-        Alarm(PendingIntent intent, int finger_print, long time) {
+        ScheduledAlarm(PendingIntent intent, int finger_print, long time) {
             this.intent = intent;
             this.finger_print = finger_print;
             this.time = time;
+        }
+    }
+
+    public class RecordedAlarm {
+        public Date date_executed;
+        public PunchAlarmTime.Type type;
+
+        public RecordedAlarm(Date date_executed, PunchAlarmTime.Type type) {
+            this.date_executed = date_executed;
+            this.type = type;
         }
     }
 }

@@ -158,7 +158,7 @@ public class PunchAlarmTime {
                 }
                 cal.add(Calendar.DATE, 1);
             }
-            Log.w(MainActivity.LOG_TAG, "Alarm will not fire in the next 7 days.");
+            Log.w(MainActivity.LOG_TAG, "ScheduledAlarm will not fire in the next 7 days.");
             return null;
         } else {
             //after alarm time: search next firing day
