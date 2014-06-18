@@ -453,7 +453,13 @@ public class DayCardView extends View {
                 Date d = a.getTime();
                 drawAlarm(canvas, d, a.getType(), AlarmStatus.scheduled);
             }
-            //TODO: done & failed alarms
+            /* done & failed alarms */
+            for (Date d : alarms.getDoneAlarms(card.getDay())) {
+                drawAlarm(canvas, d, PunchAlarmTime.Type.unconstraigned, AlarmStatus.done);
+            }
+            for (Date d : alarms.getFailedAlarms(card.getDay())) {
+                drawAlarm(canvas, d, PunchAlarmTime.Type.unconstraigned, AlarmStatus.failed);
+            }
         }
     }
 

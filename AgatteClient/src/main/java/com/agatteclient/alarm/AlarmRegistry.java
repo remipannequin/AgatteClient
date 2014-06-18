@@ -236,7 +236,7 @@ public class AlarmRegistry {
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);
         int day = cal.get(Calendar.DAY_OF_YEAR);
-        return done_history.get(day);
+        return failed_history.get(day);
     }
 
     /**
