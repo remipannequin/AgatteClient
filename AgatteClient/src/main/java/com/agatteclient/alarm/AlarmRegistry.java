@@ -24,6 +24,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -36,7 +39,7 @@ import java.util.Map;
  * This service has a map of pending intents corresponding to to all the scheduled alarms in the
  * system.
  * <p/>
- * When started, it gets a list of requested alarms from the AlarmBinder singleton, compare it with
+ * When started, it gets a list of requested alarms from the AlarmList singleton, compare it with
  * it set of scheduled alarms, and add/remove/modify any if needed (using the system's AlamrService)
  * <p/>
  * Created by Rémi Pannequin on 18/04/14.
@@ -44,14 +47,19 @@ import java.util.Map;
 public class AlarmRegistry {
 
     public static final String ALARM_TYPE = "alarm-type";//NON-NLS
+    public static final String ALARM_ID = "alarm-id";//NON-NLS
     private static AlarmRegistry ourInstance;
 
     //Manage a collection of alarm, with their fingerprint
     private final Map<PunchAlarmTime, Alarm> pending_intent_map;
+    // Map of alarms reported to have been done, number of day in year is the key
+    private final Multimap<Integer, Date> done_history;
+    private final Multimap<Integer, Date> failed_history;
 
     private AlarmRegistry() {
         this.pending_intent_map = new HashMap<PunchAlarmTime, Alarm>();
-
+        this.done_history = ArrayListMultimap.create();
+        this.failed_history = ArrayListMultimap.create();
     }
 
     public static AlarmRegistry getInstance() {
@@ -95,7 +103,7 @@ public class AlarmRegistry {
      * @param context
      */
     public void update(Context context) {
-        AlarmBinder binder = AlarmBinder.getInstance(context);
+        AlarmList binder = AlarmList.getInstance(context);
 
         //Cancel alarms that are not in the binder any more
         List<PunchAlarmTime> to_remove = new ArrayList<PunchAlarmTime>(pending_intent_map.size());
@@ -131,6 +139,7 @@ public class AlarmRegistry {
             Intent i = new Intent(context, AlarmReceiver.class);
             i.putExtra(ALARM_TYPE, alarm.getType().ordinal());
             int fingerPrint = alarm.shortFingerPrint();
+            i.putExtra(ALARM_ID, fingerPrint);
             PendingIntent pi = PendingIntent.getBroadcast(context, fingerPrint, i, PendingIntent.FLAG_ONE_SHOT);
             Alarm o = new Alarm(pi, fingerPrint, time);
             pending_intent_map.put(alarm, o);
@@ -165,6 +174,7 @@ public class AlarmRegistry {
             if (time >= 0) {
                 Intent i = new Intent(context, AlarmReceiver.class);
                 i.putExtra(ALARM_TYPE, alarm.getType().ordinal());
+                i.putExtra(ALARM_ID, fingerprint);
                 //using the same request code, the previous alarm is replaced
                 PendingIntent pi = PendingIntent.getBroadcast(context, fingerprint, i, PendingIntent.FLAG_ONE_SHOT);
                 pending_intent_map.put(alarm, new Alarm(pi, fingerprint, time));
@@ -200,6 +210,65 @@ public class AlarmRegistry {
         }
         return result;
     }
+
+    /**
+     * Return the list of done alarm for this day
+     *
+     * @param now the day to consider
+     * @return
+     */
+    public Iterable<Date> getDoneAlarms(Date now) {
+        LinkedList<PunchAlarmTime> result = new LinkedList<PunchAlarmTime>();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(now);
+        int day = cal.get(Calendar.DAY_OF_YEAR);
+        return done_history.get(day);
+    }
+
+    /**
+     * Return the list of failed alarm for this day
+     *
+     * @param now the day to consider
+     * @return
+     */
+    public Iterable<Date> getFailedAlarms(Date now) {
+        LinkedList<PunchAlarmTime> result = new LinkedList<PunchAlarmTime>();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(now);
+        int day = cal.get(Calendar.DAY_OF_YEAR);
+        return done_history.get(day);
+    }
+
+    /**
+     * Report an alarm to have correctly been done, this current day
+     *
+     * @param a
+     */
+    public void setDone(PunchAlarmTime a) {
+        Calendar cal = Calendar.getInstance();
+        //compute exec. date
+        Date off = a.getTime();
+        cal.setTime(off);
+        done_history.put(cal.get(Calendar.DAY_OF_YEAR), off);
+    }
+
+    /**
+     * Report an alarm to have failed, this current day
+     *
+     * @param a
+     */
+    public void setFailed(PunchAlarmTime a) {
+        Calendar cal = Calendar.getInstance();
+        //compute exec. date
+        Date off = a.getTime();
+        cal.setTime(off);
+        failed_history.put(cal.get(Calendar.DAY_OF_YEAR), off);
+    }
+
+
+
+
+
 
     //public for debugging purposes
     public class Alarm {

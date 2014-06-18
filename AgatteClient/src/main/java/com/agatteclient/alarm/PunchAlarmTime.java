@@ -188,9 +188,13 @@ public class PunchAlarmTime {
     }
 
     /**
+     * Get the time of the alarm in the present day (even if the alarm does no fire this day !)
+     *
      * @return
      */
     public Date getTime() {
+        //set calendar to now (to get the present day)
+        cal.setTimeInMillis(System.currentTimeMillis());
         cal.set(Calendar.HOUR_OF_DAY, this.time_of_day / 60);
         cal.set(Calendar.MINUTE, this.time_of_day % 60);
         cal.set(Calendar.SECOND, 0);

@@ -54,6 +54,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         //get the type of the alarm
         PunchAlarmTime.Type t = PunchAlarmTime.Type.values()[intent.getIntExtra(AlarmRegistry.ALARM_TYPE,
                 PunchAlarmTime.Type.unconstraigned.ordinal())];
+        int id = intent.getIntExtra(AlarmRegistry.ALARM_ID, -1);
         //Do the punch by calling the punching service
         final Intent i = new Intent(context, PunchService.class);
         switch (t) {
@@ -69,7 +70,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             default:
                 //TODO: log error
         }
-        i.putExtra(PunchService.RESULT_RECEIVER, new PunchResultReceiver(context));
+        i.putExtra(PunchService.RESULT_RECEIVER, new PunchResultReceiver(context, id));
         context.startService(i);
         wl.release();
     }
@@ -78,10 +79,12 @@ public class AlarmReceiver extends BroadcastReceiver {
     private class PunchResultReceiver extends ResultReceiver {
 
         private final Context ctx;
+        private final int alarm_id;
 
-        public PunchResultReceiver(Context ctx) {
+        public PunchResultReceiver(Context ctx, int alarm_id) {
             super(new Handler(Looper.getMainLooper()));
             this.ctx = ctx;
+            this.alarm_id = alarm_id;
         }
 
         @Override
@@ -90,10 +93,12 @@ public class AlarmReceiver extends BroadcastReceiver {
             AgatteResultCode code = AgatteResultCode.values()[resultCode];
             //set notification text and title based on result
             StringBuilder notification_text = new StringBuilder();
+            PunchAlarmTime alarm = AlarmList.getInstance(ctx).getFromFingerPrint(alarm_id);
 
             switch (code) {
                 case network_not_authorized:
                     notification_text.append(ctx.getString(R.string.unauthorized_network_toast));
+                    AlarmRegistry.getInstance().setFailed(alarm);
                     break;
                 case query_counter_ok:
                     break;
@@ -105,9 +110,11 @@ public class AlarmReceiver extends BroadcastReceiver {
                     if (message != null && message.length() != 0) {
                         notification_text.append(" : ").append(message);
                     }
+                    AlarmRegistry.getInstance().setFailed(alarm);
                     break;
                 case login_failed:
                     notification_text.append(ctx.getString(R.string.login_failed_toast));
+                    AlarmRegistry.getInstance().setFailed(alarm);
                     break;
                 case io_exception:
                     notification_text.append(ctx.getString(R.string.error));
@@ -115,6 +122,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                     if (message != null && message.length() != 0) {
                         notification_text.append(" : ").append(message);
                     }
+                    AlarmRegistry.getInstance().setFailed(alarm);
                     break;
                 case punch_ok:
                 case query_ok:
@@ -133,6 +141,8 @@ public class AlarmReceiver extends BroadcastReceiver {
                     } catch (ParseException e) {
                         Log.e(MainActivity.LOG_TAG, "Parse exception when updating the punch-card");//NON-NLS
                     }
+                    // TODO : Update AlarmRegistry with value
+                    AlarmRegistry.getInstance().setDone(alarm);
                     break;
                 default:
 
