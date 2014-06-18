@@ -43,12 +43,12 @@ public class AlarmActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm);
         ListView lv = (ListView) findViewById(R.id.alarmListView);
-        mAdapter = new AlarmArrayAdapter(this, AlarmBinder.getInstance(this));
+        mAdapter = new AlarmArrayAdapter(this, AlarmList.getInstance(this));
         lv.setAdapter(mAdapter);
         lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             public boolean onItemLongClick(AdapterView parent, View view, int position, long id) {
                 //do your stuff here
-                final PunchAlarmTime a = AlarmBinder.getInstance(AlarmActivity.this).get(position);
+                final PunchAlarmTime a = AlarmList.getInstance(AlarmActivity.this).get(position);
                 AlertDialog.Builder adb = new AlertDialog.Builder(AlarmActivity.this);
                 adb.setTitle(getString(R.string.alarm_delete_confirm_question));
                 adb.setMessage(String.format(getString(R.string.alarm_delete_confirm), new SimpleDateFormat("H:mm").format(a.getTime())));

@@ -84,14 +84,14 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
 
 
     private final android.support.v4.app.FragmentManager fragment_manager;
-    private final AlarmBinder alarms;
+    private final AlarmList alarms;
     private final Context context;
     //private final ListView list;
     private Set<Integer> expanded = new HashSet<Integer>();
     private LayoutInflater inflater;
 
 
-    public AlarmArrayAdapter(Context context, AlarmBinder objects) {
+    public AlarmArrayAdapter(Context context, AlarmList objects) {
         super(context, R.layout.view_alarm, objects);
         this.alarms = objects;
         this.context = context;
@@ -332,7 +332,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
     public static class TimePickerFragment extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
 
-        private AlarmBinder binder;
+        private AlarmList binder;
         private int position;
         private TextView tv;
 
@@ -348,7 +348,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
                     DateFormat.is24HourFormat(getActivity()));
         }
 
-        public void setAlarm(AlarmBinder binder, int position) {
+        public void setAlarm(AlarmList binder, int position) {
             this.binder = binder;
             this.position = position;
         }

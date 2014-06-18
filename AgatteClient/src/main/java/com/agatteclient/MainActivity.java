@@ -54,7 +54,7 @@ import com.agatteclient.agatte.AgatteResultCode;
 import com.agatteclient.agatte.AgatteSession;
 import com.agatteclient.agatte.PunchService;
 import com.agatteclient.alarm.AlarmActivity;
-import com.agatteclient.alarm.AlarmBinder;
+import com.agatteclient.alarm.AlarmList;
 import com.agatteclient.alarm.AlarmRegistry;
 import com.agatteclient.alarm.NetworkChangeRegistry;
 import com.agatteclient.card.CardBinder;
@@ -114,7 +114,7 @@ public class MainActivity extends Activity {
         //Update network authentication status
         NetworkChangeRegistry.getInstance().update(getApplicationContext());
 
-        AlarmBinder.getInstance(this);
+        AlarmList.getInstance(this);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor editor = preferences.edit();

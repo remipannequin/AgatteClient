@@ -23,7 +23,7 @@ import android.content.Context;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import com.agatteclient.alarm.AlarmBinder;
+import com.agatteclient.alarm.AlarmList;
 import com.agatteclient.alarm.PunchAlarmTime;
 
 import java.util.Calendar;
@@ -35,7 +35,7 @@ public class AlarmBinderTest extends AndroidTestCase {
     @SmallTest
     public void testGetInstance() {
         Context ctx = getContext();
-        AlarmBinder instance = AlarmBinder.getInstance(ctx);
+        AlarmList instance = AlarmList.getInstance(ctx);
         assertNotNull(instance);
         assertEquals(0, instance.size());
         assertFalse("empty instance contains random object", instance.contains(new PunchAlarmTime(0, 0)));
@@ -45,14 +45,14 @@ public class AlarmBinderTest extends AndroidTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         Context ctx = getContext();
-        AlarmBinder instance = AlarmBinder.getInstance(ctx);
+        AlarmList instance = AlarmList.getInstance(ctx);
         instance.clear();
     }
 
     @SmallTest
     public void testAddAlarm() {
         Context ctx = getContext();
-        AlarmBinder instance = AlarmBinder.getInstance(ctx);
+        AlarmList instance = AlarmList.getInstance(ctx);
         assertEquals(0, instance.size());
         PunchAlarmTime expected = new PunchAlarmTime(0, 0);
         instance.add(expected);
@@ -66,7 +66,7 @@ public class AlarmBinderTest extends AndroidTestCase {
     @SmallTest
     public void testSetEnabled() {
         Context ctx = getContext();
-        AlarmBinder instance = AlarmBinder.getInstance(ctx);
+        AlarmList instance = AlarmList.getInstance(ctx);
         assertEquals(0, instance.size());
         PunchAlarmTime expected = new PunchAlarmTime(0, 0);
         expected.setEnabled(true);
@@ -85,7 +85,7 @@ public class AlarmBinderTest extends AndroidTestCase {
     @SmallTest
     public void testSetFireAt() {
         Context ctx = getContext();
-        AlarmBinder instance = AlarmBinder.getInstance(ctx);
+        AlarmList instance = AlarmList.getInstance(ctx);
         assertEquals(0, instance.size());
         PunchAlarmTime expected = new PunchAlarmTime(10, 50, PunchAlarmTime.Day.monday);
         PunchAlarmTime expected2 = new PunchAlarmTime(10, 50, PunchAlarmTime.Day.wednesday);
@@ -118,7 +118,7 @@ public class AlarmBinderTest extends AndroidTestCase {
     @SmallTest
     public void testSetTime() {
         Context ctx = getContext();
-        AlarmBinder instance = AlarmBinder.getInstance(ctx);
+        AlarmList instance = AlarmList.getInstance(ctx);
         PunchAlarmTime a1 = new PunchAlarmTime(0, 0, PunchAlarmTime.Day.monday);
         PunchAlarmTime a2 = new PunchAlarmTime(0, 0, PunchAlarmTime.Day.monday);
         instance.add(a1);

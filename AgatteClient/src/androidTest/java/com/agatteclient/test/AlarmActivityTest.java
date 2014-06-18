@@ -34,7 +34,7 @@ import com.agatteclient.BuildConfig;
 import com.agatteclient.R;
 import com.agatteclient.alarm.AlarmActivity;
 import com.agatteclient.alarm.AlarmArrayAdapter;
-import com.agatteclient.alarm.AlarmBinder;
+import com.agatteclient.alarm.AlarmList;
 import com.agatteclient.alarm.PunchAlarmTime;
 
 /**
@@ -46,7 +46,7 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
 
 
     private AlarmActivity mActivity;
-    private AlarmBinder alarms;
+    private AlarmList alarms;
 
 
     public AlarmActivityTest() {
@@ -102,12 +102,12 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
     protected void setUp() throws Exception {
         super.setUp();
 
-        alarms = AlarmBinder.getInstance(getInstrumentation().getContext());
+        alarms = AlarmList.getInstance(getInstrumentation().getContext());
         if (alarms.size() == 0) {
             PunchAlarmTime a1 = new PunchAlarmTime(8, 0);
-            alarms.addAlarm(a1);
+            alarms.add(a1);
             PunchAlarmTime a2 = new PunchAlarmTime(14, 0, PunchAlarmTime.Day.monday, PunchAlarmTime.Day.wednesday);
-            alarms.addAlarm(a2);
+            alarms.add(a2);
         }
         alarms.get(0).setEnabled(true);
         alarms.get(1).setEnabled(false);

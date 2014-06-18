@@ -24,7 +24,7 @@ import android.app.AlarmManager;
 import android.content.Context;
 import android.test.AndroidTestCase;
 
-import com.agatteclient.alarm.AlarmBinder;
+import com.agatteclient.alarm.AlarmList;
 import com.agatteclient.alarm.AlarmRegistry;
 import com.agatteclient.alarm.PunchAlarmTime;
 
@@ -34,7 +34,7 @@ import java.util.Map;
 public class AlarmRegistryTest extends AndroidTestCase {
 
     private Context ctx;
-    private AlarmBinder binder;
+    private AlarmList binder;
     private long now;
     private long t1;
     private long t2;
@@ -50,7 +50,7 @@ public class AlarmRegistryTest extends AndroidTestCase {
         AlarmRegistry.reset();
         ctx = getContext();
         am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
-        binder = AlarmBinder.getInstance(ctx);
+        binder = AlarmList.getInstance(ctx);
         Calendar cal = Calendar.getInstance();
         now = cal.getTimeInMillis();
         cal.add(Calendar.HOUR_OF_DAY, 2);
