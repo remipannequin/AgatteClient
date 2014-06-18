@@ -137,7 +137,6 @@
     <string name="store_open_failed">Could not open Google Play.</string>
     <string name="conter_autoquery_descativated">Counter are not currently available, deactivating
         automatic query to reduce data consumption</string>
-    <string name="alarm_done_notification_title_template">Alarm done: %1$s</string>
     <string name="pref_ringtone_silent">Silent</string>
     <string name="preference_notification_sound">Notification sound</string>
 
