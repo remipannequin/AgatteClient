@@ -25,6 +25,8 @@
 
 
 
+
+
 buildscript {
     repositories {
         mavenCentral()
@@ -59,9 +61,15 @@ android {
     }
 
     buildTypes {
+        debug {
+            runProguard false
+        }
+
         release {
             //noinspection GroovyAssignabilityCheck
             signingConfig signingConfigs.release
+            runProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
 }
@@ -69,6 +77,7 @@ android {
 dependencies {
     compile 'com.android.support:appcompat-v7:19.1.0'
     compile 'com.android.support:support-v4:19.1.0'
+    compile group: 'com.google.guava', name: 'guava', version: '17.0'
 }
 
 task askForPasswords << {
