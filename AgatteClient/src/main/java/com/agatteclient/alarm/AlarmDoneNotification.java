@@ -85,7 +85,7 @@ public class AlarmDoneNotification {
 
                         // Set required fields, including the small icon, the
                         // notification title, and text.
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_stat_agatte)
                 .setContentTitle(title)
                 .setContentText(message)
 
