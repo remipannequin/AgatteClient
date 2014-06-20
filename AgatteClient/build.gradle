@@ -27,6 +27,8 @@
 
 
 
+
+
 buildscript {
     repositories {
         mavenCentral()
@@ -78,6 +80,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:19.1.0'
     compile 'com.android.support:support-v4:19.1.0'
     compile group: 'com.google.guava', name: 'guava', version: '17.0'
+    compile 'com.google.code.findbugs:jsr305:2.0.2'
 }
 
 task askForPasswords << {

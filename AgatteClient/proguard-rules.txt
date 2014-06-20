@@ -1,7 +1,4 @@
--injars path/to/myapplication.jar
--injars lib/guava-r07.jar
--libraryjars lib/jsr305.jar
--outjars myapplication-dist.jar
+
 
 -dontoptimize
 -dontobfuscate
