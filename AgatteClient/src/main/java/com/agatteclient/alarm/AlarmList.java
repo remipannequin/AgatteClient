@@ -28,7 +28,6 @@ import com.agatteclient.MainActivity;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -41,13 +40,11 @@ public class AlarmList implements List<PunchAlarmTime> {
     private static AlarmList ourInstance;
     private static SharedPreferences preferences;
     private final ArrayList<PunchAlarmTime> alarms;
-    private final HashMap<Integer, PunchAlarmTime> alarms_by_fingerprint;
     private AlarmChangeListener listener;
 
 
     private AlarmList(SharedPreferences preferences) {
         alarms = new ArrayList<PunchAlarmTime>();
-        alarms_by_fingerprint = new HashMap<Integer, PunchAlarmTime>();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             Set<String> alarms_s = preferences.getStringSet(ALARMS_PREF, null);
             if (alarms_s != null) {
@@ -57,7 +54,6 @@ public class AlarmList implements List<PunchAlarmTime> {
                         long n = Long.parseLong(s, 16);
                         PunchAlarmTime a = PunchAlarmTime.fromLong(n);
                         alarms.add(a);
-                        alarms_by_fingerprint.put(a.shortFingerPrint(), a);
                     } catch (NumberFormatException ex) {
                         Log.e(MainActivity.LOG_TAG, String.format("NumberFormatException when restoring alarms: %s", ex.getMessage()));//NON-NLS
                     }
@@ -71,7 +67,6 @@ public class AlarmList implements List<PunchAlarmTime> {
                     long n = Long.parseLong(alarms_s.substring(i * 16, (i + 1) * 16), 16);
                     PunchAlarmTime a = PunchAlarmTime.fromLong(n);
                     alarms.add(a);
-                    alarms_by_fingerprint.put(a.shortFingerPrint(), a);
                 } catch (NumberFormatException ex) {
                     Log.e(MainActivity.LOG_TAG, String.format("NumberFormatException when restoring alarms: %s", ex.getMessage()));//NON-NLS
                 }
@@ -113,7 +108,6 @@ public class AlarmList implements List<PunchAlarmTime> {
 
     public boolean add(PunchAlarmTime object) {
         if (alarms.add(object)) {
-            alarms_by_fingerprint.put(object.shortFingerPrint(), object);
             saveToPreferences();
             return true;
         } else {
@@ -130,7 +124,6 @@ public class AlarmList implements List<PunchAlarmTime> {
         if (alarms.remove(object)) {
             if (object instanceof PunchAlarmTime) {
                 PunchAlarmTime a = (PunchAlarmTime) object;
-                alarms_by_fingerprint.remove(a.shortFingerPrint());
             }
             saveToPreferences();
             return true;
@@ -161,7 +154,13 @@ public class AlarmList implements List<PunchAlarmTime> {
     }
 
     public PunchAlarmTime getFromFingerPrint(int p) {
-        return alarms_by_fingerprint.get(p);
+        PunchAlarmTime found = null;
+        for (PunchAlarmTime a : alarms) {
+            if (a.shortFingerPrint() == p) {
+                found = a;
+            }
+        }
+        return found;
     }
 
     @Override
@@ -180,7 +179,6 @@ public class AlarmList implements List<PunchAlarmTime> {
     public PunchAlarmTime remove(int index) {
         PunchAlarmTime object = alarms.remove(index);
         if (object != null) {
-            alarms_by_fingerprint.remove(object.shortFingerPrint());
             if (listener != null) {
                 listener.onAlarmRemoved(object);
             }
@@ -192,10 +190,6 @@ public class AlarmList implements List<PunchAlarmTime> {
     public PunchAlarmTime set(int index, PunchAlarmTime object) {
         PunchAlarmTime old = alarms.get(index);
         PunchAlarmTime a = alarms.set(index, object);
-        if (old != null) {
-            alarms_by_fingerprint.remove(old);
-        }
-        alarms_by_fingerprint.put(object.shortFingerPrint(), object);
         if (listener != null) {
             listener.onAlarmRemoved(old);
             listener.onAlarmAdded(a);
@@ -210,7 +204,6 @@ public class AlarmList implements List<PunchAlarmTime> {
 
     public void add(int index, PunchAlarmTime object) {
         alarms.add(index, object);
-        alarms_by_fingerprint.put(object.shortFingerPrint(), object);
         if (listener != null) {
             listener.onAlarmAdded(object);
         }
@@ -220,7 +213,6 @@ public class AlarmList implements List<PunchAlarmTime> {
     public boolean addAll(Collection<? extends PunchAlarmTime> collection) {
         if (alarms.addAll(collection)) {
             for (PunchAlarmTime a : collection) {
-                alarms_by_fingerprint.put(a.shortFingerPrint(), a);
                 if (listener != null) {
                     listener.onAlarmAdded(a);
                 }
@@ -240,7 +232,6 @@ public class AlarmList implements List<PunchAlarmTime> {
     public boolean addAll(int index, Collection<? extends PunchAlarmTime> collection) {
         if (alarms.addAll(index, collection)) {
             for (PunchAlarmTime a : collection) {
-                alarms_by_fingerprint.put(a.shortFingerPrint(), a);
                 if (listener != null) {
                     listener.onAlarmAdded(a);
                 }
@@ -259,7 +250,6 @@ public class AlarmList implements List<PunchAlarmTime> {
             }
         }
         alarms.clear();
-        alarms_by_fingerprint.clear();
         saveToPreferences();
     }
 
@@ -283,7 +273,6 @@ public class AlarmList implements List<PunchAlarmTime> {
         for (Object o : collection) {
             if (o instanceof PunchAlarmTime && alarms.contains(o)) {
                 PunchAlarmTime a = (PunchAlarmTime) o;
-                alarms_by_fingerprint.remove(a.shortFingerPrint());
                 if (listener != null) {
                     listener.onAlarmRemoved((PunchAlarmTime) o);
                 }

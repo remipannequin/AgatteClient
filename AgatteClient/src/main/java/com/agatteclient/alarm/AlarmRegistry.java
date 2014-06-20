@@ -103,12 +103,12 @@ public class AlarmRegistry {
      * @param context
      */
     public void update(Context context) {
-        AlarmList binder = AlarmList.getInstance(context);
+        AlarmList alist = AlarmList.getInstance(context);
 
         //Cancel alarms that are not in the binder any more
         List<PunchAlarmTime> to_remove = new ArrayList<PunchAlarmTime>(pending_intent_map.size());
         for (PunchAlarmTime a : pending_intent_map.keySet()) {
-            if (!binder.contains(a)) {
+            if (!alist.contains(a)) {
                 to_remove.add(a);
             }
         }
@@ -117,7 +117,7 @@ public class AlarmRegistry {
         }
 
         //Add alarms that are new, update the other ones
-        for (PunchAlarmTime a : binder) {
+        for (PunchAlarmTime a : alist) {
             if (!pending_intent_map.containsKey(a)) {
                 addAlarm(context, a);
             } else {
@@ -139,7 +139,8 @@ public class AlarmRegistry {
             Intent i = new Intent(context, AlarmReceiver.class);
             i.putExtra(ALARM_TYPE, alarm.getType().ordinal());
             int fingerPrint = alarm.shortFingerPrint();
-            i.putExtra(ALARM_ID, fingerPrint);
+            AlarmList alist = AlarmList.getInstance(context);
+            i.putExtra(ALARM_ID, alist.indexOf(alarm));
             PendingIntent pi = PendingIntent.getBroadcast(context, fingerPrint, i, PendingIntent.FLAG_ONE_SHOT);
             ScheduledAlarm o = new ScheduledAlarm(pi, fingerPrint, time);
             pending_intent_map.put(alarm, o);
@@ -174,7 +175,8 @@ public class AlarmRegistry {
             if (time >= 0) {
                 Intent i = new Intent(context, AlarmReceiver.class);
                 i.putExtra(ALARM_TYPE, alarm.getType().ordinal());
-                i.putExtra(ALARM_ID, fingerprint);
+                AlarmList alist = AlarmList.getInstance(context);
+                i.putExtra(ALARM_ID, alist.indexOf(alarm));
                 //using the same request code, the previous alarm is replaced
                 PendingIntent pi = PendingIntent.getBroadcast(context, fingerprint, i, PendingIntent.FLAG_ONE_SHOT);
                 pending_intent_map.put(alarm, new ScheduledAlarm(pi, fingerprint, time));
