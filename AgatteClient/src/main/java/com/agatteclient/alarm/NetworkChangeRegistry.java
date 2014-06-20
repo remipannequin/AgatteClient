@@ -38,6 +38,7 @@ public class NetworkChangeRegistry {
     private final Set<String> authorized_ssid;
     private Dictionary<Long, String> ssid_history;
     private String ssid_current;
+    private OnChangeListener listener;
 
     private NetworkChangeRegistry() {
         authorized_ssid = new HashSet<String>();
@@ -52,7 +53,7 @@ public class NetworkChangeRegistry {
     }
 
     /**
-     * Force update (with the current networ SSID)
+     * Force update (with the current network SSID)
      */
     public void update(Context ctx) {
         String ssid = NetworkChangeReceiver.getCurrentSsid(ctx);
@@ -67,10 +68,13 @@ public class NetworkChangeRegistry {
     public void setCurrentSSID(String ssid) {
         long now = System.currentTimeMillis();
 
-        //TODO : check that value changed
+        //Check that value changed
         if (ssid != ssid_current) {
             ssid_history.put(now, ssid);
             ssid_current = ssid;
+            if (listener != null) {
+                listener.onChange();
+            }
         }
     }
 
@@ -105,4 +109,13 @@ public class NetworkChangeRegistry {
     public boolean isOnAuthorizeNetwork() {
         return authorized_ssid.contains(ssid_current);
     }
+
+    public void setOnChangeListener(OnChangeListener listener) {
+        this.listener = listener;
+    }
+
+    public interface OnChangeListener {
+        void onChange();
+    }
+
 }

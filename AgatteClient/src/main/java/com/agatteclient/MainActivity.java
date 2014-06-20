@@ -193,6 +193,19 @@ public class MainActivity extends Activity {
                         preferences.getFloat(COUNTER_YEAR_PREF, 0));
             }
         }
+        NetworkChangeRegistry.getInstance().setOnChangeListener(new NetworkChangeRegistry.OnChangeListener() {
+            @Override
+            public void onChange() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateAuthNetwork(NetworkChangeRegistry.getInstance().isOnAuthorizeNetwork());
+                    }
+                });
+            }
+        });
+
+
         //bind to alarm service (update alarms if needed)
         doAlarmUpdate();
         updateCard();
