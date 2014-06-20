@@ -175,8 +175,9 @@ public class AgatteParser {
         if (matcher.find()) {
             String h_str = matcher.group(1);
             int hour = Integer.valueOf(h_str.trim());
+            boolean neg = h_str.startsWith("-");
             h += hour;
-            h += (hour < 0 ? -1 : 1) * Double.valueOf(matcher.group(2)) / 60;
+            h += (neg ? -1 : 1) * Double.valueOf(matcher.group(2)) / 60;
         }
         return h;
     }

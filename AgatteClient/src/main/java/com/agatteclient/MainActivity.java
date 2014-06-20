@@ -317,7 +317,7 @@ public class MainActivity extends Activity {
         int h = (int) Math.floor(week_hours);
         int m = Math.round((week_hours - h) * 60);
         if (h == 0) {
-            week_TextView.setText(String.format(getString(R.string.counter_duration_min), m));
+            week_TextView.setText(String.format(getString(R.string.counter_duration_min), neg * m));
         } else {
             week_TextView.setText(String.format(getString(R.string.counter_duration), neg * h, m));
         }
@@ -327,7 +327,7 @@ public class MainActivity extends Activity {
         int profile_n = Integer.decode(profile) - 1;
         float day_goal = TimeProfile.values()[profile_n].daily_time;
         int half_day = (int) Math.round(global_hours * 2.0 / day_goal);
-        year_TextView.setText(String.format(getString(R.string.counter_year), neg * half_day / 2, (half_day % 2 == 11 ? " ½" : "")));
+        year_TextView.setText(String.format(getString(R.string.counter_year), neg * half_day / 2, (half_day % 2 == 1 ? " ½" : "")));
     }
 
 
