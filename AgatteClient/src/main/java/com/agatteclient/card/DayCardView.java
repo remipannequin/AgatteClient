@@ -577,14 +577,14 @@ public class DayCardView extends View {
                           y - (h/2) + 5,
                           alarm_paint);
 
-        //TODO : display smth to show arrival/leaving constraints
+        //display a jagged line to show arrival/leaving constraints
         if (type == PunchAlarmTime.Type.arrival || type == PunchAlarmTime.Type.leaving) {
             Path alarm_constr_path = new Path();
             alarm_constr_path.reset();
             float required_h = pxToDp(ODD_H / 2);
             int num = (int) Math.floor((rect_width - w - (h / 2) - pad) / (2 * required_h));
             float real_h = (rect_width - w - (h / 2) - pad) / (2 * num);
-            int f = (type == PunchAlarmTime.Type.leaving ? 1 : -1);
+            int f = (type == PunchAlarmTime.Type.leaving ? -1 : 1);
             for (int i = 0; i < num; i++) {
                 alarm_constr_path.rLineTo(real_h, -f * real_h);
                 alarm_constr_path.rLineTo(real_h, f * real_h);
