@@ -584,7 +584,7 @@ public class DayCardView extends View {
             float required_h = pxToDp(ODD_H / 2);
             int num = (int) Math.floor((rect_width - w - (h / 2) - pad) / (2 * required_h));
             float real_h = (rect_width - w - (h / 2) - pad) / (2 * num);
-            int f = (type == PunchAlarmTime.Type.leaving ? -1 : 1);
+            int f = (type == PunchAlarmTime.Type.leaving ? 1 : -1);
             for (int i = 0; i < num; i++) {
                 alarm_constr_path.rLineTo(real_h, -f * real_h);
                 alarm_constr_path.rLineTo(real_h, f * real_h);

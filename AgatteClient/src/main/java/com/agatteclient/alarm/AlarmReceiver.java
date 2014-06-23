@@ -148,6 +148,8 @@ public class AlarmReceiver extends BroadcastReceiver {
 
 
             }
+
+            //TODO: in case of invalidPunchingCondition, don't display a notification...
             AlarmDoneNotification.notify(ctx, code, notification_text.toString(), 0);
 
 
