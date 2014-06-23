@@ -183,16 +183,15 @@ public class MainActivity extends Activity {
         dc_view.setAlarmRegistry(AlarmRegistry.getInstance());
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         boolean auto_query = preferences.getBoolean(AUTO_QUERY_PREF, true);
-        if (auto_query) {
+
         /* Get last known value in the prefs, and request update if necessary */
-            int last_update = preferences.getInt(COUNTER_LAST_UPDATE_PREF, -1);
-            if (last_update != cur_card.getDayOfYear() + 1000 * cur_card.getYear()) {
-                doUpdateCounters();
-            } else {
-                updateCounter(true,
-                        preferences.getFloat(COUNTER_WEEK_PREF, 0),
-                        preferences.getFloat(COUNTER_YEAR_PREF, 0));
-            }
+        int last_update = preferences.getInt(COUNTER_LAST_UPDATE_PREF, -1);
+        if (last_update != cur_card.getDayOfYear() + 1000 * cur_card.getYear() && auto_query) {
+            doUpdateCounters();
+        } else {
+            updateCounter(true,
+                    preferences.getFloat(COUNTER_WEEK_PREF, 0),
+                    preferences.getFloat(COUNTER_YEAR_PREF, 0));
         }
         NetworkChangeRegistry.getInstance().setOnChangeListener(new NetworkChangeRegistry.OnChangeListener() {
             @Override
