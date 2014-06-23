@@ -157,7 +157,7 @@ public class PunchAlarmTime {
                 }
                 cal.add(Calendar.DATE, 1);
             }
-            Log.w(MainActivity.LOG_TAG, "ScheduledAlarm will not fire in the next 7 days.");
+            Log.w(MainActivity.LOG_TAG, "ScheduledAlarm will not fire in the next 7 days.");//NON-NLS
             return null;
         } else {
             //after alarm time: search next firing day
@@ -189,7 +189,7 @@ public class PunchAlarmTime {
     /**
      * Get the time of the alarm in the present day (even if the alarm does no fire this day !)
      *
-     * @return
+     * @return the date of the alarm (in the current day)
      */
     public Date getTime() {
         //set calendar to now (to get the present day)
@@ -202,14 +202,18 @@ public class PunchAlarmTime {
     }
 
     /**
-     * @param o
-     * @return
+     * Test equality between two alarms
+     * @param o the object to check
+     * @return true if both object have the same time, days of week, type and enabled status
      */
     @Override
     public boolean equals(Object o) {
         if (o instanceof PunchAlarmTime) {
             PunchAlarmTime other = (PunchAlarmTime) o;
-            return (other.enabled == enabled) && (other.firing_days == firing_days) && (other.time_of_day == time_of_day);
+            return (other.enabled == enabled) &&
+                    (other.firing_days == firing_days) &&
+                    (other.time_of_day == time_of_day) &&
+                    (other.getType() == getType());
         } else {
             return false;
         }
@@ -236,7 +240,7 @@ public class PunchAlarmTime {
          * True if this alarm can be triggered to punch a leaving (i.e. number of punches in the
          * day is odd)
          *
-         * @return
+         * @return false for arrival only constraints
          */
         public boolean isLeavingPermitted() {
             return !leavingForbidden;
@@ -246,7 +250,7 @@ public class PunchAlarmTime {
          * True if this alarm can be triggered to punch an arrival (i.e. number of punches in the
          * day is even
          *
-         * @return
+         * @return false for leaving only constraints
          */
         public boolean isArrivalPermitted() {
             return !arrivalForbidden;

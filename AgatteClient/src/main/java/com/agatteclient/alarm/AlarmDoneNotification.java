@@ -49,7 +49,7 @@ public class AlarmDoneNotification {
     /**
      * The unique identifier for this type of notification.
      */
-    private static final String NOTIFICATION_TAG = "AlarmDone";
+    private static final String NOTIFICATION_TAG = "AlarmDone";//NON-NLS
 
     /**
      * Shows the notification, or updates a previously shown notification of
@@ -73,10 +73,8 @@ public class AlarmDoneNotification {
             picture = BitmapFactory.decodeResource(res, R.drawable.ic_stat_alerts_and_states_warning);
         }
 
-        final String ticker = title;
-        final Uri alarmSound;
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String rt_uri = preferences.getString("notification_sound", "");
+        String rt_uri = preferences.getString("notification_sound", "");//NON-NLS
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
 
                 // Set appropriate defaults for the notification light, sound,
@@ -99,7 +97,7 @@ public class AlarmDoneNotification {
                         // notification drawer on devices running Android 3.0 or later.
                 .setLargeIcon(picture)
                         // Set ticker text (preview) information for this notification.
-                .setTicker(ticker)
+                .setTicker(title)
 
                         // Show a number. This is useful when stacking notifications of
                         // a single type.

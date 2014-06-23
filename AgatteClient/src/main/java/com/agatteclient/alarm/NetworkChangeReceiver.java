@@ -50,7 +50,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
             final WifiInfo connectionInfo = wifiManager.getConnectionInfo();
             if (connectionInfo != null && connectionInfo.getSSID().length() != 0) {
                 ssid = connectionInfo.getSSID();
-                //TODO: remove quotes
+                // Remove quotes
                 ssid = ssid.replaceAll("\"", "");
             }
         }
@@ -60,9 +60,10 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction() != null && intent.getAction().equals("android.net.wifi.WIFI_STATE_CHANGED")) { //NON-NLS
-            //TODO
+            String ssid = getCurrentSsid(context);
+            NetworkChangeRegistry.getInstance().setCurrentSSID(ssid);
+        } else {
+            //TODO: log warning
         }
-        String ssid = getCurrentSsid(context);
-        NetworkChangeRegistry.getInstance().setCurrentSSID(ssid);
     }
 }

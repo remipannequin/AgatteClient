@@ -35,24 +35,22 @@ public class AlarmRegistryTest extends AndroidTestCase {
 
     private Context ctx;
     private AlarmList binder;
-    private long now;
     private long t1;
     private long t2;
     private long t3;
     private PunchAlarmTime a1;
     private PunchAlarmTime a2;
     private PunchAlarmTime a3;
-    private AlarmManager am;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         AlarmRegistry.reset();
         ctx = getContext();
-        am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
+        AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
         binder = AlarmList.getInstance(ctx);
         Calendar cal = Calendar.getInstance();
-        now = cal.getTimeInMillis();
+        long now = cal.getTimeInMillis();
         cal.add(Calendar.HOUR_OF_DAY, 2);
         cal.set(Calendar.MILLISECOND, 0);
         cal.set(Calendar.SECOND, 0);
@@ -132,7 +130,6 @@ public class AlarmRegistryTest extends AndroidTestCase {
 
         AlarmRegistry instance = AlarmRegistry.getInstance();
         instance.update(ctx);
-        Map<PunchAlarmTime, AlarmRegistry.ScheduledAlarm> pim = instance.getPending_intent_map();
 
         // check times
         assertEquals(t1, instance.getTime(a1));

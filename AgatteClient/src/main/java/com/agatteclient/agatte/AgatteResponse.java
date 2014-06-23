@@ -73,7 +73,7 @@ public class AgatteResponse {
     /**
      * Return the last punch
      *
-     * @return
+     * @return the string of the last punch
      */
     public String getLastPunch() {
         if (punches.length > 0) return punches[punches.length - 1];

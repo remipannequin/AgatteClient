@@ -35,6 +35,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 /**
  * This service has a map of pending intents corresponding to to all the scheduled alarms in the
  * system.
@@ -76,7 +78,7 @@ public class AlarmRegistry {
     /**
      * Cancel and remove all scheduled alarms
      *
-     * @param context
+     * @param context the context to use
      */
     public void cancelAll(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -100,7 +102,7 @@ public class AlarmRegistry {
     }
 
     /**
-     * @param context
+     * @param context the context to use, usually the main application context
      */
     public void update(Context context) {
         AlarmList alist = AlarmList.getInstance(context);
@@ -127,8 +129,9 @@ public class AlarmRegistry {
     }
 
     /**
-     * @param context
-     * @param alarm
+     * Add an Alarm to the Registry :  schedule it, if applicable (i.e. enabled)
+     * @param context the context to use, usually the main application context
+     * @param alarm the alarm to add
      */
     private void addAlarm(Context context, PunchAlarmTime alarm) {
         // Check if alarm does actually fire
@@ -149,8 +152,9 @@ public class AlarmRegistry {
     }
 
     /**
-     * @param context
-     * @param alarm
+     * Remove an alarm from the registry : unschedule it
+     * @param context the context to use, usually the main application context
+     * @param alarm the alarm to cancel
      */
     private void cancelAlarm(Context context, PunchAlarmTime alarm) {
         PendingIntent sender = pending_intent_map.get(alarm).intent;
@@ -160,8 +164,9 @@ public class AlarmRegistry {
     }
 
     /**
-     * @param context
-     * @param alarm
+     * Update an alarm : cancel, change scheduled time, or do nothing
+     * @param context the context to use, usually the main application context
+     * @param alarm the alarm to update
      */
     private void updateAlarm(Context context, PunchAlarmTime alarm) {
         PendingIntent sender = pending_intent_map.get(alarm).intent;
@@ -193,7 +198,7 @@ public class AlarmRegistry {
      * Return the list of scheduled alarm for this day
      *
      * @param now the day to consider
-     * @return
+     * @return An iterable of Alarms
      */
     public Iterable<PunchAlarmTime> getScheduledAlarms(Date now) {
         LinkedList<PunchAlarmTime> result = new LinkedList<PunchAlarmTime>();
@@ -217,10 +222,9 @@ public class AlarmRegistry {
      * Return the list of done alarm for this day
      *
      * @param now the day to consider
-     * @return
+     * @return the list of done alarms for the day
      */
     public Iterable<RecordedAlarm> getDoneAlarms(Date now) {
-        LinkedList<PunchAlarmTime> result = new LinkedList<PunchAlarmTime>();
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);
         int day = cal.get(Calendar.DAY_OF_YEAR);
@@ -231,10 +235,9 @@ public class AlarmRegistry {
      * Return the list of failed alarm for this day
      *
      * @param now the day to consider
-     * @return
+     * @return the list of failed alarm for the day
      */
     public Iterable<RecordedAlarm> getFailedAlarms(Date now) {
-        LinkedList<PunchAlarmTime> result = new LinkedList<PunchAlarmTime>();
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);
         int day = cal.get(Calendar.DAY_OF_YEAR);
@@ -244,9 +247,9 @@ public class AlarmRegistry {
     /**
      * Report an alarm to have correctly been done, this current day
      *
-     * @param a
+     * @param a the alarm to set as done
      */
-    public void setDone(PunchAlarmTime a) {
+    public void setDone(@Nonnull PunchAlarmTime a) {
         Calendar cal = Calendar.getInstance();
         //compute exec. date
         Date off = a.getTime();
@@ -258,9 +261,9 @@ public class AlarmRegistry {
     /**
      * Report an alarm to have failed, this current day
      *
-     * @param a
+     * @param a the alarm to set as failed
      */
-    public void setFailed(PunchAlarmTime a) {
+    public void setFailed(@Nonnull PunchAlarmTime a) {
         Calendar cal = Calendar.getInstance();
         //compute exec. date
         Date off = a.getTime();

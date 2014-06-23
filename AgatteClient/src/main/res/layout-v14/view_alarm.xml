@@ -76,7 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginRight="10dp"
-            android:contentDescription="@string/expand_arlam_content_description"
+            android:contentDescription="@string/expand_alarm_content_description"
             android:src="@drawable/ic_navigation_expand" />
 
         <TextView

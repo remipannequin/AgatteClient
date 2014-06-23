@@ -69,7 +69,7 @@ public class NetworkChangeRegistry {
         long now = System.currentTimeMillis();
 
         //Check that value changed
-        if (ssid != ssid_current) {
+        if (!ssid.equals(ssid_current)) {
             ssid_history.put(now, ssid);
             ssid_current = ssid;
             if (listener != null) {

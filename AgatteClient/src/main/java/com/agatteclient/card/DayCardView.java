@@ -521,8 +521,8 @@ public class DayCardView extends View {
     /**
      * Draw an ScheduledAlarm on the View
      * @param canvas the canvas where to draw
-     * @param alarm
-     * @param type
+     * @param alarm the date of the alarm scheduled/done/failed
+     * @param type the type of event (scheduled/done/failed)
      */
     private void drawAlarm(Canvas canvas, Date alarm, PunchAlarmTime.Type type, AlarmStatus status) {
         //get the y coordinate where to draw

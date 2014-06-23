@@ -34,6 +34,9 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
+
 public class AlarmList implements List<PunchAlarmTime> {
     private static final String ALARMS_PREF = "alarms-pref"; //NON-NLS
     private static final String ALARM_SHARED_PREFS = "alarms"; //NON-NLS
@@ -61,7 +64,6 @@ public class AlarmList implements List<PunchAlarmTime> {
             }
         } else {
             String alarms_s = preferences.getString(ALARMS_PREF, "");
-            int n_tok = alarms_s.length() / 16;
             for (int i = 0; i < alarms_s.length() / 16; i++) {
                 try {
                     long n = Long.parseLong(alarms_s.substring(i * 16, (i + 1) * 16), 16);
@@ -88,7 +90,6 @@ public class AlarmList implements List<PunchAlarmTime> {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 
             Set<String> alarms_s = new HashSet<String>(alarms.size());
-            int i = 0;
             for (PunchAlarmTime a : alarms) {
                 long n = a.toLong();
                 alarms_s.add(Long.toHexString(n));
@@ -99,7 +100,7 @@ public class AlarmList implements List<PunchAlarmTime> {
             StringBuilder alarms_s = new StringBuilder();
             for (PunchAlarmTime a : alarms) {
                 long n = a.toLong();
-                alarms_s.append(String.format("%016X", n));
+                alarms_s.append(String.format("%016X", n));//NON-NLS
             }
             editor.putString(ALARMS_PREF, alarms_s.toString());
         }
@@ -116,14 +117,16 @@ public class AlarmList implements List<PunchAlarmTime> {
     }
 
 
+    @Nonnull
     public List<PunchAlarmTime> subList(int start, int end) {
         return alarms.subList(start, end);
     }
 
     public boolean remove(Object object) {
         if (alarms.remove(object)) {
-            if (object instanceof PunchAlarmTime) {
+            if (object instanceof PunchAlarmTime && listener != null) {
                 PunchAlarmTime a = (PunchAlarmTime) object;
+                listener.onAlarmRemoved(a);
             }
             saveToPreferences();
             return true;
@@ -132,7 +135,7 @@ public class AlarmList implements List<PunchAlarmTime> {
         }
     }
 
-    public boolean containsAll(Collection<?> collection) {
+    public boolean containsAll(@Nonnull Collection<?> collection) {
         return alarms.containsAll(collection);
     }
 
@@ -198,6 +201,7 @@ public class AlarmList implements List<PunchAlarmTime> {
         return a;
     }
 
+    @Nonnull
     public Iterator<PunchAlarmTime> iterator() {
         return alarms.iterator();
     }
@@ -225,7 +229,8 @@ public class AlarmList implements List<PunchAlarmTime> {
         }
     }
 
-    public <T> T[] toArray(T[] contents) {
+    @Nonnull
+    public <T> T[] toArray(@Nonnull T[] contents) {
         return alarms.toArray(contents);
     }
 
@@ -253,6 +258,7 @@ public class AlarmList implements List<PunchAlarmTime> {
         saveToPreferences();
     }
 
+    @Nonnull
     public Object[] toArray() {
         return alarms.toArray();
     }
@@ -269,26 +275,28 @@ public class AlarmList implements List<PunchAlarmTime> {
         alarms.trimToSize();
     }
 
-    public boolean removeAll(Collection<?> collection) {
+    public boolean removeAll(@Nonnull Collection<?> collection) {
         for (Object o : collection) {
             if (o instanceof PunchAlarmTime && alarms.contains(o)) {
                 PunchAlarmTime a = (PunchAlarmTime) o;
                 if (listener != null) {
-                    listener.onAlarmRemoved((PunchAlarmTime) o);
+                    listener.onAlarmRemoved(a);
                 }
             }
         }
         return alarms.removeAll(collection);
     }
 
+    @Nonnull
     public ListIterator<PunchAlarmTime> listIterator() {
         return alarms.listIterator();
     }
 
-    public boolean retainAll(Collection<?> collection) {
+    public boolean retainAll(@Nonnull Collection<?> collection) {
         return alarms.retainAll(collection);
     }
 
+    @Nonnull
     public ListIterator<PunchAlarmTime> listIterator(int location) {
         return alarms.listIterator(location);
     }

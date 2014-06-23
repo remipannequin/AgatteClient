@@ -129,8 +129,8 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
     /**
      * Create a new view for a list item.
      *
-     * @param parent
-     * @return
+     * @param parent the view group parent
+     * @return the view created
      */
     private View newView(ViewGroup parent, int position) {
         View view = getInflater(parent).inflate(R.layout.view_alarm, parent, false);
@@ -146,8 +146,8 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
     /**
      * Bind the view of this tiem to the actual data
      *
-     * @param v
-     * @param position
+     * @param v the view of the item to bind
+     * @param position the position of th item in the list
      */
     private void bindView(View v, int position) {
         final ViewHolder holder = (ViewHolder) v.getTag();
@@ -225,10 +225,9 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
                 if (BuildConfig.DEBUG && !(view instanceof TextView)) throw new RuntimeException();
                 TimePickerFragment newFragment = new TimePickerFragment();
                 int p = (Integer) view.getTag();
-                PunchAlarmTime a = alarms.get(p);
                 newFragment.setAlarm(alarms, p);
                 newFragment.setView((TextView) view);
-                newFragment.show(fragment_manager, "timePicker");
+                newFragment.show(fragment_manager, "timePicker");//NON-NLS
 
             }
         });
@@ -309,8 +308,6 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                int p = (Integer) parent.getTag();
-                PunchAlarmTime a = alarms.get(p);
                 //TODO ? is this possible ?? can't happen ?!
             }
         });

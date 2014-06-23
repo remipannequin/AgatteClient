@@ -33,9 +33,4 @@
         <item>"Pointer uniquement les départs"</item>
         <item>"Pointer uniquement les arrivées"</item>
     </string-array>
-    <string-array name="alarm_type_value">
-        <item>"1"</item>
-        <item>"2"</item>
-        <item>"3"</item>
-    </string-array>
 </resources>

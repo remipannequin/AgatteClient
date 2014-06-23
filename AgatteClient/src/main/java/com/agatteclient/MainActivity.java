@@ -69,12 +69,14 @@ import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.annotation.Nonnull;
+
 public class MainActivity extends Activity {
 
     public static final String SERVER_PREF = "server"; //NON-NLS
     public static final String LOGIN_PREF = "login"; //NON-NLS
     public static final String PASSWD_PREF = "password"; //NON-NLS
-    public static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";
+    public static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";//NON-NLS
     public static final String LOGIN_DEFAULT = "login"; //NON-NLS
     public static final String PASSWD_DEFAULT = "";
     public static final String LOG_TAG = "com.agatteclient"; //NON-NLS
@@ -143,7 +145,6 @@ public class MainActivity extends Activity {
         //
 
         String profile = preferences.getString(PROFILE_PREF, "1");
-        int profile_n = Integer.decode(profile) - 1;
 
         day_progress = (ProgressBar) findViewById(R.id.day_progress);
         day_textView = (TextView) findViewById(R.id.day_textView);
@@ -224,7 +225,7 @@ public class MainActivity extends Activity {
 
 
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    public boolean onMenuItemSelected(int featureId, @Nonnull MenuItem item) {
         Intent intent;
         switch (item.getItemId()) {
             case R.id.action_settings:
@@ -351,7 +352,7 @@ public class MainActivity extends Activity {
 
 
     @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
+    public boolean dispatchTouchEvent(@Nonnull MotionEvent ev) {
         super.dispatchTouchEvent(ev);
         return mScaleDetector.onTouchEvent(ev);
     }
