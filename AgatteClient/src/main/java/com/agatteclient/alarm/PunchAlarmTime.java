@@ -59,7 +59,6 @@ public class PunchAlarmTime {
         int days = (int) ((l >> 32) & 0x0000007f);
         //should be lesser than Ox7F = 127
         boolean enabled = (l & (1l << 48)) != 0;
-        //TODO !
         boolean arrival_permitted = (l & (1l << 49)) == 0;
         boolean leaving_permitted = (l & (1l << 50)) == 0;
 

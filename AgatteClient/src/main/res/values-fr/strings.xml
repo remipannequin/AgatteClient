@@ -146,4 +146,7 @@
         jour automatique pour limiter la consommation de données</string>
     <string name="pref_ringtone_silent">Silencieux</string>
     <string name="preference_notification_sound">Son de notification</string>
+    <string name="delete_alarm_content_description">supprimer l\'alarme</string>
+    <string name="expand_alarm_content_description">étendre l\'alarme</string>
+    <string name="collapse_alarm_content_description">réduire l\'alarme</string>
 </resources>

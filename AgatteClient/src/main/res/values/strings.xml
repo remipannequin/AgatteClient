@@ -139,5 +139,7 @@
         automatic query to reduce data consumption</string>
     <string name="pref_ringtone_silent">Silent</string>
     <string name="preference_notification_sound">Notification sound</string>
-
+    <string name="delete_alarm_content_description">delete alarm</string>
+    <string name="collapse_alarm_content_description">collapse alarm</string>
+    <string name="expand_alarm_content_description">expand alarm</string>
 </resources>
