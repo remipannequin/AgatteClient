@@ -132,8 +132,8 @@
     <string name="duration_minute">%02d</string>
     <string name="date_format">E dd MMM yyyy</string>
     <string name="anomaly">anomalie</string>
-    <string name="counter_year">%1$+dj%2$s</string>
-    <string name="counter_duration_min">%1$+02dmin</string>
+    <string name="counter_year">%1$+d j%2$s</string>
+    <string name="counter_duration_min">%1$+02d min</string>
     <string name="counter_duration">%1$+dh%2$02d</string>
     <string name="counter_unavailable">Compteurs non disponibles</string>
     <string name="auto_query_title">Récupération auto. des compteurs</string>
