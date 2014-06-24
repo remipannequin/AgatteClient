@@ -20,6 +20,9 @@
 package com.agatteclient.alarm;
 
 import android.content.Context;
+import android.content.res.Resources;
+
+import com.agatteclient.R;
 
 import java.util.Dictionary;
 import java.util.HashSet;
@@ -34,21 +37,26 @@ import java.util.Set;
  * Created by remi on 25/04/14.
  */
 public class NetworkChangeRegistry {
-    private static NetworkChangeRegistry ourInstance = new NetworkChangeRegistry();
+    private static NetworkChangeRegistry ourInstance;
     private final Set<String> authorized_ssid;
     private Dictionary<Long, String> ssid_history;
     private String ssid_current;
     private OnChangeListener listener;
 
-    private NetworkChangeRegistry() {
+    private NetworkChangeRegistry(Context context) {
         authorized_ssid = new HashSet<String>();
         ssid_history = new Hashtable<Long, String>();
         //TODO: get the list of authorized network from preference
-        authorized_ssid.add("eduroam");
-        authorized_ssid.add("Personnels Univ-Lorraine");
+        Resources res = context.getResources();
+        for (String ssid : res.getStringArray(R.array.default_auth_ssid)) {
+            authorized_ssid.add(ssid);
+        }
     }
 
-    public static NetworkChangeRegistry getInstance() {
+    public static NetworkChangeRegistry getInstance(Context context) {
+        if (ourInstance == null) {
+            ourInstance = new NetworkChangeRegistry(context.getApplicationContext());
+        }
         return ourInstance;
     }
 
@@ -75,6 +83,7 @@ public class NetworkChangeRegistry {
             if (listener != null) {
                 listener.onChange();
             }
+            //TODO: log message
         }
     }
 

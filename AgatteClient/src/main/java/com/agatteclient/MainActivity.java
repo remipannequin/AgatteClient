@@ -116,7 +116,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
 
         //Update network authentication status
-        NetworkChangeRegistry.getInstance().update(getApplicationContext());
+        NetworkChangeRegistry.getInstance(getApplicationContext()).update(getApplicationContext());
 
         AlarmList.getInstance(this);
 
@@ -195,13 +195,13 @@ public class MainActivity extends ActionBarActivity {
                     preferences.getFloat(COUNTER_WEEK_PREF, 0),
                     preferences.getFloat(COUNTER_YEAR_PREF, 0));
         }
-        NetworkChangeRegistry.getInstance().setOnChangeListener(new NetworkChangeRegistry.OnChangeListener() {
+        NetworkChangeRegistry.getInstance(getApplicationContext()).setOnChangeListener(new NetworkChangeRegistry.OnChangeListener() {
             @Override
             public void onChange() {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        updateAuthNetwork(NetworkChangeRegistry.getInstance().isOnAuthorizeNetwork());
+                        updateAuthNetwork(NetworkChangeRegistry.getInstance(getApplicationContext()).isOnAuthorizeNetwork());
                     }
                 });
             }
@@ -607,7 +607,7 @@ public class MainActivity extends ActionBarActivity {
                 @Override
                 public void run() {
                     updateCard();
-                    updateAuthNetwork(NetworkChangeRegistry.getInstance().isOnAuthorizeNetwork());
+                    updateAuthNetwork(NetworkChangeRegistry.getInstance(getApplicationContext()).isOnAuthorizeNetwork());
                 }
             });
         }

@@ -33,4 +33,10 @@
         <item>"Punch arrivals only"</item>
         <item>"Punch leavings only"</item>
     </string-array>
+    <string-array name="default_auth_ssid">
+        <item>eduroam</item>
+        <item>Personnels Univ-Lorraine</item>
+        <item>Universite de Lorraine</item>
+    </string-array>
+
 </resources>

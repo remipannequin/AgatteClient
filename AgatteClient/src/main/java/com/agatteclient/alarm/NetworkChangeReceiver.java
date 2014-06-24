@@ -61,7 +61,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction() != null && intent.getAction().equals("android.net.wifi.WIFI_STATE_CHANGED")) { //NON-NLS
             String ssid = getCurrentSsid(context);
-            NetworkChangeRegistry.getInstance().setCurrentSSID(ssid);
+            NetworkChangeRegistry.getInstance(context).setCurrentSSID(ssid);
         } else {
             //TODO: log warning
         }
