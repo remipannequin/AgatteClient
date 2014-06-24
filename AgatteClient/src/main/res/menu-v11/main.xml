@@ -21,10 +21,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_update"
-        android:actionLayout="@layout/update_action_view"
         android:icon="@drawable/ic_action_navigation_refresh"
         android:title="@string/action_update"
-        app:showAsAction="ifRoom" />
+        app:actionLayout="@layout/update_action_view"
+        app:showAsAction="always" />
     <item
         android:id="@+id/action_alarm"
         android:icon="@drawable/ic_action_device_access_alarms"

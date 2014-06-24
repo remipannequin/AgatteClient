@@ -27,7 +27,7 @@
     <string name="password_prefs_title">Mot de passe</string>
     <string name="password_default_value">******</string>
     <string name="title_activity_settings">Préférences</string>
-    <string name="action_update">Mise à jour</string>
+    <string name="action_update">Mettre à jour</string>
     <string name="dialog_confirm_punch">Confirmez-vous le pointage ?</string>
     <string name="send">Pointer</string>
     <string name="cancel">Annuler</string>

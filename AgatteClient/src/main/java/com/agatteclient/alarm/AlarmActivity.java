@@ -22,7 +22,7 @@ package com.agatteclient.alarm;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,7 +33,7 @@ import com.agatteclient.R;
 
 import java.text.SimpleDateFormat;
 
-public class AlarmActivity extends FragmentActivity {
+public class AlarmActivity extends ActionBarActivity {
 
 
     private AlarmArrayAdapter mAdapter;

@@ -35,6 +35,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -71,7 +73,7 @@ import java.util.TimerTask;
 
 import javax.annotation.Nonnull;
 
-public class MainActivity extends Activity {
+public class MainActivity extends ActionBarActivity {
 
     public static final String SERVER_PREF = "server"; //NON-NLS
     public static final String LOGIN_PREF = "login"; //NON-NLS
@@ -224,7 +226,7 @@ public class MainActivity extends Activity {
 
 
     @Override
-    public boolean onMenuItemSelected(int featureId, @Nonnull MenuItem item) {
+    public boolean onOptionsItemSelected(@Nonnull MenuItem item) {
         Intent intent;
         switch (item.getItemId()) {
             case R.id.action_settings:
@@ -391,12 +393,17 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
             final Menu m = menu;
             refreshItem = menu.findItem(R.id.action_update);
-            refreshItem.getActionView().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    m.performIdentifierAction(refreshItem.getItemId(), 0);
-                }
-            });
+            View av = (View) MenuItemCompat.getActionView(refreshItem);
+            if (av != null) {
+                av.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        m.performIdentifierAction(refreshItem.getItemId(), 0);
+                    }
+                });
+            } else {
+                //TODO: log warning
+            }
         }
         return true;
     }
