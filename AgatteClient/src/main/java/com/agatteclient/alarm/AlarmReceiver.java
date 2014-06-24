@@ -93,7 +93,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             AgatteResultCode code = AgatteResultCode.values()[resultCode];
             //set notification text and title based on result
             StringBuilder notification_text = new StringBuilder();
-            PunchAlarmTime alarm = AlarmList.getInstance(ctx).get(alarm_id);
+            PunchAlarmTime alarm = AlarmList.getInstance(ctx).lookup(alarm_id);
 
             switch (code) {
                 case network_not_authorized:

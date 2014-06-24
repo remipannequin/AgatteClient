@@ -143,7 +143,7 @@ public class AlarmRegistry {
             i.putExtra(ALARM_TYPE, alarm.getType().ordinal());
             int fingerPrint = alarm.shortFingerPrint();
             AlarmList alist = AlarmList.getInstance(context);
-            i.putExtra(ALARM_ID, alist.indexOf(alarm));
+            i.putExtra(ALARM_ID, alarm.hashCode());
             PendingIntent pi = PendingIntent.getBroadcast(context, fingerPrint, i, PendingIntent.FLAG_ONE_SHOT);
             ScheduledAlarm o = new ScheduledAlarm(pi, fingerPrint, time);
             pending_intent_map.put(alarm, o);
@@ -181,7 +181,7 @@ public class AlarmRegistry {
                 Intent i = new Intent(context, AlarmReceiver.class);
                 i.putExtra(ALARM_TYPE, alarm.getType().ordinal());
                 AlarmList alist = AlarmList.getInstance(context);
-                i.putExtra(ALARM_ID, alist.indexOf(alarm));
+                i.putExtra(ALARM_ID, alarm.hashCode());
                 //using the same request code, the previous alarm is replaced
                 PendingIntent pi = PendingIntent.getBroadcast(context, fingerprint, i, PendingIntent.FLAG_ONE_SHOT);
                 pending_intent_map.put(alarm, new ScheduledAlarm(pi, fingerprint, time));

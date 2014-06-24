@@ -156,10 +156,10 @@ public class AlarmList implements List<PunchAlarmTime> {
         return alarms.get(index);
     }
 
-    public PunchAlarmTime getFromFingerPrint(int p) {
+    public PunchAlarmTime lookup(int hash) {
         PunchAlarmTime found = null;
         for (PunchAlarmTime a : alarms) {
-            if (a.shortFingerPrint() == p) {
+            if (a.hashCode() == hash) {
                 found = a;
             }
         }
