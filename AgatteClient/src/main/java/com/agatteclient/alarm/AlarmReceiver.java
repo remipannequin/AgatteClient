@@ -144,6 +144,14 @@ public class AlarmReceiver extends BroadcastReceiver {
                     // TODO : Update AlarmRegistry with value
                     AlarmRegistry.getInstance().setDone(alarm);
                     break;
+                case invalidPunchingCondition:
+                    notification_text.append("Required conditions were not met");
+                    message = resultData.getString("message");
+                    if (message != null && message.length() != 0) {
+                        notification_text.append(" : ").append(message);
+                    }
+                    AlarmRegistry.getInstance().setFailed(alarm);
+                    break;
                 default:
 
 
