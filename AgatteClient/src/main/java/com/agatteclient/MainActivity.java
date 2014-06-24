@@ -36,6 +36,7 @@ import android.os.Looper;
 import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -283,9 +284,13 @@ public class MainActivity extends ActionBarActivity {
         day_progress.invalidate();
         dc_view.invalidate();
 
-        SimpleDateFormat fmt = new SimpleDateFormat(getString(R.string.date_format));
-        StringBuilder t = new StringBuilder().append(fmt.format(cur_card.getDay()));
-        setTitle(t);
+        ActionBar ab = getSupportActionBar();
+        SimpleDateFormat fmt1 = new SimpleDateFormat("EEEE");//NON-NLS
+        String day = fmt1.format(cur_card.getDay());
+        ab.setTitle(day.substring(0, 1).toUpperCase() + day.substring(1));
+        SimpleDateFormat fmt2 = new SimpleDateFormat("dd MMM yyyy");//NON-NLS
+        ab.setSubtitle(fmt2.format(cur_card.getDay()));
+
     }
 
 
