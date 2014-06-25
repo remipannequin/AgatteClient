@@ -68,7 +68,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 i.setAction(PunchService.DO_PUNCH_LEAVING);
                 break;
             default:
-                //TODO: log error
+                Log.w(MainActivity.LOG_TAG, String.format("Unknown alarm type %1", t.toString()));//NON-NLS
         }
         i.putExtra(PunchService.RESULT_RECEIVER, new PunchResultReceiver(context, id));
         context.startService(i);
@@ -141,7 +141,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                     } catch (ParseException e) {
                         Log.e(MainActivity.LOG_TAG, "Parse exception when updating the punch-card");//NON-NLS
                     }
-                    // TODO : Update AlarmRegistry with value
+                    // Update AlarmRegistry with value
                     AlarmRegistry.getInstance().setDone(alarm);
                     break;
                 case invalidPunchingCondition:
@@ -153,8 +153,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                     AlarmRegistry.getInstance().setFailed(alarm);
                     break;
                 default:
-
-
+                    Log.w(MainActivity.LOG_TAG, String.format("Unknown response code %1", code.toString()));//NON-NLS
             }
 
             //TODO: in case of invalidPunchingCondition, don't display a notification...

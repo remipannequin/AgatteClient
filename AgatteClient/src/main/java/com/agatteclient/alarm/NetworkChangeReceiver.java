@@ -26,6 +26,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.util.Log;
+
+import com.agatteclient.MainActivity;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
@@ -52,6 +55,8 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                 ssid = connectionInfo.getSSID();
                 // Remove quotes
                 ssid = ssid.replaceAll("\"", "");
+            } else {
+                Log.w(MainActivity.LOG_TAG, String.format("connection info is empty"));
             }
         }
         return ssid;
@@ -59,11 +64,12 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction() != null && intent.getAction().equals("android.net.wifi.WIFI_STATE_CHANGED")) { //NON-NLS
+        String action = intent.getAction();
+        if (action != null && action.equals("android.net.wifi.WIFI_STATE_CHANGED")) { //NON-NLS
             String ssid = getCurrentSsid(context);
             NetworkChangeRegistry.getInstance(context).setCurrentSSID(ssid);
         } else {
-            //TODO: log warning
+            Log.w(MainActivity.LOG_TAG, String.format("NetworkChangeReceiver got unexpected action %1", action));//NON-NLS
         }
     }
 }

@@ -21,7 +21,9 @@ package com.agatteclient.alarm;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.Log;
 
+import com.agatteclient.MainActivity;
 import com.agatteclient.R;
 
 import java.util.Dictionary;
@@ -83,7 +85,7 @@ public class NetworkChangeRegistry {
             if (listener != null) {
                 listener.onChange();
             }
-            //TODO: log message
+            Log.d(MainActivity.LOG_TAG, String.format("New SSID %1", ssid));//NON-NLS
         }
     }
 

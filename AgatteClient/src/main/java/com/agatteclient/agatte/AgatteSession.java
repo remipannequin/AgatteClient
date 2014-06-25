@@ -21,6 +21,9 @@ package com.agatteclient.agatte;
 
 
 import android.net.http.AndroidHttpClient;
+import android.util.Log;
+
+import com.agatteclient.MainActivity;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -240,7 +243,7 @@ public class AgatteSession {
             return AgatteParser.getInstance().parse_topOk_response(response2);
 
         } catch (IOException e) {
-            e.printStackTrace();//TODO: display log message instead
+            Log.w(MainActivity.LOG_TAG, "IOException while doing doPunch", e);
             throw new AgatteException(e);
         } finally {
             logout(client);
@@ -291,7 +294,7 @@ public class AgatteSession {
                 throw new InvalidPunchingConditionException(msg);
             }
         } catch (IOException e) {
-            e.printStackTrace();//TODO: display log message instead
+            Log.w(MainActivity.LOG_TAG, "IOException while doing doCheckAndPunch", e);
             throw new AgatteException(e);
         } finally {
             logout(client);

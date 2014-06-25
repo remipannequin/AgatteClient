@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +43,7 @@ import android.widget.TimePicker;
 import android.widget.ToggleButton;
 
 import com.agatteclient.BuildConfig;
+import com.agatteclient.MainActivity;
 import com.agatteclient.R;
 
 import java.text.SimpleDateFormat;
@@ -308,7 +310,7 @@ public class AlarmArrayAdapter extends ArrayAdapter<PunchAlarmTime> {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                //TODO ? is this possible ?? can't happen ?!
+                Log.w(MainActivity.LOG_TAG, "Nothing selected in type_spinner.");
             }
         });
     }
