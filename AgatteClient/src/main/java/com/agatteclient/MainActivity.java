@@ -169,13 +169,11 @@ public class MainActivity extends ActionBarActivity {
             session = new AgatteSession(server, login, password);
             pref_listener = new AgattePreferenceListener(session);
             preferences.registerOnSharedPreferenceChangeListener(pref_listener);
-
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            Log.w(MainActivity.LOG_TAG, "Server address is not a valid URI", e);//NON-NLS
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            Log.w(MainActivity.LOG_TAG, "Unsupported encoding in server address, login or password", e);//NON-NLS
         }
-
     }
 
 
@@ -571,7 +569,7 @@ public class MainActivity extends ActionBarActivity {
                             cur_card.addPunches(rsp.getPunches(), false);
                         }
                     } catch (ParseException e) {
-                        e.printStackTrace();
+                        Log.e(MainActivity.LOG_TAG, "Unable to parse response from server", e);//NON-NLS
                     }
                     //Only if it was a punching request
                     if (isPunch) {
@@ -637,7 +635,7 @@ public class MainActivity extends ActionBarActivity {
                 try {
                     session.setServer(value);
                 } catch (URISyntaxException e) {
-                    e.printStackTrace();
+                    Log.w(MainActivity.LOG_TAG, "Server address is not a valid URI", e);//NON-NLS
                 }
                 return;
             }
@@ -646,7 +644,7 @@ public class MainActivity extends ActionBarActivity {
                 try {
                     session.setUser(value);
                 } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                    Log.w(MainActivity.LOG_TAG, "Unsupported encoding in login", e);//NON-NLS
                 }
                 return;
             }
@@ -655,7 +653,7 @@ public class MainActivity extends ActionBarActivity {
                 try {
                     session.setPassword(value);
                 } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                    Log.w(MainActivity.LOG_TAG, "Unsupported encoding in password", e);//NON-NLS
                 }
             }
         }
