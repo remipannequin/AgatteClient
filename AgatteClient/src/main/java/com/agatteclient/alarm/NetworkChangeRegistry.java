@@ -85,7 +85,7 @@ public class NetworkChangeRegistry {
             if (listener != null) {
                 listener.onChange();
             }
-            Log.d(MainActivity.LOG_TAG, String.format("New SSID %1", ssid));//NON-NLS
+            Log.d(MainActivity.LOG_TAG, String.format("New SSID %s", ssid));//NON-NLS
         }
     }
 
