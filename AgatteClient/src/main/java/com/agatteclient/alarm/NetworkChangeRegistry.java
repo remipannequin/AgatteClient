@@ -41,6 +41,7 @@ import java.util.Set;
 public class NetworkChangeRegistry {
     private static NetworkChangeRegistry ourInstance;
     private final Set<String> authorized_ssid;
+    private boolean wifi_connected = false;
     private Dictionary<Long, String> ssid_history;
     private String ssid_current;
     private OnChangeListener listener;
@@ -66,8 +67,9 @@ public class NetworkChangeRegistry {
      * Force update (with the current network SSID)
      */
     public void update(Context ctx) {
+        boolean c = NetworkChangeReceiver.isConnected(ctx);
         String ssid = NetworkChangeReceiver.getCurrentSsid(ctx);
-        setCurrentSSID(ssid);
+        setCurrentWifiState(c, ssid);
     }
 
     /**
@@ -75,9 +77,14 @@ public class NetworkChangeRegistry {
      *
      * @param ssid The current SSID of the wifi network, or "" (empty string) if no wifi connection
      */
-    public void setCurrentSSID(String ssid) {
+    public void setCurrentWifiState(boolean connected, String ssid) {
+        wifi_connected = connected;
+        if (wifi_connected) {
+            Log.d(MainActivity.LOG_TAG, String.format("Wifi state change: connected to %s", ssid));//NON-NLS
+        } else {
+            Log.d(MainActivity.LOG_TAG, String.format("Wifi state change: disconnected"));//NON-NLS
+        }
         long now = System.currentTimeMillis();
-
         //Check that value changed
         if (!ssid.equals(ssid_current)) {
             ssid_history.put(now, ssid);
@@ -118,7 +125,7 @@ public class NetworkChangeRegistry {
     }
 
     public boolean isOnAuthorizeNetwork() {
-        return authorized_ssid.contains(ssid_current);
+        return wifi_connected && authorized_ssid.contains(ssid_current);
     }
 
     public void setOnChangeListener(OnChangeListener listener) {

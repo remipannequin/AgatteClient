@@ -62,14 +62,36 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         return ssid;
     }
 
+    /**
+     * Return true if a wifi network is currently available
+     * @param context
+     * @return
+     */
+    public static boolean isConnected(Context context) {
+        ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        return networkInfo.isConnected();
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        if (action != null && action.equals("android.net.wifi.WIFI_STATE_CHANGED")) { //NON-NLS
-            String ssid = getCurrentSsid(context);
-            NetworkChangeRegistry.getInstance(context).setCurrentSSID(ssid);
+        if (action != null && action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) { //NON-NLS
+            NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+            NetworkInfo.State state = networkInfo.getState();
+            if(state == NetworkInfo.State.CONNECTED) {
+                String ssid = getCurrentSsid(context);
+                NetworkChangeRegistry.getInstance(context).setCurrentWifiState(true, ssid);
+            }
+
+            if(state == NetworkInfo.State.DISCONNECTED) {
+                NetworkChangeRegistry.getInstance(context).setCurrentWifiState(false, "");
+            }
+
         } else {
             Log.w(MainActivity.LOG_TAG, String.format("NetworkChangeReceiver got unexpected action %s", action));//NON-NLS
         }
     }
+
+
 }

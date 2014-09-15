@@ -252,6 +252,7 @@ public class AlarmRegistry {
     public void setDone(@Nonnull PunchAlarmTime a) {
         Calendar cal = Calendar.getInstance();
         //compute exec. date
+        //TODO: fix bug, possible NPE when querying counter is impossible
         Date off = a.getTime();
         RecordedAlarm rec = new RecordedAlarm(off, a.getType());
         cal.setTime(off);
