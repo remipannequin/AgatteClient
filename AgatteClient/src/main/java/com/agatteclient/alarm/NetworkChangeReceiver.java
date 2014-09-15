@@ -69,7 +69,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
             String ssid = getCurrentSsid(context);
             NetworkChangeRegistry.getInstance(context).setCurrentSSID(ssid);
         } else {
-            Log.w(MainActivity.LOG_TAG, String.format("NetworkChangeReceiver got unexpected action %1", action));//NON-NLS
+            Log.w(MainActivity.LOG_TAG, String.format("NetworkChangeReceiver got unexpected action %s", action));//NON-NLS
         }
     }
 }
