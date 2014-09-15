@@ -55,6 +55,11 @@ public class AlarmReceiver extends BroadcastReceiver {
         PunchAlarmTime.Type t = PunchAlarmTime.Type.values()[intent.getIntExtra(AlarmRegistry.ALARM_TYPE,
                 PunchAlarmTime.Type.unconstraigned.ordinal())];
         int id = intent.getIntExtra(AlarmRegistry.ALARM_ID, -1);
+        //Should not be -1
+        if (id < 0 ) {
+            Log.wtf(MainActivity.LOG_TAG, String.format("Failed to retrieve ALARM_ID"));
+        }
+
         //Do the punch by calling the punching service
         final Intent i = new Intent(context, PunchService.class);
         switch (t) {
@@ -68,7 +73,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 i.setAction(PunchService.DO_PUNCH_LEAVING);
                 break;
             default:
-                Log.w(MainActivity.LOG_TAG, String.format("Unknown alarm type %1", t.toString()));//NON-NLS
+                Log.w(MainActivity.LOG_TAG, String.format("Unknown alarm type %s", t.toString()));//NON-NLS
         }
         i.putExtra(PunchService.RESULT_RECEIVER, new PunchResultReceiver(context, id));
         context.startService(i);
@@ -94,7 +99,8 @@ public class AlarmReceiver extends BroadcastReceiver {
             //set notification text and title based on result
             StringBuilder notification_text = new StringBuilder();
             PunchAlarmTime alarm = AlarmList.getInstance(ctx).lookup(alarm_id);
-
+            //can't happen : no alarm found !
+            Log.wtf(MainActivity.LOG_TAG, String.format("Lookup for alarm with code %s failed", alarm_id));
             switch (code) {
                 case network_not_authorized:
                     notification_text.append(ctx.getString(R.string.unauthorized_network_toast));
@@ -153,7 +159,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                     AlarmRegistry.getInstance().setFailed(alarm);
                     break;
                 default:
-                    Log.w(MainActivity.LOG_TAG, String.format("Unknown response code %1", code.toString()));//NON-NLS
+                    Log.w(MainActivity.LOG_TAG, String.format("Unknown response code %s", code.toString()));//NON-NLS
             }
 
             //TODO: in case of invalidPunchingCondition, don't display a notification...
