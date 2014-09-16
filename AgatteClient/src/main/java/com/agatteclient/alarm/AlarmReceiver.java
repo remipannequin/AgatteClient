@@ -141,7 +141,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                     } catch (ParseException e) {
                         Log.e(MainActivity.LOG_TAG, "Parse exception when updating the punch-card");//NON-NLS
                     }
-                    // TODO : Update AlarmRegistry with value
+                    //Update AlarmRegistry with value
                     AlarmRegistry.getInstance().setDone(alarm);
                     break;
                 default:
