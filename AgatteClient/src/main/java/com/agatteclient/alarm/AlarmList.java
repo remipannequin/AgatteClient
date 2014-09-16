@@ -163,6 +163,10 @@ public class AlarmList implements List<PunchAlarmTime> {
                 found = a;
             }
         }
+        //can't happen : no alarm found !
+        if (found == null) {
+            Log.wtf(MainActivity.LOG_TAG, String.format("Lookup for alarm with code %s failed", hash));
+        }
         return found;
     }
 

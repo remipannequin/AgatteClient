@@ -99,12 +99,12 @@ public class AlarmReceiver extends BroadcastReceiver {
             //set notification text and title based on result
             StringBuilder notification_text = new StringBuilder();
             PunchAlarmTime alarm = AlarmList.getInstance(ctx).lookup(alarm_id);
-            //can't happen : no alarm found !
-            Log.wtf(MainActivity.LOG_TAG, String.format("Lookup for alarm with code %s failed", alarm_id));
             switch (code) {
                 case network_not_authorized:
                     notification_text.append(ctx.getString(R.string.unauthorized_network_toast));
-                    AlarmRegistry.getInstance().setFailed(alarm);
+                    if (alarm != null) {
+                        AlarmRegistry.getInstance().setFailed(alarm);
+                    }
                     break;
                 case query_counter_ok:
                     break;
@@ -116,7 +116,9 @@ public class AlarmReceiver extends BroadcastReceiver {
                     if (message != null && message.length() != 0) {
                         notification_text.append(" : ").append(message);
                     }
-                    AlarmRegistry.getInstance().setFailed(alarm);
+                    if (alarm != null) {
+                        AlarmRegistry.getInstance().setFailed(alarm);
+                    }
                     break;
                 case login_failed:
                     notification_text.append(ctx.getString(R.string.login_failed_toast));
@@ -128,7 +130,9 @@ public class AlarmReceiver extends BroadcastReceiver {
                     if (message != null && message.length() != 0) {
                         notification_text.append(" : ").append(message);
                     }
-                    AlarmRegistry.getInstance().setFailed(alarm);
+                    if (alarm != null) {
+                        AlarmRegistry.getInstance().setFailed(alarm);
+                    }
                     break;
                 case punch_ok:
                 case query_ok:
@@ -148,7 +152,9 @@ public class AlarmReceiver extends BroadcastReceiver {
                         Log.e(MainActivity.LOG_TAG, "Parse exception when updating the punch-card");//NON-NLS
                     }
                     // Update AlarmRegistry with value
-                    AlarmRegistry.getInstance().setDone(alarm);
+                    if (alarm != null) {
+                         AlarmRegistry.getInstance().setDone(alarm);
+                     }
                     break;
                 case invalidPunchingCondition:
                     notification_text.append("Required conditions were not met");
@@ -156,7 +162,9 @@ public class AlarmReceiver extends BroadcastReceiver {
                     if (message != null && message.length() != 0) {
                         notification_text.append(" : ").append(message);
                     }
-                    AlarmRegistry.getInstance().setFailed(alarm);
+                    if (alarm != null) {
+                        AlarmRegistry.getInstance().setFailed(alarm);
+                    }
                     break;
                 default:
                     Log.w(MainActivity.LOG_TAG, String.format("Unknown response code %s", code.toString()));//NON-NLS
