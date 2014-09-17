@@ -33,6 +33,7 @@ import android.widget.ListView;
 
 import com.agatteclient.R;
 import com.agatteclient.alarm.db.AlarmContract;
+import com.agatteclient.alarm.db.AlarmDbHelper;
 
 import java.text.SimpleDateFormat;
 
@@ -46,7 +47,16 @@ public class AlarmActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm);
         ListView lv = (ListView) findViewById(R.id.alarmListView);
-        Cursor cursor = null; //TODO
+
+        String selectionClause = null;
+        String[] selectionArgs = {""};
+
+        Cursor cursor = getContentResolver().query(
+                AlarmContract.Alarm.CONTENT_URI,
+                AlarmDbHelper.ALARM_QUERY_COLUMNS,
+                selectionClause,
+                selectionArgs,
+                AlarmContract.Alarm.DEFAULT_SORT_ORDER);
         mAdapter = new AlarmCursorAdapter(this, cursor);
         lv.setAdapter(mAdapter);
         /*

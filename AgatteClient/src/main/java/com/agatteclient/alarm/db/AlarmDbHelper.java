@@ -106,12 +106,5 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
         //Nothing to to do (yet) : no previous version
     }
 
-    public static Cursor getAlarmCursor(Context ctx) {
-        //TODO
-        return null;
-    }
-
-
-
 }
 

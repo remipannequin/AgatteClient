@@ -99,13 +99,10 @@ public class AlarmReceiver extends BroadcastReceiver {
             //set notification text and title based on result
             StringBuilder notification_text = new StringBuilder();
 
-
-            PunchAlarmTime alarm = AlarmRegistry.getInstance().getAlarm(cr, alarm_id);
-
             switch (code) {
                 case network_not_authorized:
                     notification_text.append(ctx.getString(R.string.unauthorized_network_toast));
-                    AlarmRegistry.getInstance().setFailed(alarm);
+                    AlarmRegistry.getInstance().setFailed(cr, alarm_id);
                     break;
                 case query_counter_ok:
                     break;
@@ -117,11 +114,11 @@ public class AlarmReceiver extends BroadcastReceiver {
                     if (message != null && message.length() != 0) {
                         notification_text.append(" : ").append(message);
                     }
-                    AlarmRegistry.getInstance().setFailed(alarm);
+                    AlarmRegistry.getInstance().setFailed(cr, alarm_id);
                     break;
                 case login_failed:
                     notification_text.append(ctx.getString(R.string.login_failed_toast));
-                    AlarmRegistry.getInstance().setFailed(alarm);
+                    AlarmRegistry.getInstance().setFailed(cr, alarm_id);
                     break;
                 case io_exception:
                     notification_text.append(ctx.getString(R.string.error));
@@ -129,7 +126,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                     if (message != null && message.length() != 0) {
                         notification_text.append(" : ").append(message);
                     }
-                    AlarmRegistry.getInstance().setFailed(alarm);
+                    AlarmRegistry.getInstance().setFailed(cr, alarm_id);
                     break;
                 case punch_ok:
                 case query_ok:
@@ -149,7 +146,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                         Log.e(MainActivity.LOG_TAG, "Parse exception when updating the punch-card");//NON-NLS
                     }
                     //Update AlarmRegistry with value
-                    AlarmRegistry.getInstance().setDone(alarm);
+                    AlarmRegistry.getInstance().setDone(cr, alarm_id);
                     break;
                 default:
 

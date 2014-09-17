@@ -61,6 +61,29 @@ public class PunchAlarmTime implements Parcelable {
         }
     };
 
+    public PunchAlarmTime() {
+        time_of_day = 0;
+        firing_days = 0;
+        enabled = false;
+    }
+
+    public PunchAlarmTime(int hour, int minute, AlarmContract.Day... firing_days) {
+        this.time_of_day = (60 * hour + minute);
+        for (AlarmContract.Day d : firing_days) {
+            this.firing_days |= d.getRaw();
+        }
+        enabled = true;
+    }
+
+    public PunchAlarmTime(int hour, int minute) {
+        this(hour, minute, AlarmContract.Day.monday,
+                AlarmContract.Day.tuesday, AlarmContract.Day.wednesday,
+                AlarmContract.Day.thursday, AlarmContract.Day.friday);
+    }
+
+
+
+
     public int describeContents() {
         return 0;
     }
