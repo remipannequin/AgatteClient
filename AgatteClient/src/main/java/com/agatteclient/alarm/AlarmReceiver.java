@@ -20,7 +20,6 @@
 package com.agatteclient.alarm;
 
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;

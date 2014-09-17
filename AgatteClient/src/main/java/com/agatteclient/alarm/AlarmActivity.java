@@ -19,23 +19,14 @@
 
 package com.agatteclient.alarm;
 
-import android.app.AlertDialog;
-import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.agatteclient.R;
-import com.agatteclient.alarm.db.AlarmContract;
-import com.agatteclient.alarm.db.AlarmDbHelper;
-
-import java.text.SimpleDateFormat;
 
 public class AlarmActivity extends FragmentActivity {
 

@@ -21,31 +21,22 @@ package com.agatteclient.alarm;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteQueryBuilder;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.agatteclient.MainActivity;
-import com.agatteclient.agatte.AgatteCounterResponse;
 import com.agatteclient.alarm.db.AlarmContract;
 import com.agatteclient.alarm.db.AlarmDbHelper;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -98,6 +89,7 @@ public class AlarmRegistry {
         }
         //pending_intent_map.clear();
         //TODO: remove all alarms for the AM. But is it even possible ?
+
     }
 
     public Map<PunchAlarmTime, ScheduledAlarm> getPending_intent_map() {
@@ -107,7 +99,7 @@ public class AlarmRegistry {
     /**
      * @param context
      */
-    public void update(Context context) {
+    public void check(Context context) {
         //TODO: replace with SQL queries :
 
         // 1. If there is schedule entry with no corresponding alarms, cancel them, and clean entry

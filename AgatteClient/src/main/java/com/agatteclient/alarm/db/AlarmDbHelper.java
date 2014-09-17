@@ -20,11 +20,12 @@
 package com.agatteclient.alarm.db;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import static com.agatteclient.alarm.db.AlarmContract.*;
+import static com.agatteclient.alarm.db.AlarmContract.Alarm;
+import static com.agatteclient.alarm.db.AlarmContract.PastAlarm;
+import static com.agatteclient.alarm.db.AlarmContract.ScheduledAlarm;
 
 /**
  * Helper lass for the Alarms DB
