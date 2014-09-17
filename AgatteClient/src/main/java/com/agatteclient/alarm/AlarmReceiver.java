@@ -82,14 +82,11 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         private final Context ctx;
         private final int alarm_id;
-        private final ContentResolver cr;
 
         public PunchResultReceiver(Context ctx, int alarm_id) {
             super(new Handler(Looper.getMainLooper()));
             this.ctx = ctx;
-            this.cr = ctx.getContentResolver();
             this.alarm_id = alarm_id;
-
         }
 
         @Override
@@ -102,7 +99,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             switch (code) {
                 case network_not_authorized:
                     notification_text.append(ctx.getString(R.string.unauthorized_network_toast));
-                    AlarmRegistry.getInstance().setFailed(cr, alarm_id);
+                    AlarmRegistry.getInstance().setFailed(ctx, alarm_id);
                     break;
                 case query_counter_ok:
                     break;
@@ -114,11 +111,11 @@ public class AlarmReceiver extends BroadcastReceiver {
                     if (message != null && message.length() != 0) {
                         notification_text.append(" : ").append(message);
                     }
-                    AlarmRegistry.getInstance().setFailed(cr, alarm_id);
+                    AlarmRegistry.getInstance().setFailed(ctx, alarm_id);
                     break;
                 case login_failed:
                     notification_text.append(ctx.getString(R.string.login_failed_toast));
-                    AlarmRegistry.getInstance().setFailed(cr, alarm_id);
+                    AlarmRegistry.getInstance().setFailed(ctx, alarm_id);
                     break;
                 case io_exception:
                     notification_text.append(ctx.getString(R.string.error));
@@ -126,7 +123,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                     if (message != null && message.length() != 0) {
                         notification_text.append(" : ").append(message);
                     }
-                    AlarmRegistry.getInstance().setFailed(cr, alarm_id);
+                    AlarmRegistry.getInstance().setFailed(ctx, alarm_id);
                     break;
                 case punch_ok:
                 case query_ok:
@@ -146,7 +143,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                         Log.e(MainActivity.LOG_TAG, "Parse exception when updating the punch-card");//NON-NLS
                     }
                     //Update AlarmRegistry with value
-                    AlarmRegistry.getInstance().setDone(cr, alarm_id);
+                    AlarmRegistry.getInstance().setDone(ctx, alarm_id);
                     break;
                 default:
 

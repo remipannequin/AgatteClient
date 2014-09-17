@@ -47,16 +47,7 @@ public class AlarmActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm);
         ListView lv = (ListView) findViewById(R.id.alarmListView);
-
-        String selectionClause = null;
-        String[] selectionArgs = {""};
-
-        Cursor cursor = getContentResolver().query(
-                AlarmContract.Alarm.CONTENT_URI,
-                AlarmDbHelper.ALARM_QUERY_COLUMNS,
-                selectionClause,
-                selectionArgs,
-                AlarmContract.Alarm.DEFAULT_SORT_ORDER);
+        Cursor cursor = AlarmRegistry.getInstance().getAlarms(getApplicationContext());
         mAdapter = new AlarmCursorAdapter(this, cursor);
         lv.setAdapter(mAdapter);
         /*
@@ -102,7 +93,7 @@ public class AlarmActivity extends FragmentActivity {
                 return true;
             case R.id.action_alarm_add:
                 //add a new alarm
-                AlarmRegistry.getInstance().addAlarm(getContentResolver(), 12, 0);
+                AlarmRegistry.getInstance().addAlarm(getApplicationContext(), 12, 0);
                 return true;
         }
         return super.onOptionsItemSelected(item);

@@ -27,7 +27,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQueryBuilder;
+import android.text.TextUtils;
+import android.util.Log;
 
+import com.agatteclient.MainActivity;
 import com.agatteclient.agatte.AgatteCounterResponse;
 import com.agatteclient.alarm.db.AlarmContract;
 import com.agatteclient.alarm.db.AlarmDbHelper;
@@ -61,14 +67,12 @@ public class AlarmRegistry {
     //TODO: replace all this with DB interactions
     //Manage a collection of alarm, with their fingerprint
     private final Map<PunchAlarmTime, ScheduledAlarm> pending_intent_map;
-    // Map of alarms reported to have been done, number of day in year is the key
-    private final Multimap<Integer, RecordedAlarm> done_history;
-    private final Multimap<Integer, RecordedAlarm> failed_history;
+
+
 
     private AlarmRegistry() {
         this.pending_intent_map = new HashMap<PunchAlarmTime, ScheduledAlarm>();
-        this.done_history = ArrayListMultimap.create();
-        this.failed_history = ArrayListMultimap.create();
+
     }
 
     public static AlarmRegistry getInstance() {
@@ -92,7 +96,7 @@ public class AlarmRegistry {
         for (ScheduledAlarm a : pending_intent_map.values()) {
             alarmManager.cancel(a.intent);
         }
-        pending_intent_map.clear();
+        //pending_intent_map.clear();
         //TODO: remove all alarms for the AM. But is it even possible ?
     }
 
@@ -254,10 +258,10 @@ public class AlarmRegistry {
      *
      * @param id the ID of the Alarm to set as done
      */
-    public void setDone(ContentResolver cr, int id) {
+    public void setDone(Context context, int id) {
         Calendar cal = Calendar.getInstance();
         //compute exec. date
-        PunchAlarmTime a = getAlarm(cr, id);
+        PunchAlarmTime a = getAlarm(context, id);
         Date off = a.getTime();
         //RecordedAlarm rec = new RecordedAlarm(off, a.getConstraint());
         cal.setTime(off);
@@ -269,35 +273,75 @@ public class AlarmRegistry {
      *
      * @param id the ID of the Alarm to set as done
      */
-    public void setFailed(ContentResolver cr, int id) {
+    public void setFailed(Context context, int id) {
         Calendar cal = Calendar.getInstance();
         //compute exec. date
-        PunchAlarmTime a = getAlarm(cr, id);
+        PunchAlarmTime a = getAlarm(context, id);
         Date off = a.getTime();
         //RecordedAlarm rec = new RecordedAlarm(off, a.getConstraint());
         cal.setTime(off);
         //TODO: insert
     }
 
-    public void addAlarm(ContentResolver contentResolver, int h, int m) {
+
+    /**
+     * Create a new alarm, and add it to the database
+     * @param context
+     * @param h
+     * @param m
+     */
+    public void addAlarm(Context context, int h, int m) {
         ContentValues values = new ContentValues();
         values.put(AlarmContract.Alarm.COLUMN_NAME_HOUR, h);
         values.put(AlarmContract.Alarm.COLUMN_NAME_MINUTE, m);
-        contentResolver.insert(AlarmContract.Alarm.CONTENT_URI, values);
+
+        if (!values.containsKey(AlarmContract.Alarm.COLUMN_NAME_HOUR)) {
+            values.put(AlarmContract.Alarm.COLUMN_NAME_HOUR, 0);
+        }
+        if (!values.containsKey(AlarmContract.Alarm.COLUMN_NAME_MINUTE)) {
+            values.put(AlarmContract.Alarm.COLUMN_NAME_MINUTE, 0);
+        }
+        if (!values.containsKey(AlarmContract.Alarm.COLUMN_NAME_DAYS)) {
+            values.put(AlarmContract.Alarm.COLUMN_NAME_DAYS, 0);
+        }
+        if (!values.containsKey(AlarmContract.Alarm.COLUMN_NAME_ENABLED)) {
+            values.put(AlarmContract.Alarm.COLUMN_NAME_ENABLED, 0);
+        }
+
+        AlarmDbHelper db_helper = new AlarmDbHelper(context);
+        SQLiteDatabase db = db_helper.getWritableDatabase();
+        long rowId = db.insert(AlarmContract.Alarm.TABLE_NAME, null, values);
+        if (rowId < 0) {
+            throw new SQLException("Failed to insert row DB ");
+        }
+        Log.v(MainActivity.LOG_TAG, "Added alarm rowId = " + rowId);//NON-NLS
+
+
+
     }
 
     /**
      * Lookup alarm with given ID in the database.
      *
-     * @param contentResolver
+     * @param context
      * @param alarmId the ID of the alarm to search
      * @return a PunchAlarmTime if found, null of no alarm with ID exists
      */
-    public PunchAlarmTime getAlarm(ContentResolver contentResolver, int alarmId) {
-        Cursor cursor = contentResolver.query(
-        ContentUris.withAppendedId(AlarmContract.Alarm.CONTENT_URI, alarmId),
-                AlarmDbHelper.ALARM_QUERY_COLUMNS,
-                null, null, null);
+    public PunchAlarmTime getAlarm(Context context, int alarmId) {
+        AlarmDbHelper db_helper = new AlarmDbHelper(context);
+        SQLiteDatabase db = db_helper.getReadableDatabase();
+        String[] projection = AlarmDbHelper.ALARM_QUERY_COLUMNS;
+        String sort = AlarmContract.Alarm.DEFAULT_SORT_ORDER;
+        String selection = AlarmContract.Alarm._ID + "=?";
+        String[] selectionArgs = {String.valueOf(alarmId)};
+        Cursor cursor = db.query(
+                AlarmContract.Alarm.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sort);
         PunchAlarmTime alarm = null;
         if (cursor != null) {
         if (cursor.moveToFirst()) {
@@ -309,6 +353,30 @@ public class AlarmRegistry {
     }
 
 
+    public Cursor getAlarms(Context context) {
+        AlarmDbHelper db_helper = new AlarmDbHelper(context);
+        SQLiteDatabase db = db_helper.getReadableDatabase();
+        String[] projection = AlarmDbHelper.ALARM_QUERY_COLUMNS;
+        String sort = AlarmContract.Alarm.DEFAULT_SORT_ORDER;
+        String selection = null;
+        String[] selectionArgs = {};
+        return  db.query(
+                AlarmContract.Alarm.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sort);
+    }
+
+    public void remove(Context context, int alarmId) {
+        AlarmDbHelper db_helper = new AlarmDbHelper(context);
+        SQLiteDatabase db = db_helper.getWritableDatabase();
+        String selection = AlarmContract.Alarm._ID + "=?";
+        String[] selectionArgs = {String.valueOf(alarmId)};
+        db.delete(AlarmContract.Alarm.TABLE_NAME, selection, selectionArgs);
+    }
 
 
     //public for debugging purposes

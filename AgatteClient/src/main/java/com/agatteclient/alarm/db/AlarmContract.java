@@ -39,7 +39,7 @@ public class AlarmContract {
      * A data kind representing a punch alarm
      */
     public static abstract class Alarm implements BaseColumns {
-        public static final String TABLE_NAME = "alarm";//NON-NLS
+        public static final String TABLE_NAME = "Alarm";//NON-NLS
         public static final String COLUMN_NAME_HOUR = "hour";//NON-NLS
         public static final String COLUMN_NAME_MINUTE = "minute"; //NON-NLS
         public static final String COLUMN_NAME_DAYS = "days";//NON-NLS
@@ -56,7 +56,7 @@ public class AlarmContract {
      * A data kind representing a scheduled alarm
      */
     public static abstract class ScheduledAlarm implements BaseColumns {
-        public static final String TABLE_NAME = "scheduled_alarm";//NON-NLS
+        public static final String TABLE_NAME = "ScheduledAlarm";//NON-NLS
         public static final String COLUMN_NAME_ALARM_ID = "alarm_id";//NON-NLS
         public static final String COLUMN_NAME_SCHEDULE_ID = "schedule_id";//NON-NLS
     }
@@ -71,7 +71,7 @@ public class AlarmContract {
      * A data kind representing a alarm that have been executed (successfully or not)
      */
      public static abstract class PastAlarm implements BaseColumns {
-        public static final String TABLE_NAME = "past_alarm";//NON-NLS
+        public static final String TABLE_NAME = "PastAlarm";//NON-NLS
         public static final String COLUMN_NAME_ALARM_ID = "alarm_id";//NON-NLS
         public static final String COLUMN_NAME_EXEC_TIME = "exec_time";//NON-NLS
         public static final String COLUMN_NAME_EXEC_STATUS = "status";//NON-NLS

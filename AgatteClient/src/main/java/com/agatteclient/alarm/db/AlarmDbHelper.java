@@ -43,13 +43,13 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
 
 
     private static final String SQL_CREATE_ALARM =
-            "CREATE TABLE " + ScheduledAlarm.TABLE_NAME + " (" +//NON-NLS
+            "CREATE TABLE " + Alarm.TABLE_NAME + " (" +//NON-NLS
             Alarm._ID + " INTEGER PRIMARY KEY," +//NON-NLS
             Alarm.COLUMN_NAME_HOUR + INT_TYPE + COMMA_SEP +
             Alarm.COLUMN_NAME_MINUTE + INT_TYPE + COMMA_SEP +
             Alarm.COLUMN_NAME_DAYS + INT_TYPE + COMMA_SEP +
             Alarm.COLUMN_NAME_ENABLED + INT_TYPE + COMMA_SEP +
-            Alarm.COLUMN_NAME_TYPE + INT_TYPE + COMMA_SEP +
+            Alarm.COLUMN_NAME_TYPE + INT_TYPE +
             " )";
 
     public static final int ALARM_ID_INDEX = 0;
@@ -61,20 +61,20 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
 
 
     private static final String SQL_CREATE_SCHEDULED_ALARM =
-            "CREATE TABLE " + PastAlarm.TABLE_NAME + " (" +//NON-NLS
+            "CREATE TABLE " + ScheduledAlarm.TABLE_NAME + " (" +//NON-NLS
             ScheduledAlarm._ID + " INTEGER PRIMARY KEY," +//NON-NLS
-            ScheduledAlarm.COLUMN_NAME_ALARM_ID + INT_TYPE +
-            ScheduledAlarm.COLUMN_NAME_SCHEDULE_ID + INT_TYPE +
-            "FOREIGN KEY("+ScheduledAlarm.COLUMN_NAME_ALARM_ID + ") REFERENCE " + Alarm.TABLE_NAME+"("+Alarm._ID+")"+//NON-NLS
+            ScheduledAlarm.COLUMN_NAME_ALARM_ID + INT_TYPE + COMMA_SEP +
+            ScheduledAlarm.COLUMN_NAME_SCHEDULE_ID + INT_TYPE + COMMA_SEP+
+            "FOREIGN KEY("+ScheduledAlarm.COLUMN_NAME_ALARM_ID + ") REFERENCES " + Alarm.TABLE_NAME+"("+Alarm._ID+")"+//NON-NLS
             ");";
 
     private static final String SQL_CREATE_PAST_ALARM =
-            "CREATE TABLE " + Alarm.TABLE_NAME + " (" +//NON-NLS
+            "CREATE TABLE " + PastAlarm.TABLE_NAME + " (" +//NON-NLS
             PastAlarm._ID + " INTEGER PRIMARY KEY," +//NON-NLS
-            PastAlarm.COLUMN_NAME_ALARM_ID + INT_TYPE +
-            PastAlarm.COLUMN_NAME_EXEC_STATUS + INT_TYPE +
-            PastAlarm.COLUMN_NAME_EXEC_TIME + INT_TYPE +
-            "FOREIGN KEY("+PastAlarm.COLUMN_NAME_ALARM_ID + ") REFERENCE " + Alarm.TABLE_NAME+"("+Alarm._ID+")"+//NON-NLS
+            PastAlarm.COLUMN_NAME_ALARM_ID + INT_TYPE + COMMA_SEP +
+            PastAlarm.COLUMN_NAME_EXEC_STATUS + INT_TYPE + COMMA_SEP +
+            PastAlarm.COLUMN_NAME_EXEC_TIME + INT_TYPE + COMMA_SEP +
+            "FOREIGN KEY("+PastAlarm.COLUMN_NAME_ALARM_ID + ") REFERENCES " + Alarm.TABLE_NAME+"("+Alarm._ID+")"+//NON-NLS
             ");";
 
 
