@@ -46,11 +46,11 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_ALARM =
             "CREATE TABLE " + Alarm.TABLE_NAME + " (" +//NON-NLS
             Alarm._ID + " INTEGER PRIMARY KEY," +//NON-NLS
-            Alarm.COLUMN_NAME_HOUR + INT_TYPE + COMMA_SEP +
-            Alarm.COLUMN_NAME_MINUTE + INT_TYPE + COMMA_SEP +
-            Alarm.COLUMN_NAME_DAYS + INT_TYPE + COMMA_SEP +
-            Alarm.COLUMN_NAME_ENABLED + INT_TYPE + COMMA_SEP +
-            Alarm.COLUMN_NAME_TYPE + INT_TYPE +
+            Alarm.HOUR + INT_TYPE + COMMA_SEP +
+            Alarm.MINUTE + INT_TYPE + COMMA_SEP +
+            Alarm.DAYS_OF_WEEK + INT_TYPE + COMMA_SEP +
+            Alarm.ENABLED + INT_TYPE + COMMA_SEP +
+            Alarm.CONSTRAINT + INT_TYPE +
             " )";
 
     public static final int ALARM_ID_INDEX = 0;
@@ -64,18 +64,18 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_SCHEDULED_ALARM =
             "CREATE TABLE " + ScheduledAlarm.TABLE_NAME + " (" +//NON-NLS
             ScheduledAlarm._ID + " INTEGER PRIMARY KEY," +//NON-NLS
-            ScheduledAlarm.COLUMN_NAME_ALARM_ID + INT_TYPE + COMMA_SEP +
-            ScheduledAlarm.COLUMN_NAME_SCHEDULE_ID + INT_TYPE + COMMA_SEP+
-            "FOREIGN KEY("+ScheduledAlarm.COLUMN_NAME_ALARM_ID + ") REFERENCES " + Alarm.TABLE_NAME+"("+Alarm._ID+")"+//NON-NLS
+            ScheduledAlarm.ALARM_ID + INT_TYPE + COMMA_SEP +
+            ScheduledAlarm.SCHEDULE_ID + INT_TYPE + COMMA_SEP+
+            "FOREIGN KEY("+ScheduledAlarm.ALARM_ID + ") REFERENCES " + Alarm.TABLE_NAME+"("+Alarm._ID+")"+//NON-NLS
             ");";
 
     private static final String SQL_CREATE_PAST_ALARM =
             "CREATE TABLE " + PastAlarm.TABLE_NAME + " (" +//NON-NLS
             PastAlarm._ID + " INTEGER PRIMARY KEY," +//NON-NLS
-            PastAlarm.COLUMN_NAME_ALARM_ID + INT_TYPE + COMMA_SEP +
-            PastAlarm.COLUMN_NAME_EXEC_STATUS + INT_TYPE + COMMA_SEP +
-            PastAlarm.COLUMN_NAME_EXEC_TIME + INT_TYPE + COMMA_SEP +
-            "FOREIGN KEY("+PastAlarm.COLUMN_NAME_ALARM_ID + ") REFERENCES " + Alarm.TABLE_NAME+"("+Alarm._ID+")"+//NON-NLS
+            PastAlarm.ALARM_ID + INT_TYPE + COMMA_SEP +
+            PastAlarm.EXEC_STATUS + INT_TYPE + COMMA_SEP +
+            PastAlarm.EXEC_TIME + INT_TYPE + COMMA_SEP +
+            "FOREIGN KEY("+PastAlarm.ALARM_ID + ") REFERENCES " + Alarm.TABLE_NAME+"("+Alarm._ID+")"+//NON-NLS
             ");";
 
 
@@ -85,11 +85,11 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
 
     public static final String[] ALARM_QUERY_COLUMNS = {
             Alarm._ID,
-            Alarm.COLUMN_NAME_HOUR,
-            Alarm.COLUMN_NAME_MINUTE,
-            Alarm.COLUMN_NAME_DAYS,
-            Alarm.COLUMN_NAME_ENABLED,
-            Alarm.COLUMN_NAME_TYPE};
+            Alarm.HOUR,
+            Alarm.MINUTE,
+            Alarm.DAYS_OF_WEEK,
+            Alarm.ENABLED,
+            Alarm.CONSTRAINT};
 
 
 

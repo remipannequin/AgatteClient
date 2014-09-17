@@ -40,14 +40,14 @@ public class AlarmContract {
      */
     public static abstract class Alarm implements BaseColumns {
         public static final String TABLE_NAME = "Alarm";//NON-NLS
-        public static final String COLUMN_NAME_HOUR = "hour";//NON-NLS
-        public static final String COLUMN_NAME_MINUTE = "minute"; //NON-NLS
-        public static final String COLUMN_NAME_DAYS = "days";//NON-NLS
-        public static final String COLUMN_NAME_ENABLED = "enabled";//NON-NLS
-        public static final String COLUMN_NAME_TYPE = "type";//NON-NLS
+        public static final String HOUR = "hour";//NON-NLS
+        public static final String MINUTE = "minute"; //NON-NLS
+        public static final String DAYS_OF_WEEK = "days_of_week";//NON-NLS
+        public static final String ENABLED = "enabled";//NON-NLS
+        public static final String CONSTRAINT = "constraint";//NON-NLS
 
-        public static final String DEFAULT_SORT_ORDER =COLUMN_NAME_HOUR + ", " + COLUMN_NAME_MINUTE + " ASC";//NON-NLS
-        public static final String WHERE_ENABLED = COLUMN_NAME_ENABLED + "=1";//NON-NLS
+        public static final String DEFAULT_SORT_ORDER = HOUR + ", " + MINUTE + " ASC";//NON-NLS
+        public static final String WHERE_ENABLED = ENABLED + "=1";//NON-NLS
 
         public static final Uri CONTENT_URI = Uri.parse("content://com.agatteclient/alarm");//NON-NLS
     }
@@ -57,8 +57,8 @@ public class AlarmContract {
      */
     public static abstract class ScheduledAlarm implements BaseColumns {
         public static final String TABLE_NAME = "ScheduledAlarm";//NON-NLS
-        public static final String COLUMN_NAME_ALARM_ID = "alarm_id";//NON-NLS
-        public static final String COLUMN_NAME_SCHEDULE_ID = "schedule_id";//NON-NLS
+        public static final String ALARM_ID = "alarm_id";//NON-NLS
+        public static final String SCHEDULE_ID = "schedule_id";//NON-NLS
     }
 
     public enum ExecStatus {
@@ -72,9 +72,9 @@ public class AlarmContract {
      */
      public static abstract class PastAlarm implements BaseColumns {
         public static final String TABLE_NAME = "PastAlarm";//NON-NLS
-        public static final String COLUMN_NAME_ALARM_ID = "alarm_id";//NON-NLS
-        public static final String COLUMN_NAME_EXEC_TIME = "exec_time";//NON-NLS
-        public static final String COLUMN_NAME_EXEC_STATUS = "status";//NON-NLS
+        public static final String ALARM_ID = "alarm_id";//NON-NLS
+        public static final String EXEC_TIME = "exec_time";//NON-NLS
+        public static final String EXEC_STATUS = "status";//NON-NLS
 
     }
 

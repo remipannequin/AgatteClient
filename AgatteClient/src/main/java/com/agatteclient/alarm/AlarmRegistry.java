@@ -284,20 +284,20 @@ public class AlarmRegistry {
      */
     public void addAlarm(Context context, int h, int m) {
         ContentValues values = new ContentValues();
-        values.put(AlarmContract.Alarm.COLUMN_NAME_HOUR, h);
-        values.put(AlarmContract.Alarm.COLUMN_NAME_MINUTE, m);
+        values.put(AlarmContract.Alarm.HOUR, h);
+        values.put(AlarmContract.Alarm.MINUTE, m);
 
-        if (!values.containsKey(AlarmContract.Alarm.COLUMN_NAME_HOUR)) {
-            values.put(AlarmContract.Alarm.COLUMN_NAME_HOUR, 0);
+        if (!values.containsKey(AlarmContract.Alarm.HOUR)) {
+            values.put(AlarmContract.Alarm.HOUR, 0);
         }
-        if (!values.containsKey(AlarmContract.Alarm.COLUMN_NAME_MINUTE)) {
-            values.put(AlarmContract.Alarm.COLUMN_NAME_MINUTE, 0);
+        if (!values.containsKey(AlarmContract.Alarm.MINUTE)) {
+            values.put(AlarmContract.Alarm.MINUTE, 0);
         }
-        if (!values.containsKey(AlarmContract.Alarm.COLUMN_NAME_DAYS)) {
-            values.put(AlarmContract.Alarm.COLUMN_NAME_DAYS, 0);
+        if (!values.containsKey(AlarmContract.Alarm.DAYS_OF_WEEK)) {
+            values.put(AlarmContract.Alarm.DAYS_OF_WEEK, 0);
         }
-        if (!values.containsKey(AlarmContract.Alarm.COLUMN_NAME_ENABLED)) {
-            values.put(AlarmContract.Alarm.COLUMN_NAME_ENABLED, 0);
+        if (!values.containsKey(AlarmContract.Alarm.ENABLED)) {
+            values.put(AlarmContract.Alarm.ENABLED, 0);
         }
 
         AlarmDbHelper db_helper = new AlarmDbHelper(context);
@@ -380,7 +380,7 @@ public class AlarmRegistry {
 
     public void setEnabled(Context context, long id, boolean b) {
         ContentValues values = new ContentValues(1);
-        values.put(AlarmContract.Alarm.COLUMN_NAME_ENABLED, (b? "1":"0"));
+        values.put(AlarmContract.Alarm.ENABLED, (b? "1":"0"));
         setAttribute(context, id, values);
     }
 
@@ -389,20 +389,20 @@ public class AlarmRegistry {
         a.setFireAt(d, b);
         ContentValues values = new ContentValues(1);
         int dow = a.getDaysOfWeek();
-        values.put(AlarmContract.Alarm.COLUMN_NAME_DAYS, String.valueOf(dow));
+        values.put(AlarmContract.Alarm.DAYS_OF_WEEK, String.valueOf(dow));
         setAttribute(context, id, values);
     }
 
     public void setConstraint(Context context, long id, AlarmContract.Constraint constraint) {
         ContentValues values = new ContentValues(1);
-        values.put(AlarmContract.Alarm.COLUMN_NAME_TYPE, String.valueOf(constraint.ordinal()));
+        values.put(AlarmContract.Alarm.CONSTRAINT, String.valueOf(constraint.ordinal()));
         setAttribute(context, id, values);
     }
 
     public void setTime(Context context, long id, int hour, int minute) {
         ContentValues values = new ContentValues(2);
-        values.put(AlarmContract.Alarm.COLUMN_NAME_HOUR, String.valueOf(hour));
-        values.put(AlarmContract.Alarm.COLUMN_NAME_MINUTE, String.valueOf(minute));
+        values.put(AlarmContract.Alarm.HOUR, String.valueOf(hour));
+        values.put(AlarmContract.Alarm.MINUTE, String.valueOf(minute));
         setAttribute(context, id, values);
     }
 
