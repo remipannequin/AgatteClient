@@ -56,6 +56,7 @@ import com.agatteclient.R;
 import com.agatteclient.alarm.AlarmRegistry;
 import com.agatteclient.alarm.AlarmStatus;
 import com.agatteclient.alarm.PunchAlarmTime;
+import com.agatteclient.alarm.db.AlarmContract;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -451,7 +452,7 @@ public class DayCardView extends View {
         if (alarms != null) {
             for (PunchAlarmTime a : alarms.getScheduledAlarms(card.getDay())) {
                 Date d = a.getTime();
-                drawAlarm(canvas, d, a.getType(), AlarmStatus.scheduled);
+                drawAlarm(canvas, d, a.getConstraint(), AlarmStatus.scheduled);
             }
             /* done & failed alarms */
             for (AlarmRegistry.RecordedAlarm a : alarms.getDoneAlarms(card.getDay())) {
@@ -524,7 +525,7 @@ public class DayCardView extends View {
      * @param alarm
      * @param type
      */
-    private void drawAlarm(Canvas canvas, Date alarm, PunchAlarmTime.Type type, AlarmStatus status) {
+    private void drawAlarm(Canvas canvas, Date alarm, AlarmContract.Constraint type, AlarmStatus status) {
         //get the y coordinate where to draw
         float y = getYFromHour(alarm);
         String t = fmt.format(alarm);
@@ -578,13 +579,13 @@ public class DayCardView extends View {
                           alarm_paint);
 
         //display a jagged line to show arrival/leaving constraints
-        if (type == PunchAlarmTime.Type.arrival || type == PunchAlarmTime.Type.leaving) {
+        if (type == AlarmContract.Constraint.arrival || type == AlarmContract.Constraint.leaving) {
             Path alarm_constr_path = new Path();
             alarm_constr_path.reset();
             float required_h = pxToDp(ODD_H / 2);
             int num = (int) Math.floor((rect_width - w - (h / 2) - pad) / (2 * required_h));
             float real_h = (rect_width - w - (h / 2) - pad) / (2 * num);
-            int f = (type == PunchAlarmTime.Type.leaving ? -1 : 1);
+            int f = (type == AlarmContract.Constraint.leaving ? -1 : 1);
             for (int i = 0; i < num; i++) {
                 alarm_constr_path.rLineTo(real_h, -f * real_h);
                 alarm_constr_path.rLineTo(real_h, f * real_h);

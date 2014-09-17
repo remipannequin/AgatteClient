@@ -54,7 +54,6 @@ import com.agatteclient.agatte.AgatteResultCode;
 import com.agatteclient.agatte.AgatteSession;
 import com.agatteclient.agatte.PunchService;
 import com.agatteclient.alarm.AlarmActivity;
-import com.agatteclient.alarm.AlarmList;
 import com.agatteclient.alarm.AlarmRegistry;
 import com.agatteclient.alarm.NetworkChangeRegistry;
 import com.agatteclient.card.CardBinder;
@@ -74,7 +73,7 @@ public class MainActivity extends Activity {
     public static final String SERVER_PREF = "server"; //NON-NLS
     public static final String LOGIN_PREF = "login"; //NON-NLS
     public static final String PASSWD_PREF = "password"; //NON-NLS
-    public static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";
+    public static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";//NON-NLS
     public static final String LOGIN_DEFAULT = "login"; //NON-NLS
     public static final String PASSWD_DEFAULT = "";
     public static final String LOG_TAG = "com.agatteclient"; //NON-NLS
@@ -113,8 +112,6 @@ public class MainActivity extends Activity {
 
         //Update network authentication status
         NetworkChangeRegistry.getInstance().update(getApplicationContext());
-
-        AlarmList.getInstance(this);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor editor = preferences.edit();

@@ -20,7 +20,9 @@
 package com.agatteclient.alarm;
 
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
@@ -30,25 +32,28 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.agatteclient.R;
+import com.agatteclient.alarm.db.AlarmContract;
 
 import java.text.SimpleDateFormat;
 
 public class AlarmActivity extends FragmentActivity {
 
 
-    private AlarmArrayAdapter mAdapter;
+    private AlarmCursorAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm);
         ListView lv = (ListView) findViewById(R.id.alarmListView);
-        mAdapter = new AlarmArrayAdapter(this, AlarmList.getInstance(this));
+        Cursor cursor = null; //TODO
+        mAdapter = new AlarmCursorAdapter(this, cursor);
         lv.setAdapter(mAdapter);
+        /*
         lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             public boolean onItemLongClick(AdapterView parent, View view, int position, long id) {
                 //do your stuff here
-                final PunchAlarmTime a = AlarmList.getInstance(AlarmActivity.this).get(position);
+                final PunchAlarmTime a = Alarms.getInstance(AlarmActivity.this).get(position);
                 AlertDialog.Builder adb = new AlertDialog.Builder(AlarmActivity.this);
                 adb.setTitle(getString(R.string.alarm_delete_confirm_question));
                 adb.setMessage(String.format(getString(R.string.alarm_delete_confirm), new SimpleDateFormat("H:mm").format(a.getTime())));
@@ -63,10 +68,10 @@ public class AlarmActivity extends FragmentActivity {
                 return true;
             }
         });
-
+        */
     }
 
-    public AlarmArrayAdapter getAdapter() {
+    public AlarmCursorAdapter getAdapter() {
         return mAdapter;
     }
 
@@ -87,8 +92,7 @@ public class AlarmActivity extends FragmentActivity {
                 return true;
             case R.id.action_alarm_add:
                 //add a new alarm
-                PunchAlarmTime new_alarm = new PunchAlarmTime(12, 0);
-                mAdapter.add(new_alarm);
+                AlarmRegistry.getInstance().addAlarm(getContentResolver(), 12, 0);
                 return true;
         }
         return super.onOptionsItemSelected(item);

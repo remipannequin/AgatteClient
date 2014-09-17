@@ -19,77 +19,71 @@
 
 package com.agatteclient.alarm;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.agatteclient.MainActivity;
+import com.agatteclient.alarm.db.AlarmContract;
+import com.agatteclient.alarm.db.AlarmDbHelper;
 
 import java.util.Calendar;
 import java.util.Date;
 
-public class PunchAlarmTime {
+/**
+ * An Alarm that should be executed at a given time.
+ *
+ * Backed by a database row
+ */
+public class PunchAlarmTime implements Parcelable {
 
     private static final Calendar cal = Calendar.getInstance();
+
     private int time_of_day;
     private int firing_days;
     private boolean enabled;
-    private Type type;
+    private AlarmContract.Constraint constraint;
+    private long id;
 
-    public PunchAlarmTime() {
-        time_of_day = 0;
-        firing_days = 0;
-        enabled = false;
-        type = Type.unconstraigned;
-    }
 
-    public PunchAlarmTime(int hour, int minute, Day... firing_days) {
-        this.time_of_day = (60 * hour + minute);
-        for (Day d : firing_days) {
-            this.firing_days |= d.f;
+    public static final Creator<PunchAlarmTime> CREATOR
+            = new Creator<PunchAlarmTime>() {
+        public PunchAlarmTime createFromParcel(Parcel p) {
+            return new PunchAlarmTime(p);
         }
-        enabled = true;
-        type = Type.unconstraigned;
+
+        public PunchAlarmTime[] newArray(int size) {
+            return new PunchAlarmTime[size];
+        }
+    };
+
+    public int describeContents() {
+        return 0;
     }
 
-    public PunchAlarmTime(int hour, int minute) {
-        this(hour, minute, Day.monday, Day.tuesday, Day.wednesday, Day.thursday, Day.friday);
+    public void writeToParcel(Parcel p, int flags) {
+        //TODO
     }
 
-    public static PunchAlarmTime fromLong(long l) {
-        int t = (int) l & (0x00000000ffffffff);
-        int days = (int) ((l >> 32) & 0x0000007f);
-        //should be lesser than Ox7F = 127
-        boolean enabled = (l & (1l << 48)) != 0;
-        //TODO !
-        boolean arrival_permitted = (l & (1l << 49)) == 0;
-        boolean leaving_permitted = (l & (1l << 50)) == 0;
-
-        //Only one of them should be true
-        PunchAlarmTime instance = new PunchAlarmTime();
-        instance.firing_days = days;
-        instance.time_of_day = t;
-        instance.enabled = enabled;
-        instance.type = Type.fromBooleans(leaving_permitted, arrival_permitted);
-
-        return instance;
+    public PunchAlarmTime(Parcel p) {
+        //TODO
     }
 
-    public long toLong() {
-        return time_of_day +
-                (((long) firing_days) << 32) +
-                (enabled ? 1l << 48 : 0) +
-                (type.isArrivalPermitted() ? 0 : 1l << 49) +
-                (type.isLeavingPermitted() ? 0 : 1l << 50);
 
+    public PunchAlarmTime(Cursor c) {
+        this.id = c.getLong(AlarmDbHelper.ALARM_ID_INDEX);
+        this.time_of_day = c.getInt(AlarmDbHelper.ALARM_HOUR_INDEX) * 60 + c.getInt(AlarmDbHelper.ALARM_MINUTE_INDEX);
+        this.firing_days = c.getInt(AlarmDbHelper.ALARM_DAYS_INDEX);
+        this.enabled = (c.getInt(AlarmDbHelper.ALARM_ENABLED_INDEX) == 1);
+        this.constraint = AlarmContract.Constraint.values()[c.getInt(AlarmDbHelper.ALARM_TYPE_INDEX)];
     }
 
-    /**
-     * Compute the fingerprint of this alarm. This value should be different for each alarms, taking
-     * into accounts, hour/minutes, days, but not enabled/disabled or alarm type
-     *
-     * @return the fingerprint, as a signed int (32 bits)
-     */
-    public int shortFingerPrint() {
-        return time_of_day + (firing_days << 16);
+    public long getId() {
+        return id;
     }
 
     public boolean isEnabled() {
@@ -100,25 +94,25 @@ public class PunchAlarmTime {
         this.enabled = enabled;
     }
 
-    public Type getType() {
-        return type;
+    public AlarmContract.Constraint getConstraint() {
+        return constraint;
     }
 
-    public void setType(Type type) {
-        this.type = type;
+    public void setConstraint(AlarmContract.Constraint constraint) {
+        this.constraint = constraint;
     }
 
-    public void setFireAt(Day day, boolean b) {
+    public void setFireAt(AlarmContract.Day day, boolean b) {
         if (isFireAt(day) && !b) {
-            this.firing_days -= day.f;
+            this.firing_days -= day.getRaw();
         } else if (!isFireAt(day) && b) {
-            this.firing_days += day.f;
+            this.firing_days += day.getRaw();
         }
 
     }
 
-    public boolean isFireAt(Day day) {
-        return ((this.firing_days & day.f) != 0);
+    public boolean isFireAt(AlarmContract.Day day) {
+        return ((this.firing_days & day.getRaw()) != 0);
     }
 
     public void setTime(int hourOfDay, int minute) {
@@ -152,19 +146,19 @@ public class PunchAlarmTime {
             //before alarm today
             //search if day is a firing day
             for (int i = 0; i < 7; i++) {
-                Day d = Day.fromCalDay(cal.get(Calendar.DAY_OF_WEEK));
+                AlarmContract.Day d = AlarmContract.Day.fromCalDay(cal.get(Calendar.DAY_OF_WEEK));
                 if (isFireAt(d)) {
                     return cal.getTime();
                 }
                 cal.add(Calendar.DATE, 1);
             }
-            Log.w(MainActivity.LOG_TAG, "ScheduledAlarm will not fire in the next 7 days.");
+            Log.w(MainActivity.LOG_TAG, "ScheduledAlarm will not fire in the next 7 days.");//NON-NLS
             return null;
         } else {
             //after alarm time: search next firing day
             for (int i = 0; i < 7; i++) {
                 cal.add(Calendar.DATE, 1);
-                Day d = Day.fromCalDay(cal.get(Calendar.DAY_OF_WEEK));
+                AlarmContract.Day d = AlarmContract.Day.fromCalDay(cal.get(Calendar.DAY_OF_WEEK));
                 if (isFireAt(d)) {
                     return cal.getTime();
                 }
@@ -190,7 +184,7 @@ public class PunchAlarmTime {
     /**
      * Get the time of the alarm in the present day (even if the alarm does no fire this day !)
      *
-     * @return
+     * @return a Date corresponding to the enxt time the alarm should get off
      */
     public Date getTime() {
         //set calendar to now (to get the present day)
@@ -203,92 +197,10 @@ public class PunchAlarmTime {
     }
 
     /**
-     * @param o
-     * @return
+     * Delete the underlying object
      */
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof PunchAlarmTime) {
-            PunchAlarmTime other = (PunchAlarmTime) o;
-            return (other.enabled == enabled) && (other.firing_days == firing_days) && (other.time_of_day == time_of_day);
-        } else {
-            return false;
-        }
-    }
+    public void remove() {
 
-    public enum Type {
-        unconstraigned(false, false),
-        arrival(true, false),
-        leaving(false, true);
 
-        private boolean leavingForbidden;
-        private boolean arrivalForbidden;
-
-        private Type(boolean leavingForbidden, boolean arrivalForbidden) {
-            this.leavingForbidden = leavingForbidden;
-            this.arrivalForbidden = arrivalForbidden;
-        }
-
-        static Type fromBooleans(boolean leavingPermitted, boolean arrivalPermitted) {
-            return (leavingPermitted ? (arrivalPermitted ? unconstraigned : leaving) : arrival);
-        }
-
-        /**
-         * True if this alarm can be triggered to punch a leaving (i.e. number of punches in the
-         * day is odd)
-         *
-         * @return
-         */
-        public boolean isLeavingPermitted() {
-            return !leavingForbidden;
-        }
-
-        /**
-         * True if this alarm can be triggered to punch an arrival (i.e. number of punches in the
-         * day is even
-         *
-         * @return
-         */
-        public boolean isArrivalPermitted() {
-            return !arrivalForbidden;
-        }
-
-    }
-
-    public enum Day {
-        monday(1),
-        tuesday(1 << 1),
-        wednesday(1 << 2),
-        thursday(1 << 3),
-        friday(1 << 4),
-        saturday(1 << 5),
-        sunday(1 << 6);
-
-        final int f;
-
-        Day(int flag) {
-            this.f = flag;
-        }
-
-        static Day fromCalDay(int d) {
-            switch (d) {
-                case Calendar.MONDAY:
-                    return monday;
-                case Calendar.TUESDAY:
-                    return tuesday;
-                case Calendar.WEDNESDAY:
-                    return wednesday;
-                case Calendar.THURSDAY:
-                    return thursday;
-                case Calendar.FRIDAY:
-                    return friday;
-                case Calendar.SATURDAY:
-                    return saturday;
-                case Calendar.SUNDAY:
-                    return sunday;
-                default:
-                    return monday;
-            }
-        }
     }
 }

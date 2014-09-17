@@ -20,6 +20,7 @@
 package com.agatteclient.alarm;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ import com.agatteclient.R;
 import com.agatteclient.agatte.AgatteResponse;
 import com.agatteclient.agatte.AgatteResultCode;
 import com.agatteclient.agatte.PunchService;
+import com.agatteclient.alarm.db.AlarmContract;
 import com.agatteclient.card.CardBinder;
 import com.agatteclient.card.DayCard;
 
@@ -52,8 +54,8 @@ public class AlarmReceiver extends BroadcastReceiver {
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
         wl.acquire();
         //get the type of the alarm
-        PunchAlarmTime.Type t = PunchAlarmTime.Type.values()[intent.getIntExtra(AlarmRegistry.ALARM_TYPE,
-                PunchAlarmTime.Type.unconstraigned.ordinal())];
+        AlarmContract.Constraint t = AlarmContract.Constraint.values()[intent.getIntExtra(AlarmRegistry.ALARM_TYPE,
+                AlarmContract.Constraint.unconstraigned.ordinal())];
         int id = intent.getIntExtra(AlarmRegistry.ALARM_ID, -1);
         //Do the punch by calling the punching service
         final Intent i = new Intent(context, PunchService.class);
@@ -80,11 +82,14 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         private final Context ctx;
         private final int alarm_id;
+        private final ContentResolver cr;
 
         public PunchResultReceiver(Context ctx, int alarm_id) {
             super(new Handler(Looper.getMainLooper()));
             this.ctx = ctx;
+            this.cr = ctx.getContentResolver();
             this.alarm_id = alarm_id;
+
         }
 
         @Override
@@ -93,7 +98,9 @@ public class AlarmReceiver extends BroadcastReceiver {
             AgatteResultCode code = AgatteResultCode.values()[resultCode];
             //set notification text and title based on result
             StringBuilder notification_text = new StringBuilder();
-            PunchAlarmTime alarm = AlarmList.getInstance(ctx).get(alarm_id);
+
+
+            PunchAlarmTime alarm = AlarmRegistry.getInstance().getAlarm(cr, alarm_id);
 
             switch (code) {
                 case network_not_authorized:

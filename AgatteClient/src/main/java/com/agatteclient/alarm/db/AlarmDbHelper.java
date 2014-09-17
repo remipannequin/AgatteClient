@@ -20,10 +20,11 @@
 package com.agatteclient.alarm.db;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import static com.agatteclient.alarm.db.AlarmDbContract.*;
+import static com.agatteclient.alarm.db.AlarmContract.*;
 
 /**
  * Helper lass for the Alarms DB
@@ -44,16 +45,20 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_ALARM =
             "CREATE TABLE " + ScheduledAlarm.TABLE_NAME + " (" +//NON-NLS
             Alarm._ID + " INTEGER PRIMARY KEY," +//NON-NLS
-            Alarm.COLUMN_NAME_TIME + INT_TYPE + COMMA_SEP +
-            Alarm.COLUMN_NAME_DAYS_MON + INT_TYPE + COMMA_SEP +
-            Alarm.COLUMN_NAME_DAYS_TUE + INT_TYPE + COMMA_SEP +
-            Alarm.COLUMN_NAME_DAYS_WED + INT_TYPE + COMMA_SEP +
-            Alarm.COLUMN_NAME_DAYS_THU + INT_TYPE + COMMA_SEP +
-            Alarm.COLUMN_NAME_DAYS_FRI + INT_TYPE + COMMA_SEP +
-            Alarm.COLUMN_NAME_DAYS_SAT + INT_TYPE + COMMA_SEP +
-            Alarm.COLUMN_NAME_DAYS_SUN + INT_TYPE + COMMA_SEP +
+            Alarm.COLUMN_NAME_HOUR + INT_TYPE + COMMA_SEP +
+            Alarm.COLUMN_NAME_MINUTE + INT_TYPE + COMMA_SEP +
+            Alarm.COLUMN_NAME_DAYS + INT_TYPE + COMMA_SEP +
+            Alarm.COLUMN_NAME_ENABLED + INT_TYPE + COMMA_SEP +
             Alarm.COLUMN_NAME_TYPE + INT_TYPE + COMMA_SEP +
             " )";
+
+    public static final int ALARM_ID_INDEX = 0;
+    public static final int ALARM_HOUR_INDEX = 1;
+    public static final int ALARM_MINUTE_INDEX = 2;
+    public static final int ALARM_DAYS_INDEX = 3;
+    public static final int ALARM_ENABLED_INDEX = 4;
+    public static final int ALARM_TYPE_INDEX = 5;
+
 
     private static final String SQL_CREATE_SCHEDULED_ALARM =
             "CREATE TABLE " + PastAlarm.TABLE_NAME + " (" +//NON-NLS
@@ -77,6 +82,15 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
     private static final String SQL_DELETE_SCHEDULED_ALARM = "DROP TABLE IF EXISTS " + Alarm.TABLE_NAME;//NON-NLS
     private static final String SQL_DELETE_PAST_ALARM = "DROP TABLE IF EXISTS " + Alarm.TABLE_NAME;//NON-NLS
 
+    public static final String[] ALARM_QUERY_COLUMNS = {
+            Alarm._ID,
+            Alarm.COLUMN_NAME_HOUR,
+            Alarm.COLUMN_NAME_MINUTE,
+            Alarm.COLUMN_NAME_DAYS,
+            Alarm.COLUMN_NAME_ENABLED,
+            Alarm.COLUMN_NAME_TYPE};
+
+
 
     public AlarmDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -91,6 +105,13 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         //Nothing to to do (yet) : no previous version
     }
+
+    public static Cursor getAlarmCursor(Context ctx) {
+        //TODO
+        return null;
+    }
+
+
 
 }
 
