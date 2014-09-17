@@ -141,9 +141,7 @@ public class AlarmCursorAdapter extends CursorAdapter {
     public void bindView(View v, final Context context, Cursor cursor) {
         //create a new PunchAlarmTime from cursor
         final PunchAlarmTime alarm = new PunchAlarmTime(cursor);
-
-
-
+        final long id = alarm.getId();
 
 
         /* get and bind enabled button */
@@ -155,7 +153,7 @@ public class AlarmCursorAdapter extends CursorAdapter {
                 int p = (Integer) compoundButton.getTag();
 
                 if (alarm.isEnabled() != b) {
-                    alarm.setEnabled(b);
+                    AlarmRegistry.getInstance().setEnabled(context, id, b);
                 }
             }
         });
@@ -170,7 +168,7 @@ public class AlarmCursorAdapter extends CursorAdapter {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                     if (alarm.isFireAt(cur_day) != b) {
-                        alarm.setFireAt(cur_day, b);
+                        AlarmRegistry.getInstance().setDayOfWeek(context, id, cur_day, b);
                     }
                 }
             });
@@ -179,12 +177,9 @@ public class AlarmCursorAdapter extends CursorAdapter {
 
         /* get and bind delete button */
         ImageButton del_button = (ImageButton) v.findViewById(R.id.deleteButton);
-
         del_button.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
                 AlertDialog.Builder adb = new AlertDialog.Builder(context);
                 adb.setTitle(context.getString(R.string.alarm_delete_confirm_question));
                 adb.setMessage(String.format(context.getString(R.string.alarm_delete_confirm), new SimpleDateFormat("H:mm").format(alarm.getTime())));
@@ -214,6 +209,7 @@ public class AlarmCursorAdapter extends CursorAdapter {
                 TimePickerFragment time_picker = new TimePickerFragment();
                 time_picker.setAlarm(alarm);
                 time_picker.setView((TextView) view);
+                time_picker.setContext(context);
                 time_picker.show(fragment_manager, "timePicker");
 
             }
@@ -290,8 +286,8 @@ public class AlarmCursorAdapter extends CursorAdapter {
         type_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                AlarmContract.Constraint new_type = AlarmContract.Constraint.values()[position];
-                alarm.setConstraint(new_type);
+                AlarmContract.Constraint new_contraint = AlarmContract.Constraint.values()[position];
+                AlarmRegistry.getInstance().setConstraint(context, id, new_contraint);
             }
 
             @Override
@@ -307,6 +303,7 @@ public class AlarmCursorAdapter extends CursorAdapter {
 
         private PunchAlarmTime alarm;
         private TextView tv;
+        private Context context;
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -328,9 +325,13 @@ public class AlarmCursorAdapter extends CursorAdapter {
             this.tv = tv;
         }
 
+        public void setContext(Context ctx) {
+            this.context = ctx;
+        }
+
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             // Do something with the time chosen by the user
-            alarm.setTime(hourOfDay, minute);
+            AlarmRegistry.getInstance().setTime(context, alarm.getId(), hourOfDay, minute);
             SimpleDateFormat df = new SimpleDateFormat("HH:mm");
             tv.setText(df.format(alarm.getTime()));
         }
