@@ -370,7 +370,7 @@ public class AlarmRegistry {
                 sort);
     }
 
-    public void remove(Context context, int alarmId) {
+    public void remove(Context context, long alarmId) {
         AlarmDbHelper db_helper = new AlarmDbHelper(context);
         SQLiteDatabase db = db_helper.getWritableDatabase();
         String selection = AlarmContract.Alarm._ID + "=?";

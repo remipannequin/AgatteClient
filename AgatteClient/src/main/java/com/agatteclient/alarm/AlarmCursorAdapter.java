@@ -193,7 +193,7 @@ public class AlarmCursorAdapter extends CursorAdapter {
                     public void onClick(DialogInterface dialog, int which) {
                         /* also remove index from expanded list */
                         expanded.remove(alarm);
-                        alarm.remove();//TODO
+                        AlarmRegistry.getInstance().remove(context, alarm.getId());
                         notifyDataSetChanged();
                     }
                 });
