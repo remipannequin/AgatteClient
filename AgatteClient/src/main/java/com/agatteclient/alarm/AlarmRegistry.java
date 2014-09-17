@@ -319,7 +319,7 @@ public class AlarmRegistry {
      * @param alarmId the ID of the alarm to search
      * @return a PunchAlarmTime if found, null of no alarm with ID exists
      */
-    public PunchAlarmTime getAlarm(Context context, int alarmId) {
+    public PunchAlarmTime getAlarm(Context context, long alarmId) {
         AlarmDbHelper db_helper = new AlarmDbHelper(context);
         SQLiteDatabase db = db_helper.getReadableDatabase();
         String[] projection = AlarmDbHelper.ALARM_QUERY_COLUMNS;
@@ -370,6 +370,41 @@ public class AlarmRegistry {
         db.delete(AlarmContract.Alarm.TABLE_NAME, selection, selectionArgs);
     }
 
+    private void setAttribute(Context context, long id, ContentValues values) {
+        AlarmDbHelper db_helper = new AlarmDbHelper(context);
+        SQLiteDatabase db = db_helper.getWritableDatabase();
+        String where = AlarmContract.Alarm._ID + "=?";
+        String[] whereArgs = {String.valueOf(id)};
+        db.update(AlarmContract.Alarm.TABLE_NAME, values, where, whereArgs);
+    }
+
+    public void setEnabled(Context context, long id, boolean b) {
+        ContentValues values = new ContentValues(1);
+        values.put(AlarmContract.Alarm.COLUMN_NAME_ENABLED, (b? "1":"0"));
+        setAttribute(context, id, values);
+    }
+
+    public void setDayOfWeek(Context context, long id, AlarmContract.Day d, boolean b) {
+        PunchAlarmTime a = getAlarm(context, id);
+        a.setFireAt(d, b);
+        ContentValues values = new ContentValues(1);
+        int dow = a.getDaysOfWeek();
+        values.put(AlarmContract.Alarm.COLUMN_NAME_DAYS, String.valueOf(dow));
+        setAttribute(context, id, values);
+    }
+
+    public void setConstraint(Context context, long id, AlarmContract.Constraint constraint) {
+        ContentValues values = new ContentValues(1);
+        values.put(AlarmContract.Alarm.COLUMN_NAME_TYPE, String.valueOf(constraint.ordinal()));
+        setAttribute(context, id, values);
+    }
+
+    public void setTime(Context context, long id, int hour, int minute) {
+        ContentValues values = new ContentValues(2);
+        values.put(AlarmContract.Alarm.COLUMN_NAME_HOUR, String.valueOf(hour));
+        values.put(AlarmContract.Alarm.COLUMN_NAME_MINUTE, String.valueOf(minute));
+        setAttribute(context, id, values);
+    }
 
     //public for debugging purposes
     public class ScheduledAlarm {

@@ -41,7 +41,7 @@ public class PunchAlarmTime implements Parcelable {
     private static final Calendar cal = Calendar.getInstance();
 
     private int time_of_day;
-    private int firing_days;
+    private int days_of_week;
     private boolean enabled;
     private AlarmContract.Constraint constraint;
     private long id;
@@ -60,14 +60,14 @@ public class PunchAlarmTime implements Parcelable {
 
     public PunchAlarmTime() {
         time_of_day = 0;
-        firing_days = 0;
+        days_of_week = 0;
         enabled = false;
     }
 
     public PunchAlarmTime(int hour, int minute, AlarmContract.Day... firing_days) {
         this.time_of_day = (60 * hour + minute);
         for (AlarmContract.Day d : firing_days) {
-            this.firing_days |= d.getRaw();
+            this.days_of_week |= d.getRaw();
         }
         enabled = true;
     }
@@ -97,9 +97,46 @@ public class PunchAlarmTime implements Parcelable {
     public PunchAlarmTime(Cursor c) {
         this.id = c.getLong(AlarmDbHelper.ALARM_ID_INDEX);
         this.time_of_day = c.getInt(AlarmDbHelper.ALARM_HOUR_INDEX) * 60 + c.getInt(AlarmDbHelper.ALARM_MINUTE_INDEX);
-        this.firing_days = c.getInt(AlarmDbHelper.ALARM_DAYS_INDEX);
+        this.days_of_week = c.getInt(AlarmDbHelper.ALARM_DAYS_INDEX);
         this.enabled = (c.getInt(AlarmDbHelper.ALARM_ENABLED_INDEX) == 1);
         this.constraint = AlarmContract.Constraint.values()[c.getInt(AlarmDbHelper.ALARM_TYPE_INDEX)];
+    }
+    /**
+     *
+     * @param enabled
+     */
+    void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    /**
+     *
+     * @param constraint
+     */
+    void setConstraint(AlarmContract.Constraint constraint) {
+        this.constraint = constraint;
+    }
+
+    /**
+     *
+     * @param day
+     * @param b
+     */
+    void setFireAt(AlarmContract.Day day, boolean b) {
+        if (isFireAt(day) && !b) {
+            this.days_of_week -= day.getRaw();
+        } else if (!isFireAt(day) && b) {
+            this.days_of_week += day.getRaw();
+        }
+    }
+
+    /**
+     *
+     * @param hourOfDay
+     * @param minute
+     */
+    void setTime(int hourOfDay, int minute) {
+        this.time_of_day = (60 * hourOfDay + minute);
     }
 
     public long getId() {
@@ -110,34 +147,18 @@ public class PunchAlarmTime implements Parcelable {
         return enabled;
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
     public AlarmContract.Constraint getConstraint() {
         return constraint;
     }
 
-    public void setConstraint(AlarmContract.Constraint constraint) {
-        this.constraint = constraint;
-    }
-
-    public void setFireAt(AlarmContract.Day day, boolean b) {
-        if (isFireAt(day) && !b) {
-            this.firing_days -= day.getRaw();
-        } else if (!isFireAt(day) && b) {
-            this.firing_days += day.getRaw();
-        }
-
-    }
-
     public boolean isFireAt(AlarmContract.Day day) {
-        return ((this.firing_days & day.getRaw()) != 0);
+        return ((this.days_of_week & day.getRaw()) != 0);
     }
 
-    public void setTime(int hourOfDay, int minute) {
-        this.time_of_day = (60 * hourOfDay + minute);
+    public int getDaysOfWeek() {
+        return days_of_week;
     }
+
 
     /**
      * Compute the next date when the alarm should be fired.
@@ -188,6 +209,7 @@ public class PunchAlarmTime implements Parcelable {
         //cal.set
     }
 
+
     /**
      * Get the next time the alarm should be triggered, 0 if it should run immediately or -1 if it does not trigger
      *
@@ -200,6 +222,7 @@ public class PunchAlarmTime implements Parcelable {
         if (next == null) return -1;
         return next.getTime();
     }
+
 
     /**
      * Get the time of the alarm in the present day (even if the alarm does no fire this day !)
@@ -214,13 +237,5 @@ public class PunchAlarmTime implements Parcelable {
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTime();
-    }
-
-    /**
-     * Delete the underlying object
-     */
-    public void remove() {
-
-
     }
 }
