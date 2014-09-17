@@ -33,8 +33,7 @@ import android.widget.ToggleButton;
 import com.agatteclient.BuildConfig;
 import com.agatteclient.R;
 import com.agatteclient.alarm.AlarmActivity;
-import com.agatteclient.alarm.AlarmArrayAdapter;
-import com.agatteclient.alarm.AlarmList;
+import com.agatteclient.alarm.AlarmCursorAdapter;
 import com.agatteclient.alarm.PunchAlarmTime;
 
 /**
@@ -46,7 +45,6 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
 
 
     private AlarmActivity mActivity;
-    private AlarmList alarms;
 
 
     public AlarmActivityTest() {
@@ -101,8 +99,9 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-
-        alarms = AlarmList.getInstance(getInstrumentation().getContext());
+        //TODO: populate DB
+        /*
+        alarms = Alarms.getInstance(getInstrumentation().getContext());
         if (alarms.size() == 0) {
             PunchAlarmTime a1 = new PunchAlarmTime(8, 0);
             alarms.add(a1);
@@ -111,6 +110,7 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
         }
         alarms.get(0).setEnabled(true);
         alarms.get(1).setEnabled(false);
+        */
         setActivityInitialTouchMode(false);
         mActivity = (AlarmActivity) getActivity();
     }
@@ -120,10 +120,10 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
         assertNotNull(mActivity);
         ListView listView = (ListView) mActivity.findViewById(R.id.alarmListView);
         getInstrumentation().waitForIdleSync();
-        AlarmArrayAdapter adapter = (AlarmArrayAdapter) listView.getAdapter();
+        AlarmCursorAdapter adapter = (AlarmCursorAdapter) listView.getAdapter();
         assertNotNull(adapter);
-        PunchAlarmTime a1 = adapter.getItem(0);
-        PunchAlarmTime a2 = adapter.getItem(1);
+        //PunchAlarmTime a1 = adapter.getItem(0);
+        //PunchAlarmTime a2 = adapter.getItem(1);
         assertTrue(a1.isEnabled());
         assertTrue(alarms.get(0).isEnabled());
         assertFalse(alarms.get(1).isEnabled());
@@ -139,7 +139,7 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
         assertNotNull(mActivity);
         ListView listView = (ListView) mActivity.findViewById(R.id.alarmListView);
         getInstrumentation().waitForIdleSync();
-        AlarmArrayAdapter adapter = (AlarmArrayAdapter) listView.getAdapter();
+        AlarmCursorAdapter adapter = (AlarmCursorAdapter) listView.getAdapter();
         assertNotNull(adapter);
         assertTrue(alarms.get(0).isEnabled());
         assertTrue(getEnableButton(listView, 0).isChecked());
@@ -171,7 +171,7 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
     public void testDayButton() throws Exception {
         ListView listView = (ListView) mActivity.findViewById(R.id.alarmListView);
         getInstrumentation().waitForIdleSync();
-        AlarmArrayAdapter adapter = (AlarmArrayAdapter) listView.getAdapter();
+        AlarmCursorAdapter adapter = (AlarmCursorAdapter) listView.getAdapter();
         assertNotNull(adapter);
         PunchAlarmTime a1 = adapter.getItem(0);
         assertTrue(a1.isFireAt(PunchAlarmTime.Day.monday));
@@ -205,7 +205,7 @@ public class AlarmActivityTest extends ActivityInstrumentationTestCase2 {
     public void testEnableButton() throws Exception {
         ListView listView = (ListView) mActivity.findViewById(R.id.alarmListView);
         Thread.sleep(1000);
-        AlarmArrayAdapter adapter = (AlarmArrayAdapter) listView.getAdapter();
+        AlarmCursorAdapter adapter = (AlarmCursorAdapter) listView.getAdapter();
         assertNotNull(adapter);
         PunchAlarmTime a1 = adapter.getItem(0);
         assertTrue(a1.isEnabled());
