@@ -259,7 +259,7 @@ public class AlarmActivity extends FragmentActivity implements LoaderManager.Loa
     class AlarmCursorAdapter extends CursorAdapter {
 
         //private final ListView list;
-        private Set<PunchAlarmTime> expanded = new HashSet<PunchAlarmTime>();
+        private Set<Long> expanded = new HashSet<Long>();
         private LayoutInflater inflater;
 
 
@@ -413,24 +413,27 @@ public class AlarmActivity extends FragmentActivity implements LoaderManager.Loa
             info.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    expanded.add(alarm);
+                    expanded.add(id);
+                    info.setVisibility(View.GONE);
+                    expand.setVisibility(View.VISIBLE);
                 }
             });
-        /* expand or collapse item */
-            final ImageButton collapse_button = (ImageButton) v.findViewById(R.id.collapse);
+
+            /* expand or collapse item */
+            final ImageButton collapse_button = holder.getCollapse();
             collapse_button.setOnClickListener(new Button.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (expanded.contains(alarm)) {
-                        expanded.remove(alarm);
+                    if (expanded.contains(id)) {
+                        expanded.remove(id);
                     } else {
-                        expanded.add(alarm);
+                        expanded.add(id);
                     }
 
                 }
             });
 
-            if (expanded.contains(alarm)) {
+            if (expanded.contains(id)) {
                 info.setVisibility(View.GONE);
                 expand.setVisibility(View.VISIBLE);
             } else {
