@@ -44,7 +44,7 @@ public class AlarmContract {
         public static final String MINUTE = "minute"; //NON-NLS
         public static final String DAYS_OF_WEEK = "days_of_week";//NON-NLS
         public static final String ENABLED = "enabled";//NON-NLS
-        public static final String CONSTRAINT = "constraint";//NON-NLS
+        public static final String CONSTRAINT = "time_constraint";//NON-NLS
 
         public static final String DEFAULT_SORT_ORDER = HOUR + ", " + MINUTE + " ASC";//NON-NLS
         public static final String WHERE_ENABLED = ENABLED + "=1";//NON-NLS
