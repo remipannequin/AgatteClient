@@ -414,7 +414,8 @@ public class MainActivity extends Activity {
      * Update the alarms Scheduled in the alarm manager.
      */
     private void doAlarmUpdate() {
-        AlarmRegistry.getInstance().update(getApplicationContext());
+        //TODO: is this still required ?
+        //AlarmRegistry.getInstance().update(getApplicationContext());
     }
 
 

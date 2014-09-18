@@ -149,10 +149,6 @@ public class AlarmReceiver extends BroadcastReceiver {
 
             }
             AlarmDoneNotification.notify(ctx, code, notification_text.toString(), 0);
-
-
-            //Update the AlarmRegistry: re-schedule next event
-            AlarmRegistry.getInstance().update(ctx);
         }
     }
 
