@@ -52,6 +52,7 @@ import android.widget.ToggleButton;
 import com.agatteclient.BuildConfig;
 import com.agatteclient.R;
 import com.agatteclient.alarm.db.AlarmContract;
+import com.agatteclient.alarm.db.AlarmDbHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -149,6 +150,7 @@ public class AlarmActivity extends FragmentActivity implements LoaderManager.Loa
             case R.id.action_alarm_add:
                 //add a new alarm
                 AlarmRegistry.getInstance().addAlarm(getApplicationContext(), 12, 0);
+                reload_cursor();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -426,10 +428,13 @@ public class AlarmActivity extends FragmentActivity implements LoaderManager.Loa
                 public void onClick(View v) {
                     if (expanded.contains(id)) {
                         expanded.remove(id);
+                        info.setVisibility(View.VISIBLE);
+                        expand.setVisibility(View.GONE);
                     } else {
                         expanded.add(id);
+                        info.setVisibility(View.GONE);
+                        expand.setVisibility(View.VISIBLE);
                     }
-
                 }
             });
 
@@ -453,10 +458,13 @@ public class AlarmActivity extends FragmentActivity implements LoaderManager.Loa
             //bind item selection
             type_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    AlarmContract.Constraint new_contraint = AlarmContract.Constraint.values()[position];
-                    AlarmRegistry.getInstance().setConstraint(context, id, new_contraint);
-                    reload_cursor();
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long some_id) {
+
+                    if (alarm.getConstraint().ordinal() != position) {
+                        AlarmContract.Constraint new_contraint = AlarmContract.Constraint.values()[position];
+                        AlarmRegistry.getInstance().setConstraint(context, id, new_contraint);
+                        reload_cursor();
+                    }
                 }
 
                 @Override
