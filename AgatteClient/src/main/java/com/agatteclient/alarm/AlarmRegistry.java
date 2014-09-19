@@ -215,28 +215,15 @@ public class AlarmRegistry {
         return result;
     }
 
-    /**
-     * Return the list of done alarm for this day
-     *
-     * @param now the day to consider
-     * @return
-     */
-    public Iterable<RecordedAlarm> getRecordedAlarms(Date now) {
-        LinkedList<RecordedAlarm> result = new LinkedList<RecordedAlarm>();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(now);
-        int day = cal.get(Calendar.DAY_OF_YEAR);
-        //TODO: query DB with appropriate where clause
-        return result;
-    }
+
 
     /**
-     * Return the list of failed alarm for this day
+     * Return the list of alarms for this day : both scheduled, successfully done and failed
      *
      * @param now the day to consider
      * @return
      */
-    public Iterable<RecordedAlarm> getFailedAlarms(Context context, Date now) {
+    public Iterable<RecordedAlarm> getRecordedAlarms(Context context, Date now) {
         LinkedList<RecordedAlarm> result = new LinkedList<RecordedAlarm>();
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);
@@ -457,7 +444,7 @@ public class AlarmRegistry {
             this.status = status;
         }
 
-        public RecordedAlarm(Cursor c) {
+        RecordedAlarm(Cursor c) {
             //TODO
         }
     }

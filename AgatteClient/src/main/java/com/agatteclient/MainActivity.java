@@ -176,7 +176,7 @@ public class MainActivity extends Activity {
         super.onPostResume();
         cur_card = CardBinder.getInstance().getTodayCard();
         dc_view.setCard(cur_card);
-        dc_view.setAlarmRegistry(AlarmRegistry.getInstance());
+        dc_view.setAlarms(AlarmRegistry.getInstance().getRecordedAlarms(this, cur_card.getDay()));
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         boolean auto_query = preferences.getBoolean(AUTO_QUERY_PREF, true);
         if (auto_query) {
@@ -276,7 +276,8 @@ public class MainActivity extends Activity {
         day_progress.setIndeterminate(false);
         day_progress.setProgress((int) (p * 100));
         day_progress.invalidate();
-        dc_view.invalidate();
+        // this does also trigger card invalidation (redraw)
+        dc_view.setAlarms(AlarmRegistry.getInstance().getRecordedAlarms(this, cur_card.getDay()));
 
         SimpleDateFormat fmt = new SimpleDateFormat(getString(R.string.date_format));
         StringBuilder t = new StringBuilder().append(fmt.format(cur_card.getDay()));
