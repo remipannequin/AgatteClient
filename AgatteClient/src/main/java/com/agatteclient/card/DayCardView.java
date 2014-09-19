@@ -54,8 +54,6 @@ import android.view.View;
 
 import com.agatteclient.R;
 import com.agatteclient.alarm.AlarmRegistry;
-import com.agatteclient.alarm.AlarmStatus;
-import com.agatteclient.alarm.PunchAlarmTime;
 import com.agatteclient.alarm.db.AlarmContract;
 
 import java.text.SimpleDateFormat;
@@ -110,7 +108,7 @@ public class DayCardView extends View {
     private Paint alarm_paint;
     private Paint alarm_text_paint;
     private Paint alarm_fill_paint;
-    private AlarmRegistry alarms;
+    private Iterable<AlarmRegistry.RecordedAlarm> alarms;
 
 
     public DayCardView(Context context, AttributeSet attrs) {
@@ -351,6 +349,12 @@ public class DayCardView extends View {
         }
     }
 
+    public void setAlarms(Iterable<AlarmRegistry.RecordedAlarm> alarms) {
+        this.alarms = alarms;
+        invalidate();
+        requestLayout();
+    }
+
     /**
      * Draw the view
      *
@@ -450,16 +454,9 @@ public class DayCardView extends View {
 
         //Draw alarms
         if (alarms != null) {
-            for (PunchAlarmTime a : alarms.getScheduledAlarms(card.getDay())) {
-                Date d = a.getTime();
-                drawAlarm(canvas, d, a.getConstraint(), AlarmStatus.scheduled);
-            }
             /* done & failed alarms */
-            for (AlarmRegistry.RecordedAlarm a : alarms.getDoneAlarms(card.getDay())) {
-                drawAlarm(canvas, a.date_executed, a.type, AlarmStatus.done);
-            }
-            for (AlarmRegistry.RecordedAlarm a : alarms.getFailedAlarms(card.getDay())) {
-                drawAlarm(canvas, a.date_executed, a.type, AlarmStatus.failed);
+            for (AlarmRegistry.RecordedAlarm a : alarms) {
+                drawAlarm(canvas, a.date_executed, a.type, a.status);
             }
         }
     }
@@ -525,7 +522,7 @@ public class DayCardView extends View {
      * @param alarm
      * @param type
      */
-    private void drawAlarm(Canvas canvas, Date alarm, AlarmContract.Constraint type, AlarmStatus status) {
+    private void drawAlarm(Canvas canvas, Date alarm, AlarmContract.Constraint type, AlarmContract.ExecStatus status) {
         //get the y coordinate where to draw
         float y = getYFromHour(alarm);
         String t = fmt.format(alarm);
@@ -557,13 +554,13 @@ public class DayCardView extends View {
 
         int ic;
         switch(status) {
-            case done:
+            case SUCCESS:
                 ic = R.drawable.ic_navigation_accept;
                 break;
-            case failed:
+            case FAILURE:
                    ic = R.drawable.ic_alerts_and_states_warning;
                 break;
-            case scheduled:
+            case SCHEDULED:
                ic = R.drawable.ic_device_access_alarms;
                 break;
             default:
@@ -634,15 +631,6 @@ public class DayCardView extends View {
     public void setCard(DayCard card) {
         if (card != this.card) {
             this.card = card;
-            invalidate();
-            requestLayout();
-        }
-    }
-
-
-    public void setAlarmRegistry(AlarmRegistry alarms) {
-        if (alarms != this.alarms) {
-            this.alarms = alarms;
             invalidate();
             requestLayout();
         }

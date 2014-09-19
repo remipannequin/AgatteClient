@@ -91,7 +91,8 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
             Alarm.ENABLED,
             Alarm.CONSTRAINT};
 
-
+    public static final String SQL_SELECT_PAST_ALARM =
+            "SELECT "+PastAlarm.ALARM_ID+COMMA_SEP+ PastAlarm.EXEC_TIME+ COMMA_SEP+PastAlarm.EXEC_STATUS+COMMA_SEP+Alarm.CONSTRAINT;
 
     public AlarmDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

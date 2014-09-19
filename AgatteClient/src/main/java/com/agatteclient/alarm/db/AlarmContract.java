@@ -64,7 +64,8 @@ public class AlarmContract {
     public enum ExecStatus {
         SUCCESS,
         FAILURE,
-        INVALID
+        INVALID,
+        SCHEDULED;
     }
 
     /**

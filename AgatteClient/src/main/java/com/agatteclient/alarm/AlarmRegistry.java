@@ -221,7 +221,7 @@ public class AlarmRegistry {
      * @param now the day to consider
      * @return
      */
-    public Iterable<RecordedAlarm> getDoneAlarms(Date now) {
+    public Iterable<RecordedAlarm> getRecordedAlarms(Date now) {
         LinkedList<RecordedAlarm> result = new LinkedList<RecordedAlarm>();
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);
@@ -236,11 +236,29 @@ public class AlarmRegistry {
      * @param now the day to consider
      * @return
      */
-    public Iterable<RecordedAlarm> getFailedAlarms(Date now) {
+    public Iterable<RecordedAlarm> getFailedAlarms(Context context, Date now) {
         LinkedList<RecordedAlarm> result = new LinkedList<RecordedAlarm>();
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);
         int day = cal.get(Calendar.DAY_OF_YEAR);
+
+        AlarmDbHelper db_helper = new AlarmDbHelper(context);
+        SQLiteDatabase db = db_helper.getReadableDatabase();
+        String[] projection = AlarmDbHelper.ALARM_QUERY_COLUMNS;
+        String sort = AlarmContract.Alarm.DEFAULT_SORT_ORDER;
+        String selection = AlarmContract.PastAlarm.EXEC_STATUS + "=? AND " +AlarmContract.PastAlarm.EXEC_TIME + "=?";
+        String[] selectionArgs = {String.valueOf(AlarmContract.ExecStatus.FAILURE), String.valueOf(day)};//TODO
+        Cursor cursor = db.query(
+                AlarmContract.Alarm.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sort);
+
+
+
         //TODO: query DB with appropriate where clause
         return result;
     }
@@ -437,6 +455,10 @@ public class AlarmRegistry {
             this.alarm_id = id;
             this.date_executed = date_executed;
             this.status = status;
+        }
+
+        public RecordedAlarm(Cursor c) {
+            //TODO
         }
     }
 }
