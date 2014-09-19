@@ -74,7 +74,22 @@ public class AlarmContract {
      public static abstract class PastAlarm implements BaseColumns {
         public static final String TABLE_NAME = "PastAlarm";//NON-NLS
         public static final String ALARM_ID = "alarm_id";//NON-NLS
+        /**
+         * Number of minutes in the day INTEGER
+         * 60 * hour + minute, with hour in 24 hours format
+         */
         public static final String EXEC_TIME = "exec_time";//NON-NLS
+        /**
+         * Day umber in the year (1-366) INTEGER
+         */
+        public static final String EXEC_DAY_OF_YEAR = "exec_day";//NON-NLS
+        /**
+         * Year (e.g. 2014) INTEGER
+         */
+        public static final String EXEC_YEAR = "exec_year";//NON-NLS
+        /**
+         * Status code, see below
+         */
         public static final String EXEC_STATUS = "status";//NON-NLS
 
     }
@@ -119,17 +134,17 @@ public class AlarmContract {
     }
 
     public enum Day {
-        monday(1),
-        tuesday(1 << 1),
-        wednesday(1 << 2),
-        thursday(1 << 3),
-        friday(1 << 4),
-        saturday(1 << 5),
-        sunday(1 << 6);
+        monday(1),//1
+        tuesday(1 << 1),//2
+        wednesday(1 << 2),//4
+        thursday(1 << 3),//8
+        friday(1 << 4),//16
+        saturday(1 << 5),//32
+        sunday(1 << 6);//64
 
-        final int f;
+        private final int f;
 
-        Day(int flag) {
+        private Day(int flag) {
             this.f = flag;
         }
 
@@ -154,8 +169,24 @@ public class AlarmContract {
             }
         }
 
-        public int getRaw() {
-            return f;
+        public static int unset(int code, Day d) {
+            return code | d.f;
+        }
+
+        public static int set(int code, Day d) {
+            return code & ~(d.f);
+        }
+
+        public static boolean isSet(int code, Day d) {
+            return (code & d.f) != 0;
+        }
+
+        public static int cat(Day[] firing_days) {
+            int r = 0;
+            for (AlarmContract.Day d : firing_days) {
+                r |= d.f;
+            }
+            return r;
         }
     }
 

@@ -66,9 +66,7 @@ public class PunchAlarmTime implements Parcelable {
 
     public PunchAlarmTime(int hour, int minute, AlarmContract.Day... firing_days) {
         this.time_of_day = (60 * hour + minute);
-        for (AlarmContract.Day d : firing_days) {
-            this.days_of_week |= d.getRaw();
-        }
+        this.days_of_week = AlarmContract.Day.cat(firing_days);
         enabled = true;
     }
 
@@ -124,9 +122,9 @@ public class PunchAlarmTime implements Parcelable {
      */
     void setFireAt(AlarmContract.Day day, boolean b) {
         if (isFireAt(day) && !b) {
-            this.days_of_week -= day.getRaw();
+            AlarmContract.Day.unset(this.days_of_week, day);
         } else if (!isFireAt(day) && b) {
-            this.days_of_week += day.getRaw();
+            AlarmContract.Day.set(this.days_of_week, day);
         }
     }
 
@@ -152,7 +150,7 @@ public class PunchAlarmTime implements Parcelable {
     }
 
     public boolean isFireAt(AlarmContract.Day day) {
-        return ((this.days_of_week & day.getRaw()) != 0);
+        return AlarmContract.Day.isSet(this.days_of_week, day);
     }
 
     public int getDaysOfWeek() {
