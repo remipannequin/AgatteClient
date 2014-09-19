@@ -75,6 +75,8 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
             PastAlarm.ALARM_ID + INT_TYPE + COMMA_SEP +
             PastAlarm.EXEC_STATUS + INT_TYPE + COMMA_SEP +
             PastAlarm.EXEC_TIME + INT_TYPE + COMMA_SEP +
+            PastAlarm.EXEC_DAY_OF_YEAR + INT_TYPE + COMMA_SEP +
+            PastAlarm.EXEC_YEAR + INT_TYPE + COMMA_SEP +
             "FOREIGN KEY("+PastAlarm.ALARM_ID + ") REFERENCES " + Alarm.TABLE_NAME+"("+Alarm._ID+")"+//NON-NLS
             ");";
 
@@ -92,7 +94,14 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
             Alarm.CONSTRAINT};
 
     public static final String SQL_SELECT_PAST_ALARM =
-            "SELECT "+PastAlarm.ALARM_ID+COMMA_SEP+ PastAlarm.EXEC_TIME+ COMMA_SEP+PastAlarm.EXEC_STATUS+COMMA_SEP+Alarm.CONSTRAINT;
+            "SELECT "+PastAlarm.ALARM_ID +COMMA_SEP +//NON-NLS
+                      PastAlarm.EXEC_TIME + COMMA_SEP +
+                      PastAlarm.EXEC_STATUS + COMMA_SEP +
+                      Alarm.CONSTRAINT +
+            " FROM " + PastAlarm.TABLE_NAME + COMMA_SEP + Alarm.TABLE_NAME +//NON-NLS
+            " WHERE " + PastAlarm.TABLE_NAME+ "." + PastAlarm.ALARM_ID + "=" + Alarm.TABLE_NAME + "." + Alarm._ID +//NON-NLS
+            " AND " + PastAlarm.EXEC_DAY_OF_YEAR + "=?" +//NON-NLS
+            " AND " + PastAlarm.EXEC_YEAR + "=?" ;//NON-NLS
 
     public AlarmDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

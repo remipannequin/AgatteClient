@@ -47,9 +47,7 @@ public class AlarmContract {
         public static final String CONSTRAINT = "time_constraint";//NON-NLS
 
         public static final String DEFAULT_SORT_ORDER = HOUR + ", " + MINUTE + " ASC";//NON-NLS
-        public static final String WHERE_ENABLED = ENABLED + "=1";//NON-NLS
 
-        public static final Uri CONTENT_URI = Uri.parse("content://com.agatteclient/alarm");//NON-NLS
     }
 
     /**
