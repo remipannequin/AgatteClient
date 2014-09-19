@@ -330,7 +330,6 @@ public class AlarmActivity extends FragmentActivity implements LoaderManager.Loa
             for (int i = 0; i < 7; i++) {
                 ToggleButton button = holder.getToggleButton()[i];
                 final AlarmContract.Day cur_day = AlarmContract.Day.values()[i];
-
                 button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -367,7 +366,6 @@ public class AlarmActivity extends FragmentActivity implements LoaderManager.Loa
             /* Time textview */
             TextView tv = holder.getText();
             SimpleDateFormat df = new SimpleDateFormat("HH:mm");
-
             tv.setText(df.format(alarm.getTime()));
             tv.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -385,7 +383,6 @@ public class AlarmActivity extends FragmentActivity implements LoaderManager.Loa
 
             /* set summary form selected days */
             TextView summary = (TextView) v.findViewById(R.id.alarmSummary);
-
             List<Integer> active_days = new ArrayList<Integer>(7);
             for (int i = 0; i < 7; i++) {
                 final AlarmContract.Day cur_day = AlarmContract.Day.values()[i];

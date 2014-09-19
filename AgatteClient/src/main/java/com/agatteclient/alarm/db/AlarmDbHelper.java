@@ -81,6 +81,8 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
             ");";
 
 
+
+
     private static final String SQL_DELETE_ALARM = "DROP TABLE IF EXISTS " + Alarm.TABLE_NAME;//NON-NLS
     private static final String SQL_DELETE_SCHEDULED_ALARM = "DROP TABLE IF EXISTS " + Alarm.TABLE_NAME;//NON-NLS
     private static final String SQL_DELETE_PAST_ALARM = "DROP TABLE IF EXISTS " + Alarm.TABLE_NAME;//NON-NLS
@@ -96,6 +98,8 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
     public static final String SQL_SELECT_PAST_ALARM =
             "SELECT "+PastAlarm.ALARM_ID +COMMA_SEP +//NON-NLS
                       PastAlarm.EXEC_TIME + COMMA_SEP +
+                      PastAlarm.EXEC_DAY_OF_YEAR + COMMA_SEP +
+                      PastAlarm.EXEC_YEAR + COMMA_SEP +
                       PastAlarm.EXEC_STATUS + COMMA_SEP +
                       Alarm.CONSTRAINT +
             " FROM " + PastAlarm.TABLE_NAME + COMMA_SEP + Alarm.TABLE_NAME +//NON-NLS

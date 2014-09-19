@@ -456,7 +456,7 @@ public class DayCardView extends View {
         if (alarms != null) {
             /* done & failed alarms */
             for (AlarmRegistry.RecordedAlarm a : alarms) {
-                drawAlarm(canvas, a.date_executed, a.type, a.status);
+                drawAlarm(canvas, a.date_executed, a.constraint, a.status);
             }
         }
     }

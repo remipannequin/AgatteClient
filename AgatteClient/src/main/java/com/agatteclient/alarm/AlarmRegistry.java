@@ -216,7 +216,6 @@ public class AlarmRegistry {
     }
 
 
-
     /**
      * Return the list of alarms for this day : both scheduled, successfully done and failed
      *
@@ -228,27 +227,19 @@ public class AlarmRegistry {
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);
         int day = cal.get(Calendar.DAY_OF_YEAR);
+        int year = cal.get(Calendar.YEAR);
 
         AlarmDbHelper db_helper = new AlarmDbHelper(context);
         SQLiteDatabase db = db_helper.getReadableDatabase();
-        String[] projection = AlarmDbHelper.ALARM_QUERY_COLUMNS;
-        String sort = AlarmContract.Alarm.DEFAULT_SORT_ORDER;
-        String selection = AlarmContract.PastAlarm.EXEC_STATUS + "=? AND " +AlarmContract.PastAlarm.EXEC_TIME + "=?";
-        String[] selectionArgs = {String.valueOf(AlarmContract.ExecStatus.FAILURE), String.valueOf(day)};//TODO
-        Cursor cursor = db.query(
-                AlarmContract.Alarm.TABLE_NAME,
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                sort);
-
-
-
-        //TODO: query DB with appropriate where clause
+        String[] selectionArgs = {String.valueOf(day), String.valueOf(year)};
+        Cursor cursor = db.rawQuery(AlarmDbHelper.SQL_SELECT_PAST_ALARM, selectionArgs);
+        if (cursor.moveToNext()) {
+            RecordedAlarm r = new RecordedAlarm(cursor);
+            result.add(r);
+        }
         return result;
     }
+
 
     /**
      * Report an alarm to have correctly been done, this current day
@@ -433,19 +424,29 @@ public class AlarmRegistry {
     }
 
     public class RecordedAlarm {
-        public Date date_executed;
+
         public long alarm_id;
-        public AlarmContract.Constraint type;
+        public Date date_executed;
+        public AlarmContract.Constraint constraint;
         public AlarmContract.ExecStatus status;
 
-        public RecordedAlarm(Date date_executed, long id, AlarmContract.ExecStatus status) {
-            this.alarm_id = id;
-            this.date_executed = date_executed;
-            this.status = status;
-        }
-
         RecordedAlarm(Cursor c) {
-            //TODO
+            Calendar cal = Calendar.getInstance();
+            this.alarm_id = c.getInt(0);
+            int t = c.getInt(1);
+            int h = t/60;
+            int m = t - (h * 60);
+            int d = c.getInt(2);
+            int y = c.getInt(3);
+            cal.set(Calendar.YEAR, y);
+            cal.set(Calendar.DAY_OF_YEAR, d);
+            cal.set(Calendar.HOUR, h);
+            cal.set(Calendar.MINUTE, m);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+            this.date_executed = cal.getTime();
+            this.status = AlarmContract.ExecStatus.values()[c.getInt(4)];
+            this.constraint = AlarmContract.Constraint.values()[c.getInt(5)];
         }
     }
 }
