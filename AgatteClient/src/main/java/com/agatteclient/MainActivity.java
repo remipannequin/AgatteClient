@@ -130,7 +130,7 @@ public class MainActivity extends Activity {
         if (!preferences.contains(AUTO_QUERY_PREF)) {
             editor.putBoolean(AUTO_QUERY_PREF, false); // value to store
         }
-        editor.commit();
+        editor.apply();
 
         mScaleDetector = new ScaleGestureDetector(getApplicationContext(), new ScaleListener());
 
@@ -140,7 +140,7 @@ public class MainActivity extends Activity {
         //
 
         String profile = preferences.getString(PROFILE_PREF, "1");
-        int profile_n = Integer.decode(profile) - 1;
+        //int profile_n = Integer.decode(profile) - 1;
 
         day_progress = (ProgressBar) findViewById(R.id.day_progress);
         day_textView = (TextView) findViewById(R.id.day_textView);
@@ -297,7 +297,7 @@ public class MainActivity extends Activity {
             editor.putFloat(COUNTER_YEAR_PREF, global_hours);
             editor.putFloat(COUNTER_WEEK_PREF, week_hours);
             editor.putInt(COUNTER_LAST_UPDATE_PREF, cur_card.getDayOfYear() + cur_card.getYear() * 1000);
-            editor.commit();
+            editor.apply();
         } else {
             if (!preferences.contains(COUNTER_LAST_UPDATE_PREF)) {
                 // if old value does not exist AND counter are unavailable
@@ -306,7 +306,7 @@ public class MainActivity extends Activity {
                 editor.putBoolean(AUTO_QUERY_PREF, false);
                 // and notify the user
                 Toast.makeText(getApplicationContext(), getString(R.string.conter_autoquery_descativated), Toast.LENGTH_LONG).show();
-                editor.commit();
+                editor.apply();
             }
             week_hours = preferences.getFloat(COUNTER_WEEK_PREF, 0);
             global_hours = preferences.getFloat(COUNTER_YEAR_PREF, 0);
