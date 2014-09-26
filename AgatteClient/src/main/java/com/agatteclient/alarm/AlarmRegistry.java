@@ -54,23 +54,23 @@ public class AlarmRegistry {
     public static final String ALARM_ID = "alarm-id";//NON-NLS
     private static AlarmRegistry ourInstance;
 
-
-    //TODO: replace all this with DB interactions
-    //Manage a collection of alarm, with their fingerprint
-    private final Map<PunchAlarmTime, ScheduledAlarm> pending_intent_map;
+    private SQLiteDatabase db;
 
 
-
-    private AlarmRegistry() {
-        this.pending_intent_map = new HashMap<PunchAlarmTime, ScheduledAlarm>();
-
-    }
 
     public static AlarmRegistry getInstance() {
         if (ourInstance == null) {
             ourInstance = new AlarmRegistry();
         }
         return ourInstance;
+    }
+
+    private SQLiteDatabase getDb(Context context) {
+        if (db == null || !db.isOpen()) {
+            AlarmDbHelper db_helper = new AlarmDbHelper(context);
+            db = db_helper.getWritableDatabase();
+        }
+        return db;
     }
 
     public static void reset() {
@@ -83,17 +83,8 @@ public class AlarmRegistry {
      * @param context
      */
     public void cancelAll(Context context) {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        for (ScheduledAlarm a : pending_intent_map.values()) {
-            alarmManager.cancel(a.intent);
-        }
-        //pending_intent_map.clear();
-        //TODO: remove all alarms for the AM. But is it even possible ?
+        //TODO
 
-    }
-
-    public Map<PunchAlarmTime, ScheduledAlarm> getPending_intent_map() {
-        return pending_intent_map;
     }
 
     /**
@@ -142,8 +133,7 @@ public class AlarmRegistry {
         long now = System.currentTimeMillis();
         long time = alarm.nextAlarm(now);
         if (time >= 0) {
-            AlarmDbHelper db_helper = new AlarmDbHelper(context);
-            SQLiteDatabase db = db_helper.getReadableDatabase();
+            SQLiteDatabase db = getDb(context);
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             Intent i = new Intent(context, AlarmReceiver.class);
             i.putExtra(ALARM_TYPE, alarm.getConstraint().ordinal());
@@ -160,6 +150,11 @@ public class AlarmRegistry {
         }
     }
 
+    private void schedule(Context context, long alarmId) {
+        PunchAlarmTime a = getAlarm(context, alarmId);
+        schedule(context, a);
+    }
+
 
     private void unschedule(Context context, PunchAlarmTime alarm) {
         unschedule(context, String.valueOf(alarm.getId()));
@@ -174,8 +169,8 @@ public class AlarmRegistry {
      * @param alarm_id
      */
     private void unschedule(Context context, String alarm_id) {
-        AlarmDbHelper db_helper = new AlarmDbHelper(context);
-        SQLiteDatabase db = db_helper.getReadableDatabase();
+
+        SQLiteDatabase db = getDb(context);
         boolean is_scheduled = false;
         // First get corresponding requestID
         String[] selectionArgs = {alarm_id};
@@ -201,6 +196,7 @@ public class AlarmRegistry {
                     AlarmDbHelper.SCHEDULED_ID_SELECTION,
                     selectionArgs);
         }
+        cursor.close();
     }
 
     /**
@@ -223,13 +219,13 @@ public class AlarmRegistry {
             return;
         }
 
-        AlarmDbHelper db_helper = new AlarmDbHelper(context);
-        SQLiteDatabase db = db_helper.getReadableDatabase();
+
+        SQLiteDatabase db = getDb(context);
 
         // Query DB to check if an alarm has been scheduled
         String a_id = String.valueOf(alarm.getId());
         String[] selectionArgs = {a_id};
-        String sort = AlarmContract.ScheduledAlarm.TIME + "DESC";//NON-NLS
+        String sort = AlarmContract.ScheduledAlarm.TIME + " DESC";//NON-NLS
         Cursor cursor = db.query(
                 AlarmContract.ScheduledAlarm.TABLE_NAME,
                 AlarmDbHelper.SCHEDULED_QUERY_COLUMNS,
@@ -242,6 +238,7 @@ public class AlarmRegistry {
         if (!cursor.moveToNext()) {
             //No entry in DB : call schedule !
             schedule(context, alarm);
+            cursor.close();
             return;
         }
 
@@ -275,6 +272,7 @@ public class AlarmRegistry {
                     where,
                     whereArgs);
         }
+        cursor.close();
     }
 
     /**
@@ -306,20 +304,21 @@ public class AlarmRegistry {
         int day = cal.get(Calendar.DAY_OF_YEAR);
         int year = cal.get(Calendar.YEAR);
 
-        AlarmDbHelper db_helper = new AlarmDbHelper(context);
-        SQLiteDatabase db = db_helper.getReadableDatabase();
+
+        SQLiteDatabase db = getDb(context);
         String[] selectionArgs = {String.valueOf(day), String.valueOf(year)};
         Cursor cursor = db.rawQuery(AlarmDbHelper.SQL_QUERY_PAST_ALARM, selectionArgs);
         if (cursor.moveToNext()) {
             RecordedAlarm r = new RecordedAlarm(cursor);
             result.add(r);
         }
+        cursor.close();
         return result;
     }
 
 
     /**
-     * Report an alarm to have correctly been done, this current day
+     * Report an alarm to have correctly been done, this current day, ANd re-schedule it.
      *
      * @param id the ID of the Alarm to set as done
      */
@@ -334,8 +333,8 @@ public class AlarmRegistry {
         int y = cal.get(Calendar.YEAR);
         int t = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
         // Insert in past alarm table
-        AlarmDbHelper db_helper = new AlarmDbHelper(context);
-        SQLiteDatabase db = db_helper.getWritableDatabase();
+
+        SQLiteDatabase db = getDb(context);
         ContentValues values = new ContentValues(5);
         values.put(AlarmContract.PastAlarm.ALARM_ID, id);
         values.put(AlarmContract.PastAlarm.EXEC_YEAR, y);
@@ -343,11 +342,8 @@ public class AlarmRegistry {
         values.put(AlarmContract.PastAlarm.EXEC_TIME, t);
         values.put(AlarmContract.PastAlarm.EXEC_STATUS, status.ordinal());
         db.insert(AlarmContract.PastAlarm.TABLE_NAME, null, values);
-
-        // Delete from schedule table
-        String where = AlarmContract.ScheduledAlarm.ALARM_ID+"=?";
-        String[] whereArgs = {String.valueOf(id)};
-        db.delete(AlarmContract.ScheduledAlarm.TABLE_NAME, where, whereArgs);
+        // reschedule
+        reschedule(context, a);
     }
 
 
@@ -371,8 +367,6 @@ public class AlarmRegistry {
     }
 
 
-
-
     /**
      * Create a new alarm, and add it to the database
      * @param context
@@ -383,31 +377,17 @@ public class AlarmRegistry {
         ContentValues values = new ContentValues();
         values.put(AlarmContract.Alarm.HOUR, h);
         values.put(AlarmContract.Alarm.MINUTE, m);
+        values.put(AlarmContract.Alarm.DAYS_OF_WEEK, 31);//five first days of week
+        values.put(AlarmContract.Alarm.ENABLED, 0);
 
-        if (!values.containsKey(AlarmContract.Alarm.HOUR)) {
-            values.put(AlarmContract.Alarm.HOUR, 0);
-        }
-        if (!values.containsKey(AlarmContract.Alarm.MINUTE)) {
-            values.put(AlarmContract.Alarm.MINUTE, 0);
-        }
-        if (!values.containsKey(AlarmContract.Alarm.DAYS_OF_WEEK)) {
-            values.put(AlarmContract.Alarm.DAYS_OF_WEEK, 0);
-        }
-        if (!values.containsKey(AlarmContract.Alarm.ENABLED)) {
-            values.put(AlarmContract.Alarm.ENABLED, 0);
-        }
-
-        AlarmDbHelper db_helper = new AlarmDbHelper(context);
-        SQLiteDatabase db = db_helper.getWritableDatabase();
+        SQLiteDatabase db = getDb(context);
         long rowId = db.insert(AlarmContract.Alarm.TABLE_NAME, null, values);
         if (rowId < 0) {
             throw new SQLException("Failed to insert row DB ");
         }
         Log.v(MainActivity.LOG_TAG, "Added alarm rowId = " + rowId);//NON-NLS
-
-
-
     }
+
 
     /**
      * Lookup alarm with given ID in the database.
@@ -417,8 +397,8 @@ public class AlarmRegistry {
      * @return a PunchAlarmTime if found, null of no alarm with ID exists
      */
     public PunchAlarmTime getAlarm(Context context, long alarmId) {
-        AlarmDbHelper db_helper = new AlarmDbHelper(context);
-        SQLiteDatabase db = db_helper.getReadableDatabase();
+
+        SQLiteDatabase db = getDb(context);
         String[] projection = AlarmDbHelper.ALARM_QUERY_COLUMNS;
         String sort = AlarmContract.Alarm.DEFAULT_SORT_ORDER;
         String selection = AlarmContract.Alarm._ID + "=?";
@@ -433,23 +413,24 @@ public class AlarmRegistry {
                 sort);
         PunchAlarmTime alarm = null;
         if (cursor != null) {
-        if (cursor.moveToFirst()) {
-            alarm = new PunchAlarmTime(cursor);
-        }
-        cursor.close();
+            if (cursor.moveToFirst()) {
+                alarm = new PunchAlarmTime(cursor);
+            }
+            cursor.close();
         }
         return alarm;
     }
 
 
+    //TODO: who will close this DB ??
     public Cursor getAlarms(Context context) {
-        AlarmDbHelper db_helper = new AlarmDbHelper(context);
-        SQLiteDatabase db = db_helper.getReadableDatabase();
+
+        SQLiteDatabase db = getDb(context);
         String[] projection = AlarmDbHelper.ALARM_QUERY_COLUMNS;
         String sort = AlarmContract.Alarm.DEFAULT_SORT_ORDER;
         String selection = null;
         String[] selectionArgs = {};
-        return  db.query(
+        return db.query(
                 AlarmContract.Alarm.TABLE_NAME,
                 projection,
                 selection,
@@ -459,27 +440,49 @@ public class AlarmRegistry {
                 sort);
     }
 
+
+    /**
+     * Unschedule and then remove alarm identified by alarmId
+     * @param context
+     * @param alarmId
+     */
     public void remove(Context context, long alarmId) {
-        AlarmDbHelper db_helper = new AlarmDbHelper(context);
-        SQLiteDatabase db = db_helper.getWritableDatabase();
+
+        unschedule(context, String.valueOf(alarmId));
+
+        SQLiteDatabase db = getDb(context);
         String selection = AlarmContract.Alarm._ID + "=?";
         String[] selectionArgs = {String.valueOf(alarmId)};
         db.delete(AlarmContract.Alarm.TABLE_NAME, selection, selectionArgs);
     }
 
+
     private void setAttribute(Context context, long id, ContentValues values) {
-        AlarmDbHelper db_helper = new AlarmDbHelper(context);
-        SQLiteDatabase db = db_helper.getWritableDatabase();
+
+        SQLiteDatabase db = getDb(context);
         String where = AlarmContract.Alarm._ID + "=?";
         String[] whereArgs = {String.valueOf(id)};
         db.update(AlarmContract.Alarm.TABLE_NAME, values, where, whereArgs);
     }
 
+
+    /**
+     * Enable/disable this alarm, schedule it accordingly
+     * @param context
+     * @param id
+     * @param b
+     */
     public void setEnabled(Context context, long id, boolean b) {
         ContentValues values = new ContentValues(1);
         values.put(AlarmContract.Alarm.ENABLED, (b? "1":"0"));
         setAttribute(context, id, values);
+        if (b) {
+            schedule(context, id);
+        } else {
+            unschedule(context, String.valueOf(id));
+        }
     }
+
 
     public void setDayOfWeek(Context context, long id, AlarmContract.Day d, boolean b) {
         PunchAlarmTime a = getAlarm(context, id);
@@ -488,7 +491,9 @@ public class AlarmRegistry {
         int dow = a.getDaysOfWeek();
         values.put(AlarmContract.Alarm.DAYS_OF_WEEK, String.valueOf(dow));
         setAttribute(context, id, values);
+        reschedule(context, a);
     }
+
 
     public void setConstraint(Context context, long id, AlarmContract.Constraint constraint) {
         ContentValues values = new ContentValues(1);
@@ -496,12 +501,16 @@ public class AlarmRegistry {
         setAttribute(context, id, values);
     }
 
+
     public void setTime(Context context, long id, int hour, int minute) {
+        PunchAlarmTime a = getAlarm(context, id);
         ContentValues values = new ContentValues(2);
         values.put(AlarmContract.Alarm.HOUR, String.valueOf(hour));
         values.put(AlarmContract.Alarm.MINUTE, String.valueOf(minute));
         setAttribute(context, id, values);
+        reschedule(context, a);
     }
+
 
     //public for debugging purposes
     public class ScheduledAlarm {
@@ -523,6 +532,7 @@ public class AlarmRegistry {
             }
         }
     }
+
 
     public class RecordedAlarm {
 
@@ -549,9 +559,5 @@ public class AlarmRegistry {
             this.status = AlarmContract.ExecStatus.values()[c.getInt(4)];
             this.constraint = AlarmContract.Constraint.values()[c.getInt(5)];
         }
-
-
-
-
     }
 }

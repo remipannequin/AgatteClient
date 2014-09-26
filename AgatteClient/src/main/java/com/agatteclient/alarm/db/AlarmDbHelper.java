@@ -65,6 +65,7 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
             "CREATE TABLE " + ScheduledAlarm.TABLE_NAME + " (" +//NON-NLS
             ScheduledAlarm._ID + " INTEGER PRIMARY KEY," +//NON-NLS
             ScheduledAlarm.ALARM_ID + INT_TYPE + COMMA_SEP +
+            ScheduledAlarm.TIME+ INT_TYPE + COMMA_SEP +
             "FOREIGN KEY("+ScheduledAlarm.ALARM_ID + ") REFERENCES " + Alarm.TABLE_NAME+"("+Alarm._ID+")"+//NON-NLS
             ");";
 
