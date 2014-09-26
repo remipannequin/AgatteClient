@@ -65,7 +65,6 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
             "CREATE TABLE " + ScheduledAlarm.TABLE_NAME + " (" +//NON-NLS
             ScheduledAlarm._ID + " INTEGER PRIMARY KEY," +//NON-NLS
             ScheduledAlarm.ALARM_ID + INT_TYPE + COMMA_SEP +
-            ScheduledAlarm.SCHEDULE_ID + INT_TYPE + COMMA_SEP+
             "FOREIGN KEY("+ScheduledAlarm.ALARM_ID + ") REFERENCES " + Alarm.TABLE_NAME+"("+Alarm._ID+")"+//NON-NLS
             ");";
 
@@ -80,9 +79,6 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
             "FOREIGN KEY("+PastAlarm.ALARM_ID + ") REFERENCES " + Alarm.TABLE_NAME+"("+Alarm._ID+")"+//NON-NLS
             ");";
 
-
-
-
     private static final String SQL_DELETE_ALARM = "DROP TABLE IF EXISTS " + Alarm.TABLE_NAME;//NON-NLS
     private static final String SQL_DELETE_SCHEDULED_ALARM = "DROP TABLE IF EXISTS " + Alarm.TABLE_NAME;//NON-NLS
     private static final String SQL_DELETE_PAST_ALARM = "DROP TABLE IF EXISTS " + Alarm.TABLE_NAME;//NON-NLS
@@ -95,7 +91,11 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
             Alarm.ENABLED,
             Alarm.CONSTRAINT};
 
-    public static final String SQL_SELECT_PAST_ALARM =
+    public static final String[] SCHEDULED_QUERY_COLUMNS = {
+            ScheduledAlarm._ID,
+            ScheduledAlarm.TIME};
+
+    public static final String SQL_QUERY_PAST_ALARM =
             "SELECT "+PastAlarm.ALARM_ID +COMMA_SEP +//NON-NLS
                       PastAlarm.EXEC_TIME + COMMA_SEP +
                       PastAlarm.EXEC_DAY_OF_YEAR + COMMA_SEP +
@@ -106,6 +106,8 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
             " WHERE " + PastAlarm.TABLE_NAME+ "." + PastAlarm.ALARM_ID + "=" + Alarm.TABLE_NAME + "." + Alarm._ID +//NON-NLS
             " AND " + PastAlarm.EXEC_DAY_OF_YEAR + "=?" +//NON-NLS
             " AND " + PastAlarm.EXEC_YEAR + "=?" ;//NON-NLS
+
+    public static final String SCHEDULED_ID_SELECTION = ScheduledAlarm.ALARM_ID + "=?";
 
     public AlarmDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

@@ -56,7 +56,10 @@ public class AlarmContract {
     public static abstract class ScheduledAlarm implements BaseColumns {
         public static final String TABLE_NAME = "ScheduledAlarm";//NON-NLS
         public static final String ALARM_ID = "alarm_id";//NON-NLS
-        public static final String SCHEDULE_ID = "schedule_id";//NON-NLS
+        /**
+         * Scheduled date, i.e. number of milliseconds from epoch
+         */
+        public static final String TIME = "time";//NON-NLS
     }
 
     public enum ExecStatus {
