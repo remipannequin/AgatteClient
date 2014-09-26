@@ -316,7 +316,7 @@ public class AlarmRegistry {
         String[] selectionArgs = {String.valueOf(day), String.valueOf(year)};
         Cursor cursor2 = db.rawQuery(AlarmDbHelper.SQL_QUERY_PAST_ALARM, selectionArgs);
         while (cursor2.moveToNext()) {
-            RecordedAlarm r = new PastAlarm(cursor);
+            RecordedAlarm r = new PastAlarm(cursor2);
             result.add(r);
         }
         cursor2.close();
