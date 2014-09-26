@@ -35,9 +35,7 @@ import com.agatteclient.alarm.db.AlarmDbHelper;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 
 /**
  * This service has a map of pending intents corresponding to to all the scheduled alarms in the
@@ -249,6 +247,8 @@ public class AlarmRegistry {
         //check time
         if (time != scheduled_time) {
             Intent i = new Intent(context, AlarmReceiver.class);
+            i.putExtra(ALARM_TYPE, alarm.getConstraint().ordinal());
+            i.putExtra(ALARM_ID, alarm.getId());
             PendingIntent pi = PendingIntent.getBroadcast(context, request_id, i, PendingIntent.FLAG_ONE_SHOT);
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
@@ -275,21 +275,6 @@ public class AlarmRegistry {
         cursor.close();
     }
 
-    /**
-     * Return the list of scheduled alarm for this day
-     *
-     * @param now the day to consider
-     * @return
-     */
-    public Iterable<PunchAlarmTime> getScheduledAlarms(Date now) {
-        LinkedList<PunchAlarmTime> result = new LinkedList<PunchAlarmTime>();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(now);
-        int day = cal.get(Calendar.DAY_OF_YEAR);
-        //TODO: query DB with appropriate where clause
-        return result;
-    }
-
 
     /**
      * Return the list of alarms for this day : both scheduled, successfully done and failed
@@ -304,15 +289,37 @@ public class AlarmRegistry {
         int day = cal.get(Calendar.DAY_OF_YEAR);
         int year = cal.get(Calendar.YEAR);
 
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        long d_begin = cal.getTimeInMillis();
 
+        cal.set(Calendar.HOUR_OF_DAY, 23);
+        cal.set(Calendar.MINUTE, 59);
+        cal.set(Calendar.SECOND, 59);
+        cal.set(Calendar.MILLISECOND, 999);
+        long d_end = cal.getTimeInMillis();
+        // Query DB with appropriate where clause
         SQLiteDatabase db = getDb(context);
-        String[] selectionArgs = {String.valueOf(day), String.valueOf(year)};
-        Cursor cursor = db.rawQuery(AlarmDbHelper.SQL_QUERY_PAST_ALARM, selectionArgs);
-        if (cursor.moveToNext()) {
-            RecordedAlarm r = new RecordedAlarm(cursor);
+
+        String[] whereArgs = {String.valueOf(d_begin), String.valueOf(d_end)};
+        Cursor cursor = db.rawQuery(
+                AlarmDbHelper.SQL_QUERY_SCHEDULED_ALARM,
+                whereArgs);
+        while (cursor.moveToNext()) {
+            RecordedAlarm r = new ScheduledAlarm(cursor);
             result.add(r);
         }
         cursor.close();
+
+        String[] selectionArgs = {String.valueOf(day), String.valueOf(year)};
+        Cursor cursor2 = db.rawQuery(AlarmDbHelper.SQL_QUERY_PAST_ALARM, selectionArgs);
+        while (cursor2.moveToNext()) {
+            RecordedAlarm r = new PastAlarm(cursor);
+            result.add(r);
+        }
+        cursor2.close();
         return result;
     }
 
@@ -322,7 +329,7 @@ public class AlarmRegistry {
      *
      * @param id the ID of the Alarm to set as done
      */
-    private void setDone(Context context, int id, AlarmContract.ExecStatus status) {
+    private void setDone(Context context, long id, AlarmContract.ExecStatus status) {
         Calendar cal = Calendar.getInstance();
         //compute exec. date
         PunchAlarmTime a = getAlarm(context, id);
@@ -352,7 +359,7 @@ public class AlarmRegistry {
      *
      * @param id the ID of the Alarm to set as done
      */
-    public void setSucessfull(Context context, int id) {
+    public void setSucessfull(Context context, long id) {
         setDone(context, id, AlarmContract.ExecStatus.SUCCESS);
     }
 
@@ -362,7 +369,7 @@ public class AlarmRegistry {
      *
      * @param id the ID of the Alarm to set as done
      */
-    public void setFailed(Context context, int id) {
+    public void setFailed(Context context, long id) {
        setDone(context, id, AlarmContract.ExecStatus.FAILURE);
     }
 
@@ -397,7 +404,6 @@ public class AlarmRegistry {
      * @return a PunchAlarmTime if found, null of no alarm with ID exists
      */
     public PunchAlarmTime getAlarm(Context context, long alarmId) {
-
         SQLiteDatabase db = getDb(context);
         String[] projection = AlarmDbHelper.ALARM_QUERY_COLUMNS;
         String sort = AlarmContract.Alarm.DEFAULT_SORT_ORDER;
@@ -424,7 +430,6 @@ public class AlarmRegistry {
 
     //TODO: who will close this DB ??
     public Cursor getAlarms(Context context) {
-
         SQLiteDatabase db = getDb(context);
         String[] projection = AlarmDbHelper.ALARM_QUERY_COLUMNS;
         String sort = AlarmContract.Alarm.DEFAULT_SORT_ORDER;
@@ -447,9 +452,7 @@ public class AlarmRegistry {
      * @param alarmId
      */
     public void remove(Context context, long alarmId) {
-
         unschedule(context, String.valueOf(alarmId));
-
         SQLiteDatabase db = getDb(context);
         String selection = AlarmContract.Alarm._ID + "=?";
         String[] selectionArgs = {String.valueOf(alarmId)};
@@ -458,7 +461,6 @@ public class AlarmRegistry {
 
 
     private void setAttribute(Context context, long id, ContentValues values) {
-
         SQLiteDatabase db = getDb(context);
         String where = AlarmContract.Alarm._ID + "=?";
         String[] whereArgs = {String.valueOf(id)};
@@ -512,36 +514,19 @@ public class AlarmRegistry {
     }
 
 
-    //public for debugging purposes
-    public class ScheduledAlarm {
-        public PendingIntent intent;
-        public int intent_id;
-        public long alarm_id;
-        public long scheduled_time;
-
-        ScheduledAlarm() {
-            //TODO
-        }
-
-        public PendingIntent getPendingIntent() {
-            if (intent != null) {
-                return intent;
-            } else {
-                //TODO: get intent back from AlarmManager (if any ?!)
-                return null;
-            }
-        }
-    }
-
-
-    public class RecordedAlarm {
+    public abstract class RecordedAlarm {
 
         public long alarm_id;
-        public Date date_executed;
+        public Date date;
         public AlarmContract.Constraint constraint;
         public AlarmContract.ExecStatus status;
 
-        RecordedAlarm(Cursor c) {
+    }
+
+
+    private class PastAlarm extends RecordedAlarm {
+
+        PastAlarm(Cursor c) {
             Calendar cal = Calendar.getInstance();
             this.alarm_id = c.getInt(0);
             int t = c.getInt(1);
@@ -555,9 +540,26 @@ public class AlarmRegistry {
             cal.set(Calendar.MINUTE, m);
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
-            this.date_executed = cal.getTime();
+            this.date = cal.getTime();
             this.status = AlarmContract.ExecStatus.values()[c.getInt(4)];
             this.constraint = AlarmContract.Constraint.values()[c.getInt(5)];
         }
     }
+
+
+    private class ScheduledAlarm extends RecordedAlarm {
+
+        ScheduledAlarm(Cursor c) {
+
+            this.alarm_id = c.getInt(0);
+            long time = c.getLong(1);
+            this.date = new Date(time);
+            this.constraint = AlarmContract.Constraint.values()[c.getInt(2)];
+            this.status = AlarmContract.ExecStatus.SCHEDULED;
+        }
+    }
+
+
+
+
 }

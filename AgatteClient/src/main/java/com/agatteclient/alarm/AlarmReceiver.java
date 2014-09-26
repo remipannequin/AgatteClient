@@ -55,7 +55,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         //get the type of the alarm
         AlarmContract.Constraint t = AlarmContract.Constraint.values()[intent.getIntExtra(AlarmRegistry.ALARM_TYPE,
                 AlarmContract.Constraint.unconstraigned.ordinal())];
-        int id = intent.getIntExtra(AlarmRegistry.ALARM_ID, -1);
+        long id = intent.getLongExtra(AlarmRegistry.ALARM_ID, -1);
         //Do the punch by calling the punching service
         final Intent i = new Intent(context, PunchService.class);
         switch (t) {
@@ -80,9 +80,9 @@ public class AlarmReceiver extends BroadcastReceiver {
     private class PunchResultReceiver extends ResultReceiver {
 
         private final Context ctx;
-        private final int alarm_id;
+        private final long alarm_id;
 
-        public PunchResultReceiver(Context ctx, int alarm_id) {
+        public PunchResultReceiver(Context ctx, long alarm_id) {
             super(new Handler(Looper.getMainLooper()));
             this.ctx = ctx;
             this.alarm_id = alarm_id;

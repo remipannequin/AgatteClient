@@ -108,6 +108,16 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
             " AND " + PastAlarm.EXEC_DAY_OF_YEAR + "=?" +//NON-NLS
             " AND " + PastAlarm.EXEC_YEAR + "=?" ;//NON-NLS
 
+    public static final String SQL_QUERY_SCHEDULED_ALARM =
+            "SELECT "+ScheduledAlarm.ALARM_ID +COMMA_SEP +//NON-NLS
+                      ScheduledAlarm.TIME + COMMA_SEP +
+                      Alarm.CONSTRAINT +
+            " FROM " + ScheduledAlarm.TABLE_NAME + COMMA_SEP + Alarm.TABLE_NAME +//NON-NLS
+            " WHERE " + ScheduledAlarm.TABLE_NAME+ "." + ScheduledAlarm.ALARM_ID + "=" + Alarm.TABLE_NAME + "." + Alarm._ID +//NON-NLS
+            " AND " + ScheduledAlarm.TIME + ">?" +//NON-NLS
+            " AND " + ScheduledAlarm.TIME + "<?" ;//NON-NLS
+
+
     public static final String SCHEDULED_ID_SELECTION = ScheduledAlarm.ALARM_ID + "=?";
 
     public AlarmDbHelper(Context context) {
