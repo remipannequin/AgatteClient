@@ -122,9 +122,9 @@ public class PunchAlarmTime implements Parcelable {
      */
     void setFireAt(AlarmContract.Day day, boolean b) {
         if (isFireAt(day) && !b) {
-            AlarmContract.Day.unset(this.days_of_week, day);
+            this.days_of_week = AlarmContract.Day.unset(this.days_of_week, day);
         } else if (!isFireAt(day) && b) {
-            AlarmContract.Day.set(this.days_of_week, day);
+            this.days_of_week = AlarmContract.Day.set(this.days_of_week, day);
         }
     }
 

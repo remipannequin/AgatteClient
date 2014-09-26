@@ -170,11 +170,11 @@ public class AlarmContract {
             }
         }
 
-        public static int unset(int code, Day d) {
+        public static int set(int code, Day d) {
             return code | d.f;
         }
 
-        public static int set(int code, Day d) {
+        public static int unset(int code, Day d) {
             return code & ~(d.f);
         }
 
