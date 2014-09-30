@@ -117,7 +117,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
 
         //Update network authentication status
-        NetworkChangeRegistry.getInstance().update(getApplicationContext());
+        NetworkChangeRegistry.getInstance(getBaseContext()).update(getApplicationContext());
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor editor = preferences.edit();
