@@ -33,9 +33,11 @@ import com.agatteclient.MainActivity;
 import com.agatteclient.alarm.db.AlarmContract;
 import com.agatteclient.alarm.db.AlarmDbHelper;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * This service has a map of pending intents corresponding to to all the scheduled alarms in the
@@ -81,44 +83,38 @@ public class AlarmRegistry {
      * @param context
      */
     public void cancelAll(Context context) {
-        //TODO
+        SQLiteDatabase db = getDb(context);
+        String[] col =  {AlarmContract.ScheduledAlarm._ID};
+        Cursor c = db.query(
+                AlarmContract.ScheduledAlarm.TABLE_NAME,
+                col,
+                null, null,
+                null, null,
+                null
+        );
+        List<Integer> ids = new ArrayList<Integer>();
+        while (c.moveToNext()) {
+            ids.add(c.getInt(0));
+        }
 
+        for (int i : ids) {
+            unschedule(context, String.valueOf(i));
+        }
     }
 
     /**
+     * reschedule every alarms in the past
+     *
+     *
      * @param context
      */
     public void check(Context context) {
-        //TODO: replace with SQL queries :
+        //cancel all alarms
+        cancelAll(context);
+        //reschedule all alarms
 
-        // 1. If there is schedule entry with no corresponding alarms, cancel them, and clean entry
 
-        // 2. get the list of enabled Alarms that have no corresponding shedule entry, Add them
 
-        // 3. for every schedule, check that the schedule date is the same than the alarm date
-        /*
-        Alarms alist = Alarms.getInstance(context);
-
-        //Cancel alarms that are not in the binder any more
-        List<PunchAlarmTime> to_remove = new ArrayList<PunchAlarmTime>(pending_intent_map.size());
-        for (PunchAlarmTime a : pending_intent_map.keySet()) {
-            if (!alist.contains(a)) {
-                to_remove.add(a);
-            }
-        }
-        for (PunchAlarmTime a : to_remove) {
-            cancelAlarm(context, a);
-        }
-
-        //Add alarms that are new, update the other ones
-        for (PunchAlarmTime a : alist) {
-            if (!pending_intent_map.containsKey(a)) {
-                addAlarm(context, a);
-            } else {
-                updateAlarm(context, a);
-            }
-        }
-        */
     }
 
     /**
