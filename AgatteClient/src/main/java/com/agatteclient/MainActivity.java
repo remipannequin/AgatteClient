@@ -139,7 +139,7 @@ public class MainActivity extends Activity {
         dc_view = (DayCardView) findViewById(R.id.day_card_view);
         //
 
-        String profile = preferences.getString(PROFILE_PREF, "1");
+        //String profile = preferences.getString(PROFILE_PREF, "1");
         //int profile_n = Integer.decode(profile) - 1;
 
         day_progress = (ProgressBar) findViewById(R.id.day_progress);
@@ -201,7 +201,6 @@ public class MainActivity extends Activity {
                 });
             }
         });
-
 
         //bind to alarm service (update alarms if needed)
         doAlarmUpdate();
@@ -415,8 +414,8 @@ public class MainActivity extends Activity {
      * Update the alarms Scheduled in the alarm manager.
      */
     private void doAlarmUpdate() {
-        //TODO: is this still required ?
-        //AlarmRegistry.getInstance().update(getApplicationContext());
+        //TODO: is this still required ? Possible performance problems ?...
+        AlarmRegistry.getInstance().check(getApplicationContext());
     }
 
 

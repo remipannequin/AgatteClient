@@ -108,12 +108,29 @@ public class AlarmRegistry {
      * @param context
      */
     public void check(Context context) {
-        //cancel all alarms
+        // Cancel all alarms
         cancelAll(context);
-        //reschedule all alarms
 
+        // Reschedule all alarms
+        for (PunchAlarmTime a : getAlarms(context)) {
+            reschedule(context, a);
+        }
+    }
 
-
+    private Iterable<? extends PunchAlarmTime> getAlarms(Context context) {
+        SQLiteDatabase db = getDb(context);
+        Cursor c = db.query(
+                AlarmContract.Alarm.TABLE_NAME,
+                AlarmDbHelper.ALARM_QUERY_COLUMNS,
+                null, null,
+                null, null,
+                null);
+        ArrayList<PunchAlarmTime> result = new ArrayList<PunchAlarmTime>(c.getCount());
+        while (c.moveToNext()) {
+            result.add(new PunchAlarmTime(c));
+        }
+        c.close();
+        return result;
     }
 
     /**
@@ -422,7 +439,7 @@ public class AlarmRegistry {
 
 
     //TODO: who will close this DB ??
-    public Cursor getAlarms(Context context) {
+    public Cursor getAlarmsCursor(Context context) {
         SQLiteDatabase db = getDb(context);
         String[] projection = AlarmDbHelper.ALARM_QUERY_COLUMNS;
         String sort = AlarmContract.Alarm.DEFAULT_SORT_ORDER;

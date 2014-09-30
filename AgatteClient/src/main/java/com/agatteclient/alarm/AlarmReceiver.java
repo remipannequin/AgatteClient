@@ -53,9 +53,9 @@ public class AlarmReceiver extends BroadcastReceiver {
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
         wl.acquire();
         // get the schedule ID
-        long schedule_id = intent.getLongExtra(AlarmRegistry.ALARM_ID, -1);
+        int schedule_id = intent.getIntExtra(AlarmRegistry.ALARM_ID, -1);
         if (schedule_id == -1) {
-            Log.e(MainActivity.LOG_TAG, "Alarm with not schedule ID");//NON-NLS
+            Log.e(MainActivity.LOG_TAG, "Unable to get schedule ID for alarm");//NON-NLS
         }
         // Check that the alarm is scheduled (i.e. there is a corresponding entry in the DB
         AlarmRegistry.RecordedAlarm rec = AlarmRegistry.getInstance().getIdFromSchedule(context, schedule_id);

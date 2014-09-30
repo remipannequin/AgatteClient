@@ -52,7 +52,6 @@ import android.widget.ToggleButton;
 import com.agatteclient.BuildConfig;
 import com.agatteclient.R;
 import com.agatteclient.alarm.db.AlarmContract;
-import com.agatteclient.alarm.db.AlarmDbHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -172,7 +171,7 @@ public class AlarmActivity extends FragmentActivity implements LoaderManager.Loa
 
             @Override
             public Cursor loadInBackground() {
-                mCursor = AlarmRegistry.getInstance().getAlarms(ctx);
+                mCursor = AlarmRegistry.getInstance().getAlarmsCursor(ctx);
                 return mCursor;
             }
 
