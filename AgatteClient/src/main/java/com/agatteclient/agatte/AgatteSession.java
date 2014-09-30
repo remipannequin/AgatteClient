@@ -21,6 +21,9 @@ package com.agatteclient.agatte;
 
 
 import android.net.http.AndroidHttpClient;
+import android.util.Log;
+
+import com.agatteclient.MainActivity;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -127,7 +130,7 @@ public class AgatteSession {
             //compute expiration date according to System.date(); ??
             this.session_id = null;
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(MainActivity.LOG_TAG, "IOException on logout", e);//NON-NLS
         }
     }
 
@@ -197,8 +200,7 @@ public class AgatteSession {
             HttpResponse response = client.execute(query_day_rq, httpContext);
             return AgatteParser.getInstance().parse_query_response(response);
         } catch (IOException e) {
-            e.printStackTrace();
-            //return new AgatteResponse(AgatteResponse.Code.IOError, e);
+            Log.w(MainActivity.LOG_TAG, "IOException in query_day", e);//NON-NLS
             throw new AgatteException(e);
         } finally {
             if (client != null) {
@@ -478,7 +480,7 @@ public class AgatteSession {
             return AgatteParser.getInstance().parse_topOk_response(response2);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(MainActivity.LOG_TAG, "IOException in queryPunchOk", e);//NON-NLS
             throw new AgatteException(e);
         } finally {
             logout(client);

@@ -26,9 +26,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.content.AsyncTaskLoader;
 import android.text.format.DateFormat;
@@ -62,7 +61,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class AlarmActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class AlarmActivity extends ActionBarActivity {
 
     public final static int LOADER_ID = 0;
     private AlarmCursorAdapter mAdapter;

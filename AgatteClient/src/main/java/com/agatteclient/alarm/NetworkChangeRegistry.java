@@ -20,6 +20,11 @@
 package com.agatteclient.alarm;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.util.Log;
+
+import com.agatteclient.MainActivity;
+import com.agatteclient.R;
 
 import java.util.Dictionary;
 import java.util.HashSet;
@@ -34,21 +39,27 @@ import java.util.Set;
  * Created by remi on 25/04/14.
  */
 public class NetworkChangeRegistry {
-    private static NetworkChangeRegistry ourInstance = new NetworkChangeRegistry();
+    private static NetworkChangeRegistry ourInstance;
     private final Set<String> authorized_ssid;
+    private boolean wifi_connected = false;
     private Dictionary<Long, String> ssid_history;
     private String ssid_current;
     private OnChangeListener listener;
 
-    private NetworkChangeRegistry() {
+    private NetworkChangeRegistry(Context context) {
         authorized_ssid = new HashSet<String>();
         ssid_history = new Hashtable<Long, String>();
         //TODO: get the list of authorized network from preference
-        authorized_ssid.add("eduroam");
-        authorized_ssid.add("Personnels Univ-Lorraine");
+        Resources res = context.getResources();
+        for (String ssid : res.getStringArray(R.array.default_auth_ssid)) {
+            authorized_ssid.add(ssid);
+        }
     }
 
-    public static NetworkChangeRegistry getInstance() {
+    public static NetworkChangeRegistry getInstance(Context context) {
+        if (ourInstance == null) {
+            ourInstance = new NetworkChangeRegistry(context.getApplicationContext());
+        }
         return ourInstance;
     }
 
@@ -56,8 +67,9 @@ public class NetworkChangeRegistry {
      * Force update (with the current network SSID)
      */
     public void update(Context ctx) {
+        boolean c = NetworkChangeReceiver.isConnected(ctx);
         String ssid = NetworkChangeReceiver.getCurrentSsid(ctx);
-        setCurrentSSID(ssid);
+        setCurrentWifiState(c, ssid);
     }
 
     /**
@@ -65,16 +77,22 @@ public class NetworkChangeRegistry {
      *
      * @param ssid The current SSID of the wifi network, or "" (empty string) if no wifi connection
      */
-    public void setCurrentSSID(String ssid) {
+    public void setCurrentWifiState(boolean connected, String ssid) {
+        wifi_connected = connected;
+        if (wifi_connected) {
+            Log.d(MainActivity.LOG_TAG, String.format("Wifi state change: connected to %s", ssid));//NON-NLS
+        } else {
+            Log.d(MainActivity.LOG_TAG, String.format("Wifi state change: disconnected"));//NON-NLS
+        }
         long now = System.currentTimeMillis();
-
         //Check that value changed
-        if (ssid != ssid_current) {
+        if (!ssid.equals(ssid_current)) {
             ssid_history.put(now, ssid);
             ssid_current = ssid;
             if (listener != null) {
                 listener.onChange();
             }
+            Log.d(MainActivity.LOG_TAG, String.format("Current SSID is %s", ssid));//NON-NLS
         }
     }
 
@@ -107,7 +125,7 @@ public class NetworkChangeRegistry {
     }
 
     public boolean isOnAuthorizeNetwork() {
-        return authorized_ssid.contains(ssid_current);
+        return wifi_connected && authorized_ssid.contains(ssid_current);
     }
 
     public void setOnChangeListener(OnChangeListener listener) {

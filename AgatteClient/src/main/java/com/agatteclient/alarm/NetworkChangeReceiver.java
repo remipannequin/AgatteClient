@@ -26,6 +26,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.util.Log;
+
+import com.agatteclient.MainActivity;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
@@ -52,17 +55,43 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                 ssid = connectionInfo.getSSID();
                 // Remove quotes
                 ssid = ssid.replaceAll("\"", "");
+            } else {
+                Log.w(MainActivity.LOG_TAG, String.format("connection info is empty"));
             }
         }
         return ssid;
     }
 
+    /**
+     * Return true if a wifi network is currently available
+     * @param context
+     * @return
+     */
+    public static boolean isConnected(Context context) {
+        ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        return networkInfo.isConnected();
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction() != null && intent.getAction().equals("android.net.wifi.WIFI_STATE_CHANGED")) { //NON-NLS
-            //TODO
+        String action = intent.getAction();
+        if (action != null && action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) { //NON-NLS
+            NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+            NetworkInfo.State state = networkInfo.getState();
+            if(state == NetworkInfo.State.CONNECTED) {
+                String ssid = getCurrentSsid(context);
+                NetworkChangeRegistry.getInstance(context).setCurrentWifiState(true, ssid);
+            }
+
+            if(state == NetworkInfo.State.DISCONNECTED) {
+                NetworkChangeRegistry.getInstance(context).setCurrentWifiState(false, "");
+            }
+
+        } else {
+            Log.w(MainActivity.LOG_TAG, String.format("NetworkChangeReceiver got unexpected action %s", action));//NON-NLS
         }
-        String ssid = getCurrentSsid(context);
-        NetworkChangeRegistry.getInstance().setCurrentSSID(ssid);
     }
+
+
 }

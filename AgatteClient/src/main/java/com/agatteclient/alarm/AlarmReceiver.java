@@ -34,6 +34,7 @@ import com.agatteclient.R;
 import com.agatteclient.agatte.AgatteResponse;
 import com.agatteclient.agatte.AgatteResultCode;
 import com.agatteclient.agatte.PunchService;
+import com.agatteclient.alarm.db.AlarmContract;
 import com.agatteclient.card.CardBinder;
 import com.agatteclient.card.DayCard;
 
@@ -150,10 +151,20 @@ public class AlarmReceiver extends BroadcastReceiver {
                     //Update AlarmRegistry with value
                     AlarmRegistry.getInstance().setSucessfull(ctx, alarm_id);
                     break;
+                case invalidPunchingCondition:
+                    notification_text.append("Required conditions were not met");
+                    message = resultData.getString("message");
+                    if (message != null && message.length() != 0) {
+                        notification_text.append(" : ").append(message);
+                    }
+                    //TODO: add setInvalid
+                    AlarmRegistry.getInstance().setFailed(ctx, alarm_id);
+                    break;
                 default:
-
-
+                    Log.w(MainActivity.LOG_TAG, String.format("Unknown response code %s", code.toString()));//NON-NLS
             }
+
+            //TODO: in case of invalidPunchingCondition, don't display a notification...
             AlarmDoneNotification.notify(ctx, code, notification_text.toString(), 0);
         }
     }

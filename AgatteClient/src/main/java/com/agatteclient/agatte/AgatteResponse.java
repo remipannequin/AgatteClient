@@ -76,13 +76,13 @@ public class AgatteResponse {
     /**
      * Return the last punch
      *
-     * @return the last punch as a String "hh:mm"
+     * @return the string of the last punch
      */
     public String getLastPunch() {
         if (punches.length > 0) {
             return punches[punches.length - 1];
         } else {
-            Log.wtf(MainActivity.LOG_TAG, "impossible to get last punch: no punches recorded");//NON-NLS
+            Log.w(MainActivity.LOG_TAG, "getLastPunch with no punches, returning empty string");//NON-NLS
             return "";
         }
     }

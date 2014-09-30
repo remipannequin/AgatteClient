@@ -133,7 +133,6 @@ public class PunchAlarmTime {
         //cal.set
     }
 
-
     /**
      * Get the next time the alarm should be triggered, 0 if it should run immediately or -1 if it does not trigger
      *
@@ -147,11 +146,10 @@ public class PunchAlarmTime {
         return next.getTime();
     }
 
-
     /**
      * Get the time of the alarm in the present day (even if the alarm does no fire this day !)
      *
-     * @return a Date corresponding to the enxt time the alarm should get off
+     * @return a Date corresponding to the next time the alarm should get off
      */
     public Date getTime() {
         //set calendar to now (to get the present day)

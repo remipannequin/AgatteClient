@@ -26,8 +26,8 @@
     <string name="login_default_value">nom5</string>
     <string name="password_prefs_title">Mot de passe</string>
     <string name="password_default_value">******</string>
-    <string name="title_activity_settings">Préférencess</string>
-    <string name="action_update">Mise à jour</string>
+    <string name="title_activity_settings">Préférences</string>
+    <string name="action_update">Mettre à jour</string>
     <string name="dialog_confirm_punch">Confirmez-vous le pointage ?</string>
     <string name="send">Pointer</string>
     <string name="cancel">Annuler</string>
@@ -132,8 +132,8 @@
     <string name="duration_minute">%02d</string>
     <string name="date_format">E dd MMM yyyy</string>
     <string name="anomaly">anomalie</string>
-    <string name="counter_year">%1$+dj%2$s</string>
-    <string name="counter_duration_min">%1$+02dmin</string>
+    <string name="counter_year">%1$+d j%2$s</string>
+    <string name="counter_duration_min">%1$+02d min</string>
     <string name="counter_duration">%1$+dh%2$02d</string>
     <string name="counter_unavailable">Compteurs non disponibles</string>
     <string name="auto_query_title">Récupération auto. des compteurs</string>
@@ -146,4 +146,7 @@
         jour automatique pour limiter la consommation de données</string>
     <string name="pref_ringtone_silent">Silencieux</string>
     <string name="preference_notification_sound">Son de notification</string>
+    <string name="delete_alarm_content_description">supprimer l\'alarme</string>
+    <string name="expand_alarm_content_description">étendre l\'alarme</string>
+    <string name="collapse_alarm_content_description">réduire l\'alarme</string>
 </resources>

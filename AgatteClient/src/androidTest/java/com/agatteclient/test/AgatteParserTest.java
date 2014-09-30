@@ -35,7 +35,7 @@ import org.apache.http.message.BasicHttpResponse;
 import java.io.ByteArrayInputStream;
 
 
-@SuppressWarnings("HardcodedLineSeparator")
+@SuppressWarnings({"HardcodedLineSeparator", "HardCodedStringLiteral"})
 public class AgatteParserTest extends AndroidTestCase {
 
     private final static String response_test1 = "<html>\n" +

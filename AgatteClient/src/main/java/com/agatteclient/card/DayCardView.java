@@ -519,8 +519,8 @@ public class DayCardView extends View {
     /**
      * Draw an ScheduledAlarm on the View
      * @param canvas the canvas where to draw
-     * @param alarm
-     * @param type
+     * @param alarm the date of the alarm scheduled/done/failed
+     * @param status the type of event (scheduled/done/failed)
      */
     private void drawAlarm(Canvas canvas, Date alarm, AlarmContract.Constraint type, AlarmContract.ExecStatus status) {
         //get the y coordinate where to draw
@@ -631,6 +631,15 @@ public class DayCardView extends View {
     public void setCard(DayCard card) {
         if (card != this.card) {
             this.card = card;
+            invalidate();
+            requestLayout();
+        }
+    }
+
+
+    public void setAlarmRegistry(AlarmRegistry alarms) {
+        if (alarms != this.alarms) {
+            this.alarms = alarms;
             invalidate();
             requestLayout();
         }

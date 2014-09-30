@@ -25,6 +25,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.agatteclient.MainActivity;
 
@@ -62,9 +63,9 @@ public class PunchService extends IntentService {
         try {
             session = new AgatteSession(server, login, password);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            Log.e(MainActivity.LOG_TAG, String.format("%1 is not a valid URI", server), e);//NON-NLS
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            Log.e(MainActivity.LOG_TAG, "Unsupported encoding in server, login or password", e);//NON-NLS
         }
     }
 
