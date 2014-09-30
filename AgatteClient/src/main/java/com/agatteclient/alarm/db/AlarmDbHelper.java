@@ -134,11 +134,11 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
     }
 
     public static final String SQL_QUERY_SCHEDULED_ALARM_BY_ID =
-            "SELECT "+ScheduledAlarm.ALARM_ID+COMMA_SEP+//NON-NLS
-                ScheduledAlarm.TIME+COMMA_SEP+
+            "SELECT " + ScheduledAlarm.ALARM_ID + COMMA_SEP +//NON-NLS
+                ScheduledAlarm.TIME+COMMA_SEP +
                 Alarm.CONSTRAINT+
-            " FROM "+ScheduledAlarm.TABLE_NAME+COMMA_SEP+Alarm.TABLE_NAME+//NON-NLS
-            " WHERE "+ScheduledAlarm.TABLE_NAME+"."+ScheduledAlarm.ALARM_ID+"="+Alarm.TABLE_NAME+"."+Alarm._ID+//NON-NLS
-                " AND "+ScheduledAlarm._ID+"=?";
+            " FROM " + ScheduledAlarm.TABLE_NAME + COMMA_SEP + Alarm.TABLE_NAME +//NON-NLS
+            " WHERE " + ScheduledAlarm.TABLE_NAME + "." + ScheduledAlarm.ALARM_ID + "="+Alarm.TABLE_NAME + "." + Alarm._ID +//NON-NLS
+                " AND " + ScheduledAlarm.TABLE_NAME + "." + ScheduledAlarm._ID + "=?";
 }
 
