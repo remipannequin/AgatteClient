@@ -71,13 +71,12 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_PAST_ALARM =
             "CREATE TABLE " + PastAlarm.TABLE_NAME + " (" +//NON-NLS
                     PastAlarm._ID + " INTEGER PRIMARY KEY," +//NON-NLS
-                    PastAlarm.ALARM_ID + INT_TYPE + COMMA_SEP +
+                    PastAlarm.REQUESTED_TIME + INT_TYPE + COMMA_SEP +
+                    PastAlarm.CONSTRAINT+ INT_TYPE + COMMA_SEP +
                     PastAlarm.EXEC_STATUS + INT_TYPE + COMMA_SEP +
                     PastAlarm.EXEC_TIME + INT_TYPE + COMMA_SEP +
                     PastAlarm.EXEC_DAY_OF_YEAR + INT_TYPE + COMMA_SEP +
-                    PastAlarm.EXEC_YEAR + INT_TYPE + COMMA_SEP +
-                    "FOREIGN KEY(" + PastAlarm.ALARM_ID + ") REFERENCES " + Alarm.TABLE_NAME + "(" + Alarm._ID + ")" +//NON-NLS
-                    ");";
+                    PastAlarm.EXEC_YEAR + INT_TYPE + ");";
 
     private static final String SQL_DELETE_ALARM = "DROP TABLE IF EXISTS " + Alarm.TABLE_NAME;//NON-NLS
     private static final String SQL_DELETE_SCHEDULED_ALARM = "DROP TABLE IF EXISTS " + Alarm.TABLE_NAME;//NON-NLS
@@ -96,15 +95,14 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
             ScheduledAlarm.TIME};
 
     public static final String SQL_QUERY_PAST_ALARM =
-            "SELECT " + PastAlarm.ALARM_ID + COMMA_SEP +//NON-NLS
+            "SELECT " + PastAlarm.REQUESTED_TIME + COMMA_SEP +//NON-NLS
+                    PastAlarm.CONSTRAINT + COMMA_SEP +//NON-NLS
                     PastAlarm.EXEC_TIME + COMMA_SEP +
                     PastAlarm.EXEC_DAY_OF_YEAR + COMMA_SEP +
                     PastAlarm.EXEC_YEAR + COMMA_SEP +
-                    PastAlarm.EXEC_STATUS + COMMA_SEP +
-                    Alarm.CONSTRAINT +
-                    " FROM " + PastAlarm.TABLE_NAME + COMMA_SEP + Alarm.TABLE_NAME +//NON-NLS
-                    " WHERE " + PastAlarm.TABLE_NAME + "." + PastAlarm.ALARM_ID + "=" + Alarm.TABLE_NAME + "." + Alarm._ID +//NON-NLS
-                    " AND " + PastAlarm.EXEC_DAY_OF_YEAR + "=?" +//NON-NLS
+                    PastAlarm.EXEC_STATUS +
+                    " FROM " + PastAlarm.TABLE_NAME +//NON-NLS
+                    " WHERE " + PastAlarm.EXEC_DAY_OF_YEAR + "=?" +//NON-NLS
                     " AND " + PastAlarm.EXEC_YEAR + "=?";//NON-NLS
 
     public static final String SQL_QUERY_SCHEDULED_ALARM =

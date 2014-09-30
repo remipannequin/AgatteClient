@@ -151,7 +151,7 @@ public class AlarmRegistry {
             values.put(AlarmContract.ScheduledAlarm.ALARM_ID, alarm.getId());
             values.put(AlarmContract.ScheduledAlarm.TIME, time);
             long requestId = db.insert(AlarmContract.ScheduledAlarm.TABLE_NAME, null, values);
-            i.putExtra(ALARM_ID, requestId);
+            i.putExtra(ALARM_ID, (int)requestId);
             PendingIntent pi = PendingIntent.getBroadcast(context, (int) requestId, i, PendingIntent.FLAG_ONE_SHOT);
             am.set(AlarmManager.RTC_WAKEUP, time, pi);
         }
@@ -349,8 +349,9 @@ public class AlarmRegistry {
         // Insert in past alarm table
 
         SQLiteDatabase db = getDb(context);
-        ContentValues values = new ContentValues(5);
-        values.put(AlarmContract.PastAlarm.ALARM_ID, id);
+        ContentValues values = new ContentValues(6);
+        values.put(AlarmContract.PastAlarm.REQUESTED_TIME, a.getTimeOfDay());
+        values.put(AlarmContract.PastAlarm.CONSTRAINT, a.getConstraint().ordinal());
         values.put(AlarmContract.PastAlarm.EXEC_YEAR, y);
         values.put(AlarmContract.PastAlarm.EXEC_DAY_OF_YEAR, d);
         values.put(AlarmContract.PastAlarm.EXEC_TIME, t);
@@ -566,12 +567,12 @@ public class AlarmRegistry {
 
         PastAlarm(Cursor c) {
             Calendar cal = Calendar.getInstance();
-            this.alarm_id = c.getInt(0);
-            int t = c.getInt(1);
+
+            int t = c.getInt(2);
             int h = t / 60;
             int m = t - (h * 60);
-            int d = c.getInt(2);
-            int y = c.getInt(3);
+            int d = c.getInt(3);
+            int y = c.getInt(4);
             cal.set(Calendar.YEAR, y);
             cal.set(Calendar.DAY_OF_YEAR, d);
             cal.set(Calendar.HOUR, h);
@@ -579,8 +580,8 @@ public class AlarmRegistry {
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
             this.date = cal.getTime();
-            this.status = AlarmContract.ExecStatus.values()[c.getInt(4)];
-            this.constraint = AlarmContract.Constraint.values()[c.getInt(5)];
+            this.status = AlarmContract.ExecStatus.values()[c.getInt(5)];
+            this.constraint = AlarmContract.Constraint.values()[c.getInt(1)];
         }
     }
 

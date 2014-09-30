@@ -160,4 +160,8 @@ public class PunchAlarmTime {
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTime();
     }
+
+    public int getTimeOfDay() {
+        return time_of_day;
+    }
 }

@@ -75,6 +75,9 @@ public class AlarmContract {
     public static abstract class PastAlarm implements BaseColumns {
         public static final String TABLE_NAME = "PastAlarm";//NON-NLS
         public static final String ALARM_ID = "alarm_id";//NON-NLS
+
+        public static final String CONSTRAINT = "rq_contraint";//NON-NLS
+        public static final String REQUESTED_TIME = "rq_time";//NON-NLS
         /**
          * Number of minutes in the day INTEGER
          * 60 * hour + minute, with hour in 24 hours format
