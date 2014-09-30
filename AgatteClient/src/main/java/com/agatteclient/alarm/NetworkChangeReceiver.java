@@ -64,6 +64,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
 
     /**
      * Return true if a wifi network is currently available
+     *
      * @param context
      * @return
      */
@@ -79,12 +80,12 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         if (action != null && action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) { //NON-NLS
             NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
             NetworkInfo.State state = networkInfo.getState();
-            if(state == NetworkInfo.State.CONNECTED) {
+            if (state == NetworkInfo.State.CONNECTED) {
                 String ssid = getCurrentSsid(context);
                 NetworkChangeRegistry.getInstance(context).setCurrentWifiState(true, ssid);
             }
 
-            if(state == NetworkInfo.State.DISCONNECTED) {
+            if (state == NetworkInfo.State.DISCONNECTED) {
                 NetworkChangeRegistry.getInstance(context).setCurrentWifiState(false, "");
             }
 

@@ -26,10 +26,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.content.Loader;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
+import android.support.v7.app.ActionBarActivity;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -61,7 +62,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class AlarmActivity extends ActionBarActivity {
+public class AlarmActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public final static int LOADER_ID = 0;
     private AlarmCursorAdapter mAdapter;
@@ -283,8 +284,8 @@ public class AlarmActivity extends ActionBarActivity {
         /**
          * Create a new view for a list item.
          *
-         * @param parent parent view
-         * @param cursor the cursor to display
+         * @param parent  parent view
+         * @param cursor  the cursor to display
          * @param context context
          * @return the bound view
          */
@@ -302,8 +303,8 @@ public class AlarmActivity extends ActionBarActivity {
         /**
          * Bind the view of this item to the actual data
          *
-         * @param v the view to bind
-         * @param cursor data to display
+         * @param v       the view to bind
+         * @param cursor  data to display
          * @param context context
          */
         @Override
@@ -604,7 +605,7 @@ public class AlarmActivity extends ActionBarActivity {
             AlarmRegistry.getInstance().setTime(context, alarm.getId(), hourOfDay, minute);
             SimpleDateFormat df = new SimpleDateFormat("HH:mm");
             tv.setText(df.format(alarm.getTime()));
-            reload_cursor((AlarmActivity)context);
+            reload_cursor((AlarmActivity) context);
         }
     }
 

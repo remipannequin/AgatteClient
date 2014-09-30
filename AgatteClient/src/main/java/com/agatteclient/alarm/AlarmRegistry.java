@@ -56,7 +56,6 @@ public class AlarmRegistry {
     private SQLiteDatabase db;
 
 
-
     public static AlarmRegistry getInstance() {
         if (ourInstance == null) {
             ourInstance = new AlarmRegistry();
@@ -83,7 +82,7 @@ public class AlarmRegistry {
      */
     public void cancelAll(Context context) {
         SQLiteDatabase db = getDb(context);
-        String[] col =  {AlarmContract.ScheduledAlarm._ID};
+        String[] col = {AlarmContract.ScheduledAlarm._ID};
         Cursor c = db.query(
                 AlarmContract.ScheduledAlarm.TABLE_NAME,
                 col,
@@ -103,7 +102,6 @@ public class AlarmRegistry {
 
     /**
      * reschedule every alarms in the past
-     *
      *
      * @param context
      */
@@ -154,7 +152,7 @@ public class AlarmRegistry {
             values.put(AlarmContract.ScheduledAlarm.TIME, time);
             long requestId = db.insert(AlarmContract.ScheduledAlarm.TABLE_NAME, null, values);
             i.putExtra(ALARM_ID, requestId);
-            PendingIntent pi = PendingIntent.getBroadcast(context, (int)requestId, i, PendingIntent.FLAG_ONE_SHOT);
+            PendingIntent pi = PendingIntent.getBroadcast(context, (int) requestId, i, PendingIntent.FLAG_ONE_SHOT);
             am.set(AlarmManager.RTC_WAKEUP, time, pi);
         }
     }
@@ -210,13 +208,12 @@ public class AlarmRegistry {
 
     /**
      * Verify that the alarm passed in parameter is correctly scheduled:
-     *
+     * <p/>
      * cases:
      * 1. alarm is not enabled : un-schedule it (no changes if not scheduled)
      * 2. alarm is enabled
-     *    2.1. There is no entry in the DB : schedule it.
-     *    2.2. there is an entry in the DB : check time, update if needed
-     *
+     * 2.1. There is no entry in the DB : schedule it.
+     * 2.2. there is an entry in the DB : check time, update if needed
      *
      * @param context
      * @param alarm
@@ -269,13 +266,13 @@ public class AlarmRegistry {
             db.update(
                     AlarmContract.ScheduledAlarm.TABLE_NAME,
                     values,
-                    AlarmContract.ScheduledAlarm._ID+"="+request_id,
+                    AlarmContract.ScheduledAlarm._ID + "=" + request_id,
                     null);
         } //else : nothing to update...
 
         // Remove all other entries, if any
         if (!cursor.isLast()) {
-            String where = AlarmContract.ScheduledAlarm.ALARM_ID+"=? AND NOT "+AlarmContract.ScheduledAlarm._ID+"=?";//NON-NLS
+            String where = AlarmContract.ScheduledAlarm.ALARM_ID + "=? AND NOT " + AlarmContract.ScheduledAlarm._ID + "=?";//NON-NLS
             String[] whereArgs = {a_id, String.valueOf(request_id)};
             db.delete(
                     AlarmContract.ScheduledAlarm.TABLE_NAME,
@@ -380,16 +377,17 @@ public class AlarmRegistry {
      * @param id the ID of the Alarm to set as done
      */
     public void setFailed(Context context, long id) {
-       setDone(context, id, AlarmContract.ExecStatus.FAILURE);
+        setDone(context, id, AlarmContract.ExecStatus.FAILURE);
     }
 
 
     /**
      * Create a new alarm, and add it to the database
+     *
      * @param context
      * @param h
      * @param m
-     * @return  the ID of the alarm added
+     * @return the ID of the alarm added
      */
     public long addAlarm(Context context, int h, int m) {
         ContentValues values = new ContentValues();
@@ -460,6 +458,7 @@ public class AlarmRegistry {
 
     /**
      * Unschedule and then remove alarm identified by alarmId
+     *
      * @param context
      * @param alarmId
      */
@@ -482,13 +481,14 @@ public class AlarmRegistry {
 
     /**
      * Enable/disable this alarm, schedule it accordingly
+     *
      * @param context
      * @param id
      * @param b
      */
     public void setEnabled(Context context, long id, boolean b) {
         ContentValues values = new ContentValues(1);
-        values.put(AlarmContract.Alarm.ENABLED, (b? "1":"0"));
+        values.put(AlarmContract.Alarm.ENABLED, (b ? "1" : "0"));
         setAttribute(context, id, values);
         if (b) {
             schedule(context, id);
@@ -568,7 +568,7 @@ public class AlarmRegistry {
             Calendar cal = Calendar.getInstance();
             this.alarm_id = c.getInt(0);
             int t = c.getInt(1);
-            int h = t/60;
+            int h = t / 60;
             int m = t - (h * 60);
             int d = c.getInt(2);
             int y = c.getInt(3);
@@ -596,8 +596,6 @@ public class AlarmRegistry {
             this.status = AlarmContract.ExecStatus.SCHEDULED;
         }
     }
-
-
 
 
 }

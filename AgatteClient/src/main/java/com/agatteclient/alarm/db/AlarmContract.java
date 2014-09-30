@@ -19,21 +19,21 @@
 
 package com.agatteclient.alarm.db;
 
-import android.net.Uri;
 import android.provider.BaseColumns;
 
 import java.util.Calendar;
 
 /**
  * Contract for the Alarm Database
- *
+ * <p/>
  * Created by Rémi Pannequin on 16/09/14.
  */
 public class AlarmContract {
 
     // To prevent someone from accidentally instantiating the contract class,
     // give it an empty constructor.
-    public AlarmContract() {}
+    public AlarmContract() {
+    }
 
     /**
      * A data kind representing a punch alarm
@@ -72,7 +72,7 @@ public class AlarmContract {
     /**
      * A data kind representing a alarm that have been executed (successfully or not)
      */
-     public static abstract class PastAlarm implements BaseColumns {
+    public static abstract class PastAlarm implements BaseColumns {
         public static final String TABLE_NAME = "PastAlarm";//NON-NLS
         public static final String ALARM_ID = "alarm_id";//NON-NLS
         /**
@@ -190,7 +190,6 @@ public class AlarmContract {
             return r;
         }
     }
-
 
 
 }

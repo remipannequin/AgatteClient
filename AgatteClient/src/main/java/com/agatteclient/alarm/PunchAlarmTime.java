@@ -31,7 +31,7 @@ import java.util.Date;
 
 /**
  * An Alarm that should be executed at a given time.
- *
+ * <p/>
  * Backed by a database row
  */
 public class PunchAlarmTime {

@@ -195,7 +195,7 @@ public class DayCardView extends View {
         alarm_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         alarm_paint.setStyle(Paint.Style.STROKE);
         alarm_paint.setColor(alarm_color);
-        alarm_paint.setStrokeWidth(pxToDp(line_width/2));
+        alarm_paint.setStrokeWidth(pxToDp(line_width / 2));
         alarm_paint.setStrokeJoin(Paint.Join.ROUND);
 
         alarm_text_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -518,8 +518,9 @@ public class DayCardView extends View {
 
     /**
      * Draw an ScheduledAlarm on the View
+     *
      * @param canvas the canvas where to draw
-     * @param alarm the date of the alarm scheduled/done/failed
+     * @param alarm  the date of the alarm scheduled/done/failed
      * @param status the type of event (scheduled/done/failed)
      */
     private void drawAlarm(Canvas canvas, Date alarm, AlarmContract.Constraint type, AlarmContract.ExecStatus status) {
@@ -535,13 +536,13 @@ public class DayCardView extends View {
 
         alarm_path = new Path();
         alarm_path.reset();
-        alarm_path.rLineTo(0,                         0);
-        alarm_path.rLineTo(rect_width - w - (h / 2) - pad,  0);
-        alarm_path.rLineTo(h / 2,                     h/2);
-        alarm_path.rLineTo(w,                         0);
-        alarm_path.rLineTo(0,                         -h);
-        alarm_path.rLineTo(- w,                       0);
-        alarm_path.rLineTo(-(h / 2),                  h/2);
+        alarm_path.rLineTo(0, 0);
+        alarm_path.rLineTo(rect_width - w - (h / 2) - pad, 0);
+        alarm_path.rLineTo(h / 2, h / 2);
+        alarm_path.rLineTo(w, 0);
+        alarm_path.rLineTo(0, -h);
+        alarm_path.rLineTo(-w, 0);
+        alarm_path.rLineTo(-(h / 2), h / 2);
         alarm_path.rLineTo(-rect_width + w + (h / 2) + pad, 0);
         alarm_path.close();
         alarm_path.offset(margin, y);
@@ -550,18 +551,18 @@ public class DayCardView extends View {
 
         Rect bounds = new Rect();
         duration_text_paint.getTextBounds(t, 0, t.length(), bounds);
-        canvas.drawText(t, rect_width - pad, y+(bounds.bottom-bounds.top)/2, alarm_text_paint);
+        canvas.drawText(t, rect_width - pad, y + (bounds.bottom - bounds.top) / 2, alarm_text_paint);
 
         int ic;
-        switch(status) {
+        switch (status) {
             case SUCCESS:
                 ic = R.drawable.ic_navigation_accept;
                 break;
             case FAILURE:
-                   ic = R.drawable.ic_alerts_and_states_warning;
+                ic = R.drawable.ic_alerts_and_states_warning;
                 break;
             case SCHEDULED:
-               ic = R.drawable.ic_device_access_alarms;
+                ic = R.drawable.ic_device_access_alarms;
                 break;
             default:
                 ic = R.drawable.ic_alerts_and_states_warning;
@@ -570,10 +571,10 @@ public class DayCardView extends View {
 
         Bitmap b = BitmapFactory.decodeResource(getResources(), ic);
 
-        canvas.drawBitmap(Bitmap.createScaledBitmap(b, (int)text_height, (int)text_height, false),
-                          rect_width - w + margin - pad,
-                          y - (h/2) + 5,
-                          alarm_paint);
+        canvas.drawBitmap(Bitmap.createScaledBitmap(b, (int) text_height, (int) text_height, false),
+                rect_width - w + margin - pad,
+                y - (h / 2) + 5,
+                alarm_paint);
 
         //display a jagged line to show arrival/leaving constraints
         if (type == AlarmContract.Constraint.arrival || type == AlarmContract.Constraint.leaving) {
@@ -636,8 +637,7 @@ public class DayCardView extends View {
         }
     }
 
-
-    public void setAlarmRegistry(AlarmRegistry alarms) {
+    public void setAlarmRegistry(Iterable<AlarmRegistry.RecordedAlarm> alarms) {
         if (alarms != this.alarms) {
             this.alarms = alarms;
             invalidate();

@@ -213,8 +213,6 @@ public class AgatteSession {
     /**
      * Send a "punch" to the server
      *
-     *
-     *
      * @return an AgatteResponse instance
      */
     public AgatteResponse doPunch() throws AgatteException {
@@ -306,7 +304,7 @@ public class AgatteSession {
      *
      * @param client the http client to use
      * @return a CountPage instance
-     * @throws IOException if the network connection fail
+     * @throws IOException     if the network connection fail
      * @throws AgatteException if the server send an error
      */
     CounterPage queryCounterContext(AndroidHttpClient client) throws IOException, AgatteException {
@@ -330,13 +328,13 @@ public class AgatteSession {
     /**
      * Query the agatte server to get a specific counter.
      *
-     * @param type the type of counter to query (week or year)
-     * @param year the year to query counter for
-     * @param week the week to query counter for (if applicable) value in range 1-52
-     * @param contract the contract number
+     * @param type          the type of counter to query (week or year)
+     * @param year          the year to query counter for
+     * @param week          the week to query counter for (if applicable) value in range 1-52
+     * @param contract      the contract number
      * @param contract_year the accounting year
      * @return a CounterPage instance
-     * @throws IOException if the network connection fail
+     * @throws IOException        if the network connection fail
      * @throws URISyntaxException if the server send an error
      */
     CounterPage queryCounter(AndroidHttpClient client, AgatteCounterResponse.Type type, int year, int week, int contract, int contract_year) throws IOException, URISyntaxException, AgatteException {
