@@ -117,7 +117,7 @@ public class AlarmRegistry {
         }
     }
 
-    private Iterable<? extends PunchAlarmTime> getAlarms(Context context) {
+    public List<PunchAlarmTime> getAlarms(Context context) {
         SQLiteDatabase db = getDb(context);
         Cursor c = db.query(
                 AlarmContract.Alarm.TABLE_NAME,
@@ -389,8 +389,9 @@ public class AlarmRegistry {
      * @param context
      * @param h
      * @param m
+     * @return  the ID of the alarm added
      */
-    public void addAlarm(Context context, int h, int m) {
+    public long addAlarm(Context context, int h, int m) {
         ContentValues values = new ContentValues();
         values.put(AlarmContract.Alarm.HOUR, h);
         values.put(AlarmContract.Alarm.MINUTE, m);
@@ -403,6 +404,7 @@ public class AlarmRegistry {
             throw new SQLException("Failed to insert row DB ");
         }
         Log.v(MainActivity.LOG_TAG, "Added alarm rowId = " + rowId);//NON-NLS
+        return rowId;
     }
 
 
@@ -498,9 +500,13 @@ public class AlarmRegistry {
 
     public void setDayOfWeek(Context context, long id, AlarmContract.Day d, boolean b) {
         PunchAlarmTime a = getAlarm(context, id);
-        a.setFireAt(d, b);
-        ContentValues values = new ContentValues(1);
         int dow = a.getDaysOfWeek();
+        if (b) {
+            dow = AlarmContract.Day.set(dow, d);
+        } else {
+            dow = AlarmContract.Day.unset(dow, d);
+        }
+        ContentValues values = new ContentValues(1);
         values.put(AlarmContract.Alarm.DAYS_OF_WEEK, String.valueOf(dow));
         setAttribute(context, id, values);
         reschedule(context, a);

@@ -23,6 +23,7 @@ package com.agatteclient.test;
 import android.app.AlarmManager;
 import android.content.Context;
 import android.test.AndroidTestCase;
+import android.test.RenamingDelegatingContext;
 
 import com.agatteclient.alarm.AlarmRegistry;
 import com.agatteclient.alarm.PunchAlarmTime;
@@ -32,6 +33,22 @@ import java.util.Map;
 
 public class AlarmRegistryTest extends AndroidTestCase {
 
+private Context context;
+
+    public void setUp(){
+        context = new RenamingDelegatingContext(getContext(), "test_");
+
+    }
+
+    public void testAddAlarm() {
+        AlarmRegistry instance = AlarmRegistry.getInstance();
+        int h = 12;
+        int m = 36;
+        long id = instance.addAlarm(context, h, m);
+        assertTrue(id > 0);
+        PunchAlarmTime a = instance.getAlarm(context, id);
+        assertNotNull(a);
+    }
 
 
 

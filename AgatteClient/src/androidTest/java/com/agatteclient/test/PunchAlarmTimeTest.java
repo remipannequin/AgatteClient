@@ -66,23 +66,27 @@ public class PunchAlarmTimeTest extends AndroidTestCase {
 
     public void testSetFireAt() throws Exception {
         PunchAlarmTime instance = new PunchAlarmTime(18, 39);
-
+        int dow;
         for (int i = 0; i < 5; i++) {
+            dow = instance.getDaysOfWeek();
             AlarmContract.Day day = values()[i];
             assertTrue(instance.isFireAt(day));
-            instance.setFireAt(day, true);
-            assertTrue(instance.isFireAt(day));
-            instance.setFireAt(day, false);
-            assertFalse(instance.isFireAt(day));
+            assertTrue(AlarmContract.Day.isSet(dow, day));
+            dow = AlarmContract.Day.set(dow, day);
+            assertTrue(AlarmContract.Day.isSet(dow, day));
+            dow = AlarmContract.Day.unset(dow, day);
+            assertFalse(AlarmContract.Day.isSet(dow, day));
         }
 
         for (int i = 5; i < 7; i++) {
             AlarmContract.Day day = values()[i];
+            dow = instance.getDaysOfWeek();
             assertFalse(instance.isFireAt(day));
-            instance.setFireAt(day, false);
-            assertFalse(instance.isFireAt(day));
-            instance.setFireAt(day, true);
-            assertTrue(instance.isFireAt(day));
+            assertFalse(AlarmContract.Day.isSet(dow, day));
+            dow = AlarmContract.Day.set(dow, day);
+            assertTrue(AlarmContract.Day.isSet(dow, day));
+            dow = AlarmContract.Day.unset(dow, day);
+            assertFalse(AlarmContract.Day.isSet(dow, day));
         }
     }
 

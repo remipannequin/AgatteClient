@@ -259,7 +259,7 @@ public class AlarmActivity extends FragmentActivity implements LoaderManager.Loa
     }
 
 
-    class AlarmCursorAdapter extends CursorAdapter {
+    public class AlarmCursorAdapter extends CursorAdapter {
 
         //private final ListView list;
         private Set<Long> expanded = new HashSet<Long>();
