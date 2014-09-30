@@ -50,7 +50,6 @@ import java.util.List;
  */
 public class AlarmRegistry {
 
-    public static final String ALARM_TYPE = "alarm-type";//NON-NLS
     public static final String ALARM_ID = "alarm-id";//NON-NLS
     private static AlarmRegistry ourInstance;
 
@@ -130,15 +129,14 @@ public class AlarmRegistry {
             SQLiteDatabase db = getDb(context);
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             Intent i = new Intent(context, AlarmReceiver.class);
-            i.putExtra(ALARM_TYPE, alarm.getConstraint().ordinal());
-            i.putExtra(ALARM_ID, alarm.getId());
+
 
             // Insert in DB
             ContentValues values = new ContentValues(2);
             values.put(AlarmContract.ScheduledAlarm.ALARM_ID, alarm.getId());
             values.put(AlarmContract.ScheduledAlarm.TIME, time);
             long requestId = db.insert(AlarmContract.ScheduledAlarm.TABLE_NAME, null, values);
-
+            i.putExtra(ALARM_ID, requestId);
             PendingIntent pi = PendingIntent.getBroadcast(context, (int)requestId, i, PendingIntent.FLAG_ONE_SHOT);
             am.set(AlarmManager.RTC_WAKEUP, time, pi);
         }
@@ -213,7 +211,6 @@ public class AlarmRegistry {
             return;
         }
 
-
         SQLiteDatabase db = getDb(context);
 
         // Query DB to check if an alarm has been scheduled
@@ -243,8 +240,8 @@ public class AlarmRegistry {
         //check time
         if (time != scheduled_time) {
             Intent i = new Intent(context, AlarmReceiver.class);
-            i.putExtra(ALARM_TYPE, alarm.getConstraint().ordinal());
-            i.putExtra(ALARM_ID, alarm.getId());
+
+            i.putExtra(ALARM_ID, request_id);
             PendingIntent pi = PendingIntent.getBroadcast(context, request_id, i, PendingIntent.FLAG_ONE_SHOT);
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
@@ -507,6 +504,28 @@ public class AlarmRegistry {
         values.put(AlarmContract.Alarm.MINUTE, String.valueOf(minute));
         setAttribute(context, id, values);
         reschedule(context, a);
+    }
+
+    /**
+     * Search the Alarm DB to get the corresponding Alarm ID (positive long)
+     * If no such data is found, return -1
+     *
+     * @param context
+     * @param schedule_id
+     * @return
+     */
+    public RecordedAlarm getIdFromSchedule(Context context, long schedule_id) {
+        SQLiteDatabase db = getDb(context);
+        String[] whereArgs = {String.valueOf(schedule_id)};
+        Cursor cursor = db.rawQuery(
+                AlarmDbHelper.SQL_QUERY_SCHEDULED_ALARM_BY_ID,
+                whereArgs);
+        if (cursor.moveToNext()) {
+            RecordedAlarm r = new ScheduledAlarm(cursor);
+            cursor.close();
+            return r;
+        }
+        return null;
     }
 
 

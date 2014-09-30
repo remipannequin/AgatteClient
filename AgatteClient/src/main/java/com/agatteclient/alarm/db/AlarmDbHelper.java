@@ -42,16 +42,15 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
     private static final String COMMA_SEP = ",";
 
 
-
     private static final String SQL_CREATE_ALARM =
             "CREATE TABLE " + Alarm.TABLE_NAME + " (" +//NON-NLS
-            Alarm._ID + " INTEGER PRIMARY KEY," +//NON-NLS
-            Alarm.HOUR + INT_TYPE + COMMA_SEP +
-            Alarm.MINUTE + INT_TYPE + COMMA_SEP +
-            Alarm.DAYS_OF_WEEK + INT_TYPE + COMMA_SEP +
-            Alarm.ENABLED + INT_TYPE + COMMA_SEP +
-            Alarm.CONSTRAINT + INT_TYPE +
-            " )";
+                    Alarm._ID + " INTEGER PRIMARY KEY," +//NON-NLS
+                    Alarm.HOUR + INT_TYPE + COMMA_SEP +
+                    Alarm.MINUTE + INT_TYPE + COMMA_SEP +
+                    Alarm.DAYS_OF_WEEK + INT_TYPE + COMMA_SEP +
+                    Alarm.ENABLED + INT_TYPE + COMMA_SEP +
+                    Alarm.CONSTRAINT + INT_TYPE +
+                    " )";
 
     public static final int ALARM_ID_INDEX = 0;
     public static final int ALARM_HOUR_INDEX = 1;
@@ -63,22 +62,22 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
 
     private static final String SQL_CREATE_SCHEDULED_ALARM =
             "CREATE TABLE " + ScheduledAlarm.TABLE_NAME + " (" +//NON-NLS
-            ScheduledAlarm._ID + " INTEGER PRIMARY KEY," +//NON-NLS
-            ScheduledAlarm.ALARM_ID + INT_TYPE + COMMA_SEP +
-            ScheduledAlarm.TIME+ INT_TYPE + COMMA_SEP +
-            "FOREIGN KEY("+ScheduledAlarm.ALARM_ID + ") REFERENCES " + Alarm.TABLE_NAME+"("+Alarm._ID+")"+//NON-NLS
-            ");";
+                    ScheduledAlarm._ID + " INTEGER PRIMARY KEY," +//NON-NLS
+                    ScheduledAlarm.ALARM_ID + INT_TYPE + COMMA_SEP +
+                    ScheduledAlarm.TIME + INT_TYPE + COMMA_SEP +
+                    "FOREIGN KEY(" + ScheduledAlarm.ALARM_ID + ") REFERENCES " + Alarm.TABLE_NAME + "(" + Alarm._ID + ")" +//NON-NLS
+                    ");";
 
     private static final String SQL_CREATE_PAST_ALARM =
             "CREATE TABLE " + PastAlarm.TABLE_NAME + " (" +//NON-NLS
-            PastAlarm._ID + " INTEGER PRIMARY KEY," +//NON-NLS
-            PastAlarm.ALARM_ID + INT_TYPE + COMMA_SEP +
-            PastAlarm.EXEC_STATUS + INT_TYPE + COMMA_SEP +
-            PastAlarm.EXEC_TIME + INT_TYPE + COMMA_SEP +
-            PastAlarm.EXEC_DAY_OF_YEAR + INT_TYPE + COMMA_SEP +
-            PastAlarm.EXEC_YEAR + INT_TYPE + COMMA_SEP +
-            "FOREIGN KEY("+PastAlarm.ALARM_ID + ") REFERENCES " + Alarm.TABLE_NAME+"("+Alarm._ID+")"+//NON-NLS
-            ");";
+                    PastAlarm._ID + " INTEGER PRIMARY KEY," +//NON-NLS
+                    PastAlarm.ALARM_ID + INT_TYPE + COMMA_SEP +
+                    PastAlarm.EXEC_STATUS + INT_TYPE + COMMA_SEP +
+                    PastAlarm.EXEC_TIME + INT_TYPE + COMMA_SEP +
+                    PastAlarm.EXEC_DAY_OF_YEAR + INT_TYPE + COMMA_SEP +
+                    PastAlarm.EXEC_YEAR + INT_TYPE + COMMA_SEP +
+                    "FOREIGN KEY(" + PastAlarm.ALARM_ID + ") REFERENCES " + Alarm.TABLE_NAME + "(" + Alarm._ID + ")" +//NON-NLS
+                    ");";
 
     private static final String SQL_DELETE_ALARM = "DROP TABLE IF EXISTS " + Alarm.TABLE_NAME;//NON-NLS
     private static final String SQL_DELETE_SCHEDULED_ALARM = "DROP TABLE IF EXISTS " + Alarm.TABLE_NAME;//NON-NLS
@@ -97,25 +96,25 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
             ScheduledAlarm.TIME};
 
     public static final String SQL_QUERY_PAST_ALARM =
-            "SELECT "+PastAlarm.ALARM_ID +COMMA_SEP +//NON-NLS
-                      PastAlarm.EXEC_TIME + COMMA_SEP +
-                      PastAlarm.EXEC_DAY_OF_YEAR + COMMA_SEP +
-                      PastAlarm.EXEC_YEAR + COMMA_SEP +
-                      PastAlarm.EXEC_STATUS + COMMA_SEP +
-                      Alarm.CONSTRAINT +
-            " FROM " + PastAlarm.TABLE_NAME + COMMA_SEP + Alarm.TABLE_NAME +//NON-NLS
-            " WHERE " + PastAlarm.TABLE_NAME+ "." + PastAlarm.ALARM_ID + "=" + Alarm.TABLE_NAME + "." + Alarm._ID +//NON-NLS
-            " AND " + PastAlarm.EXEC_DAY_OF_YEAR + "=?" +//NON-NLS
-            " AND " + PastAlarm.EXEC_YEAR + "=?" ;//NON-NLS
+            "SELECT " + PastAlarm.ALARM_ID + COMMA_SEP +//NON-NLS
+                    PastAlarm.EXEC_TIME + COMMA_SEP +
+                    PastAlarm.EXEC_DAY_OF_YEAR + COMMA_SEP +
+                    PastAlarm.EXEC_YEAR + COMMA_SEP +
+                    PastAlarm.EXEC_STATUS + COMMA_SEP +
+                    Alarm.CONSTRAINT +
+                    " FROM " + PastAlarm.TABLE_NAME + COMMA_SEP + Alarm.TABLE_NAME +//NON-NLS
+                    " WHERE " + PastAlarm.TABLE_NAME + "." + PastAlarm.ALARM_ID + "=" + Alarm.TABLE_NAME + "." + Alarm._ID +//NON-NLS
+                    " AND " + PastAlarm.EXEC_DAY_OF_YEAR + "=?" +//NON-NLS
+                    " AND " + PastAlarm.EXEC_YEAR + "=?";//NON-NLS
 
     public static final String SQL_QUERY_SCHEDULED_ALARM =
-            "SELECT "+ScheduledAlarm.ALARM_ID +COMMA_SEP +//NON-NLS
-                      ScheduledAlarm.TIME + COMMA_SEP +
-                      Alarm.CONSTRAINT +
-            " FROM " + ScheduledAlarm.TABLE_NAME + COMMA_SEP + Alarm.TABLE_NAME +//NON-NLS
-            " WHERE " + ScheduledAlarm.TABLE_NAME+ "." + ScheduledAlarm.ALARM_ID + "=" + Alarm.TABLE_NAME + "." + Alarm._ID +//NON-NLS
-            " AND " + ScheduledAlarm.TIME + ">?" +//NON-NLS
-            " AND " + ScheduledAlarm.TIME + "<?" ;//NON-NLS
+            "SELECT " + ScheduledAlarm.ALARM_ID + COMMA_SEP +//NON-NLS
+                    ScheduledAlarm.TIME + COMMA_SEP +
+                    Alarm.CONSTRAINT +
+                    " FROM " + ScheduledAlarm.TABLE_NAME + COMMA_SEP + Alarm.TABLE_NAME +//NON-NLS
+                    " WHERE " + ScheduledAlarm.TABLE_NAME + "." + ScheduledAlarm.ALARM_ID + "=" + Alarm.TABLE_NAME + "." + Alarm._ID +//NON-NLS
+                    " AND " + ScheduledAlarm.TIME + ">?" +//NON-NLS
+                    " AND " + ScheduledAlarm.TIME + "<?";//NON-NLS
 
 
     public static final String SCHEDULED_ID_SELECTION = ScheduledAlarm.ALARM_ID + "=?";
@@ -134,5 +133,12 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
         //Nothing to to do (yet) : no previous version
     }
 
+    public static final String SQL_QUERY_SCHEDULED_ALARM_BY_ID =
+            "SELECT "+ScheduledAlarm.ALARM_ID+COMMA_SEP+//NON-NLS
+                ScheduledAlarm.TIME+COMMA_SEP+
+                Alarm.CONSTRAINT+
+            " FROM "+ScheduledAlarm.TABLE_NAME+COMMA_SEP+Alarm.TABLE_NAME+//NON-NLS
+            " WHERE "+ScheduledAlarm.TABLE_NAME+"."+ScheduledAlarm.ALARM_ID+"="+Alarm.TABLE_NAME+"."+Alarm._ID+//NON-NLS
+                " AND "+ScheduledAlarm._ID+"=?";
 }
 

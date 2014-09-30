@@ -52,27 +52,34 @@ public class AlarmReceiver extends BroadcastReceiver {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
         wl.acquire();
-        //get the type of the alarm
-        AlarmContract.Constraint t = AlarmContract.Constraint.values()[intent.getIntExtra(AlarmRegistry.ALARM_TYPE,
-                AlarmContract.Constraint.unconstraigned.ordinal())];
-        long id = intent.getLongExtra(AlarmRegistry.ALARM_ID, -1);
-        //Do the punch by calling the punching service
-        final Intent i = new Intent(context, PunchService.class);
-        switch (t) {
-            case unconstraigned:
-                i.setAction(PunchService.DO_PUNCH);
-                break;
-            case arrival:
-                i.setAction(PunchService.DO_PUNCH_ARRIVAL);
-                break;
-            case leaving:
-                i.setAction(PunchService.DO_PUNCH_LEAVING);
-                break;
-            default:
-                //TODO: log error
+        // get the schedule ID
+        long schedule_id = intent.getLongExtra(AlarmRegistry.ALARM_ID, -1);
+        if (schedule_id == -1) {
+            Log.e(MainActivity.LOG_TAG, "Alarm with not schedule ID");//NON-NLS
         }
-        i.putExtra(PunchService.RESULT_RECEIVER, new PunchResultReceiver(context, id));
-        context.startService(i);
+        // Check that the alarm is scheduled (i.e. there is a corresponding entry in the DB
+        AlarmRegistry.RecordedAlarm rec = AlarmRegistry.getInstance().getIdFromSchedule(context, schedule_id);
+        if (rec != null) {//valid ID found
+            //Do the punch by calling the punching service
+            final Intent i = new Intent(context, PunchService.class);
+            switch (rec.constraint) {
+                case unconstraigned:
+                    i.setAction(PunchService.DO_PUNCH);
+                    break;
+                case arrival:
+                    i.setAction(PunchService.DO_PUNCH_ARRIVAL);
+                    break;
+                case leaving:
+                    i.setAction(PunchService.DO_PUNCH_LEAVING);
+                    break;
+                default:
+                    //TODO: log error
+            }
+            i.putExtra(PunchService.RESULT_RECEIVER, new PunchResultReceiver(context, rec.alarm_id));
+            context.startService(i);
+        } else {
+            Log.w(MainActivity.LOG_TAG, "Trying to execute spurious alarm (not found in DB)");//NON-NLS
+        }
         wl.release();
     }
 
