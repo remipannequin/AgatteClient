@@ -20,6 +20,9 @@
 package com.agatteclient.agatte;
 
 import android.os.Bundle;
+import android.util.Log;
+
+import com.agatteclient.MainActivity;
 
 import java.util.Collection;
 
@@ -73,10 +76,14 @@ public class AgatteResponse {
     /**
      * Return the last punch
      *
-     * @return
+     * @return the last punch as a String "hh:mm"
      */
     public String getLastPunch() {
-        if (punches.length > 0) return punches[punches.length - 1];
-        else return "";//TODO: throw exception ? can't happen ?
+        if (punches.length > 0) {
+            return punches[punches.length - 1];
+        } else {
+            Log.wtf(MainActivity.LOG_TAG, "impossible to get last punch: no punches recorded");//NON-NLS
+            return "";
+        }
     }
 }

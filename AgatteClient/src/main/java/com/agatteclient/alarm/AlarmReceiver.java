@@ -51,27 +51,34 @@ public class AlarmReceiver extends BroadcastReceiver {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
         wl.acquire();
-        //get the type of the alarm
-        PunchAlarmTime.Type t = PunchAlarmTime.Type.values()[intent.getIntExtra(AlarmRegistry.ALARM_TYPE,
-                PunchAlarmTime.Type.unconstraigned.ordinal())];
-        int id = intent.getIntExtra(AlarmRegistry.ALARM_ID, -1);
-        //Do the punch by calling the punching service
-        final Intent i = new Intent(context, PunchService.class);
-        switch (t) {
-            case unconstraigned:
-                i.setAction(PunchService.DO_PUNCH);
-                break;
-            case arrival:
-                i.setAction(PunchService.DO_PUNCH_ARRIVAL);
-                break;
-            case leaving:
-                i.setAction(PunchService.DO_PUNCH_LEAVING);
-                break;
-            default:
-                //TODO: log error
+        // get the schedule ID
+        int schedule_id = intent.getIntExtra(AlarmRegistry.ALARM_ID, -1);
+        if (schedule_id == -1) {
+            Log.e(MainActivity.LOG_TAG, "Unable to get schedule ID for alarm");//NON-NLS
         }
-        i.putExtra(PunchService.RESULT_RECEIVER, new PunchResultReceiver(context, id));
-        context.startService(i);
+        // Check that the alarm is scheduled (i.e. there is a corresponding entry in the DB
+        AlarmRegistry.RecordedAlarm rec = AlarmRegistry.getInstance().getIdFromSchedule(context, schedule_id);
+        if (rec != null) {//valid ID found
+            //Do the punch by calling the punching service
+            final Intent i = new Intent(context, PunchService.class);
+            switch (rec.constraint) {
+                case unconstraigned:
+                    i.setAction(PunchService.DO_PUNCH);
+                    break;
+                case arrival:
+                    i.setAction(PunchService.DO_PUNCH_ARRIVAL);
+                    break;
+                case leaving:
+                    i.setAction(PunchService.DO_PUNCH_LEAVING);
+                    break;
+                default:
+                    Log.wtf(MainActivity.LOG_TAG, "Unknown constraint "+rec.constraint.toString());//NON-NLS
+            }
+            i.putExtra(PunchService.RESULT_RECEIVER, new PunchResultReceiver(context, rec.alarm_id));
+            context.startService(i);
+        } else {
+            Log.w(MainActivity.LOG_TAG, "Trying to execute spurious alarm (not found in DB)");//NON-NLS
+        }
         wl.release();
     }
 
@@ -79,9 +86,9 @@ public class AlarmReceiver extends BroadcastReceiver {
     private class PunchResultReceiver extends ResultReceiver {
 
         private final Context ctx;
-        private final int alarm_id;
+        private final long alarm_id;
 
-        public PunchResultReceiver(Context ctx, int alarm_id) {
+        public PunchResultReceiver(Context ctx, long alarm_id) {
             super(new Handler(Looper.getMainLooper()));
             this.ctx = ctx;
             this.alarm_id = alarm_id;
@@ -93,12 +100,11 @@ public class AlarmReceiver extends BroadcastReceiver {
             AgatteResultCode code = AgatteResultCode.values()[resultCode];
             //set notification text and title based on result
             StringBuilder notification_text = new StringBuilder();
-            PunchAlarmTime alarm = AlarmList.getInstance(ctx).get(alarm_id);
 
             switch (code) {
                 case network_not_authorized:
                     notification_text.append(ctx.getString(R.string.unauthorized_network_toast));
-                    AlarmRegistry.getInstance().setFailed(alarm);
+                    AlarmRegistry.getInstance().setFailed(ctx, alarm_id);
                     break;
                 case query_counter_ok:
                     break;
@@ -110,11 +116,11 @@ public class AlarmReceiver extends BroadcastReceiver {
                     if (message != null && message.length() != 0) {
                         notification_text.append(" : ").append(message);
                     }
-                    AlarmRegistry.getInstance().setFailed(alarm);
+                    AlarmRegistry.getInstance().setFailed(ctx, alarm_id);
                     break;
                 case login_failed:
                     notification_text.append(ctx.getString(R.string.login_failed_toast));
-                    AlarmRegistry.getInstance().setFailed(alarm);
+                    AlarmRegistry.getInstance().setFailed(ctx, alarm_id);
                     break;
                 case io_exception:
                     notification_text.append(ctx.getString(R.string.error));
@@ -122,7 +128,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                     if (message != null && message.length() != 0) {
                         notification_text.append(" : ").append(message);
                     }
-                    AlarmRegistry.getInstance().setFailed(alarm);
+                    AlarmRegistry.getInstance().setFailed(ctx, alarm_id);
                     break;
                 case punch_ok:
                 case query_ok:
@@ -141,18 +147,14 @@ public class AlarmReceiver extends BroadcastReceiver {
                     } catch (ParseException e) {
                         Log.e(MainActivity.LOG_TAG, "Parse exception when updating the punch-card");//NON-NLS
                     }
-                    // TODO : Update AlarmRegistry with value
-                    AlarmRegistry.getInstance().setDone(alarm);
+                    //Update AlarmRegistry with value
+                    AlarmRegistry.getInstance().setSucessfull(ctx, alarm_id);
                     break;
                 default:
 
 
             }
             AlarmDoneNotification.notify(ctx, code, notification_text.toString(), 0);
-
-
-            //Update the AlarmRegistry: re-schedule next event
-            AlarmRegistry.getInstance().update(ctx);
         }
     }
 

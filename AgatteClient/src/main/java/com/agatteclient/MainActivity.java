@@ -54,7 +54,6 @@ import com.agatteclient.agatte.AgatteResultCode;
 import com.agatteclient.agatte.AgatteSession;
 import com.agatteclient.agatte.PunchService;
 import com.agatteclient.alarm.AlarmActivity;
-import com.agatteclient.alarm.AlarmList;
 import com.agatteclient.alarm.AlarmRegistry;
 import com.agatteclient.alarm.NetworkChangeRegistry;
 import com.agatteclient.card.CardBinder;
@@ -74,7 +73,7 @@ public class MainActivity extends Activity {
     public static final String SERVER_PREF = "server"; //NON-NLS
     public static final String LOGIN_PREF = "login"; //NON-NLS
     public static final String PASSWD_PREF = "password"; //NON-NLS
-    public static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";
+    public static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";//NON-NLS
     public static final String LOGIN_DEFAULT = "login"; //NON-NLS
     public static final String PASSWD_DEFAULT = "";
     public static final String LOG_TAG = "com.agatteclient"; //NON-NLS
@@ -114,8 +113,6 @@ public class MainActivity extends Activity {
         //Update network authentication status
         NetworkChangeRegistry.getInstance().update(getApplicationContext());
 
-        AlarmList.getInstance(this);
-
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor editor = preferences.edit();
         if (!preferences.contains(SERVER_PREF)) {
@@ -133,7 +130,7 @@ public class MainActivity extends Activity {
         if (!preferences.contains(AUTO_QUERY_PREF)) {
             editor.putBoolean(AUTO_QUERY_PREF, false); // value to store
         }
-        editor.commit();
+        editor.apply();
 
         mScaleDetector = new ScaleGestureDetector(getApplicationContext(), new ScaleListener());
 
@@ -142,8 +139,8 @@ public class MainActivity extends Activity {
         dc_view = (DayCardView) findViewById(R.id.day_card_view);
         //
 
-        String profile = preferences.getString(PROFILE_PREF, "1");
-        int profile_n = Integer.decode(profile) - 1;
+        //String profile = preferences.getString(PROFILE_PREF, "1");
+        //int profile_n = Integer.decode(profile) - 1;
 
         day_progress = (ProgressBar) findViewById(R.id.day_progress);
         day_textView = (TextView) findViewById(R.id.day_textView);
@@ -179,7 +176,7 @@ public class MainActivity extends Activity {
         super.onPostResume();
         cur_card = CardBinder.getInstance().getTodayCard();
         dc_view.setCard(cur_card);
-        dc_view.setAlarmRegistry(AlarmRegistry.getInstance());
+        dc_view.setAlarms(AlarmRegistry.getInstance().getRecordedAlarms(this, cur_card.getDay()));
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         boolean auto_query = preferences.getBoolean(AUTO_QUERY_PREF, true);
         if (auto_query) {
@@ -204,7 +201,6 @@ public class MainActivity extends Activity {
                 });
             }
         });
-
 
         //bind to alarm service (update alarms if needed)
         doAlarmUpdate();
@@ -279,7 +275,8 @@ public class MainActivity extends Activity {
         day_progress.setIndeterminate(false);
         day_progress.setProgress((int) (p * 100));
         day_progress.invalidate();
-        dc_view.invalidate();
+        // this does also trigger card invalidation (redraw)
+        dc_view.setAlarms(AlarmRegistry.getInstance().getRecordedAlarms(this, cur_card.getDay()));
 
         SimpleDateFormat fmt = new SimpleDateFormat(getString(R.string.date_format));
         StringBuilder t = new StringBuilder().append(fmt.format(cur_card.getDay()));
@@ -299,7 +296,7 @@ public class MainActivity extends Activity {
             editor.putFloat(COUNTER_YEAR_PREF, global_hours);
             editor.putFloat(COUNTER_WEEK_PREF, week_hours);
             editor.putInt(COUNTER_LAST_UPDATE_PREF, cur_card.getDayOfYear() + cur_card.getYear() * 1000);
-            editor.commit();
+            editor.apply();
         } else {
             if (!preferences.contains(COUNTER_LAST_UPDATE_PREF)) {
                 // if old value does not exist AND counter are unavailable
@@ -308,7 +305,7 @@ public class MainActivity extends Activity {
                 editor.putBoolean(AUTO_QUERY_PREF, false);
                 // and notify the user
                 Toast.makeText(getApplicationContext(), getString(R.string.conter_autoquery_descativated), Toast.LENGTH_LONG).show();
-                editor.commit();
+                editor.apply();
             }
             week_hours = preferences.getFloat(COUNTER_WEEK_PREF, 0);
             global_hours = preferences.getFloat(COUNTER_YEAR_PREF, 0);
@@ -417,7 +414,8 @@ public class MainActivity extends Activity {
      * Update the alarms Scheduled in the alarm manager.
      */
     private void doAlarmUpdate() {
-        AlarmRegistry.getInstance().update(getApplicationContext());
+        //TODO: is this still required ? Possible performance problems ?...
+        AlarmRegistry.getInstance().check(getApplicationContext());
     }
 
 

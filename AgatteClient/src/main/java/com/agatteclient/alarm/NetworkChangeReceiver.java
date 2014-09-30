@@ -50,7 +50,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
             final WifiInfo connectionInfo = wifiManager.getConnectionInfo();
             if (connectionInfo != null && connectionInfo.getSSID().length() != 0) {
                 ssid = connectionInfo.getSSID();
-                //TODO: remove quotes
+                // Remove quotes
                 ssid = ssid.replaceAll("\"", "");
             }
         }
