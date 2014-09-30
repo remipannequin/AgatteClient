@@ -32,6 +32,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.content.AsyncTaskLoader;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -50,6 +51,7 @@ import android.widget.TimePicker;
 import android.widget.ToggleButton;
 
 import com.agatteclient.BuildConfig;
+import com.agatteclient.MainActivity;
 import com.agatteclient.R;
 import com.agatteclient.alarm.db.AlarmContract;
 
@@ -282,16 +284,16 @@ public class AlarmActivity extends FragmentActivity implements LoaderManager.Loa
         /**
          * Create a new view for a list item.
          *
-         * @param parent
-         * @param cursor
-         * @param context
-         * @return
+         * @param parent parent view
+         * @param cursor the cursor to display
+         * @param context context
+         * @return the bound view
          */
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
             View view = getInflater(parent).inflate(R.layout.view_alarm, parent, false);
             int id = cursor.getInt(0);
-            ViewHolder holder = new ViewHolder(view, id);
+            ViewHolder holder = new ViewHolder(view);
             view.setTag(holder);
 
             return view;
@@ -299,11 +301,11 @@ public class AlarmActivity extends FragmentActivity implements LoaderManager.Loa
 
 
         /**
-         * Bind the view of this tiem to the actual data
+         * Bind the view of this item to the actual data
          *
-         * @param v
-         * @param cursor
-         * @param context
+         * @param v the view to bind
+         * @param cursor data to display
+         * @param context context
          */
         @Override
         public void bindView(View v, final Context context, final Cursor cursor) {
@@ -353,7 +355,7 @@ public class AlarmActivity extends FragmentActivity implements LoaderManager.Loa
                     adb.setPositiveButton(context.getString(R.string.alarm_delete_confirm_ok), new AlertDialog.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                         /* also remove index from expanded list */
-                            expanded.remove(alarm);
+                            expanded.remove(alarm.getId());
                             AlarmRegistry.getInstance().remove(context, alarm.getId());
                             reload_cursor();
                         }
@@ -376,7 +378,7 @@ public class AlarmActivity extends FragmentActivity implements LoaderManager.Loa
                     time_picker.setAlarm(alarm);
                     time_picker.setView((TextView) view);
                     time_picker.setContext(context);
-                    time_picker.show(getSupportFragmentManager(), "timePicker");
+                    time_picker.show(getSupportFragmentManager(), "timePicker");//NON-NLS
                 }
             });
 
@@ -465,7 +467,7 @@ public class AlarmActivity extends FragmentActivity implements LoaderManager.Loa
 
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
-                    //TODO ? is this possible ?? can't happen ?!
+                    Log.wtf(MainActivity.LOG_TAG, "OnNothingSelected called");//NON-NLS
                 }
             });
         }
@@ -486,7 +488,7 @@ public class AlarmActivity extends FragmentActivity implements LoaderManager.Loa
         private TextView summary;
         private Spinner alarmTypeSpinner;
 
-        public ViewHolder(View row, int position) {
+        public ViewHolder(View row) {
             this.row = row;
         }
 

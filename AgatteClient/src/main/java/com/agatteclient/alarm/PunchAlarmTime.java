@@ -20,8 +20,6 @@
 package com.agatteclient.alarm;
 
 import android.database.Cursor;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
 
 import com.agatteclient.MainActivity;
@@ -36,33 +34,14 @@ import java.util.Date;
  *
  * Backed by a database row
  */
-public class PunchAlarmTime implements Parcelable {
+public class PunchAlarmTime {
 
     private static final Calendar cal = Calendar.getInstance();
-
     private int time_of_day;
     private int days_of_week;
     private boolean enabled;
     private AlarmContract.Constraint constraint;
     private long id;
-
-
-    public static final Creator<PunchAlarmTime> CREATOR
-            = new Creator<PunchAlarmTime>() {
-        public PunchAlarmTime createFromParcel(Parcel p) {
-            return new PunchAlarmTime(p);
-        }
-
-        public PunchAlarmTime[] newArray(int size) {
-            return new PunchAlarmTime[size];
-        }
-    };
-
-    public PunchAlarmTime() {
-        time_of_day = 0;
-        days_of_week = 0;
-        enabled = false;
-    }
 
     public PunchAlarmTime(int hour, int minute, AlarmContract.Day... firing_days) {
         this.time_of_day = (60 * hour + minute);
@@ -76,65 +55,12 @@ public class PunchAlarmTime implements Parcelable {
                 AlarmContract.Day.thursday, AlarmContract.Day.friday);
     }
 
-
-
-
-    public int describeContents() {
-        return 0;
-    }
-
-    public void writeToParcel(Parcel p, int flags) {
-        //TODO
-    }
-
-    public PunchAlarmTime(Parcel p) {
-        //TODO
-    }
-
-
     public PunchAlarmTime(Cursor c) {
         this.id = c.getLong(AlarmDbHelper.ALARM_ID_INDEX);
         this.time_of_day = c.getInt(AlarmDbHelper.ALARM_HOUR_INDEX) * 60 + c.getInt(AlarmDbHelper.ALARM_MINUTE_INDEX);
         this.days_of_week = c.getInt(AlarmDbHelper.ALARM_DAYS_INDEX);
         this.enabled = (c.getInt(AlarmDbHelper.ALARM_ENABLED_INDEX) == 1);
         this.constraint = AlarmContract.Constraint.values()[c.getInt(AlarmDbHelper.ALARM_TYPE_INDEX)];
-    }
-    /**
-     *
-     * @param enabled
-     */
-    void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    /**
-     *
-     * @param constraint
-     */
-    void setConstraint(AlarmContract.Constraint constraint) {
-        this.constraint = constraint;
-    }
-
-    /**
-     *
-     * @param day
-     * @param b
-     */
-    void setFireAt(AlarmContract.Day day, boolean b) {
-        if (isFireAt(day) && !b) {
-            this.days_of_week = AlarmContract.Day.unset(this.days_of_week, day);
-        } else if (!isFireAt(day) && b) {
-            this.days_of_week = AlarmContract.Day.set(this.days_of_week, day);
-        }
-    }
-
-    /**
-     *
-     * @param hourOfDay
-     * @param minute
-     */
-    void setTime(int hourOfDay, int minute) {
-        this.time_of_day = (60 * hourOfDay + minute);
     }
 
     public long getId() {

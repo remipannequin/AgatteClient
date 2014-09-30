@@ -34,7 +34,6 @@ import com.agatteclient.R;
 import com.agatteclient.agatte.AgatteResponse;
 import com.agatteclient.agatte.AgatteResultCode;
 import com.agatteclient.agatte.PunchService;
-import com.agatteclient.alarm.db.AlarmContract;
 import com.agatteclient.card.CardBinder;
 import com.agatteclient.card.DayCard;
 
@@ -73,7 +72,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                     i.setAction(PunchService.DO_PUNCH_LEAVING);
                     break;
                 default:
-                    //TODO: log error
+                    Log.wtf(MainActivity.LOG_TAG, "Unknown constraint "+rec.constraint.toString());//NON-NLS
             }
             i.putExtra(PunchService.RESULT_RECEIVER, new PunchResultReceiver(context, rec.alarm_id));
             context.startService(i);
