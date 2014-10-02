@@ -575,7 +575,7 @@ public class AlarmRegistry {
             int y = c.getInt(4);
             cal.set(Calendar.YEAR, y);
             cal.set(Calendar.DAY_OF_YEAR, d);
-            cal.set(Calendar.HOUR, h);
+            cal.set(Calendar.HOUR_OF_DAY, h);
             cal.set(Calendar.MINUTE, m);
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
