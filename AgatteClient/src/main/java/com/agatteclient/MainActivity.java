@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -146,9 +147,6 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         dc_view = (DayCardView) findViewById(R.id.day_card_view);
-        //
-
-        String profile = preferences.getString(PROFILE_PREF, "1");
 
         day_progress = (ProgressBar) findViewById(R.id.day_progress);
         day_textView = (TextView) findViewById(R.id.day_textView);
@@ -353,6 +351,7 @@ public class MainActivity extends ActionBarActivity {
     private void updateAuthNetwork(boolean auth) {
         int ic_auth = (auth ? R.drawable.ic_auth_green : R.drawable.ic_auth_grey);
         punch_button.setCompoundDrawablesWithIntrinsicBounds(0, 0, ic_auth, 0);
+        punch_button.setTextColor((auth? Color.BLACK:Color.GRAY));
     }
 
 
