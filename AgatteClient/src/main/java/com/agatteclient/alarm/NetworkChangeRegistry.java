@@ -49,7 +49,6 @@ public class NetworkChangeRegistry {
     private NetworkChangeRegistry(Context context) {
         authorized_ssid = new HashSet<String>();
         ssid_history = new Hashtable<Long, String>();
-        //TODO: get the list of authorized network from preference
         Resources res = context.getResources();
         for (String ssid : res.getStringArray(R.array.default_auth_ssid)) {
             authorized_ssid.add(ssid);

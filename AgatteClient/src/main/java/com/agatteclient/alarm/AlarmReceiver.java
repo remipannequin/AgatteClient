@@ -157,8 +157,8 @@ public class AlarmReceiver extends BroadcastReceiver {
                      }
                     break;
                 case invalidPunchingCondition:
-                    notification_text.append("Required conditions were not met");
-                    message = resultData.getString("message");
+                    notification_text.append("Required conditions were not met");//NON-NLS
+                    message = resultData.getString("message");//NON-NLS
                     if (message != null && message.length() != 0) {
                         notification_text.append(" : ").append(message);
                     }
@@ -170,7 +170,6 @@ public class AlarmReceiver extends BroadcastReceiver {
                     Log.w(MainActivity.LOG_TAG, String.format("Unknown response code %s", code.toString()));//NON-NLS
             }
 
-            //TODO: in case of invalidPunchingCondition, don't display a notification...
             AlarmDoneNotification.notify(ctx, code, notification_text.toString(), 0);
 
 

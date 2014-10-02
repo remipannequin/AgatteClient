@@ -17,8 +17,6 @@
   ~ Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
   -->
 
-<!-- TODO: define real attributes and implements them in TimeProgress & TimeProgressDrawable -->
-
 <resources>
     <declare-styleable name="TimeProgress">
         <attr name="exampleString" format="string" />

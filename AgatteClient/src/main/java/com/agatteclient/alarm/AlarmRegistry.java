@@ -86,7 +86,6 @@ public class AlarmRegistry {
             alarmManager.cancel(a.intent);
         }
         pending_intent_map.clear();
-        //TODO: remove all alarms for the AM. But is it even possible ?
     }
 
     public Map<PunchAlarmTime, ScheduledAlarm> getPending_intent_map() {
@@ -249,10 +248,13 @@ public class AlarmRegistry {
      *
      * @param a the alarm to set as done
      */
-    public void setDone(@Nonnull PunchAlarmTime a) {
+    public void setDone(PunchAlarmTime a) {
         Calendar cal = Calendar.getInstance();
+        // Fix bug, possible NPE when querying counter is impossible
+        if (a == null) {
+            return;
+        }
         //compute exec. date
-        //TODO: fix bug, possible NPE when querying counter is impossible
         Date off = a.getTime();
         RecordedAlarm rec = new RecordedAlarm(off, a.getType());
         cal.setTime(off);
