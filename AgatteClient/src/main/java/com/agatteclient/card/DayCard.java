@@ -487,9 +487,10 @@ public class DayCard implements Serializable {
      * @return the array of Pair (di, df) with di < df
      */
     public Pair<Date, Date>[] getCorrectedPunches() {
-        Pair<Date, Date>[] result = (Pair<Date, Date>[]) new Pair[this.corrected_punches.size() / 2];
+        int size = this.corrected_punches.size();
+        Pair<Date, Date>[] result = (Pair<Date, Date>[]) new Pair[size / 2];
         Date di, df;
-        for (int i = 0; i < this.corrected_punches.size(); i += 2) {
+        for (int i = 0; i < size; i += 2) {
             di = new Date(this.corrected_punches.get(i));
             df = new Date(this.corrected_punches.get(i + 1));
             result[i++] = new Pair<Date, Date>(di, df);
