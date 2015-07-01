@@ -63,7 +63,7 @@ public class AgatteSession {
     private static final String LOGIN_DIR = "/app/login.form";
     private static final String LOGOUT_DIR = "/app/logout.form";
     private static final String AUTH_DIR = "/j_acegi_security_check";
-    private static final String PUNCH_DIR = "/top/top.form";
+    private static final String PUNCH_DIR = "/top/";
     private static final String PUNCH_OK_DIR = "/top/topOk.htm";
     private static final String QUERY_DIR = "/";
     private static final String WEEK_COUNTER_DIR = "/top/feuille-top.form";
@@ -174,6 +174,8 @@ public class AgatteSession {
                 return false;
             }
         }
+
+
         return true;
     }
 
@@ -213,6 +215,15 @@ public class AgatteSession {
     /**
      * Send a "punch" to the server
      *
+     * As of june 2015, the new code on the servers requires to to a tree-step request:
+     * 1) GET top/top.form, and extract some "secrets" : key in the header, secret URL, and secret
+     * 2) POST top/location.href (XMLHttpRequest), and extract a returned key (in the header)
+     * 3) POST to the secret URL (which ATM does not change) the secret, while putting the key in the header.
+     *
+     * The method to hide the values in the HTML is Base64. Which is just as lame as it sounds. But
+     * Its encoded twice, for super-extra-security. Good job, IT guys, this was really funny.
+     * Wink at Université de Lorrraine devs
+     *
      *
      *
      * @return an AgatteResponse instance
@@ -231,6 +242,10 @@ public class AgatteSession {
             client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
             //Simulate a first query
             client.execute(query_day_rq, httpContext).getEntity().consumeContent();
+            //TODO extract secrets
+
+
+
             //Then send a punching request
             HttpResponse response1 = client.execute(exec_rq, httpContext);
             //should be a redirect to topOk

@@ -19,16 +19,34 @@
 
 package com.agatteclient.agatte;
 
+import android.util.Base64;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 /**
  * Singleton class to parse response from the Agatte Server
@@ -182,6 +200,77 @@ public class AgatteParser {
         return h;
     }
 
+    private String decode(String coded) throws UnsupportedEncodingException {
+        byte[] decoded_bytes = Base64.decode(coded.getBytes(), Base64.DEFAULT);
+        return new String(decoded_bytes, "UTF-8");
+    }
+
+    private String encode(String clear) throws UnsupportedEncodingException {
+        byte[] clear_bytes = clear.getBytes();
+        return Base64.encodeToString(clear_bytes, Base64.URL_SAFE);
+    }
+
+
+    private AgatteSecret extractSecrets(String result) throws IOException, XPathExpressionException, AgatteException {
+
+        Pattern p_d1 = Pattern.compile("<div id=\"d1\">(.*?)</div>");
+        Pattern p_d2 = Pattern.compile("<div id=\"d2\">(.*?)</div>");
+        Pattern p_d3 = Pattern.compile("<div id=\"d3\">(.*?)</div>");
+        String d1= null, d2 = null, d3 = null;
+        Matcher matcher = p_d1.matcher(result);
+        if (matcher.find()) {
+            d1 = decode(matcher.group(1));
+        } else {
+            throw new AgatteException();
+        }
+        matcher = p_d2.matcher(result);
+        if (matcher.find()) {
+            d2 = decode(matcher.group(1));
+        } else {
+            throw new AgatteException();
+        }
+        matcher = p_d3.matcher(result);
+        if (matcher.find()) {
+            d3 = decode(matcher.group(1));
+        } else {
+            throw new AgatteException();
+        }
+
+        String xml = String.format("<lol>%s%s<div>%s</lol>", d1, d2, d3);
+        XPathFactory factory = XPathFactory.newInstance();
+        XPath xPath = factory.newXPath();
+        String sp0 = xPath.evaluate("//*[@id='sp0']/@class", new InputSource(new StringReader(xml)));
+        String sp1 = xPath.evaluate("//*[@id='sp1']/@class", new InputSource(new StringReader(xml)));
+        String dv0 = xPath.evaluate("//*[@id='dv0']/@class", new InputSource(new StringReader(xml)));
+
+        String secret_url = decode(sp0);
+        String key = decode(sp1);
+        String secret = encode(dv0);
+        return new AgatteSecret(secret_url, key, secret);
+    }
+
+    public AgatteSecret parse_secrets_from_query_response(HttpResponse response) throws IOException, AgatteException {
+        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            throw new AgatteException(response.getStatusLine().getReasonPhrase());
+        }
+
+        //get response as a string
+        String result = entityToString(response);
+        //search for Unauthorized network
+        if (searchNetworkNotAuthorized(result)) {
+            throw new AgatteNetworkNotAuthorizedException();
+        }
+
+        //search secrets
+        try {
+            return extractSecrets(result);
+        } catch (XPathExpressionException e) {
+            //TODO
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     public AgatteResponse parse_query_response(HttpResponse response) throws IOException, AgatteException {
 
@@ -195,6 +284,7 @@ public class AgatteParser {
         if (searchNetworkNotAuthorized(result)) {
             throw new AgatteNetworkNotAuthorizedException();
         }
+
         //get tops
         Collection<String> tops = searchForTops(result);
         Collection<String> virtual_tops = searchForVirtualTops(result);
