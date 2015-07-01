@@ -17,14 +17,7 @@
  * Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
  */
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:0.12.2'
-    }
-}
+
 
 apply plugin: 'com.android.application'
 
@@ -32,31 +25,43 @@ repositories {
     mavenCentral()
 }
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.2.3'
+    }
+}
+
 android {
-    compileSdkVersion 19
-    buildToolsVersion '20.0.0'
+    compileSdkVersion 22
+    buildToolsVersion '22.0.1'
 
     defaultConfig {
         minSdkVersion 10
-        targetSdkVersion 19
+        targetSdkVersion 22
     }
 
     buildTypes {
         debug {
-            runProguard false
+            minifyEnabled false
         }
 
         release {
             //noinspection GroovyAssignabilityCheck
-            runProguard true
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
 }
+repositories {
+    mavenCentral()
+}
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:20.0.0'
-    compile 'com.android.support:support-v4:20.0.0'
-    compile 'com.google.guava:guava:17.0'
+    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:support-v4:22.2.0'
+    compile 'com.google.guava:guava:18.0'
     compile 'com.google.code.findbugs:jsr305:2.0.2'
 }
