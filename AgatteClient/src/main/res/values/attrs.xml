@@ -32,6 +32,8 @@
         <attr name="hourIncrement" format="integer" />
         <attr name="hourHeight" format="dimension" />
         <attr name="hatchingColor" format="color" />
+        <attr name="alarmColor" format="color" />
     </declare-styleable>
+
 
 </resources>

@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <!--
   ~ This file is part of AgatteClient.
   ~
@@ -17,15 +19,8 @@
   ~ Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
   -->
 
-<resources>
-
-    <!--
-        Base application theme for API 14+. This theme completely replaces
-        AppBaseTheme from BOTH res/values/styles.xml and
-        res/values-v11/styles.xml on API 14+ devices.
-    -->
-    <style name="AppBaseTheme" parent="android:Theme.Holo.Light.DarkActionBar">
-        <!-- API 14 theme customizations can go here. -->
-    </style>
-
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/toggle_underline_activated" android:state_pressed="true" android:state_window_focused="true" />
+    <item android:drawable="@drawable/toggle_underline_activated" android:state_checked="true" />
+    <item android:drawable="@drawable/toggle_underline_normal" />
+</selector>

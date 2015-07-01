@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
   ~ This file is part of AgatteClient.
   ~
   ~ AgatteClient is free software: you can redistribute it and/or modify
@@ -27,48 +26,37 @@
     version="1.1" width="850.39368" xmlns="http://www.w3.org/2000/svg"
     inkscape:export-filename="ic_stat_notify.png" inkscape:export-xdpi="580"
     inkscape:export-ydpi="580" inkscape:version="0.48.4 r9939" sodipodi:docname="agatte.svg">
-    <defs
-     id="defs4" />
-  <sodipodi:namedview bordercolor="#666666" borderlayer="false" borderopacity="1.0"
-      fit-margin-bottom="0" fit-margin-left="0" fit-margin-right="0" fit-margin-top="0"
-     id="base"
-     pagecolor="#000000" showborder="true"
-     showgrid="false" units="cm"
-     width="256px" inkscape:current-layer="g3952" inkscape:cx="299.54287" inkscape:cy="534.0081"
-      inkscape:document-units="cm" inkscape:pageopacity="1" inkscape:pageshadow="2"
-     inkscape:showpageshadow="true" inkscape:window-height="988" inkscape:window-maximized="1"
-     inkscape:window-width="1280" inkscape:window-x="1280" inkscape:window-y="0"
-      inkscape:zoom="0.35" />
-    <metadata
-     id="metadata7">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <g
-     id="layer1" transform="translate(-15.821102,-375.53976)" inkscape:groupmode="layer"
-      inkscape:label="Calque 1">
-      <g
-       id="g3952">
-      <path
-          style="fill:none;stroke:#ffffff;stroke-width:26.0569706;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-          d="m 405.57626,168.36926 a 145.71451,142.68405 0 1 1 -291.42901,0 145.71451,142.68405 0 1 1 291.42901,0 z"
-          id="path3950" transform="matrix(2.3416785,0.00793402,0,2.3913992,-167.49473,396.03672)"
-         sodipodi:cx="259.86176" sodipodi:cy="168.36926" sodipodi:rx="145.71451"
-          sodipodi:ry="142.68405"
-         sodipodi:type="arc" />
-      <path
-         style="fill:#ffffff;fill-opacity:1;stroke:none"
-          d="M 351.46952,676.06551 C 455.2124,777.63689 472.77541,856.86791 529.56491,948.15435 586.35432,1039.4405 666.56409,1065.6439 666.56409,1065.6439 535.48694,1049.6315 460.78502,957.28296 409.35756,879.70262 372.77338,823.3556 368.9812,744.60937 353.8055,710.00278 c -14.60512,-33.30572 -47.78106,-75.48129 -97.9258,-97.578 -39.81792,-17.54619 -60.19855,-55.00521 -32.23757,-74.86647 27.96099,-19.86137 104.49705,81.31336 114.30396,100.78706 118.04901,56.06914 207.87644,128.99887 255.49103,190.29421 47.61454,61.29546 97.37836,185.85752 70.17454,237.84502 -9.06398,-16.8826 -29.93138,-64.2024 -80.16788,-127.53066 C 533.20721,875.62567 490.24318,764.202 351.46952,676.06551 z"
-         id="path3962"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="czccsszczczc" />
+    <defs id="defs4" />
+    <sodipodi:namedview bordercolor="#666666" borderlayer="false" borderopacity="1.0"
+        fit-margin-bottom="0" fit-margin-left="0" fit-margin-right="0" fit-margin-top="0" id="base"
+        pagecolor="#000000" showborder="true" showgrid="false" units="cm" width="256px"
+        inkscape:current-layer="g3952" inkscape:cx="299.54287" inkscape:cy="534.0081"
+        inkscape:document-units="cm" inkscape:pageopacity="1" inkscape:pageshadow="2"
+        inkscape:showpageshadow="true" inkscape:window-height="988" inkscape:window-maximized="1"
+        inkscape:window-width="1280" inkscape:window-x="1280" inkscape:window-y="0"
+        inkscape:zoom="0.35" />
+    <metadata id="metadata7">
+        <rdf:RDF>
+            <cc:Work rdf:about="">
+                <dc:format>image/svg+xml</dc:format>
+                <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+                <dc:title />
+            </cc:Work>
+        </rdf:RDF>
+    </metadata>
+    <g id="layer1" transform="translate(-15.821102,-375.53976)" inkscape:groupmode="layer"
+        inkscape:label="Calque 1">
+        <g id="g3952">
+            <path
+                style="fill:none;stroke:#ffffff;stroke-width:26.0569706;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+                d="m 405.57626,168.36926 a 145.71451,142.68405 0 1 1 -291.42901,0 145.71451,142.68405 0 1 1 291.42901,0 z"
+                id="path3950"
+                transform="matrix(2.3416785,0.00793402,0,2.3913992,-167.49473,396.03672)"
+                sodipodi:cx="259.86176" sodipodi:cy="168.36926" sodipodi:rx="145.71451"
+                sodipodi:ry="142.68405" sodipodi:type="arc" />
+            <path style="fill:#ffffff;fill-opacity:1;stroke:none"
+                d="M 351.46952,676.06551 C 455.2124,777.63689 472.77541,856.86791 529.56491,948.15435 586.35432,1039.4405 666.56409,1065.6439 666.56409,1065.6439 535.48694,1049.6315 460.78502,957.28296 409.35756,879.70262 372.77338,823.3556 368.9812,744.60937 353.8055,710.00278 c -14.60512,-33.30572 -47.78106,-75.48129 -97.9258,-97.578 -39.81792,-17.54619 -60.19855,-55.00521 -32.23757,-74.86647 27.96099,-19.86137 104.49705,81.31336 114.30396,100.78706 118.04901,56.06914 207.87644,128.99887 255.49103,190.29421 47.61454,61.29546 97.37836,185.85752 70.17454,237.84502 -9.06398,-16.8826 -29.93138,-64.2024 -80.16788,-127.53066 C 533.20721,875.62567 490.24318,764.202 351.46952,676.06551 z"
+                id="path3962" inkscape:connector-curvature="0" sodipodi:nodetypes="czccsszczczc" />
+        </g>
     </g>
-  </g>
 </svg>

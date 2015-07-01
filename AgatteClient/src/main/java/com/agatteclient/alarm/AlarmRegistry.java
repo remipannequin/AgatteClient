@@ -24,32 +24,44 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
+import javax.annotation.Nonnull;
 
 /**
  * This service has a map of pending intents corresponding to to all the scheduled alarms in the
  * system.
  * <p/>
- * When started, it gets a list of requested alarms from the AlarmBinder singleton, compare it with
+ * When started, it gets a list of requested alarms from the AlarmList singleton, compare it with
  * it set of scheduled alarms, and add/remove/modify any if needed (using the system's AlamrService)
  * <p/>
  * Created by Rémi Pannequin on 18/04/14.
  */
 public class AlarmRegistry {
 
+    public static final String ALARM_TYPE = "alarm-type";//NON-NLS
+    public static final String ALARM_ID = "alarm-id";//NON-NLS
     private static AlarmRegistry ourInstance;
 
     //Manage a collection of alarm, with their fingerprint
-    private final Map<PunchAlarmTime, Alarm> pending_intent_map;
+    private final Map<PunchAlarmTime, ScheduledAlarm> pending_intent_map;
+    // Map of alarms reported to have been done, number of day in year is the key
+    private final Multimap<Integer, RecordedAlarm> done_history;
+    private final Multimap<Integer, RecordedAlarm> failed_history;
 
     private AlarmRegistry() {
-        this.pending_intent_map = new HashMap<PunchAlarmTime, Alarm>();
-
+        this.pending_intent_map = new HashMap<PunchAlarmTime, ScheduledAlarm>();
+        this.done_history = ArrayListMultimap.create();
+        this.failed_history = ArrayListMultimap.create();
     }
 
     public static AlarmRegistry getInstance() {
@@ -66,18 +78,17 @@ public class AlarmRegistry {
     /**
      * Cancel and remove all scheduled alarms
      *
-     * @param context
+     * @param context the context to use
      */
     public void cancelAll(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        for (Alarm a : pending_intent_map.values()) {
+        for (ScheduledAlarm a : pending_intent_map.values()) {
             alarmManager.cancel(a.intent);
         }
         pending_intent_map.clear();
-        //TODO: remove all alarms for the AM. But is it even possible ?
     }
 
-    public Map<PunchAlarmTime, Alarm> getPending_intent_map() {
+    public Map<PunchAlarmTime, ScheduledAlarm> getPending_intent_map() {
         return pending_intent_map;
     }
 
@@ -90,21 +101,15 @@ public class AlarmRegistry {
     }
 
     /**
-     * @param context
+     * @param context the context to use, usually the main application context
      */
     public void update(Context context) {
-        AlarmBinder binder = AlarmBinder.getInstance(context);
-
-        //Extract longs representing the alarms
-        Set<Long> alarms = new HashSet<Long>(binder.size());
-        for (PunchAlarmTime a : binder) {
-            alarms.add(a.toLong());
-        }
+        AlarmList alist = AlarmList.getInstance(context);
 
         //Cancel alarms that are not in the binder any more
         List<PunchAlarmTime> to_remove = new ArrayList<PunchAlarmTime>(pending_intent_map.size());
         for (PunchAlarmTime a : pending_intent_map.keySet()) {
-            if (!binder.contains(a)) {
+            if (!alist.contains(a)) {
                 to_remove.add(a);
             }
         }
@@ -112,9 +117,8 @@ public class AlarmRegistry {
             cancelAlarm(context, a);
         }
 
-
         //Add alarms that are new, update the other ones
-        for (PunchAlarmTime a : binder) {
+        for (PunchAlarmTime a : alist) {
             if (!pending_intent_map.containsKey(a)) {
                 addAlarm(context, a);
             } else {
@@ -124,8 +128,9 @@ public class AlarmRegistry {
     }
 
     /**
-     * @param context
-     * @param alarm
+     * Add an Alarm to the Registry :  schedule it, if applicable (i.e. enabled)
+     * @param context the context to use, usually the main application context
+     * @param alarm the alarm to add
      */
     private void addAlarm(Context context, PunchAlarmTime alarm) {
         // Check if alarm does actually fire
@@ -134,18 +139,21 @@ public class AlarmRegistry {
         if (time >= 0) {
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             Intent i = new Intent(context, AlarmReceiver.class);
+            i.putExtra(ALARM_TYPE, alarm.getType().ordinal());
             int fingerPrint = alarm.shortFingerPrint();
+            AlarmList alist = AlarmList.getInstance(context);
+            i.putExtra(ALARM_ID, alarm.hashCode());
             PendingIntent pi = PendingIntent.getBroadcast(context, fingerPrint, i, PendingIntent.FLAG_ONE_SHOT);
-            Alarm o = new Alarm(pi, fingerPrint, time);
+            ScheduledAlarm o = new ScheduledAlarm(pi, fingerPrint, time);
             pending_intent_map.put(alarm, o);
             am.set(AlarmManager.RTC_WAKEUP, time, pi);
         }
     }
 
     /**
-     *
-     * @param context
-     * @param alarm
+     * Remove an alarm from the registry : unschedule it
+     * @param context the context to use, usually the main application context
+     * @param alarm the alarm to cancel
      */
     private void cancelAlarm(Context context, PunchAlarmTime alarm) {
         PendingIntent sender = pending_intent_map.get(alarm).intent;
@@ -155,8 +163,9 @@ public class AlarmRegistry {
     }
 
     /**
-     * @param context
-     * @param alarm
+     * Update an alarm : cancel, change scheduled time, or do nothing
+     * @param context the context to use, usually the main application context
+     * @param alarm the alarm to update
      */
     private void updateAlarm(Context context, PunchAlarmTime alarm) {
         PendingIntent sender = pending_intent_map.get(alarm).intent;
@@ -169,9 +178,12 @@ public class AlarmRegistry {
             long time = alarm.nextAlarm(now);
             if (time >= 0) {
                 Intent i = new Intent(context, AlarmReceiver.class);
+                i.putExtra(ALARM_TYPE, alarm.getType().ordinal());
+                AlarmList alist = AlarmList.getInstance(context);
+                i.putExtra(ALARM_ID, alarm.hashCode());
                 //using the same request code, the previous alarm is replaced
                 PendingIntent pi = PendingIntent.getBroadcast(context, fingerprint, i, PendingIntent.FLAG_ONE_SHOT);
-                pending_intent_map.put(alarm, new Alarm(pi, fingerprint, time));
+                pending_intent_map.put(alarm, new ScheduledAlarm(pi, fingerprint, time));
                 am.set(AlarmManager.RTC_WAKEUP, time, pi);
             } else {
                 //must cancel
@@ -181,16 +193,113 @@ public class AlarmRegistry {
         }
     }
 
+    /**
+     * Return the list of scheduled alarm for this day
+     *
+     * @param now the day to consider
+     * @return An iterable of Alarms
+     */
+    public Iterable<PunchAlarmTime> getScheduledAlarms(Date now) {
+        LinkedList<PunchAlarmTime> result = new LinkedList<PunchAlarmTime>();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(now);
+        int day = cal.get(Calendar.DAY_OF_YEAR);
+        for (Map.Entry<PunchAlarmTime, ScheduledAlarm> entry : pending_intent_map.entrySet()) {
+            ScheduledAlarm al = entry.getValue();
+            Date d = new Date(al.time);
+            //check if same day
+            cal.setTime(d);
+            if (cal.get(Calendar.DAY_OF_YEAR) == day) {
+
+                result.add(entry.getKey());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Return the list of done alarm for this day
+     *
+     * @param now the day to consider
+     * @return the list of done alarms for the day
+     */
+    public Iterable<RecordedAlarm> getDoneAlarms(Date now) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(now);
+        int day = cal.get(Calendar.DAY_OF_YEAR);
+        return done_history.get(day);
+    }
+
+    /**
+     * Return the list of failed alarm for this day
+     *
+     * @param now the day to consider
+     * @return the list of failed alarm for the day
+     */
+    public Iterable<RecordedAlarm> getFailedAlarms(Date now) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(now);
+        int day = cal.get(Calendar.DAY_OF_YEAR);
+        return failed_history.get(day);
+    }
+
+    /**
+     * Report an alarm to have correctly been done, this current day
+     *
+     * @param a the alarm to set as done
+     */
+    public void setDone(PunchAlarmTime a) {
+        Calendar cal = Calendar.getInstance();
+        // Fix bug, possible NPE when querying counter is impossible
+        if (a == null) {
+            return;
+        }
+        //compute exec. date
+        Date off = a.getTime();
+        RecordedAlarm rec = new RecordedAlarm(off, a.getType());
+        cal.setTime(off);
+        done_history.put(cal.get(Calendar.DAY_OF_YEAR), rec);
+    }
+
+    /**
+     * Report an alarm to have failed, this current day
+     *
+     * @param a the alarm to set as failed
+     */
+    public void setFailed(@Nonnull PunchAlarmTime a) {
+        Calendar cal = Calendar.getInstance();
+        //compute exec. date
+        Date off = a.getTime();
+        RecordedAlarm rec = new RecordedAlarm(off, a.getType());
+        cal.setTime(off);
+        failed_history.put(cal.get(Calendar.DAY_OF_YEAR), rec);
+    }
+
+
+
+
+
+
     //public for debugging purposes
-    public class Alarm {
+    public class ScheduledAlarm {
         public PendingIntent intent;
         public int finger_print;//This is also used as request code
         public long time;
 
-        Alarm(PendingIntent intent, int finger_print, long time) {
+        ScheduledAlarm(PendingIntent intent, int finger_print, long time) {
             this.intent = intent;
             this.finger_print = finger_print;
             this.time = time;
+        }
+    }
+
+    public class RecordedAlarm {
+        public Date date_executed;
+        public PunchAlarmTime.Type type;
+
+        public RecordedAlarm(Date date_executed, PunchAlarmTime.Type type) {
+            this.date_executed = date_executed;
+            this.type = type;
         }
     }
 }

@@ -25,6 +25,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.agatteclient.MainActivity;
 
@@ -40,6 +41,8 @@ public class PunchService extends IntentService {
 
 
     public static final String DO_PUNCH = "punch"; //NON-NLS
+    public static final String DO_PUNCH_ARRIVAL = "punch-arrival"; //NON-NLS
+    public static final String DO_PUNCH_LEAVING = "punch-leaving"; //NON-NLS
     public static final String QUERY = "query"; //NON-NLS
     public static final String QUERY_COUNTER = "query_counter"; //NON-NLS
     public static final String RESULT_RECEIVER = "result_receiver"; //NON-NLS
@@ -60,9 +63,9 @@ public class PunchService extends IntentService {
         try {
             session = new AgatteSession(server, login, password);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            Log.e(MainActivity.LOG_TAG, String.format("%1 is not a valid URI", server), e);//NON-NLS
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            Log.e(MainActivity.LOG_TAG, "Unsupported encoding in server, login or password", e);//NON-NLS
         }
     }
 
@@ -78,17 +81,21 @@ public class PunchService extends IntentService {
             if (intent.getAction() == null) {
                 throw new AgatteException("Null intent");
             } else if (intent.getAction().equals(DO_PUNCH)) {
-
                 AgatteResponse rsp = session.doPunch();
                 bundle = rsp.toBundle();
                 code = AgatteResultCode.punch_ok;
-
+            } else if (intent.getAction().equals(DO_PUNCH_ARRIVAL)) {
+                AgatteResponse rsp = session.doCheckAndPunch(true);
+                bundle = rsp.toBundle();
+                code = AgatteResultCode.punch_ok;
+            } else if (intent.getAction().equals(DO_PUNCH_LEAVING)) {
+                AgatteResponse rsp = session.doCheckAndPunch(false);
+                bundle = rsp.toBundle();
+                code = AgatteResultCode.punch_ok;
             } else if (intent.getAction().equals(QUERY)) {
-
                 AgatteResponse rsp = session.query_day();
                 bundle = rsp.toBundle();
                 code = AgatteResultCode.query_ok;
-
             } else if (intent.getAction().equals(QUERY_COUNTER)) {
                 AgatteCounterResponse rsp = session.queryCounterCurrent();
                 bundle = rsp.toBundle();
@@ -105,6 +112,9 @@ public class PunchService extends IntentService {
             bundle = e.toBundle();
         } catch (AgatteNetworkNotAuthorizedException e) {
             code = AgatteResultCode.network_not_authorized;
+            bundle = e.toBundle();
+        } catch (InvalidPunchingConditionException e) {
+            code = AgatteResultCode.invalidPunchingCondition;
             bundle = e.toBundle();
         } catch (AgatteException e) {
             code = AgatteResultCode.exception;

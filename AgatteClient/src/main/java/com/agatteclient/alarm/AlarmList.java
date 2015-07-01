@@ -34,18 +34,20 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
-public class AlarmBinder implements List<PunchAlarmTime> {
+import javax.annotation.Nonnull;
+
+
+public class AlarmList implements List<PunchAlarmTime> {
     private static final String ALARMS_PREF = "alarms-pref"; //NON-NLS
     private static final String ALARM_SHARED_PREFS = "alarms"; //NON-NLS
-    private static AlarmBinder ourInstance;
+    private static AlarmList ourInstance;
     private static SharedPreferences preferences;
     private final ArrayList<PunchAlarmTime> alarms;
     private AlarmChangeListener listener;
 
 
-    private AlarmBinder(SharedPreferences preferences) {
+    private AlarmList(SharedPreferences preferences) {
         alarms = new ArrayList<PunchAlarmTime>();
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             Set<String> alarms_s = preferences.getStringSet(ALARMS_PREF, null);
             if (alarms_s != null) {
@@ -53,7 +55,8 @@ public class AlarmBinder implements List<PunchAlarmTime> {
                     assert s != null;
                     try {
                         long n = Long.parseLong(s, 16);
-                        alarms.add(PunchAlarmTime.fromLong(n));
+                        PunchAlarmTime a = PunchAlarmTime.fromLong(n);
+                        alarms.add(a);
                     } catch (NumberFormatException ex) {
                         Log.e(MainActivity.LOG_TAG, String.format("NumberFormatException when restoring alarms: %s", ex.getMessage()));//NON-NLS
                     }
@@ -61,11 +64,11 @@ public class AlarmBinder implements List<PunchAlarmTime> {
             }
         } else {
             String alarms_s = preferences.getString(ALARMS_PREF, "");
-            int n_tok = alarms_s.length() / 16;
             for (int i = 0; i < alarms_s.length() / 16; i++) {
                 try {
                     long n = Long.parseLong(alarms_s.substring(i * 16, (i + 1) * 16), 16);
-                    alarms.add(PunchAlarmTime.fromLong(n));
+                    PunchAlarmTime a = PunchAlarmTime.fromLong(n);
+                    alarms.add(a);
                 } catch (NumberFormatException ex) {
                     Log.e(MainActivity.LOG_TAG, String.format("NumberFormatException when restoring alarms: %s", ex.getMessage()));//NON-NLS
                 }
@@ -73,11 +76,11 @@ public class AlarmBinder implements List<PunchAlarmTime> {
         }
     }
 
-    public static AlarmBinder getInstance(Context context) {
+    public static AlarmList getInstance(Context context) {
         if (ourInstance == null) {
             assert (context != null);
             preferences = context.getSharedPreferences(ALARM_SHARED_PREFS, Context.MODE_PRIVATE);
-            ourInstance = new AlarmBinder(preferences);
+            ourInstance = new AlarmList(preferences);
         }
         return ourInstance;
     }
@@ -87,7 +90,6 @@ public class AlarmBinder implements List<PunchAlarmTime> {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 
             Set<String> alarms_s = new HashSet<String>(alarms.size());
-            int i = 0;
             for (PunchAlarmTime a : alarms) {
                 long n = a.toLong();
                 alarms_s.add(Long.toHexString(n));
@@ -98,7 +100,7 @@ public class AlarmBinder implements List<PunchAlarmTime> {
             StringBuilder alarms_s = new StringBuilder();
             for (PunchAlarmTime a : alarms) {
                 long n = a.toLong();
-                alarms_s.append(String.format("%016X", n));
+                alarms_s.append(String.format("%016X", n));//NON-NLS
             }
             editor.putString(ALARMS_PREF, alarms_s.toString());
         }
@@ -115,12 +117,17 @@ public class AlarmBinder implements List<PunchAlarmTime> {
     }
 
 
+    @Nonnull
     public List<PunchAlarmTime> subList(int start, int end) {
         return alarms.subList(start, end);
     }
 
     public boolean remove(Object object) {
         if (alarms.remove(object)) {
+            if (object instanceof PunchAlarmTime && listener != null) {
+                PunchAlarmTime a = (PunchAlarmTime) object;
+                listener.onAlarmRemoved(a);
+            }
             saveToPreferences();
             return true;
         } else {
@@ -128,7 +135,7 @@ public class AlarmBinder implements List<PunchAlarmTime> {
         }
     }
 
-    public boolean containsAll(Collection<?> collection) {
+    public boolean containsAll(@Nonnull Collection<?> collection) {
         return alarms.containsAll(collection);
     }
 
@@ -149,6 +156,20 @@ public class AlarmBinder implements List<PunchAlarmTime> {
         return alarms.get(index);
     }
 
+    public PunchAlarmTime lookup(int hash) {
+        PunchAlarmTime found = null;
+        for (PunchAlarmTime a : alarms) {
+            if (a.hashCode() == hash) {
+                found = a;
+            }
+        }
+        //can't happen : no alarm found !
+        if (found == null) {
+            Log.wtf(MainActivity.LOG_TAG, String.format("Lookup for alarm with code %s failed", hash));
+        }
+        return found;
+    }
+
     @Override
     public int hashCode() {
         return 0;
@@ -164,6 +185,11 @@ public class AlarmBinder implements List<PunchAlarmTime> {
 
     public PunchAlarmTime remove(int index) {
         PunchAlarmTime object = alarms.remove(index);
+        if (object != null) {
+            if (listener != null) {
+                listener.onAlarmRemoved(object);
+            }
+        }
         saveToPreferences();
         return object;
     }
@@ -179,6 +205,7 @@ public class AlarmBinder implements List<PunchAlarmTime> {
         return a;
     }
 
+    @Nonnull
     public Iterator<PunchAlarmTime> iterator() {
         return alarms.iterator();
     }
@@ -193,11 +220,12 @@ public class AlarmBinder implements List<PunchAlarmTime> {
 
     public boolean addAll(Collection<? extends PunchAlarmTime> collection) {
         if (alarms.addAll(collection)) {
-            if (listener != null) {
-                for (PunchAlarmTime a : collection) {
+            for (PunchAlarmTime a : collection) {
+                if (listener != null) {
                     listener.onAlarmAdded(a);
                 }
             }
+
             saveToPreferences();
             return true;
         } else {
@@ -205,14 +233,15 @@ public class AlarmBinder implements List<PunchAlarmTime> {
         }
     }
 
-    public <T> T[] toArray(T[] contents) {
+    @Nonnull
+    public <T> T[] toArray(@Nonnull T[] contents) {
         return alarms.toArray(contents);
     }
 
     public boolean addAll(int index, Collection<? extends PunchAlarmTime> collection) {
         if (alarms.addAll(index, collection)) {
-            if (listener != null) {
-                for (PunchAlarmTime a : collection) {
+            for (PunchAlarmTime a : collection) {
+                if (listener != null) {
                     listener.onAlarmAdded(a);
                 }
             }
@@ -233,6 +262,7 @@ public class AlarmBinder implements List<PunchAlarmTime> {
         saveToPreferences();
     }
 
+    @Nonnull
     public Object[] toArray() {
         return alarms.toArray();
     }
@@ -249,35 +279,30 @@ public class AlarmBinder implements List<PunchAlarmTime> {
         alarms.trimToSize();
     }
 
-    public boolean removeAll(Collection<?> collection) {
-        if (listener != null) {
-            for (Object o : collection) {
-                if (o instanceof PunchAlarmTime) {
-                    listener.onAlarmRemoved((PunchAlarmTime) o);
+    public boolean removeAll(@Nonnull Collection<?> collection) {
+        for (Object o : collection) {
+            if (o instanceof PunchAlarmTime && alarms.contains(o)) {
+                PunchAlarmTime a = (PunchAlarmTime) o;
+                if (listener != null) {
+                    listener.onAlarmRemoved(a);
                 }
             }
         }
         return alarms.removeAll(collection);
     }
 
+    @Nonnull
     public ListIterator<PunchAlarmTime> listIterator() {
         return alarms.listIterator();
     }
 
-    public boolean retainAll(Collection<?> collection) {
+    public boolean retainAll(@Nonnull Collection<?> collection) {
         return alarms.retainAll(collection);
     }
 
+    @Nonnull
     public ListIterator<PunchAlarmTime> listIterator(int location) {
         return alarms.listIterator(location);
-    }
-
-    public void addAlarm(PunchAlarmTime a) {
-        alarms.add(a);
-        if (listener != null) {
-            listener.onAlarmAdded(a);
-        }
-        saveToPreferences();
     }
 
     public void setEnabled(int i, boolean b) {
@@ -306,6 +331,16 @@ public class AlarmBinder implements List<PunchAlarmTime> {
         }
         saveToPreferences();
     }
+
+    public void setType(int i, PunchAlarmTime.Type t) {
+        PunchAlarmTime a = alarms.get(i);
+        a.setType(t);
+        if (listener != null) {
+            listener.onAlarmModified(a);
+        }
+        saveToPreferences();
+    }
+
 
     public void setAlarmChangeListener(AlarmChangeListener listener) {
         this.listener = listener;

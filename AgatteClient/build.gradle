@@ -17,24 +17,16 @@
  * Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
  */
 
-
-
-
-
-
-
-
-
 buildscript {
     repositories {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.11.+'
+        classpath 'com.android.tools.build:gradle:0.12.2'
     }
 }
 
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 repositories {
     mavenCentral()
@@ -42,46 +34,29 @@ repositories {
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.1.0"
+    buildToolsVersion '20.0.0'
 
     defaultConfig {
         minSdkVersion 10
         targetSdkVersion 19
     }
 
-    signingConfigs {
-        release {
-            storeFile file(System.properties['user.home'] + "/android_key.jks")
-            storePassword "*****"
-            keyAlias "Rémi Pannequin"
-            keyPassword "*****"
-        }
-    }
-
     buildTypes {
+        debug {
+            runProguard false
+        }
+
         release {
             //noinspection GroovyAssignabilityCheck
-            signingConfig signingConfigs.release
+            runProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:19.1.0'
-    compile 'com.android.support:support-v4:19.1.0'
-}
-
-task askForPasswords << {
-    // Must create String because System.readPassword() returns char[]
-    // (and assigning that below fails silently)
-    def keyPw = new String(System.console().readPassword("Key password: "))
-
-    android.signingConfigs.release.storePassword = keyPw
-    android.signingConfigs.release.keyPassword = keyPw
-}
-
-tasks.whenTaskAdded { theTask ->
-    if (theTask.name.equals("packageRelease")) {
-        theTask.dependsOn "askForPasswords"
-    }
+    compile 'com.android.support:appcompat-v7:20.0.0'
+    compile 'com.android.support:support-v4:20.0.0'
+    compile 'com.google.guava:guava:17.0'
+    compile 'com.google.code.findbugs:jsr305:2.0.2'
 }

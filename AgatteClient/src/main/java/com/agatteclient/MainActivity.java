@@ -28,7 +28,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,6 +36,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -55,13 +59,13 @@ import com.agatteclient.agatte.AgatteResultCode;
 import com.agatteclient.agatte.AgatteSession;
 import com.agatteclient.agatte.PunchService;
 import com.agatteclient.alarm.AlarmActivity;
-import com.agatteclient.alarm.AlarmBinder;
+import com.agatteclient.alarm.AlarmList;
 import com.agatteclient.alarm.AlarmRegistry;
+import com.agatteclient.alarm.NetworkChangeRegistry;
 import com.agatteclient.card.CardBinder;
 import com.agatteclient.card.DayCard;
 import com.agatteclient.card.DayCardView;
 import com.agatteclient.card.TimeProfile;
-import com.agatteclient.card.TimeProgressDrawable;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
@@ -70,22 +74,23 @@ import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends Activity {
+import javax.annotation.Nonnull;
+
+public class MainActivity extends ActionBarActivity {
 
     public static final String SERVER_PREF = "server"; //NON-NLS
     public static final String LOGIN_PREF = "login"; //NON-NLS
     public static final String PASSWD_PREF = "password"; //NON-NLS
-    public static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";
+    public static final String SERVER_DEFAULT = "agatte.univ-lorraine.fr";//NON-NLS
     public static final String LOGIN_DEFAULT = "login"; //NON-NLS
     public static final String PASSWD_DEFAULT = "";
     public static final String LOG_TAG = "com.agatteclient"; //NON-NLS
+    public static final String PROFILE_PREF = "week_profile"; //NON-NLS
     private static final String CONFIRM_PUNCH_PREF = "confirm_punch"; //NON-NLS
     private static final String AUTO_QUERY_PREF = "auto_query"; //NON-NLS
-    private static final String PROFILE_PREF = "week_profile"; //NON-NLS
     private static final String COUNTER_WEEK_PREF = "counter-week"; //NON-NLS
     private static final String COUNTER_YEAR_PREF = "counter-year"; //NON-NLS
     private static final String COUNTER_LAST_UPDATE_PREF = "counter-update"; //NON-NLS
-    private static final String DAY_CARD = "day-card"; //NON-NLS
 
     private MenuItem refreshItem = null;
     private ScaleGestureDetector mScaleDetector;
@@ -103,16 +108,6 @@ public class MainActivity extends Activity {
     private TextView year_TextView;
     private TextView anomaly_TextView;
 
-    /**
-     * Save the state of the activity (the DayCard)
-     *
-     * @param outState outState
-     */
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putSerializable(DAY_CARD, cur_card);
-    }
 
     /**
      * Restore the state of the activity (the DayCard)
@@ -123,14 +118,10 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Get old instance or create a new one
-        /*if (savedInstanceState == null) {
-            cur_card = CardBinder.getInstance().getTodayCard();
-        } else {
-            cur_card = (DayCard) savedInstanceState.getSerializable(DAY_CARD);
-        }*/
-        //create alarm binder instance in this context
-        AlarmBinder.getInstance(this);
+        //Update network authentication status
+        NetworkChangeRegistry.getInstance(getApplicationContext()).update(getApplicationContext());
+
+        AlarmList.getInstance(this);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor editor = preferences.edit();
@@ -149,7 +140,6 @@ public class MainActivity extends Activity {
         if (!preferences.contains(AUTO_QUERY_PREF)) {
             editor.putBoolean(AUTO_QUERY_PREF, false); // value to store
         }
-
         editor.commit();
 
         mScaleDetector = new ScaleGestureDetector(getApplicationContext(), new ScaleListener());
@@ -157,18 +147,8 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         dc_view = (DayCardView) findViewById(R.id.day_card_view);
-        //
 
-        String profile = preferences.getString(PROFILE_PREF, "1");
-        int profile_n = Integer.decode(profile) - 1;
-        float day_goal = TimeProfile.values()[profile_n].daily_time;
-
-        Resources r = getResources();
-        float scale = r.getDisplayMetrics().density;
         day_progress = (ProgressBar) findViewById(R.id.day_progress);
-        day_progress.setProgressDrawable(new TimeProgressDrawable(1200, day_goal, 100, scale));
-        day_progress.setMax(1200);
-
         day_textView = (TextView) findViewById(R.id.day_textView);
         week_TextView = (TextView) findViewById(R.id.week_textView);
         year_TextView = (TextView) findViewById(R.id.year_textView);
@@ -187,39 +167,48 @@ public class MainActivity extends Activity {
             session = new AgatteSession(server, login, password);
             pref_listener = new AgattePreferenceListener(session);
             preferences.registerOnSharedPreferenceChangeListener(pref_listener);
-
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            Log.w(MainActivity.LOG_TAG, "Server address is not a valid URI", e);//NON-NLS
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            Log.w(MainActivity.LOG_TAG, "Unsupported encoding in server address, login or password", e);//NON-NLS
         }
-
     }
+
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
         cur_card = CardBinder.getInstance().getTodayCard();
         dc_view.setCard(cur_card);
+        dc_view.setAlarmRegistry(AlarmRegistry.getInstance());
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         boolean auto_query = preferences.getBoolean(AUTO_QUERY_PREF, true);
-        if (auto_query) {
+
         /* Get last known value in the prefs, and request update if necessary */
-            int last_update = preferences.getInt(COUNTER_LAST_UPDATE_PREF, -1);
-            if (last_update != cur_card.getDayOfYear() + 1000 * cur_card.getYear()) {
-                doUpdateCounters();
-            } else {
-                updateCounter(true,
-                        preferences.getFloat(COUNTER_WEEK_PREF, 0),
-                        preferences.getFloat(COUNTER_YEAR_PREF, 0));
-            }
+        int last_update = preferences.getInt(COUNTER_LAST_UPDATE_PREF, -1);
+        if (last_update != cur_card.getDayOfYear() + 1000 * cur_card.getYear() && auto_query) {
+            doUpdateCounters();
+        } else {
+            updateCounter(true,
+                    preferences.getFloat(COUNTER_WEEK_PREF, 0),
+                    preferences.getFloat(COUNTER_YEAR_PREF, 0));
         }
+        NetworkChangeRegistry.getInstance(getApplicationContext()).setOnChangeListener(new NetworkChangeRegistry.OnChangeListener() {
+            @Override
+            public void onChange() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateAuthNetwork(NetworkChangeRegistry.getInstance(getApplicationContext()).isOnAuthorizeNetwork());
+                    }
+                });
+            }
+        });
+
+
         //bind to alarm service (update alarms if needed)
         doAlarmUpdate();
-
         updateCard();
-
-
     }
 
 
@@ -232,6 +221,39 @@ public class MainActivity extends Activity {
             super.onWindowFocusChanged(true);
         }
     }
+
+
+    @Override
+    public boolean onOptionsItemSelected(@Nonnull MenuItem item) {
+        Intent intent;
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                //display Settings activity
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                    intent = new Intent(this, AgattePreferenceActivity.class);
+                } else {
+                    intent = new Intent(this, AgattePreferenceActivity.class);
+                }
+                startActivity(intent);
+                break;
+            case R.id.action_alarm:
+                intent = new Intent(this, AlarmActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.action_update:
+                refreshItem = item;//menu.getItem(R.id.action_update);
+                doUpdate();
+                doUpdateCounters();
+                break;
+            case R.id.action_about:
+                Intent about_intent = new Intent(this, AboutActivity.class);
+                startActivity(about_intent);
+
+        }
+        return true;
+    }
+
 
     /**
      * Update view to reflect the current state of the card
@@ -259,9 +281,13 @@ public class MainActivity extends Activity {
         day_progress.invalidate();
         dc_view.invalidate();
 
-        SimpleDateFormat fmt = new SimpleDateFormat(getString(R.string.date_format));
-        StringBuilder t = new StringBuilder().append(fmt.format(cur_card.getDay()));
-        setTitle(t);
+        ActionBar ab = getSupportActionBar();
+        SimpleDateFormat fmt1 = new SimpleDateFormat("EEEE");//NON-NLS
+        String day = fmt1.format(cur_card.getDay());
+        ab.setTitle(day.substring(0, 1).toUpperCase() + day.substring(1));
+        SimpleDateFormat fmt2 = new SimpleDateFormat("dd MMM yyyy");//NON-NLS
+        ab.setSubtitle(fmt2.format(cur_card.getDay()));
+
     }
 
 
@@ -308,7 +334,7 @@ public class MainActivity extends Activity {
         int h = (int) Math.floor(week_hours);
         int m = Math.round((week_hours - h) * 60);
         if (h == 0) {
-            week_TextView.setText(String.format(getString(R.string.counter_duration_min), m));
+            week_TextView.setText(String.format(getString(R.string.counter_duration_min), neg * m));
         } else {
             week_TextView.setText(String.format(getString(R.string.counter_duration), neg * h, m));
         }
@@ -318,12 +344,19 @@ public class MainActivity extends Activity {
         int profile_n = Integer.decode(profile) - 1;
         float day_goal = TimeProfile.values()[profile_n].daily_time;
         int half_day = (int) Math.round(global_hours * 2.0 / day_goal);
-        year_TextView.setText(String.format(getString(R.string.counter_year), neg * half_day / 2, (half_day % 2 == 11 ? " ½" : "")));
+        year_TextView.setText(String.format(getString(R.string.counter_year), neg * half_day / 2, (half_day % 2 == 1 ? " ½" : "")));
+    }
+
+
+    private void updateAuthNetwork(boolean auth) {
+        int ic_auth = (auth ? R.drawable.ic_auth_green : R.drawable.ic_auth_grey);
+        punch_button.setCompoundDrawablesWithIntrinsicBounds(0, 0, ic_auth, 0);
+        punch_button.setTextColor((auth? Color.BLACK:Color.GRAY));
     }
 
 
     @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
+    public boolean dispatchTouchEvent(@Nonnull MotionEvent ev) {
         super.dispatchTouchEvent(ev);
         return mScaleDetector.onTouchEvent(ev);
     }
@@ -355,6 +388,7 @@ public class MainActivity extends Activity {
         }
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -362,15 +396,21 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
             final Menu m = menu;
             refreshItem = menu.findItem(R.id.action_update);
-            refreshItem.getActionView().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    m.performIdentifierAction(refreshItem.getItemId(), 0);
-                }
-            });
+            View av = (View) MenuItemCompat.getActionView(refreshItem);
+            if (av != null) {
+                av.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        m.performIdentifierAction(refreshItem.getItemId(), 0);
+                    }
+                });
+            } else {
+                Log.w(LOG_TAG, "Refresh button view is null");//NON-NLS
+            }
         }
         return true;
     }
+
 
     /**
      * Try to update counters
@@ -426,6 +466,7 @@ public class MainActivity extends Activity {
         confirm.show(getFragmentManager(), "confirm_punch"); //NON-NLS
     }
 
+
     /**
      * Show confirmation dialog on older API
      *
@@ -471,36 +512,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        Intent intent;
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                //display Settings activity
-
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                    intent = new Intent(this, AgattePreferenceActivity.class);
-                } else {
-                    intent = new Intent(this, AgattePreferenceActivity.class);
-                }
-                startActivity(intent);
-                break;
-            case R.id.action_alarm:
-                intent = new Intent(this, AlarmActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.action_update:
-                refreshItem = item;//menu.getItem(R.id.action_update);
-                doUpdate();
-                doUpdateCounters();
-                break;
-            case R.id.action_about:
-                Intent about_intent = new Intent(this, AboutActivity.class);
-                startActivity(about_intent);
-
-        }
-        return true;
-    }
 
     private void doUpdate() {
         Intent i = new Intent(this, PunchService.class);
@@ -557,7 +568,7 @@ public class MainActivity extends Activity {
                             cur_card.addPunches(rsp.getPunches(), false);
                         }
                     } catch (ParseException e) {
-                        e.printStackTrace();
+                        Log.e(MainActivity.LOG_TAG, "Unable to parse response from server", e);//NON-NLS
                     }
                     //Only if it was a punching request
                     if (isPunch) {
@@ -588,6 +599,7 @@ public class MainActivity extends Activity {
         }
     }
 
+
     /**
      *
      */
@@ -598,10 +610,12 @@ public class MainActivity extends Activity {
                 @Override
                 public void run() {
                     updateCard();
+                    updateAuthNetwork(NetworkChangeRegistry.getInstance(getApplicationContext()).isOnAuthorizeNetwork());
                 }
             });
         }
     }
+
 
     /**
      *
@@ -620,7 +634,7 @@ public class MainActivity extends Activity {
                 try {
                     session.setServer(value);
                 } catch (URISyntaxException e) {
-                    e.printStackTrace();
+                    Log.w(MainActivity.LOG_TAG, "Server address is not a valid URI", e);//NON-NLS
                 }
                 return;
             }
@@ -629,7 +643,7 @@ public class MainActivity extends Activity {
                 try {
                     session.setUser(value);
                 } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                    Log.w(MainActivity.LOG_TAG, "Unsupported encoding in login", e);//NON-NLS
                 }
                 return;
             }
@@ -638,11 +652,12 @@ public class MainActivity extends Activity {
                 try {
                     session.setPassword(value);
                 } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                    Log.w(MainActivity.LOG_TAG, "Unsupported encoding in password", e);//NON-NLS
                 }
             }
         }
     }
+
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override

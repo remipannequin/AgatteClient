@@ -19,8 +19,6 @@
 
 package com.agatteclient.alarm;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,7 +27,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.os.ResultReceiver;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.agatteclient.MainActivity;
@@ -54,10 +51,31 @@ public class AlarmReceiver extends BroadcastReceiver {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
         wl.acquire();
+        //get the type of the alarm
+        PunchAlarmTime.Type t = PunchAlarmTime.Type.values()[intent.getIntExtra(AlarmRegistry.ALARM_TYPE,
+                PunchAlarmTime.Type.unconstraigned.ordinal())];
+        int id = intent.getIntExtra(AlarmRegistry.ALARM_ID, -1);
+        //Should not be -1
+        if (id < 0 ) {
+            Log.wtf(MainActivity.LOG_TAG, String.format("Failed to retrieve ALARM_ID"));
+        }
+
         //Do the punch by calling the punching service
         final Intent i = new Intent(context, PunchService.class);
-        i.setAction(PunchService.DO_PUNCH);
-        i.putExtra(PunchService.RESULT_RECEIVER, new PunchResultReceiver(context));
+        switch (t) {
+            case unconstraigned:
+                i.setAction(PunchService.DO_PUNCH);
+                break;
+            case arrival:
+                i.setAction(PunchService.DO_PUNCH_ARRIVAL);
+                break;
+            case leaving:
+                i.setAction(PunchService.DO_PUNCH_LEAVING);
+                break;
+            default:
+                Log.w(MainActivity.LOG_TAG, String.format("Unknown alarm type %s", t.toString()));//NON-NLS
+        }
+        i.putExtra(PunchService.RESULT_RECEIVER, new PunchResultReceiver(context, id));
         context.startService(i);
         wl.release();
     }
@@ -66,14 +84,12 @@ public class AlarmReceiver extends BroadcastReceiver {
     private class PunchResultReceiver extends ResultReceiver {
 
         private final Context ctx;
-        private final NotificationManager mNotifyManager;
-        private final NotificationCompat.Builder mBuilder;
+        private final int alarm_id;
 
-        public PunchResultReceiver(Context ctx) {
+        public PunchResultReceiver(Context ctx, int alarm_id) {
             super(new Handler(Looper.getMainLooper()));
             this.ctx = ctx;
-            mNotifyManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
-            mBuilder = new NotificationCompat.Builder(ctx);
+            this.alarm_id = alarm_id;
         }
 
         @Override
@@ -82,20 +98,13 @@ public class AlarmReceiver extends BroadcastReceiver {
             AgatteResultCode code = AgatteResultCode.values()[resultCode];
             //set notification text and title based on result
             StringBuilder notification_text = new StringBuilder();
-            StringBuilder notification_title = new StringBuilder();
-
-            int icon;
-            if (code == AgatteResultCode.punch_ok || code == AgatteResultCode.query_ok) {
-                notification_title.append(ctx.getString(R.string.programmed_punch_failed_title));
-                icon = R.drawable.ic_stat_agatte;
-            } else {
-                notification_title.append(ctx.getString(R.string.programmed_punch_success_title));
-                icon = R.drawable.ic_stat_alerts_and_states_warning;
-            }
-
+            PunchAlarmTime alarm = AlarmList.getInstance(ctx).lookup(alarm_id);
             switch (code) {
                 case network_not_authorized:
                     notification_text.append(ctx.getString(R.string.unauthorized_network_toast));
+                    if (alarm != null) {
+                        AlarmRegistry.getInstance().setFailed(alarm);
+                    }
                     break;
                 case query_counter_ok:
                     break;
@@ -107,15 +116,22 @@ public class AlarmReceiver extends BroadcastReceiver {
                     if (message != null && message.length() != 0) {
                         notification_text.append(" : ").append(message);
                     }
+                    if (alarm != null) {
+                        AlarmRegistry.getInstance().setFailed(alarm);
+                    }
                     break;
                 case login_failed:
                     notification_text.append(ctx.getString(R.string.login_failed_toast));
+                    AlarmRegistry.getInstance().setFailed(alarm);
                     break;
                 case io_exception:
                     notification_text.append(ctx.getString(R.string.error));
                     message = resultData.getString("message"); //NON-NLS
                     if (message != null && message.length() != 0) {
                         notification_text.append(" : ").append(message);
+                    }
+                    if (alarm != null) {
+                        AlarmRegistry.getInstance().setFailed(alarm);
                     }
                     break;
                 case punch_ok:
@@ -135,21 +151,27 @@ public class AlarmReceiver extends BroadcastReceiver {
                     } catch (ParseException e) {
                         Log.e(MainActivity.LOG_TAG, "Parse exception when updating the punch-card");//NON-NLS
                     }
+                    // Update AlarmRegistry with value
+                    if (alarm != null) {
+                         AlarmRegistry.getInstance().setDone(alarm);
+                     }
+                    break;
+                case invalidPunchingCondition:
+                    notification_text.append("Required conditions were not met");//NON-NLS
+                    message = resultData.getString("message");//NON-NLS
+                    if (message != null && message.length() != 0) {
+                        notification_text.append(" : ").append(message);
+                    }
+                    if (alarm != null) {
+                        AlarmRegistry.getInstance().setFailed(alarm);
+                    }
                     break;
                 default:
-
-
+                    Log.w(MainActivity.LOG_TAG, String.format("Unknown response code %s", code.toString()));//NON-NLS
             }
 
-            mBuilder.setContentTitle(notification_title)
-                    .setContentText(notification_text)
-                    .setSmallIcon(icon);
+            AlarmDoneNotification.notify(ctx, code, notification_text.toString(), 0);
 
-            PendingIntent contentIntent = PendingIntent.getActivity(ctx, 0,
-                    new Intent(ctx, MainActivity.class), 0);
-            mBuilder.setContentIntent(contentIntent);
-
-            mNotifyManager.notify(0, mBuilder.build());
 
             //Update the AlarmRegistry: re-schedule next event
             AlarmRegistry.getInstance().update(ctx);

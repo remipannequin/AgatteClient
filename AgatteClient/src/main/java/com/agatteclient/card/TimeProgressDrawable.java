@@ -1,3 +1,22 @@
+/*
+ * This file is part of AgatteClient.
+ *
+ * AgatteClient is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AgatteClient is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+ */
+
 /*This file is part of AgatteClient.
 
     AgatteClient is free software: you can redistribute it and/or modify
@@ -19,6 +38,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
@@ -29,7 +49,6 @@ import android.graphics.drawable.Drawable;
  * Created by Rémi Pannequin on 14/10/13.
  */
 public class TimeProgressDrawable extends Drawable {
-
 
     private static final int WIDTH = 5;//dp
     private final Paint paint_empty, paint_goal, paint_done;
@@ -54,8 +73,6 @@ public class TimeProgressDrawable extends Drawable {
         paint_done.setStyle(Paint.Style.STROKE);
         paint_done.setStrokeWidth(WIDTH * density);
         paint_done.setColor(Color.parseColor("#33B5E5")); //NON-NLS
-
-
     }
 
     @Override
@@ -70,7 +87,7 @@ public class TimeProgressDrawable extends Drawable {
 
     @Override
     public int getOpacity() {
-        return 0;
+        return PixelFormat.TRANSLUCENT;
     }
 
     @Override
@@ -99,7 +116,5 @@ public class TimeProgressDrawable extends Drawable {
             canvas.drawArc(oval_bound, 132 + i * 23, 21, false, paint_done);
         }
         canvas.drawArc(oval_bound, 132 + h * 23, (21 * (level % (step))) / (step), false, paint_done);
-
-
     }
 }

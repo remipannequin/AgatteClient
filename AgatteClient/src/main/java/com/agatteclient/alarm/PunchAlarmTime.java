@@ -32,11 +32,13 @@ public class PunchAlarmTime {
     private int time_of_day;
     private int firing_days;
     private boolean enabled;
+    private Type type;
 
     public PunchAlarmTime() {
         time_of_day = 0;
         firing_days = 0;
         enabled = false;
+        type = Type.unconstraigned;
     }
 
     public PunchAlarmTime(int hour, int minute, Day... firing_days) {
@@ -45,6 +47,7 @@ public class PunchAlarmTime {
             this.firing_days |= d.f;
         }
         enabled = true;
+        type = Type.unconstraigned;
     }
 
     public PunchAlarmTime(int hour, int minute) {
@@ -56,21 +59,31 @@ public class PunchAlarmTime {
         int days = (int) ((l >> 32) & 0x0000007f);
         //should be lesser than Ox7F = 127
         boolean enabled = (l & (1l << 48)) != 0;
+        boolean arrival_permitted = (l & (1l << 49)) == 0;
+        boolean leaving_permitted = (l & (1l << 50)) == 0;
+
+        //Only one of them should be true
         PunchAlarmTime instance = new PunchAlarmTime();
         instance.firing_days = days;
         instance.time_of_day = t;
         instance.enabled = enabled;
+        instance.type = Type.fromBooleans(leaving_permitted, arrival_permitted);
 
         return instance;
     }
 
     public long toLong() {
-        return time_of_day + (((long) firing_days) << 32) + (enabled ? 1l << 48 : 0);
+        return time_of_day +
+                (((long) firing_days) << 32) +
+                (enabled ? 1l << 48 : 0) +
+                (type.isArrivalPermitted() ? 0 : 1l << 49) +
+                (type.isLeavingPermitted() ? 0 : 1l << 50);
+
     }
 
     /**
      * Compute the fingerprint of this alarm. This value should be different for each alarms, taking
-     * into accounts, hour/minutes, days, but not enabled/disabled.
+     * into accounts, hour/minutes, days, but not enabled/disabled or alarm type
      *
      * @return the fingerprint, as a signed int (32 bits)
      */
@@ -84,6 +97,14 @@ public class PunchAlarmTime {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 
     public void setFireAt(Day day, boolean b) {
@@ -136,7 +157,7 @@ public class PunchAlarmTime {
                 }
                 cal.add(Calendar.DATE, 1);
             }
-            Log.w(MainActivity.LOG_TAG, "Alarm will not fire in the next 7 days.");
+            Log.w(MainActivity.LOG_TAG, "ScheduledAlarm will not fire in the next 7 days.");//NON-NLS
             return null;
         } else {
             //after alarm time: search next firing day
@@ -166,9 +187,13 @@ public class PunchAlarmTime {
     }
 
     /**
-     * @return
+     * Get the time of the alarm in the present day (even if the alarm does no fire this day !)
+     *
+     * @return the date of the alarm (in the current day)
      */
     public Date getTime() {
+        //set calendar to now (to get the present day)
+        cal.setTimeInMillis(System.currentTimeMillis());
         cal.set(Calendar.HOUR_OF_DAY, this.time_of_day / 60);
         cal.set(Calendar.MINUTE, this.time_of_day % 60);
         cal.set(Calendar.SECOND, 0);
@@ -177,18 +202,60 @@ public class PunchAlarmTime {
     }
 
     /**
-     *
-     * @param o
-     * @return
+     * Test equality between two alarms
+     * @param o the object to check
+     * @return true if both object have the same time, days of week, type and enabled status
      */
     @Override
     public boolean equals(Object o) {
         if (o instanceof PunchAlarmTime) {
             PunchAlarmTime other = (PunchAlarmTime) o;
-            return (other.enabled == enabled) && (other.firing_days == firing_days) && (other.time_of_day == time_of_day);
+            return (other.enabled == enabled) &&
+                    (other.firing_days == firing_days) &&
+                    (other.time_of_day == time_of_day) &&
+                    (other.getType() == getType());
         } else {
             return false;
         }
+    }
+
+    public enum Type {
+        unconstraigned(false, false),
+        arrival(true, false),
+        leaving(false, true);
+
+        private boolean leavingForbidden;
+        private boolean arrivalForbidden;
+
+        private Type(boolean leavingForbidden, boolean arrivalForbidden) {
+            this.leavingForbidden = leavingForbidden;
+            this.arrivalForbidden = arrivalForbidden;
+        }
+
+        static Type fromBooleans(boolean leavingPermitted, boolean arrivalPermitted) {
+            return (leavingPermitted ? (arrivalPermitted ? unconstraigned : leaving) : arrival);
+        }
+
+        /**
+         * True if this alarm can be triggered to punch a leaving (i.e. number of punches in the
+         * day is odd)
+         *
+         * @return false for arrival only constraints
+         */
+        public boolean isLeavingPermitted() {
+            return !leavingForbidden;
+        }
+
+        /**
+         * True if this alarm can be triggered to punch an arrival (i.e. number of punches in the
+         * day is even
+         *
+         * @return false for leaving only constraints
+         */
+        public boolean isArrivalPermitted() {
+            return !arrivalForbidden;
+        }
+
     }
 
     public enum Day {

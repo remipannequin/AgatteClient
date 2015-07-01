@@ -22,7 +22,7 @@ package com.agatteclient.alarm;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,7 +33,7 @@ import com.agatteclient.R;
 
 import java.text.SimpleDateFormat;
 
-public class AlarmActivity extends FragmentActivity {
+public class AlarmActivity extends ActionBarActivity {
 
 
     private AlarmArrayAdapter mAdapter;
@@ -43,12 +43,12 @@ public class AlarmActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm);
         ListView lv = (ListView) findViewById(R.id.alarmListView);
-        mAdapter = new AlarmArrayAdapter(this, AlarmBinder.getInstance(this));
+        mAdapter = new AlarmArrayAdapter(this, AlarmList.getInstance(this));
         lv.setAdapter(mAdapter);
         lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             public boolean onItemLongClick(AdapterView parent, View view, int position, long id) {
                 //do your stuff here
-                final PunchAlarmTime a = AlarmBinder.getInstance(AlarmActivity.this).get(position);
+                final PunchAlarmTime a = AlarmList.getInstance(AlarmActivity.this).get(position);
                 AlertDialog.Builder adb = new AlertDialog.Builder(AlarmActivity.this);
                 adb.setTitle(getString(R.string.alarm_delete_confirm_question));
                 adb.setMessage(String.format(getString(R.string.alarm_delete_confirm), new SimpleDateFormat("H:mm").format(a.getTime())));

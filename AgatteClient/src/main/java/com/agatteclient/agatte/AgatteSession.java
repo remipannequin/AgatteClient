@@ -21,6 +21,9 @@ package com.agatteclient.agatte;
 
 
 import android.net.http.AndroidHttpClient;
+import android.util.Log;
+
+import com.agatteclient.MainActivity;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -127,7 +130,7 @@ public class AgatteSession {
             //compute expiration date according to System.date(); ??
             this.session_id = null;
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(MainActivity.LOG_TAG, "IOException on logout", e);//NON-NLS
         }
     }
 
@@ -197,8 +200,7 @@ public class AgatteSession {
             HttpResponse response = client.execute(query_day_rq, httpContext);
             return AgatteParser.getInstance().parse_query_response(response);
         } catch (IOException e) {
-            e.printStackTrace();
-            //return new AgatteResponse(AgatteResponse.Code.IOError, e);
+            Log.w(MainActivity.LOG_TAG, "IOException in query_day", e);//NON-NLS
             throw new AgatteException(e);
         } finally {
             if (client != null) {
@@ -240,13 +242,65 @@ public class AgatteSession {
             return AgatteParser.getInstance().parse_topOk_response(response2);
 
         } catch (IOException e) {
-            e.printStackTrace();//TODO: display log message instead
+            Log.w(MainActivity.LOG_TAG, "IOException while doing doPunch", e);
             throw new AgatteException(e);
         } finally {
             logout(client);
             client.close();
         }
     }
+
+    /**
+     * Send a "punch" to the server, only if the number of previous punches is even (resp odd)
+     *
+     * @param even if true, the number of param must be even, if false, it must be odd
+     * @return an AgatteResponse instance
+     */
+    public AgatteResponse doCheckAndPunch(boolean even) throws AgatteException {
+        AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
+        try {
+            if (loginNotRequired()) {
+                if (!login(client)) {
+                    //return new AgatteResponse(AgatteResponse.Code.LoginFailed);
+                    throw new AgatteLoginFailedException();
+                }
+            }
+            //Make sure to follow redirection
+            client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
+            client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
+            //Query first
+            HttpResponse query_response = client.execute(query_day_rq, httpContext);
+            AgatteResponse state = AgatteParser.getInstance().parse_query_response(query_response);
+            int punch_nb = state.getPunches().length;
+
+            if ((punch_nb % 2 == 0 && even) || (punch_nb % 2 == 1 && !even)) {
+                //Then send a punching request, if condition ar met
+                HttpResponse punch_response = client.execute(exec_rq, httpContext);
+                //should be a redirect to topOk
+
+                if (!AgatteParser.getInstance().parse_punch_response(punch_response)) {
+                    throw new AgatteException();
+                }
+                HttpResponse response2 = client.execute(query_top_ok_rq, httpContext);
+                return AgatteParser.getInstance().parse_topOk_response(response2);
+            } else {
+                //Do nothing
+                String msg = String.format("An %s number of punches was required, but %d punch%s %s found",
+                        (even ? "even" : "odd"),
+                        punch_nb,
+                        (punch_nb == 1 ? "" : "es"),
+                        (punch_nb == 1 ? "was" : "were"));
+                throw new InvalidPunchingConditionException(msg);
+            }
+        } catch (IOException e) {
+            Log.w(MainActivity.LOG_TAG, "IOException while doing doCheckAndPunch", e);
+            throw new AgatteException(e);
+        } finally {
+            logout(client);
+            client.close();
+        }
+    }
+
 
     /**
      * Query the agatte server to get the default counter. It also get contract num, and other data
@@ -428,7 +482,7 @@ public class AgatteSession {
             return AgatteParser.getInstance().parse_topOk_response(response2);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(MainActivity.LOG_TAG, "IOException in queryPunchOk", e);//NON-NLS
             throw new AgatteException(e);
         } finally {
             logout(client);

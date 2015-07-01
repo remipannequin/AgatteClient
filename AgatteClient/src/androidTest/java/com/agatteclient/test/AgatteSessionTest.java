@@ -56,4 +56,15 @@ public class AgatteSessionTest extends AndroidTestCase {
         instance.queryCounterWeek(2014, 10);
     }
 
+    /*
+    public void testConditionalPunch1() throws Exception {
+        AgatteSession instance = new AgatteSession("agatte.univ-lorraine.fr", login, password);
+        instance.doCheckAndPunch(true);
+    }
+
+    public void testConditionalPunch2() throws Exception {
+        AgatteSession instance = new AgatteSession("agatte.univ-lorraine.fr", login, password);
+        instance.doCheckAndPunch(false);
+    }
+    */
 }

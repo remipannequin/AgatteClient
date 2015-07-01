@@ -27,5 +27,5 @@ public enum AgatteResultCode {
     exception,
     io_exception,
     login_failed,
-    network_not_authorized
+    invalidPunchingCondition, network_not_authorized
 }
