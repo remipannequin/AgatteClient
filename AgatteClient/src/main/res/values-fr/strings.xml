@@ -149,4 +149,5 @@
     <string name="delete_alarm_content_description">supprimer l\'alarme</string>
     <string name="expand_alarm_content_description">étendre l\'alarme</string>
     <string name="collapse_alarm_content_description">réduire l\'alarme</string>
+    <string name="security_error_toast">Unable to retrieve authentication token</string>
 </resources>

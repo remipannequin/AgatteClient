@@ -250,7 +250,7 @@ public class AgatteParser {
         try {
             return extractSecrets(result);
         } catch (XPathExpressionException e) {
-            throw new AgatteException(String.format("Unable to extract punching password from page: %s", e.getLocalizedMessage()));
+            throw new AgtSecurityException(String.format("Unable to extract punching password from page: %s", e.getLocalizedMessage()));
         }
     }
 

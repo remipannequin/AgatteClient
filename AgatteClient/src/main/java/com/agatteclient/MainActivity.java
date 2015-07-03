@@ -584,6 +584,14 @@ public class MainActivity extends ActionBarActivity {
                         throw new RuntimeException("AgatteCounterResult is null");
                     updateCounter(counter.isAvailable(), counter.getValueWeek(), counter.getValueYear());
                     break;
+                case security_secret_not_found:
+                    toast.append(getString(R.string.error_toast)).append(" ");
+                    toast.append(getString(R.string.security_error_toast));
+                    message = resultData.getString("message"); //NON-NLS
+                    if (message.length() != 0) {
+                        toast.append(" : ").append(message);
+                    }
+                    break;
                 case exception:
                     toast.append(getString(R.string.error)).append(" ");
                     toast.append(getString(R.string.error_toast));

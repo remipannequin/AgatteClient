@@ -63,7 +63,7 @@ public class PunchService extends IntentService {
         try {
             session = new AgatteSession(server, login, password);
         } catch (URISyntaxException e) {
-            Log.e(MainActivity.LOG_TAG, String.format("%1 is not a valid URI", server), e);//NON-NLS
+            Log.e(MainActivity.LOG_TAG, String.format("%s is not a valid URI", server), e);//NON-NLS
         } catch (UnsupportedEncodingException e) {
             Log.e(MainActivity.LOG_TAG, "Unsupported encoding in server, login or password", e);//NON-NLS
         }
@@ -115,6 +115,9 @@ public class PunchService extends IntentService {
             bundle = e.toBundle();
         } catch (InvalidPunchingConditionException e) {
             code = AgatteResultCode.invalidPunchingCondition;
+            bundle = e.toBundle();
+        } catch (AgtSecurityException e) {
+            code = AgatteResultCode.security_secret_not_found;
             bundle = e.toBundle();
         } catch (AgatteException e) {
             code = AgatteResultCode.exception;

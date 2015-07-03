@@ -14,20 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with AgatteClient.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (c) 2014 Rémi Pannequin (remi.pannequin@gmail.com).
+ * Copyright (c) 2015 Rémi Pannequin (remi.pannequin@gmail.com).
  */
 
 package com.agatteclient.agatte;
 
-public enum AgatteResultCode {
-    punch_ok,
-    query_ok,
-    query_counter_ok,
-    query_counter_unavailable,
-    exception,
-    io_exception,
-    login_failed,
-    invalidPunchingCondition,
-    network_not_authorized,
-    security_secret_not_found
+/**
+ * Created by remi on 03/07/15.
+ */
+public class AgtSecurityException extends AgatteException {
+
+    public AgtSecurityException(String detailMessage) {
+        super(detailMessage);
+    }
+
+    public AgtSecurityException(String detailMessage, Throwable throwable) {
+        super(detailMessage, throwable);
+    }
+
+    public AgtSecurityException(Throwable throwable) {
+        super(throwable);
+    }
+
+    public AgtSecurityException() {
+    }
 }

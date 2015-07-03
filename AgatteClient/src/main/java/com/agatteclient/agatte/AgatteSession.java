@@ -255,7 +255,7 @@ public class AgatteSession {
 
             Header secret_header = response2.getFirstHeader(secrets.getHeader_key());
             if (secret_header == null || secret_header.getValue().length() == 0) {
-                throw new AgatteException("Unexpected response while punching: secret header not found");
+                throw new AgtSecurityException("Unexpected response while punching: secret header not found");
             }
             String new_value = Base64.encodeToString(secret_header.getValue().getBytes(), Base64.DEFAULT);
 
@@ -325,6 +325,10 @@ public class AgatteSession {
                 HttpResponse response2 = client.execute(exec_rq1, httpContext);
 
                 Header secret_header = response2.getFirstHeader(secrets.getHeader_key());
+                if (secret_header == null || secret_header.getValue().length() == 0) {
+                    throw new AgtSecurityException("Unexpected response while punching: secret header not found");
+                }
+
                 String new_value = Base64.encodeToString(secret_header.getValue().getBytes(), Base64.DEFAULT);
 
                 URI base_url = null;
