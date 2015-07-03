@@ -49,7 +49,7 @@
     <string name="title_activity_about">Aide</string>
     <string name="about_description">Utilisez Agatte depuis votre smartphone.</string>
     <string name="action_about">Aide</string>
-    <string name="about_author">© 2013 Rémi Pannequin (remi.pannequin@gmail.com)</string>
+    <string name="about_author">© 2013-2015 Rémi Pannequin (remi.pannequin@gmail.com)</string>
     <string name="about_version">AgatteClient (version %s)</string>
     <string name="about_free_soft">Ce logiciel est libre ; vous pouvez le redistribuer ou le
         modifier suivant les termes de la GNU General Public License telle que publiée par la Free
@@ -149,5 +149,5 @@
     <string name="delete_alarm_content_description">supprimer l\'alarme</string>
     <string name="expand_alarm_content_description">étendre l\'alarme</string>
     <string name="collapse_alarm_content_description">réduire l\'alarme</string>
-    <string name="security_error_toast">Unable to retrieve authentication token</string>
+    <string name="security_error_toast">Les infos d\'authentification de pointage n\'ont pas pu être extraits</string>
 </resources>
