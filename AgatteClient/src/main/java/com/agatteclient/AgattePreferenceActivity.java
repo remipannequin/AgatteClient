@@ -122,7 +122,10 @@ public class AgattePreferenceActivity extends PreferenceActivity {
             //noinspection deprecation
             addPreferencesFromResource(R.xml.preferences);
         } else {
-            getActionBar().setDisplayHomeAsUpEnabled(true);
+            ActionBar bar = getActionBar();
+            if (bar != null) {
+                bar.setDisplayHomeAsUpEnabled(true);
+            }
             getFragmentManager().beginTransaction().replace(android.R.id.content,
                     new PrefsFragment()).commit();
         }

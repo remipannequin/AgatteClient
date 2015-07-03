@@ -47,4 +47,8 @@ public class AgatteSecret {
     public String getSecret() {
         return secret;
     }
+
+    public String getURLEncodedSecret() {
+        return secret.replaceAll("=", "%3D");
+    }
 }

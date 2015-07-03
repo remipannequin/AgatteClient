@@ -23,15 +23,10 @@ import android.util.Base64;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -40,11 +35,7 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
@@ -59,7 +50,6 @@ public class AgatteParser {
     private static final String PATTERN_TOPS = ".*<li.*Top r.el.*([0-9][0-9]:[0-9][0-9])\\s*</li>.*";
     private static final String PATTERN_VIRTUAL_TOPS = ".*<li.*Tops d\'absence.*([0-9][0-9]:[0-9][0-9])\\s*</li>.*";
     private static final String PATTERN_NETWORK_NOT_AUTHORIZED = "<legend>Acc\ufffds interdit</legend>";
-    private static final String PATTERN_TOP_OK = "<p>Top pris en compte . ([0-9][0-9]:[0-9}][0-9])</p>";
     private static final String PATTERN_COUNTER_NUM_CONTRACT = "<select.*id=\"numCont\".*<option value=\"([0-9]+)\".*selected>";
     private static final String PATTERN_COUNTER_YEAR_CONTRACT = "<select.*id=\"codAnu\".*<option value=\"(20[0-9][0-9])\".*selected>";
     private static final String PATTERN_COUNTER_ERROR = "<div class=\"error\">Compteurs non disponibles</div>";
@@ -67,9 +57,11 @@ public class AgatteParser {
 
 
     private static final AgatteParser ourInstance = new AgatteParser();
+    private final XPathFactory xPathFactory;
 
 
     private AgatteParser() {
+        xPathFactory = XPathFactory.newInstance();
     }
 
 
@@ -101,7 +93,7 @@ public class AgatteParser {
 
 
     private Collection<String> searchForTops(String result) {
-        Collection<String> tops = new ArrayList<String>(6);
+        Collection<String> tops = new ArrayList<>(6);
         Pattern p = Pattern.compile(PATTERN_TOPS);
         Matcher matcher = p.matcher(result);
         while (matcher.find()) {
@@ -112,20 +104,13 @@ public class AgatteParser {
 
 
     private Collection<String> searchForVirtualTops(String result) {
-        Collection<String> tops = new ArrayList<String>(4);
+        Collection<String> tops = new ArrayList<>(4);
         Pattern p = Pattern.compile(PATTERN_VIRTUAL_TOPS);
         Matcher matcher = p.matcher(result);
         while (matcher.find()) {
             tops.add(matcher.group(1));
         }
         return tops;
-    }
-
-
-    private boolean searchForTopOk(String result) {
-        Pattern p = Pattern.compile(PATTERN_TOP_OK);
-        Matcher matcher = p.matcher(result);
-        return matcher.find();
     }
 
 
@@ -216,7 +201,7 @@ public class AgatteParser {
         Pattern p_d1 = Pattern.compile("<div id=\"d1\">(.*?)</div>");
         Pattern p_d2 = Pattern.compile("<div id=\"d2\">(.*?)</div>");
         Pattern p_d3 = Pattern.compile("<div id=\"d3\">(.*?)</div>");
-        String d1= null, d2 = null, d3 = null;
+        String d1, d2, d3;
         Matcher matcher = p_d1.matcher(result);
         if (matcher.find()) {
             d1 = decode(matcher.group(1));
@@ -237,8 +222,7 @@ public class AgatteParser {
         }
 
         String xml = String.format("<lol>%s%s<div>%s</lol>", d1, d2, d3);
-        XPathFactory factory = XPathFactory.newInstance();
-        XPath xPath = factory.newXPath();
+        XPath xPath = xPathFactory.newXPath();
         String sp0 = xPath.evaluate("//*[@id='sp0']/@class", new InputSource(new StringReader(xml)));
         String sp1 = xPath.evaluate("//*[@id='sp1']/@class", new InputSource(new StringReader(xml)));
         String dv0 = xPath.evaluate("//*[@id='dv0']/@class", new InputSource(new StringReader(xml)));
@@ -248,6 +232,7 @@ public class AgatteParser {
         String secret = encode(dv0);
         return new AgatteSecret(secret_url, key, secret);
     }
+
 
     public AgatteSecret parse_secrets_from_query_response(HttpResponse response) throws IOException, AgatteException {
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
@@ -265,10 +250,8 @@ public class AgatteParser {
         try {
             return extractSecrets(result);
         } catch (XPathExpressionException e) {
-            //TODO
-            e.printStackTrace();
+            throw new AgatteException(String.format("Unable to extract punching password from page: %s", e.getLocalizedMessage()));
         }
-        return null;
     }
 
 
@@ -285,45 +268,6 @@ public class AgatteParser {
             throw new AgatteNetworkNotAuthorizedException();
         }
 
-        //get tops
-        Collection<String> tops = searchForTops(result);
-        Collection<String> virtual_tops = searchForVirtualTops(result);
-
-        if (virtual_tops.isEmpty()) {
-            return new AgatteResponse(tops);
-        } else {
-            return new AgatteResponse(tops, virtual_tops);
-        }
-    }
-
-
-    public boolean parse_punch_response(HttpResponse response) throws IOException, AgatteException {
-        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            throw new AgatteException(response.getStatusLine().getReasonPhrase());
-        }
-        //get response as a string
-        String result = entityToString(response);
-        if (searchNetworkNotAuthorized(result)) {
-            throw new AgatteNetworkNotAuthorizedException();
-        }
-        //else return true
-        return true;
-    }
-
-
-    public AgatteResponse parse_topOk_response(HttpResponse response) throws IOException, AgatteException {
-        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            throw new AgatteException(response.getStatusLine().getReasonPhrase());
-        }
-        //get response as a string
-        String result = entityToString(response);
-        //search for Unauthorized network
-        if (searchNetworkNotAuthorized(result)) {
-            throw new AgatteNetworkNotAuthorizedException();
-        }
-        if (!searchForTopOk(result)) {
-            throw new AgatteException("Unable to find punch ack");
-        }
         //get tops
         Collection<String> tops = searchForTops(result);
         Collection<String> virtual_tops = searchForVirtualTops(result);

@@ -21,6 +21,7 @@ package com.agatteclient.agatte;
 
 
 import android.net.http.AndroidHttpClient;
+import android.util.Base64;
 import android.util.Log;
 
 import com.agatteclient.MainActivity;
@@ -35,13 +36,16 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -63,8 +67,7 @@ public class AgatteSession {
     private static final String LOGIN_DIR = "/app/login.form";
     private static final String LOGOUT_DIR = "/app/logout.form";
     private static final String AUTH_DIR = "/j_acegi_security_check";
-    private static final String PUNCH_DIR = "/top/";
-    private static final String PUNCH_OK_DIR = "/top/topOk.htm";
+    private static final String PUNCH_DIR = "/top/location.href";
     private static final String QUERY_DIR = "/";
     private static final String WEEK_COUNTER_DIR = "/top/feuille-top.form";
     private static final String USER = "j_username";
@@ -84,9 +87,8 @@ public class AgatteSession {
     private HttpGet logout_rq;
     private HttpPost auth_rq;
     private HttpGet query_day_rq;
-    private HttpGet query_top_ok_rq;
     private HttpGet query_week_counter_rq1;
-    private HttpPost exec_rq;
+    private HttpPost exec_rq1;
 
 
     /**
@@ -94,7 +96,7 @@ public class AgatteSession {
      */
     private AgatteSession() {
         //super ("AgatteConnectionService");
-        credentials = new ArrayList<NameValuePair>(2);
+        credentials = new ArrayList<>(2);
         httpContext = new BasicHttpContext();
         cookieStore = new BasicCookieStore();
         httpContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
@@ -241,20 +243,45 @@ public class AgatteSession {
             client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
             client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
             //Simulate a first query
-            client.execute(query_day_rq, httpContext).getEntity().consumeContent();
-            //TODO extract secrets
+            HttpResponse response1 = client.execute(query_day_rq, httpContext);
 
+
+            //extract secrets
+            AgatteSecret secrets = AgatteParser.getInstance().parse_secrets_from_query_response(response1);
 
 
             //Then send a punching request
-            HttpResponse response1 = client.execute(exec_rq, httpContext);
-            //should be a redirect to topOk
+            HttpResponse response2 = client.execute(exec_rq1, httpContext);
 
-            if (!AgatteParser.getInstance().parse_punch_response(response1)) {
-                throw new AgatteException();
+            Header secret_header = response2.getFirstHeader(secrets.getHeader_key());
+            if (secret_header == null || secret_header.getValue().length() == 0) {
+                throw new AgatteException("Unexpected response while punching: secret header not found");
             }
-            HttpResponse response2 = client.execute(query_top_ok_rq, httpContext);
-            return AgatteParser.getInstance().parse_topOk_response(response2);
+            String new_value = Base64.encodeToString(secret_header.getValue().getBytes(), Base64.DEFAULT);
+
+            URI base_url = null;
+            try {
+                base_url = new URI("https", this.getServer(), PUNCH_DIR, null);
+            } catch (URISyntaxException e) {
+                //can't happen
+                e.printStackTrace();
+            }
+            URI url = base_url.resolve(secrets.getUrl());
+            HttpPost exec_rq2 = new HttpPost(url);
+            //set headers
+            exec_rq2.addHeader(new BasicHeader("X-Requested-With", "XMLHttpRequest"));
+            exec_rq2.addHeader(new BasicHeader(secrets.getHeader_key(), new_value.trim()));
+            exec_rq2.addHeader(new BasicHeader("Referer", "https://agatte.univ-lorraine.fr/top/top.form?numMen=2"));
+
+            // set content
+            String content = String.format("pt=%s", secrets.getURLEncodedSecret());
+            exec_rq2.addHeader(new BasicHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
+            BasicHttpEntity entity = new BasicHttpEntity();
+            entity.setContent(new ByteArrayInputStream(content.getBytes()));
+            exec_rq2.setEntity(entity);
+
+            HttpResponse response3 = client.execute(exec_rq2, httpContext);
+            return AgatteParser.getInstance().parse_query_response(response3);
 
         } catch (IOException e) {
             Log.w(MainActivity.LOG_TAG, "IOException while doing doPunch", e);
@@ -290,14 +317,40 @@ public class AgatteSession {
 
             if ((punch_nb % 2 == 0 && even) || (punch_nb % 2 == 1 && !even)) {
                 //Then send a punching request, if condition ar met
-                HttpResponse punch_response = client.execute(exec_rq, httpContext);
-                //should be a redirect to topOk
+                 //extract secrets
+                AgatteSecret secrets = AgatteParser.getInstance().parse_secrets_from_query_response(query_response);
 
-                if (!AgatteParser.getInstance().parse_punch_response(punch_response)) {
-                    throw new AgatteException();
+
+                //Then send a punching request
+                HttpResponse response2 = client.execute(exec_rq1, httpContext);
+
+                Header secret_header = response2.getFirstHeader(secrets.getHeader_key());
+                String new_value = Base64.encodeToString(secret_header.getValue().getBytes(), Base64.DEFAULT);
+
+                URI base_url = null;
+                try {
+                    base_url = new URI("https", this.getServer(), PUNCH_DIR, null);
+                } catch (URISyntaxException e) {
+                    //can't happen
+                    e.printStackTrace();
                 }
-                HttpResponse response2 = client.execute(query_top_ok_rq, httpContext);
-                return AgatteParser.getInstance().parse_topOk_response(response2);
+                URI url = base_url.resolve(secrets.getUrl());
+                HttpPost exec_rq2 = new HttpPost(url);
+                //set headers
+                exec_rq2.addHeader(new BasicHeader("X-Requested-With", "XMLHttpRequest"));
+                exec_rq2.addHeader(new BasicHeader(secrets.getHeader_key(), new_value.trim()));
+                exec_rq2.addHeader(new BasicHeader("Referer", "https://agatte.univ-lorraine.fr/top/top.form?numMen=2"));
+
+                // set content
+                String content = String.format("pt=%s", secrets.getURLEncodedSecret());
+                exec_rq2.addHeader(new BasicHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
+                BasicHttpEntity entity = new BasicHttpEntity();
+                entity.setContent(new ByteArrayInputStream(content.getBytes()));
+                exec_rq2.setEntity(entity);
+
+                HttpResponse response3 = client.execute(exec_rq2, httpContext);
+                return AgatteParser.getInstance().parse_query_response(response3);
+
             } else {
                 //Do nothing
                 String msg = String.format("An %s number of punches was required, but %d punch%s %s found",
@@ -369,7 +422,7 @@ public class AgatteSession {
         client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
         // Create post request
         HttpPost query_week_counter_rq2 = new HttpPost(new URI("https", this.getServer(), WEEK_COUNTER_DIR, null));
-        List<NameValuePair> request = new ArrayList<NameValuePair>(4);
+        List<NameValuePair> request = new ArrayList<>(4);
         request.add(0, new BasicNameValuePair(COUNTER_CONTRACT_NUMBER, String.format("%d", contract)));
         request.add(0, new BasicNameValuePair(COUNTER_CONTRACT_YEAR, String.format("%d", contract_year)));
         switch (type) {
@@ -431,9 +484,7 @@ public class AgatteSession {
             // Extract counter's value
             CounterPage r2 = queryCounter(client, AgatteCounterResponse.Type.Week, year, week, r1.contract, r1.contract_year);
             return new AgatteCounterResponse(r2);
-        } catch (IOException e) {
-            throw new AgatteException(e);
-        } catch (URISyntaxException e) {//can't happen
+        } catch (IOException | URISyntaxException e) {
             throw new AgatteException(e);
         } finally {
             if (client != null) client.close();
@@ -461,49 +512,13 @@ public class AgatteSession {
             CounterPage r2 = queryCounter(client, AgatteCounterResponse.Type.Year, 0, 0, r1.contract, r1.contract_year);
             response.setValue(AgatteCounterResponse.Type.Year, r2.value);
             return response;
-        } catch (IOException e) {
-            throw new AgatteException(e);
-        } catch (URISyntaxException e) {//can't happen
+        } catch (IOException | URISyntaxException e) {
             throw new AgatteException(e);
         } finally {
             if (client != null) client.close();
         }
     }
 
-
-    /**
-     * Request the "topOk" page from the server
-     * <p/>
-     * Useful for testing mainly
-     *
-     * @return an AgatteResponse instance
-     */
-    public AgatteResponse queryPunchOk() throws AgatteException {
-        AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
-        try {
-            if (loginNotRequired()) {
-                if (!login(client)) {
-                    throw new AgatteLoginFailedException();
-                }
-            }
-
-            client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
-            client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
-            //Simulate a first query
-            client.execute(query_day_rq, httpContext).getEntity().consumeContent();
-
-            HttpResponse response2 = client.execute(query_top_ok_rq, httpContext);
-
-            return AgatteParser.getInstance().parse_topOk_response(response2);
-
-        } catch (IOException e) {
-            Log.w(MainActivity.LOG_TAG, "IOException in queryPunchOk", e);//NON-NLS
-            throw new AgatteException(e);
-        } finally {
-            logout(client);
-            client.close();
-        }
-    }
 
     /**
      * Return the host name of the agatte server
@@ -526,9 +541,9 @@ public class AgatteSession {
         this.login_rq = new HttpGet(new URI("https", this.getServer(), LOGIN_DIR, null));
         this.logout_rq = new HttpGet(new URI("https", this.getServer(), LOGOUT_DIR, null));
         this.auth_rq = new HttpPost(new URI("https", this.getServer(), AUTH_DIR, null));
-        this.exec_rq = new HttpPost(new URI("https", this.getServer(), PUNCH_DIR, null));
+        this.exec_rq1 = new HttpPost(new URI("https", this.getServer(), PUNCH_DIR, null));
+        this.exec_rq1.addHeader(new BasicHeader("X-Requested-With", "XMLHttpRequest"));
         this.query_day_rq = new HttpGet(new URI("https", this.getServer(), QUERY_DIR, null));
-        this.query_top_ok_rq = new HttpGet(new URI("https", this.getServer(), PUNCH_OK_DIR, null));
         this.query_week_counter_rq1 = new HttpGet(new URI("https", this.getServer(), WEEK_COUNTER_DIR, null));
     }
 

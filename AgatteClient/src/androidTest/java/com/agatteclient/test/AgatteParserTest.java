@@ -1741,6 +1741,7 @@ public class AgatteParserTest extends AndroidTestCase {
         assertEquals(rsp.getUrl(), "../app/moved.htm");
         assertEquals(rsp.getHeader_key(), "221b27b42fa354a02a2c8aa8c4b82852");
         assertEquals(rsp.getSecret(),"MjliN2E3NGQzOTNmOGFiNDgzMGJmZDQwODUxNWVlOTg=");
+        assertEquals(rsp.getURLEncodedSecret(), "MjliN2E3NGQzOTNmOGFiNDgzMGJmZDQwODUxNWVlOTg%3D");
     }
 
     public void testParseResponse() throws Exception {
