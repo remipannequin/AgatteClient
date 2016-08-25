@@ -46,11 +46,6 @@ public class AgatteSessionTest extends AndroidTestCase {
         AgatteResponse rsp = instance.query_day();
     }
 
-    public void testQueryTopOk() throws Exception {
-        AgatteSession instance = new AgatteSession("agatte.univ-lorraine.fr", login, password);
-        AgatteResponse rsp = instance.queryPunchOk();
-    }
-
     public void testQueryCounter1() throws Exception {
         AgatteSession instance = new AgatteSession("agatte.univ-lorraine.fr", login, password);
         instance.queryCounterWeek(2014, 10);
