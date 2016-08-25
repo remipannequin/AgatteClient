@@ -198,27 +198,27 @@ public class AgatteParser {
 
     private AgatteSecret extractSecrets(String result) throws IOException, XPathExpressionException, AgatteException {
 
-        Pattern p_d1 = Pattern.compile("<div id=\"d1\">(.*?)</div>");
-        Pattern p_d2 = Pattern.compile("<div id=\"d2\">(.*?)</div>");
-        Pattern p_d3 = Pattern.compile("<div id=\"d3\">(.*?)</div>");
+        Pattern p_d1 = Pattern.compile("<div id=\"d1\" style=\"display: none;\">(.*?)</div>");
+        Pattern p_d2 = Pattern.compile("<div id=\"d2\" style=\"display: none;\">(.*?)</div>");
+        Pattern p_d3 = Pattern.compile("<div id=\"d3\" style=\"display: none;\">(.*?)</div>");
         String d1, d2, d3;
         Matcher matcher = p_d1.matcher(result);
         if (matcher.find()) {
             d1 = decode(matcher.group(1));
         } else {
-            throw new AgatteException();
+            throw new AgatteException("Unable to find hidden d1 section");
         }
         matcher = p_d2.matcher(result);
         if (matcher.find()) {
             d2 = decode(matcher.group(1));
         } else {
-            throw new AgatteException();
+            throw new AgatteException("Unable to find hidden d2 section");
         }
         matcher = p_d3.matcher(result);
         if (matcher.find()) {
             d3 = decode(matcher.group(1));
         } else {
-            throw new AgatteException();
+            throw new AgatteException("Unable to find hidden d3 section");
         }
 
         String xml = String.format("<lol>%s%s<div>%s</lol>", d1, d2, d3);
