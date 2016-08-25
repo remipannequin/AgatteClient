@@ -284,7 +284,7 @@ public class AgatteSession {
             return AgatteParser.getInstance().parse_query_response(response3);
 
         } catch (IOException e) {
-            Log.w(MainActivity.LOG_TAG, "IOException while doing doPunch", e);
+            Log.w(MainActivity.LOG_TAG, "IOException while doing askPunch", e);
             throw new AgatteException(e);
         } finally {
             logout(client);

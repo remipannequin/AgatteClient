@@ -351,7 +351,7 @@ public class MainActivity extends ActionBarActivity {
     private void updateAuthNetwork(boolean auth) {
         int ic_auth = (auth ? R.drawable.ic_auth_green : R.drawable.ic_auth_grey);
         punch_button.setCompoundDrawablesWithIntrinsicBounds(0, 0, ic_auth, 0);
-        punch_button.setTextColor((auth? Color.BLACK:Color.GRAY));
+        punch_button.setTextColor((auth ? Color.BLACK : Color.GRAY));
     }
 
 
@@ -431,38 +431,15 @@ public class MainActivity extends ActionBarActivity {
     }
 
 
+
     /**
      * Show confirmation dialog
      *
-     * @param i the intent to start if the dialog is confirmed
+
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void showPunchConfirm(final Intent i) {
-        DialogFragment confirm = new DialogFragment() {
-            @Override
-            public Dialog onCreateDialog(Bundle savedInstanceState) {
-                // Use the Builder class for convenient dialog construction
-                Activity activity = getActivity();
-                if (activity != null) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                    builder.setMessage(R.string.dialog_confirm_punch)
-                            .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    startService(i);
-                                }
-                            })
-                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    // User cancelled the dialog
-                                }
-                            });
-                    // Create the AlertDialog object and return it
-                    return builder.create();
-                } else {
-                    return null;
-                }
-            }
-        };
+    private void showPunchConfirm() {
+        DialogFragment confirm = ConfirmPunchDialogFragment.newInstance();
         confirm.show(getFragmentManager(), "confirm_punch"); //NON-NLS
     }
 
@@ -470,15 +447,14 @@ public class MainActivity extends ActionBarActivity {
     /**
      * Show confirmation dialog on older API
      *
-     * @param i the intent to start if the dialog is confirmed
      */
     @TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1)
-    private void showPunchConfirmOld(final Intent i) {
+    private void showPunchConfirmOld() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.dialog_confirm_punch)
                 .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        startService(i);
+                        doPunch();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -495,21 +471,27 @@ public class MainActivity extends ActionBarActivity {
      *
      * @param v the current view
      */
-    public void doPunch(View v) {
+    public void askPunch(View v) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         boolean mustConfirm = pref.getBoolean(CONFIRM_PUNCH_PREF, true);
+
+        if (!mustConfirm) {
+            doPunch();
+        } else {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                showPunchConfirmOld();
+            } else {
+                showPunchConfirm();
+            }
+        }
+    }
+
+
+    public void doPunch() {
         final Intent i = new Intent(this, PunchService.class);
         i.setAction(PunchService.DO_PUNCH);
         i.putExtra(PunchService.RESULT_RECEIVER, new AgatteResultReceiver());
-        if (!mustConfirm) {
-            startService(i);
-        } else {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                showPunchConfirmOld(i);
-            } else {
-                showPunchConfirm(i);
-            }
-        }
+        startService(i);
     }
 
 
@@ -520,7 +502,6 @@ public class MainActivity extends ActionBarActivity {
         startService(i);
         runRefresh();
     }
-
 
     private class AgatteResultReceiver extends ResultReceiver {
 
@@ -681,4 +662,37 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static class ConfirmPunchDialogFragment extends DialogFragment {
+
+        public static ConfirmPunchDialogFragment newInstance() {
+            ConfirmPunchDialogFragment frag = new ConfirmPunchDialogFragment();
+            Bundle args = new Bundle();
+            return frag;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the Builder class for convenient dialog construction
+            Activity activity = getActivity();
+            if (activity != null) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                builder.setMessage(R.string.dialog_confirm_punch)
+                        .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                ((MainActivity)getActivity()).doPunch();
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // User cancelled the dialog
+                            }
+                        });
+                // Create the AlertDialog object and return it
+                return builder.create();
+            } else {
+                return null;
+            }
+        }
+    }
 }
