@@ -30,7 +30,10 @@ import android.util.Log;
 import com.agatteclient.MainActivity;
 
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * This class create a AgatteSession, try to login, send a punch, and logout.
@@ -64,8 +67,10 @@ public class PunchService extends IntentService {
             session = new AgatteSession(server, login, password);
         } catch (URISyntaxException e) {
             Log.e(MainActivity.LOG_TAG, String.format("%s is not a valid URI", server), e);//NON-NLS
-        } catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException|MalformedURLException e) {
             Log.e(MainActivity.LOG_TAG, "Unsupported encoding in server, login or password", e);//NON-NLS
+        } catch (NoSuchAlgorithmException|KeyManagementException e) {
+            e.printStackTrace();
         }
     }
 

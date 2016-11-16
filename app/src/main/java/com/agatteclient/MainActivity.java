@@ -66,24 +66,27 @@ import com.agatteclient.card.CardBinder;
 import com.agatteclient.card.DayCard;
 import com.agatteclient.card.DayCardView;
 import com.agatteclient.card.TimeProfile;
-//import com.google.android.gms.security.ProviderInstaller;
-//import com.google.android.gms.common.GooglePlayServicesRepairableException;
-//import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-//import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.security.ProviderInstaller;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.security.ProviderInstaller;
 import javax.annotation.Nonnull;
+
+//import com.google.android.gms.security.ProviderInstaller;
+//import com.google.android.gms.common.GooglePlayServicesRepairableException;
+//import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+//import com.google.android.gms.common.GooglePlayServicesUtil;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -187,10 +190,13 @@ public class MainActivity extends ActionBarActivity {
             session = new AgatteSession(server, login, password);
             pref_listener = new AgattePreferenceListener(session);
             preferences.registerOnSharedPreferenceChangeListener(pref_listener);
-        } catch (URISyntaxException e) {
+        } catch (URISyntaxException|MalformedURLException e) {
             Log.w(MainActivity.LOG_TAG, "Server address is not a valid URI", e);//NON-NLS
         } catch (UnsupportedEncodingException e) {
             Log.w(MainActivity.LOG_TAG, "Unsupported encoding in server address, login or password", e);//NON-NLS
+        } catch (NoSuchAlgorithmException|KeyManagementException e) {
+            e.printStackTrace();
+            //TODO log
         }
     }
 
@@ -656,7 +662,7 @@ public class MainActivity extends ActionBarActivity {
                 String value = sharedPreferences.getString(s, SERVER_DEFAULT);
                 try {
                     session.setServer(value);
-                } catch (URISyntaxException e) {
+                } catch (URISyntaxException|MalformedURLException e) {
                     Log.w(MainActivity.LOG_TAG, "Server address is not a valid URI", e);//NON-NLS
                 }
                 return;
@@ -665,7 +671,7 @@ public class MainActivity extends ActionBarActivity {
                 String value = sharedPreferences.getString(s, LOGIN_DEFAULT);
                 try {
                     session.setUser(value);
-                } catch (UnsupportedEncodingException e) {
+                } catch (UnsupportedEncodingException|MalformedURLException e) {
                     Log.w(MainActivity.LOG_TAG, "Unsupported encoding in login", e);//NON-NLS
                 }
                 return;

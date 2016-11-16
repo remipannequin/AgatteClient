@@ -20,38 +20,37 @@
 package com.agatteclient.agatte;
 
 
-import android.net.http.AndroidHttpClient;
+import android.net.Uri;
 import android.util.Base64;
 import android.util.Log;
 
 import com.agatteclient.MainActivity;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.params.ClientPNames;
-import org.apache.http.client.protocol.ClientContext;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.entity.BasicHttpEntity;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
-
-import java.io.ByteArrayInputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.net.HttpCookie;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
+import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 
 /**
  * A session with the Agatte server. It can be used multiple times.
@@ -61,8 +60,8 @@ import java.util.List;
 @SuppressWarnings("HardCodedStringLiteral")
 public class AgatteSession {
 
-    public static final int TIMEOUT_CONEECTION = 3000;
-    public static final int TIMEOUT_SO = 5000;
+    //public static final int TIMEOUT_CONEECTION = 3000;
+    //public static final int TIMEOUT_SO = 5000;
     public static final int SESSION_DELAY = 120000;
     private static final String LOGIN_DIR = "/app/login.form";
     private static final String LOGOUT_DIR = "/app/logout.form";
@@ -76,31 +75,22 @@ public class AgatteSession {
     private static final String COUNTER_CONTRACT_YEAR = "codeAnu";
     private static final String COUNTER_WEEK = "numSem";
     private static final String COUNTER_TYPE = "nivCpt";
-    private static final String AGENT = "Mozilla/5.0 (Linux; U; Android 2.2; en-us; Nexus One Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
-    private final BasicCookieStore cookieStore;
-    private final List<NameValuePair> credentials;
-    private final HttpContext httpContext;
+    //private static final String AGENT = "Mozilla/5.0 (Linux; U; Android 2.2; en-us; Nexus One Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
+    private String user;
+    private String passwd;
+
+    private final CookieManager cookieManager;
     private String session_id;
     private String server;
     private long session_expire;
-    private HttpGet login_rq;
-    private HttpGet logout_rq;
-    private HttpPost auth_rq;
-    private HttpGet query_day_rq;
-    private HttpGet query_week_counter_rq1;
-    private HttpPost exec_rq1;
 
+    private URL login_url;
+    private URL auth_url;
+    private URL logout_url;
+    private URL query_day_url;
+    private URL query_week_counter_url;
+    private URL exec_url;
 
-    /**
-     * Create a new Agatte session.
-     */
-    private AgatteSession() {
-        //super ("AgatteConnectionService");
-        credentials = new ArrayList<>(2);
-        httpContext = new BasicHttpContext();
-        cookieStore = new BasicCookieStore();
-        httpContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
-    }
 
     /**
      * Create a new session with parameters
@@ -111,185 +101,189 @@ public class AgatteSession {
      * @throws URISyntaxException
      * @throws UnsupportedEncodingException
      */
-    public AgatteSession(String server, String user, String passwd) throws URISyntaxException, UnsupportedEncodingException {
-        //super ("AgatteConnectionService");
-        this();
+    public AgatteSession(String server, String user, String passwd) throws URISyntaxException, UnsupportedEncodingException, MalformedURLException, NoSuchAlgorithmException, KeyManagementException {
+        cookieManager = new CookieManager();
+        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+        CookieHandler.setDefault(cookieManager);
+
+        HttpURLConnection.setFollowRedirects(true);
+
+        this.user = user;
+        this.passwd = passwd;
         this.setServer(server);
-        this.setUser(user);
-        this.setPassword(passwd);
+
+
+        //should be done in the constructor ?
+        SSLContext sslcontext = SSLContext.getInstance("TLSv1.2");
+        sslcontext.init(null, null, null);
+        SSLSocketFactory NoSSLv3Factory = new NoSSLv3SocketFactory(sslcontext.getSocketFactory());
+        HttpsURLConnection.setDefaultSSLSocketFactory(NoSSLv3Factory);
+
     }
+
+
+
 
     /**
      * Send a logout to the server.
      *
-     * @param client the HttpClient to use
      */
-    public void logout(AndroidHttpClient client) {
-
+    public void logout() {
         try {
-            client.execute(logout_rq, httpContext);
-            //this.session_expire = new Date(cookie.getMaxAge());
-            //compute expiration date according to System.date(); ??
-            this.session_id = null;
+            HttpsURLConnection l_connection = (HttpsURLConnection) logout_url.openConnection();
+            l_connection.setInstanceFollowRedirects(true);
+
+            l_connection.setRequestMethod("GET");
+
+            l_connection.connect();
         } catch (IOException e) {
-            Log.w(MainActivity.LOG_TAG, "IOException on logout", e);//NON-NLS
+            e.printStackTrace();
         }
+        this.session_id = null;
     }
 
     /**
      * Attempt to log in Agatte :ie open an agatte session
      *
-     * @return false if login failed, true if no errors were detected
+     * @return false if user failed, true if no errors were detected
      */
-    private boolean login(AndroidHttpClient client) throws IOException {
+    private boolean login() throws IOException {
 
-        HttpResponse response1 = client.execute(login_rq, httpContext);
-        response1.getEntity().consumeContent();
+        HttpsURLConnection login_connection = (HttpsURLConnection) login_url.openConnection();
+        login_connection.setRequestMethod("GET");
+        login_connection.connect();
+
+        //HttpResponse response1 = client.execute(login_rq, httpContext);
+
+        //response1.getEntity().consumeContent();
         //test whether response is OK
-        if (response1.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            return false;
-        }
-        //update sessionID and expiration date
-        boolean found_id = false;
-        for (Cookie cookie : cookieStore.getCookies())
-            if (cookie.getName().equals("JSESSIONID")) {
-                //this.session_expire = new Date(cookie.getMaxAge());
-                //compute expiration date according to System.date(); ??
-                this.session_expire = System.currentTimeMillis();
-                this.session_id = cookie.getValue();
-                found_id = true;
-            }
-        if (!found_id) {
+        if (login_connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
             return false;
         }
 
-        HttpResponse response2 = client.execute(auth_rq, httpContext);
-        response2.getEntity().consumeContent();
-        //if (response2.getStatusLine().getStatusCode() != HttpStatus.SC_TEMPORARY_REDIRECT) {
-        //    return false;
-        //}
-        for (Header h : response2.getHeaders("Location")) {
+        boolean found = false;
+
+        for (HttpCookie c : cookieManager.getCookieStore().getCookies()) {
+            if (c.getName().equals("JSESSIONID")) {
+                found = true;
+            }
+        }
+        if (!found) {
+            //session ID not found in response
+            return false;
+        }
+
+        HttpsURLConnection authentication_connection = (HttpsURLConnection) auth_url.openConnection();
+        authentication_connection.setInstanceFollowRedirects(false);
+        authentication_connection.setRequestMethod("POST");
+        authentication_connection.setDoInput(true);
+        authentication_connection.setDoOutput(true);
+
+        Uri.Builder builder = new Uri.Builder()
+        .appendQueryParameter(USER, user)
+        .appendQueryParameter(PASSWORD, passwd);
+        String query = builder.build().getEncodedQuery();
+        OutputStream os = authentication_connection.getOutputStream();
+        BufferedWriter writer = new BufferedWriter(
+                    new OutputStreamWriter(os, "UTF-8"));
+        writer.write(query);
+        writer.flush();
+        writer.close();
+        os.close();
+
+        authentication_connection.connect();
+
+
+        //String response = getContent(authentication_connection.getInputStream());
+
+
+        Map<String,List<String>> headerFields = authentication_connection.getHeaderFields();
+        for (String h : headerFields.get("Location")) {
             //value should be URL("https", server, "/");
-            if (h.getValue().contains("login_error=1")) {
+            if (h.contains("login_error=1")) {
                 this.session_expire = 0;
                 this.session_id = null;
                 return false;
             }
         }
-
-
         return true;
     }
 
     /**
-     * Attempt to get the list of tops from the server (doing a login if necessary)
+     * Attempt to get the list of tops from the server (doing a user if necessary)
      *
      * @return an AgatteResponse instance
      */
     public AgatteResponse query_day() throws AgatteException {
-        AndroidHttpClient client = null;
         try {
-            client = AndroidHttpClient.newInstance(AGENT);
-            HttpParams httpParam = client.getParams();
-            HttpConnectionParams.setConnectionTimeout(httpParam, TIMEOUT_CONEECTION);
-            HttpConnectionParams.setSoTimeout(httpParam, TIMEOUT_SO);
             if (loginNotRequired()) {
-                if (!login(client)) {
+                if (!login()) {
                     //return new AgatteResponse(AgatteResponse.Code.LoginFailed);
                     throw new AgatteLoginFailedException();
                 }
             }
-            client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
-            client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
-            HttpResponse response = client.execute(query_day_rq, httpContext);
+
+            HttpsURLConnection l_connection = (HttpsURLConnection) query_day_url.openConnection();
+            l_connection.setRequestMethod("GET");
+            l_connection.connect();
+
+            String response = getContent(l_connection.getInputStream());
+
+            if (l_connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                throw new AgatteException(l_connection.getResponseMessage());
+            }
             return AgatteParser.getInstance().parse_query_response(response);
         } catch (IOException e) {
             Log.w(MainActivity.LOG_TAG, "IOException in query_day", e);//NON-NLS
             throw new AgatteException(e);
-        } finally {
-            if (client != null) {
-                logout(client);
-                client.close();
+        }
+    }
+
+
+    /**
+     * Extract content of a URLConnexion as a string,
+     * and remove all \t \r characters. Leave only \n if there is a
+     * closing XML mark in it
+     *
+     *
+     * @param is the inputstream of the URLConnexion
+     * @return the content as a String
+     * @throws IOException
+     */
+    private String getContent(InputStream is) throws IOException {
+        StringBuilder content = new StringBuilder();
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
+        String line;
+
+        // read from the urlconnection via the buffered reader
+        while ((line = bufferedReader.readLine()) != null) {
+            if (line.length() != 0) {
+                content.append(line.replaceAll("[\\n|\\t|\\r]", " "));
+                if (line.contains("</")) {
+                    content.append(System.getProperty("line.separator"));
+                }
             }
         }
+        bufferedReader.close();
+        return content.toString();
     }
 
     /**
      * Send a "punch" to the server
-     *
+     * <p>
      * As of june 2015, the new code on the servers requires to to a tree-step request:
      * 1) GET top/top.form, and extract some "secrets" : key in the header, secret URL, and secret
      * 2) POST top/location.href (XMLHttpRequest), and extract a returned key (in the header)
      * 3) POST to the secret URL (which ATM does not change) the secret, while putting the key in the header.
-     *
+     * <p>
      * The method to hide the values in the HTML is Base64. Which is just as lame as it sounds. But
      * Its encoded twice, for super-extra-security. Good job, IT guys, this was really funny.
      * Wink at Université de Lorrraine devs
      *
-     *
-     *
      * @return an AgatteResponse instance
      */
     public AgatteResponse doPunch() throws AgatteException {
-        AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
-        try {
-            if (loginNotRequired()) {
-                if (!login(client)) {
-                    //return new AgatteResponse(AgatteResponse.Code.LoginFailed);
-                    throw new AgatteLoginFailedException();
-                }
-            }
-            //Make sure to follow redirection
-            client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
-            client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
-            //Simulate a first query
-            HttpResponse response1 = client.execute(query_day_rq, httpContext);
-
-
-            //extract secrets
-            AgatteSecret secrets = AgatteParser.getInstance().parse_secrets_from_query_response(response1);
-
-
-            //Then send a punching request
-            HttpResponse response2 = client.execute(exec_rq1, httpContext);
-
-            Header secret_header = response2.getFirstHeader(secrets.getHeader_key());
-            if (secret_header == null || secret_header.getValue().length() == 0) {
-                throw new AgtSecurityException("Unexpected response while punching: secret header not found");
-            }
-            String new_value = Base64.encodeToString(secret_header.getValue().getBytes(), Base64.DEFAULT);
-
-            URI base_url = null;
-            try {
-                base_url = new URI("https", this.getServer(), PUNCH_DIR, null);
-            } catch (URISyntaxException e) {
-                //can't happen
-                e.printStackTrace();
-            }
-            URI url = base_url.resolve(secrets.getUrl());
-            HttpPost exec_rq2 = new HttpPost(url);
-            //set headers
-            exec_rq2.addHeader(new BasicHeader("X-Requested-With", "XMLHttpRequest"));
-            exec_rq2.addHeader(new BasicHeader(secrets.getHeader_key(), new_value.trim()));
-            exec_rq2.addHeader(new BasicHeader("Referer", "https://agatte.univ-lorraine.fr/top/top.form?numMen=2"));
-
-            // set content
-            String content = String.format("pt=%s", secrets.getURLEncodedSecret());
-            exec_rq2.addHeader(new BasicHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
-            BasicHttpEntity entity = new BasicHttpEntity();
-            entity.setContent(new ByteArrayInputStream(content.getBytes()));
-            exec_rq2.setEntity(entity);
-
-            HttpResponse response3 = client.execute(exec_rq2, httpContext);
-            return AgatteParser.getInstance().parse_query_response(response3);
-
-        } catch (IOException e) {
-            Log.w(MainActivity.LOG_TAG, "IOException while doing askPunch", e);
-            throw new AgatteException(e);
-        } finally {
-            logout(client);
-            client.close();
-        }
+        return doCheckAndPunch(false, false);
     }
 
     /**
@@ -299,37 +293,60 @@ public class AgatteSession {
      * @return an AgatteResponse instance
      */
     public AgatteResponse doCheckAndPunch(boolean even) throws AgatteException {
-        AndroidHttpClient client = AndroidHttpClient.newInstance(AGENT);
+        return doCheckAndPunch(true, even);
+    }
+
+
+    /**
+     * Send a "punch" to the server, only if the number of previous punches is even (resp odd)
+     *
+     * @param check check eveness before punching
+     * @param even  if true, the number of param must be even, if false, it must be odd
+     * @return an AgatteResponse instance
+     */
+    public AgatteResponse doCheckAndPunch(boolean check, boolean even) throws AgatteException {
+
         try {
             if (loginNotRequired()) {
-                if (!login(client)) {
+                if (!login()) {
                     //return new AgatteResponse(AgatteResponse.Code.LoginFailed);
                     throw new AgatteLoginFailedException();
                 }
             }
-            //Make sure to follow redirection
-            client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
-            client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
-            //Query first
-            HttpResponse query_response = client.execute(query_day_rq, httpContext);
+
+
+            //First query
+            HttpsURLConnection l_connection = (HttpsURLConnection) query_day_url.openConnection();
+            l_connection.setRequestMethod("GET");
+            l_connection.connect();
+            if (l_connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                throw new AgatteException(l_connection.getResponseMessage());
+            }
+            String query_response = getContent(l_connection.getInputStream());
+
+
             AgatteResponse state = AgatteParser.getInstance().parse_query_response(query_response);
             int punch_nb = state.getPunches().length;
 
-            if ((punch_nb % 2 == 0 && even) || (punch_nb % 2 == 1 && !even)) {
+            if (!check || (punch_nb % 2 == 0 && even) || (punch_nb % 2 == 1 && !even)) {
                 //Then send a punching request, if condition ar met
-                 //extract secrets
+                //extract secrets
                 AgatteSecret secrets = AgatteParser.getInstance().parse_secrets_from_query_response(query_response);
 
 
                 //Then send a punching request
-                HttpResponse response2 = client.execute(exec_rq1, httpContext);
+                HttpsURLConnection exec_connection = (HttpsURLConnection) exec_url.openConnection();
+                exec_connection.addRequestProperty("X-Requested-With", "XMLHttpRequest");
+                exec_connection.connect();
 
-                Header secret_header = response2.getFirstHeader(secrets.getHeader_key());
-                if (secret_header == null || secret_header.getValue().length() == 0) {
+                String secret_header = exec_connection.getHeaderField(secrets.getHeader_key());
+
+
+                //Header secret_header = response2.getFirstHeader(secrets.getHeader_key());
+                if (secret_header == null || secret_header.length() == 0) {
                     throw new AgtSecurityException("Unexpected response while punching: secret header not found");
                 }
-
-                String new_value = Base64.encodeToString(secret_header.getValue().getBytes(), Base64.DEFAULT);
+                String new_value = Base64.encodeToString(secret_header.getBytes(), Base64.DEFAULT);
 
                 URI base_url = null;
                 try {
@@ -339,21 +356,33 @@ public class AgatteSession {
                     e.printStackTrace();
                 }
                 URI url = base_url.resolve(secrets.getUrl());
-                HttpPost exec_rq2 = new HttpPost(url);
+                HttpsURLConnection exec_connection2 = (HttpsURLConnection) (url.toURL().openConnection());
                 //set headers
-                exec_rq2.addHeader(new BasicHeader("X-Requested-With", "XMLHttpRequest"));
-                exec_rq2.addHeader(new BasicHeader(secrets.getHeader_key(), new_value.trim()));
-                exec_rq2.addHeader(new BasicHeader("Referer", "https://agatte.univ-lorraine.fr/top/top.form?numMen=2"));
+                exec_connection2.addRequestProperty("X-Requested-With", "XMLHttpRequest");
+                exec_connection2.addRequestProperty(secrets.getHeader_key(), new_value.trim());
+                exec_connection2.addRequestProperty("Referer", "https://agatte.univ-lorraine.fr/top/top.form?numMen=2");
+                exec_connection2.addRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+
+                exec_connection2.setRequestMethod("POST");
+
 
                 // set content
                 String content = String.format("pt=%s", secrets.getURLEncodedSecret());
-                exec_rq2.addHeader(new BasicHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
-                BasicHttpEntity entity = new BasicHttpEntity();
-                entity.setContent(new ByteArrayInputStream(content.getBytes()));
-                exec_rq2.setEntity(entity);
 
-                HttpResponse response3 = client.execute(exec_rq2, httpContext);
+                OutputStream os = exec_connection2.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(os, "UTF-8"));
+                writer.write(content);
+                writer.flush();
+                writer.close();
+                os.close();
+                exec_connection2.connect();
+                if (exec_connection2.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    throw new AgatteException(exec_connection2.getResponseMessage());
+                }
+                String response3 = getContent(exec_connection2.getInputStream());
                 return AgatteParser.getInstance().parse_query_response(response3);
+
 
             } else {
                 //Do nothing
@@ -367,9 +396,6 @@ public class AgatteSession {
         } catch (IOException e) {
             Log.w(MainActivity.LOG_TAG, "IOException while doing doCheckAndPunch", e);
             throw new AgatteException(e);
-        } finally {
-            logout(client);
-            client.close();
         }
     }
 
@@ -378,27 +404,36 @@ public class AgatteSession {
      * Query the agatte server to get the default counter. It also get contract num, and other data
      * that can be useful in following queries
      *
-     * @param client the http client to use
      * @return a CountPage instance
      * @throws IOException if the network connection fail
      * @throws AgatteException if the server send an error
      */
-    CounterPage queryCounterContext(AndroidHttpClient client) throws IOException, AgatteException {
+    CounterPage queryCounterContext() throws IOException, AgatteException {
         if (loginNotRequired()) {
-            if (!login(client)) {
+            if (!login()) {
                 throw new AgatteLoginFailedException();
             }
         }
 
-        client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
-        client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
-        //Simulate a first query
-        client.execute(query_day_rq, httpContext).getEntity().consumeContent();
+
+        //Simulate a first query (server is dumb and want that)
+        HttpsURLConnection l_connection = (HttpsURLConnection) query_day_url.openConnection();
+        l_connection.setRequestMethod("GET");
+        l_connection.connect();
+        getContent(l_connection.getInputStream());
+
+
         // First query : get context and week
-        HttpResponse response1 = client.execute(query_week_counter_rq1, httpContext);
+        HttpsURLConnection query_week_connection = (HttpsURLConnection) query_week_counter_url.openConnection();
+        query_week_connection.setRequestMethod("GET");
+        query_week_connection.connect();
+        if (query_week_connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+            throw new AgatteException(query_week_connection.getResponseMessage());
+        }
+        String response = getContent(query_week_connection.getInputStream());
 
         // Extract contract number (numCont) and year (codeAnu), detect a "counter unavailable" message
-        return AgatteParser.getInstance().parse_counter_response(response1);
+        return AgatteParser.getInstance().parse_counter_response(response);
     }
 
     /**
@@ -413,37 +448,51 @@ public class AgatteSession {
      * @throws IOException if the network connection fail
      * @throws URISyntaxException if the server send an error
      */
-    CounterPage queryCounter(AndroidHttpClient client, AgatteCounterResponse.Type type, int year, int week, int contract, int contract_year) throws IOException, URISyntaxException, AgatteException {
+    CounterPage queryCounter(AgatteCounterResponse.Type type, int year, int week, int contract, int contract_year) throws IOException, URISyntaxException, AgatteException {
         String date = String.format("%04d%02d", year, week);
 
         if (loginNotRequired()) {
-            if (!login(client)) {
+            if (!login()) {
                 throw new AgatteLoginFailedException();
             }
         }
+        HttpsURLConnection query_connection = (HttpsURLConnection) query_week_counter_url.openConnection();
+        query_connection.setInstanceFollowRedirects(false);
+        query_connection.setRequestMethod("POST");
+        query_connection.setDoInput(true);
+        query_connection.setDoOutput(true);
 
-        client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
-        client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
         // Create post request
-        HttpPost query_week_counter_rq2 = new HttpPost(new URI("https", this.getServer(), WEEK_COUNTER_DIR, null));
-        List<NameValuePair> request = new ArrayList<>(4);
-        request.add(0, new BasicNameValuePair(COUNTER_CONTRACT_NUMBER, String.format("%d", contract)));
-        request.add(0, new BasicNameValuePair(COUNTER_CONTRACT_YEAR, String.format("%d", contract_year)));
+        Uri.Builder builder = new Uri.Builder()
+        .appendQueryParameter(COUNTER_CONTRACT_NUMBER, String.format("%d", contract))
+        .appendQueryParameter(COUNTER_CONTRACT_YEAR, String.format("%d", contract_year));
         switch (type) {
             case Year:
-                request.add(0, new BasicNameValuePair(COUNTER_TYPE, "A"));
+                builder.appendQueryParameter(COUNTER_TYPE, "A");
                 break;
             case Week:
-                request.add(0, new BasicNameValuePair(COUNTER_TYPE, "H"));
-                request.add(0, new BasicNameValuePair(COUNTER_WEEK, date));
+                builder.appendQueryParameter(COUNTER_TYPE, "H")
+                       .appendQueryParameter(COUNTER_WEEK, date);
                 break;
             default:
         }
-        query_week_counter_rq2.setEntity(new UrlEncodedFormEntity(request));
-        HttpResponse response2 = client.execute(query_week_counter_rq2, httpContext);
+        String query = builder.build().getEncodedQuery();
+        OutputStream os = query_connection.getOutputStream();
+        BufferedWriter writer = new BufferedWriter(
+                    new OutputStreamWriter(os, "UTF-8"));
+        writer.write(query);
+        writer.flush();
+        writer.close();
+        os.close();
+
+        query_connection.connect();
+        if (query_connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+            throw new AgatteException(query_connection.getResponseMessage());
+        }
+        String response = getContent(query_connection.getInputStream());
 
         // Extract counter's value
-        return AgatteParser.getInstance().parse_counter_response(response2);
+        return AgatteParser.getInstance().parse_counter_response(response);
     }
 
 
@@ -477,21 +526,19 @@ public class AgatteSession {
      * @throws AgatteException
      */
     public AgatteCounterResponse queryCounterWeek(int year, int week) throws AgatteException {
-        AndroidHttpClient client = null;
+
         try {
-            client = AndroidHttpClient.newInstance(AGENT);
-            CounterPage r1 = queryCounterContext(client);
+
+            CounterPage r1 = queryCounterContext();
             //if counter are unavailable, exit
             if (r1.anomaly) {
                 return new AgatteCounterResponse(r1);
             }
             // Extract counter's value
-            CounterPage r2 = queryCounter(client, AgatteCounterResponse.Type.Week, year, week, r1.contract, r1.contract_year);
+            CounterPage r2 = queryCounter(AgatteCounterResponse.Type.Week, year, week, r1.contract, r1.contract_year);
             return new AgatteCounterResponse(r2);
         } catch (IOException | URISyntaxException e) {
             throw new AgatteException(e);
-        } finally {
-            if (client != null) client.close();
         }
     }
 
@@ -501,10 +548,10 @@ public class AgatteSession {
      * @return an AgatteCounterResponse
      */
     public AgatteCounterResponse queryCounterCurrent() throws AgatteException {
-        AndroidHttpClient client = null;
+
         try {
-            client = AndroidHttpClient.newInstance(AGENT);
-            CounterPage r1 = queryCounterContext(client);
+
+            CounterPage r1 = queryCounterContext();
             AgatteCounterResponse response = new AgatteCounterResponse(r1);
             //if counter are unavailable, exit
             if (r1.anomaly) {
@@ -513,13 +560,11 @@ public class AgatteSession {
                 response.setValue(AgatteCounterResponse.Type.Week, r1.value);
             }
             // Extract counter's value
-            CounterPage r2 = queryCounter(client, AgatteCounterResponse.Type.Year, 0, 0, r1.contract, r1.contract_year);
+            CounterPage r2 = queryCounter(AgatteCounterResponse.Type.Year, 0, 0, r1.contract, r1.contract_year);
             response.setValue(AgatteCounterResponse.Type.Year, r2.value);
             return response;
         } catch (IOException | URISyntaxException e) {
             throw new AgatteException(e);
-        } finally {
-            if (client != null) client.close();
         }
     }
 
@@ -539,16 +584,21 @@ public class AgatteSession {
      * @param server a String like "agatte.univ-lorraine.fr" (without protocol string "https://)
      * @throws URISyntaxException
      */
-    public void setServer(String server) throws URISyntaxException {
+    public void setServer(String server) throws URISyntaxException, MalformedURLException {
         this.server = server;
 
-        this.login_rq = new HttpGet(new URI("https", this.getServer(), LOGIN_DIR, null));
-        this.logout_rq = new HttpGet(new URI("https", this.getServer(), LOGOUT_DIR, null));
-        this.auth_rq = new HttpPost(new URI("https", this.getServer(), AUTH_DIR, null));
-        this.exec_rq1 = new HttpPost(new URI("https", this.getServer(), PUNCH_DIR, null));
-        this.exec_rq1.addHeader(new BasicHeader("X-Requested-With", "XMLHttpRequest"));
-        this.query_day_rq = new HttpGet(new URI("https", this.getServer(), QUERY_DIR, null));
-        this.query_week_counter_rq1 = new HttpGet(new URI("https", this.getServer(), WEEK_COUNTER_DIR, null));
+        this.login_url = new URL("https", this.getServer(), LOGIN_DIR);
+        //this.logout_rq = new HttpGet(new URI("https", this.getServer(), LOGOUT_DIR, null));
+        this.logout_url = new URL("https", this.getServer(), LOGOUT_DIR);
+        //this.auth_rq = new HttpPost(new URI("https", this.getServer(), AUTH_DIR, null));
+        this.auth_url = new URL("https", this.getServer(), AUTH_DIR);
+        //this.exec_rq1 = new HttpPost(new URI("https", this.getServer(), PUNCH_DIR, null));
+        //this.exec_rq1.addHeader(new BasicHeader("X-Requested-With", "XMLHttpRequest"));
+        this.exec_url = new URL("https", this.getServer(), PUNCH_DIR);
+        //this.query_day_rq = new HttpGet(new URI("https", this.getServer(), QUERY_DIR, null));
+        this.query_day_url = new URL("https", this.getServer(), QUERY_DIR);
+        //this.query_week_counter_rq1 = new HttpGet(new URI("https", this.getServer(), WEEK_COUNTER_DIR, null));
+        this.query_week_counter_url = new URL("https", this.getServer(), WEEK_COUNTER_DIR);
     }
 
     /**
@@ -557,9 +607,8 @@ public class AgatteSession {
      * @param user the username to set
      * @throws UnsupportedEncodingException
      */
-    public void setUser(String user) throws UnsupportedEncodingException {
-        credentials.add(0, new BasicNameValuePair(USER, user));
-        auth_rq.setEntity(new UrlEncodedFormEntity(credentials));
+    public void setUser(String user) throws UnsupportedEncodingException, MalformedURLException {
+        this.user = user;
     }
 
     /**
@@ -569,14 +618,13 @@ public class AgatteSession {
      * @throws UnsupportedEncodingException if password contain invalid
      */
     public void setPassword(String password) throws UnsupportedEncodingException {
-        credentials.add(1, new BasicNameValuePair(PASSWORD, password));
-        auth_rq.setEntity(new UrlEncodedFormEntity(credentials));
+        this.passwd = password;
     }
 
     /**
      * Return the connection status of the agatte session.
      *
-     * @return false if a login must be made
+     * @return false if a user must be made
      */
     boolean loginNotRequired() {
         return (((this.session_id == null) || (this.session_expire >= System.currentTimeMillis() + SESSION_DELAY)));

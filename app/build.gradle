@@ -30,7 +30,6 @@ android {
         minSdkVersion 10
         targetSdkVersion 25
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        //multiDexEnabled true
     }
 
     buildTypes {
@@ -43,8 +42,6 @@ android {
             shrinkResources true
         }
     }
-
-    useLibrary 'org.apache.http.legacy'
 }
 
 dependencies {
@@ -54,5 +51,4 @@ dependencies {
     compile 'com.google.guava:guava:18.0'
     compile 'com.google.code.findbugs:jsr305:2.0.2'
     compile 'com.google.android.gms:play-services-base:9.2.0'
-    //compile 'com.android.support:multidex:1.0.0'
 }
