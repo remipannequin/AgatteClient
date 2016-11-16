@@ -65,15 +65,27 @@ import com.agatteclient.card.CardBinder;
 import com.agatteclient.card.DayCard;
 import com.agatteclient.card.DayCardView;
 import com.agatteclient.card.TimeProfile;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.security.ProviderInstaller;
 
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.annotation.Nonnull;
+
+//import com.google.android.gms.security.ProviderInstaller;
+//import com.google.android.gms.common.GooglePlayServicesRepairableException;
+//import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+//import com.google.android.gms.common.GooglePlayServicesUtil;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -116,6 +128,17 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        try {
+            ProviderInstaller.installIfNeeded(this);
+        } catch (GooglePlayServicesRepairableException e) {
+            e.printStackTrace();
+            GooglePlayServicesUtil.showErrorNotification(
+          e.getConnectionStatusCode(), this);
+        } catch (GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        }
 
         //Update network authentication status
         NetworkChangeRegistry.getInstance(getBaseContext()).update(getApplicationContext());
@@ -168,10 +191,13 @@ public class MainActivity extends ActionBarActivity {
             session = new AgatteSession(server, login, password);
             pref_listener = new AgattePreferenceListener(session);
             preferences.registerOnSharedPreferenceChangeListener(pref_listener);
-        } catch (URISyntaxException e) {
+        } catch (URISyntaxException|MalformedURLException e) {
             Log.w(MainActivity.LOG_TAG, "Server address is not a valid URI", e);//NON-NLS
         } catch (UnsupportedEncodingException e) {
             Log.w(MainActivity.LOG_TAG, "Unsupported encoding in server address, login or password", e);//NON-NLS
+        } catch (NoSuchAlgorithmException|KeyManagementException e) {
+            e.printStackTrace();
+            //TODO log
         }
     }
 
@@ -254,6 +280,20 @@ public class MainActivity extends ActionBarActivity {
         }
         return true;
     }
+
+/*
+    private void updateAndroidSecurityProvider(Activity callingActivity) {
+        try {
+            ProviderInstaller.installIfNeeded(this);
+        } catch (GooglePlayServicesRepairableException e) {
+            // Thrown when Google Play Services is not installed, up-to-date, or enabled
+            // Show dialog to allow users to install, update, or otherwise enable Google Play services.
+            GooglePlayServicesUtil.getErrorDialog(e.getConnectionStatusCode(), callingActivity, 0);
+        } catch (GooglePlayServicesNotAvailableException e) {
+            Log.e("SecurityException", "Google Play Services not available.");
+        }
+    }
+*/
 
 
     /**
@@ -624,7 +664,7 @@ public class MainActivity extends ActionBarActivity {
                 String value = sharedPreferences.getString(s, SERVER_DEFAULT);
                 try {
                     session.setServer(value);
-                } catch (URISyntaxException e) {
+                } catch (URISyntaxException|MalformedURLException e) {
                     Log.w(MainActivity.LOG_TAG, "Server address is not a valid URI", e);//NON-NLS
                 }
                 return;
@@ -633,7 +673,7 @@ public class MainActivity extends ActionBarActivity {
                 String value = sharedPreferences.getString(s, LOGIN_DEFAULT);
                 try {
                     session.setUser(value);
-                } catch (UnsupportedEncodingException e) {
+                } catch (UnsupportedEncodingException|MalformedURLException e) {
                     Log.w(MainActivity.LOG_TAG, "Unsupported encoding in login", e);//NON-NLS
                 }
                 return;

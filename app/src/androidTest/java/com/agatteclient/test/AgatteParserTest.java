@@ -21,19 +21,12 @@ package com.agatteclient.test;
 
 import android.test.AndroidTestCase;
 
-import com.agatteclient.agatte.AgatteException;
 import com.agatteclient.agatte.AgatteNetworkNotAuthorizedException;
 import com.agatteclient.agatte.AgatteParser;
 import com.agatteclient.agatte.AgatteResponse;
 import com.agatteclient.agatte.AgatteSecret;
 import com.agatteclient.agatte.CounterPage;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolVersion;
-import org.apache.http.entity.BasicHttpEntity;
-import org.apache.http.message.BasicHttpResponse;
-
-import java.io.ByteArrayInputStream;
 
 
 @SuppressWarnings({"HardcodedLineSeparator", "HardCodedStringLiteral"})
@@ -1501,12 +1494,8 @@ public class AgatteParserTest extends AndroidTestCase {
 
     public void testParseSecret() throws Exception {
         AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_secret .getBytes()));
-        test.setEntity(test_entity);
 
-        AgatteSecret rsp = instance.parse_secrets_from_query_response(test);
+        AgatteSecret rsp = instance.parse_secrets_from_query_response(response_secret);
         assertEquals(rsp.getUrl(), "../app/moved.htm");
         assertEquals(rsp.getHeader_key(), "221b27b42fa354a02a2c8aa8c4b82852");
         assertEquals(rsp.getSecret(),"MjliN2E3NGQzOTNmOGFiNDgzMGJmZDQwODUxNWVlOTg=");
@@ -1515,12 +1504,8 @@ public class AgatteParserTest extends AndroidTestCase {
 
     public void testParseResponse() throws Exception {
         AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_test1.getBytes()));
-        test.setEntity(test_entity);
 
-        AgatteResponse rsp = instance.parse_query_response(test);
+        AgatteResponse rsp = instance.parse_query_response(response_test1);
         assertTrue(rsp.hasPunches());
         String[] actual = rsp.getPunches();
         assertEquals(2, actual.length);
@@ -1531,11 +1516,8 @@ public class AgatteParserTest extends AndroidTestCase {
 
     public void testParseResponse2() throws Exception {
         AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_test2.getBytes()));
-        test.setEntity(test_entity);
-        AgatteResponse rsp = instance.parse_query_response(test);
+
+        AgatteResponse rsp = instance.parse_query_response(response_test2);
         assertTrue(rsp.hasPunches());
         String[] actual = rsp.getPunches();
         assertEquals(3, actual.length);
@@ -1547,12 +1529,9 @@ public class AgatteParserTest extends AndroidTestCase {
 
     public void testParseResponse3() throws Exception {
         AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_test3.getBytes()));
-        test.setEntity(test_entity);
+
         try {
-            instance.parse_query_response(test);
+            instance.parse_query_response(response_test3);
             fail("Should have thrown AgatteNetworkNotAuthorizedException");
         } catch (AgatteNetworkNotAuthorizedException ignored) {
             //succeed
@@ -1561,11 +1540,8 @@ public class AgatteParserTest extends AndroidTestCase {
 
     public void testParseResponse6() throws Exception {
         AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_test5.getBytes()));
-        test.setEntity(test_entity);
-        AgatteResponse rsp = instance.parse_query_response(test);
+
+        AgatteResponse rsp = instance.parse_query_response(response_test5);
         assertTrue(rsp.hasPunches());
         assertTrue(rsp.hasVirtualPunches());
         assertEquals(2, rsp.getVirtualPunches().length);
@@ -1579,11 +1555,8 @@ public class AgatteParserTest extends AndroidTestCase {
 
     public void testParseCounterResponse1() throws Exception {
         AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_counter1.getBytes()));
-        test.setEntity(test_entity);
-        CounterPage rsp = instance.parse_counter_response(test);
+
+        CounterPage rsp = instance.parse_counter_response(response_counter1);
         assertTrue(rsp.anomaly);
         assertEquals(2013, rsp.contract_year);
         assertEquals(10259, rsp.contract);
@@ -1592,11 +1565,8 @@ public class AgatteParserTest extends AndroidTestCase {
 
     public void testParseCounterResponse2() throws Exception {
         AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_counter2.getBytes()));
-        test.setEntity(test_entity);
-        CounterPage rsp = instance.parse_counter_response(test);
+
+        CounterPage rsp = instance.parse_counter_response(response_counter2);
         assertFalse(rsp.anomaly);
         assertEquals(2013, rsp.contract_year);
         assertEquals(10259, rsp.contract);
@@ -1605,11 +1575,8 @@ public class AgatteParserTest extends AndroidTestCase {
 
     public void testParseCounterResponse3() throws Exception {
         AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_counter3.getBytes()));
-        test.setEntity(test_entity);
-        CounterPage rsp = instance.parse_counter_response(test);
+
+        CounterPage rsp = instance.parse_counter_response(response_counter3);
         assertFalse(rsp.anomaly);
         assertEquals(2013, rsp.contract_year);
         assertEquals(10259, rsp.contract);
@@ -1618,11 +1585,8 @@ public class AgatteParserTest extends AndroidTestCase {
 
     public void testParseCounterResponse4() throws Exception {
         AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_counter4.getBytes()));
-        test.setEntity(test_entity);
-        CounterPage rsp = instance.parse_counter_response(test);
+
+        CounterPage rsp = instance.parse_counter_response(response_counter4);
         assertFalse(rsp.anomaly);
         assertEquals(2013, rsp.contract_year);
         assertEquals(10259, rsp.contract);
@@ -1631,11 +1595,8 @@ public class AgatteParserTest extends AndroidTestCase {
 
     public void testParseCounterResponse5() throws Exception {
         AgatteParser instance = AgatteParser.getInstance();
-        HttpResponse test = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
-        BasicHttpEntity test_entity = new BasicHttpEntity();
-        test_entity.setContent(new ByteArrayInputStream(response_counter5.getBytes()));
-        test.setEntity(test_entity);
-        CounterPage rsp = instance.parse_counter_response(test);
+
+        CounterPage rsp = instance.parse_counter_response(response_counter5);
         assertFalse(rsp.anomaly);
         assertEquals(2013, rsp.contract_year);
         assertEquals(10259, rsp.contract);

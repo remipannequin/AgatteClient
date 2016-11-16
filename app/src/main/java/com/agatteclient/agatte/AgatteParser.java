@@ -21,8 +21,6 @@ package com.agatteclient.agatte;
 
 import android.util.Base64;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.xml.sax.InputSource;
 
 import java.io.BufferedReader;
@@ -67,21 +65,6 @@ public class AgatteParser {
 
     public static AgatteParser getInstance() {
         return ourInstance;
-    }
-
-
-    private String entityToString(HttpResponse response) throws IOException {
-        InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
-        BufferedReader rd = new BufferedReader(reader);
-        StringBuilder result = new StringBuilder();
-        String line;
-        while ((line = rd.readLine()) != null) {
-            result.append(line.replace("[\\n\\r\\t]", " "));
-            if (line.contains("</")) {
-                result.append(System.getProperty("line.separator"));
-            }
-        }
-        return result.toString();
     }
 
 
@@ -234,13 +217,7 @@ public class AgatteParser {
     }
 
 
-    public AgatteSecret parse_secrets_from_query_response(HttpResponse response) throws IOException, AgatteException {
-        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            throw new AgatteException(response.getStatusLine().getReasonPhrase());
-        }
-
-        //get response as a string
-        String result = entityToString(response);
+    public AgatteSecret parse_secrets_from_query_response(String result) throws IOException, AgatteException {
         //search for Unauthorized network
         if (searchNetworkNotAuthorized(result)) {
             throw new AgatteNetworkNotAuthorizedException();
@@ -255,14 +232,8 @@ public class AgatteParser {
     }
 
 
-    public AgatteResponse parse_query_response(HttpResponse response) throws IOException, AgatteException {
+    public AgatteResponse parse_query_response(String result) throws IOException, AgatteException {
 
-        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            throw new AgatteException(response.getStatusLine().getReasonPhrase());
-        }
-
-        //get response as a string
-        String result = entityToString(response);
         //search for Unauthorized network
         if (searchNetworkNotAuthorized(result)) {
             throw new AgatteNetworkNotAuthorizedException();
@@ -280,12 +251,7 @@ public class AgatteParser {
     }
 
 
-    public CounterPage parse_counter_response(HttpResponse response) throws IOException, AgatteException {
-        int code = response.getStatusLine().getStatusCode();
-        if (code != HttpStatus.SC_OK) {
-            throw new AgatteException(response.getStatusLine().getReasonPhrase());
-        }
-        String result = entityToString(response);
+    public CounterPage parse_counter_response(String result) throws IOException, AgatteException {
         boolean ano = searchForCounterUnavailable(result);
         int year = searchForYearContract(result);
         int counter = searchForNumContract(result);
