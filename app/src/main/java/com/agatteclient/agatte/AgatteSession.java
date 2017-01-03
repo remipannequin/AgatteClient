@@ -68,11 +68,11 @@ public class AgatteSession {
     private static final String AUTH_DIR = "/j_acegi_security_check";
     private static final String PUNCH_DIR = "/top/location.href";
     private static final String QUERY_DIR = "/";
-    private static final String WEEK_COUNTER_DIR = "/top/feuille-top.form";
+    private static final String WEEK_COUNTER_DIR = "/top/feuille-top.form?numMen=3";
     private static final String USER = "j_username";
     private static final String PASSWORD = "j_password";
-    private static final String COUNTER_CONTRACT_NUMBER = "numCtp";
-    private static final String COUNTER_CONTRACT_YEAR = "codeAnu";
+    private static final String COUNTER_CONTRACT_NUMBER = "numCont";
+    private static final String COUNTER_CONTRACT_YEAR = "codAnu";
     private static final String COUNTER_WEEK = "numSem";
     private static final String COUNTER_TYPE = "nivCpt";
     //private static final String AGENT = "Mozilla/5.0 (Linux; U; Android 2.2; en-us; Nexus One Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
@@ -457,10 +457,11 @@ public class AgatteSession {
             }
         }
         HttpsURLConnection query_connection = (HttpsURLConnection) query_week_counter_url.openConnection();
-        query_connection.setInstanceFollowRedirects(false);
+        query_connection.setInstanceFollowRedirects(false);//so that redirection to main page (on error) fail
         query_connection.setRequestMethod("POST");
         query_connection.setDoInput(true);
         query_connection.setDoOutput(true);
+        query_connection.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
         // Create post request
         Uri.Builder builder = new Uri.Builder()
