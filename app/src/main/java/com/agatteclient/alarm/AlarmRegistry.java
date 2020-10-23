@@ -21,27 +21,29 @@ package com.agatteclient.alarm;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import com.agatteclient.MainActivity;
+import com.agatteclient.alarm.db.AlarmContract;
+import com.agatteclient.alarm.db.AlarmDbHelper;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
 
 /**
  * This service has a map of pending intents corresponding to to all the scheduled alarms in the
  * system.
  * <p/>
- * When started, it gets a list of requested alarms from the AlarmList singleton, compare it with
+ * When started, it gets a list of requested alarms from the Alarms singleton, compare it with
  * it set of scheduled alarms, and add/remove/modify any if needed (using the system's AlamrService)
  * <p/>
  * Created by Rémi Pannequin on 18/04/14.
@@ -52,23 +54,22 @@ public class AlarmRegistry {
     public static final String ALARM_ID = "alarm-id";//NON-NLS
     private static AlarmRegistry ourInstance;
 
-    //Manage a collection of alarm, with their fingerprint
-    private final Map<PunchAlarmTime, ScheduledAlarm> pending_intent_map;
-    // Map of alarms reported to have been done, number of day in year is the key
-    private final Multimap<Integer, RecordedAlarm> done_history;
-    private final Multimap<Integer, RecordedAlarm> failed_history;
+    private SQLiteDatabase db;
 
-    private AlarmRegistry() {
-        this.pending_intent_map = new HashMap<PunchAlarmTime, ScheduledAlarm>();
-        this.done_history = ArrayListMultimap.create();
-        this.failed_history = ArrayListMultimap.create();
-    }
 
     public static AlarmRegistry getInstance() {
         if (ourInstance == null) {
             ourInstance = new AlarmRegistry();
         }
         return ourInstance;
+    }
+
+    private SQLiteDatabase getDb(Context context) {
+        if (db == null || !db.isOpen()) {
+            AlarmDbHelper db_helper = new AlarmDbHelper(context);
+            db = db_helper.getWritableDatabase();
+        }
+        return db;
     }
 
     public static void reset() {
@@ -78,228 +79,525 @@ public class AlarmRegistry {
     /**
      * Cancel and remove all scheduled alarms
      *
-     * @param context the context to use
+     * @param context
      */
     public void cancelAll(Context context) {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        for (ScheduledAlarm a : pending_intent_map.values()) {
-            alarmManager.cancel(a.intent);
-        }
-        pending_intent_map.clear();
-    }
-
-    public Map<PunchAlarmTime, ScheduledAlarm> getPending_intent_map() {
-        return pending_intent_map;
-    }
-
-    public long getFingerPrint(PunchAlarmTime a) {
-        return pending_intent_map.get(a).finger_print;
-    }
-
-    public long getTime(PunchAlarmTime a) {
-        return pending_intent_map.get(a).time;
-    }
-
-    /**
-     * @param context the context to use, usually the main application context
-     */
-    public void update(Context context) {
-        AlarmList alist = AlarmList.getInstance(context);
-
-        //Cancel alarms that are not in the binder any more
-        List<PunchAlarmTime> to_remove = new ArrayList<PunchAlarmTime>(pending_intent_map.size());
-        for (PunchAlarmTime a : pending_intent_map.keySet()) {
-            if (!alist.contains(a)) {
-                to_remove.add(a);
-            }
-        }
-        for (PunchAlarmTime a : to_remove) {
-            cancelAlarm(context, a);
+        SQLiteDatabase db = getDb(context);
+        String[] col = {AlarmContract.ScheduledAlarm._ID};
+        Cursor c = db.query(
+                AlarmContract.ScheduledAlarm.TABLE_NAME,
+                col,
+                null, null,
+                null, null,
+                null
+        );
+        List<Integer> ids = new ArrayList<Integer>();
+        while (c.moveToNext()) {
+            ids.add(c.getInt(0));
         }
 
-        //Add alarms that are new, update the other ones
-        for (PunchAlarmTime a : alist) {
-            if (!pending_intent_map.containsKey(a)) {
-                addAlarm(context, a);
-            } else {
-                updateAlarm(context, a);
-            }
+        for (int i : ids) {
+            unschedule(context, String.valueOf(i));
         }
     }
 
     /**
-     * Add an Alarm to the Registry :  schedule it, if applicable (i.e. enabled)
-     * @param context the context to use, usually the main application context
-     * @param alarm the alarm to add
-     */
-    private void addAlarm(Context context, PunchAlarmTime alarm) {
-        // Check if alarm does actually fire
-        long now = System.currentTimeMillis();
-        long time = alarm.nextAlarm(now);
-        if (time >= 0) {
-            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            Intent i = new Intent(context, AlarmReceiver.class);
-            i.putExtra(ALARM_TYPE, alarm.getType().ordinal());
-            int fingerPrint = alarm.shortFingerPrint();
-            AlarmList alist = AlarmList.getInstance(context);
-            i.putExtra(ALARM_ID, alarm.hashCode());
-            PendingIntent pi = PendingIntent.getBroadcast(context, fingerPrint, i, PendingIntent.FLAG_ONE_SHOT);
-            ScheduledAlarm o = new ScheduledAlarm(pi, fingerPrint, time);
-            pending_intent_map.put(alarm, o);
-            am.set(AlarmManager.RTC_WAKEUP, time, pi);
-        }
-    }
-
-    /**
-     * Remove an alarm from the registry : unschedule it
-     * @param context the context to use, usually the main application context
-     * @param alarm the alarm to cancel
-     */
-    private void cancelAlarm(Context context, PunchAlarmTime alarm) {
-        PendingIntent sender = pending_intent_map.get(alarm).intent;
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.cancel(sender);
-        pending_intent_map.remove(alarm);
-    }
-
-    /**
-     * Update an alarm : cancel, change scheduled time, or do nothing
-     * @param context the context to use, usually the main application context
-     * @param alarm the alarm to update
-     */
-    private void updateAlarm(Context context, PunchAlarmTime alarm) {
-        PendingIntent sender = pending_intent_map.get(alarm).intent;
-        long now = System.currentTimeMillis();
-        int fingerprint = pending_intent_map.get(alarm).finger_print;
-        //check if alarm time has changed by comparing its current fingerprint with the stored one
-        //If alarm is in the past, update time. If alarm is not enabled any more, check it (cancel)
-        if (alarm.shortFingerPrint() != fingerprint || pending_intent_map.get(alarm).time < now || !alarm.isEnabled()) {
-            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            long time = alarm.nextAlarm(now);
-            if (time >= 0) {
-                Intent i = new Intent(context, AlarmReceiver.class);
-                i.putExtra(ALARM_TYPE, alarm.getType().ordinal());
-                AlarmList alist = AlarmList.getInstance(context);
-                i.putExtra(ALARM_ID, alarm.hashCode());
-                //using the same request code, the previous alarm is replaced
-                PendingIntent pi = PendingIntent.getBroadcast(context, fingerprint, i, PendingIntent.FLAG_ONE_SHOT);
-                pending_intent_map.put(alarm, new ScheduledAlarm(pi, fingerprint, time));
-                am.set(AlarmManager.RTC_WAKEUP, time, pi);
-            } else {
-                //must cancel
-                am.cancel(sender);
-                pending_intent_map.remove(alarm);
-            }
-        }
-    }
-
-    /**
-     * Return the list of scheduled alarm for this day
+     * reschedule every alarms in the past
      *
-     * @param now the day to consider
-     * @return An iterable of Alarms
+     * @param context
      */
-    public Iterable<PunchAlarmTime> getScheduledAlarms(Date now) {
-        LinkedList<PunchAlarmTime> result = new LinkedList<PunchAlarmTime>();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(now);
-        int day = cal.get(Calendar.DAY_OF_YEAR);
-        for (Map.Entry<PunchAlarmTime, ScheduledAlarm> entry : pending_intent_map.entrySet()) {
-            ScheduledAlarm al = entry.getValue();
-            Date d = new Date(al.time);
-            //check if same day
-            cal.setTime(d);
-            if (cal.get(Calendar.DAY_OF_YEAR) == day) {
+    public void check(Context context) {
+        // Cancel all alarms
+        cancelAll(context);
 
-                result.add(entry.getKey());
-            }
+        // Reschedule all alarms
+        for (PunchAlarmTime a : getAlarms(context)) {
+            reschedule(context, a);
         }
+    }
+
+    public List<PunchAlarmTime> getAlarms(Context context) {
+        SQLiteDatabase db = getDb(context);
+        Cursor c = db.query(
+                AlarmContract.Alarm.TABLE_NAME,
+                AlarmDbHelper.ALARM_QUERY_COLUMNS,
+                null, null,
+                null, null,
+                null);
+        ArrayList<PunchAlarmTime> result = new ArrayList<PunchAlarmTime>(c.getCount());
+        while (c.moveToNext()) {
+            result.add(new PunchAlarmTime(c));
+        }
+        c.close();
         return result;
     }
 
     /**
-     * Return the list of done alarm for this day
-     *
-     * @param now the day to consider
-     * @return the list of done alarms for the day
+     * @param context
+     * @param alarm
      */
-    public Iterable<RecordedAlarm> getDoneAlarms(Date now) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(now);
-        int day = cal.get(Calendar.DAY_OF_YEAR);
-        return done_history.get(day);
+    private void schedule(Context context, PunchAlarmTime alarm) {
+
+        // Check if alarm does actually fire
+        long now = System.currentTimeMillis();
+        long time = alarm.nextAlarm(now);
+        if (time >= 0) {
+            SQLiteDatabase db = getDb(context);
+            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            Intent i = new Intent(context, AlarmReceiver.class);
+
+
+            // Insert in DB
+            ContentValues values = new ContentValues(2);
+            values.put(AlarmContract.ScheduledAlarm.ALARM_ID, alarm.getId());
+            values.put(AlarmContract.ScheduledAlarm.TIME, time);
+            long requestId = db.insert(AlarmContract.ScheduledAlarm.TABLE_NAME, null, values);
+            i.putExtra(ALARM_ID, (int)requestId);
+            PendingIntent pi = PendingIntent.getBroadcast(context, (int) requestId, i, PendingIntent.FLAG_ONE_SHOT);
+            am.set(AlarmManager.RTC_WAKEUP, time, pi);
+        }
+    }
+
+    private void schedule(Context context, long alarmId) {
+        PunchAlarmTime a = getAlarm(context, alarmId);
+        schedule(context, a);
+    }
+
+
+    private void unschedule(Context context, PunchAlarmTime alarm) {
+        unschedule(context, String.valueOf(alarm.getId()));
+    }
+
+
+    /**
+     * Remove Alarm with corresponding ID from the AlarmManager and from the Scheduled DB table.
+     * If alarm is not scheduled, do nothing.
+     *
+     * @param context
+     * @param alarm_id
+     */
+    private void unschedule(Context context, String alarm_id) {
+
+        SQLiteDatabase db = getDb(context);
+        boolean is_scheduled = false;
+        // First get corresponding requestID
+        String[] selectionArgs = {alarm_id};
+        Cursor cursor = db.query(
+                AlarmContract.ScheduledAlarm.TABLE_NAME,
+                AlarmDbHelper.SCHEDULED_QUERY_COLUMNS,
+                AlarmDbHelper.SCHEDULED_ID_SELECTION,
+                selectionArgs,
+                null, null, null);
+        while (cursor.moveToNext()) {
+            is_scheduled = true;
+            long time = cursor.getLong(1);
+            int request_id = cursor.getInt(0);
+            Intent i = new Intent(context, AlarmReceiver.class);
+            PendingIntent sender = PendingIntent.getBroadcast(context, request_id, i, PendingIntent.FLAG_ONE_SHOT);
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            alarmManager.cancel(sender);
+        }
+        // Delete from DB (if there is anything to delete)
+        if (is_scheduled) {
+            db.delete(
+                    AlarmContract.ScheduledAlarm.TABLE_NAME,
+                    AlarmDbHelper.SCHEDULED_ID_SELECTION,
+                    selectionArgs);
+        }
+        cursor.close();
     }
 
     /**
-     * Return the list of failed alarm for this day
+     * Verify that the alarm passed in parameter is correctly scheduled:
+     * <p/>
+     * cases:
+     * 1. alarm is not enabled : un-schedule it (no changes if not scheduled)
+     * 2. alarm is enabled
+     * 2.1. There is no entry in the DB : schedule it.
+     * 2.2. there is an entry in the DB : check time, update if needed
+     *
+     * @param context
+     * @param alarm
+     */
+    private void reschedule(Context context, PunchAlarmTime alarm) {
+
+        if (!alarm.isEnabled()) {
+            unschedule(context, alarm);
+            return;
+        }
+
+        SQLiteDatabase db = getDb(context);
+
+        // Query DB to check if an alarm has been scheduled
+        String a_id = String.valueOf(alarm.getId());
+        String[] selectionArgs = {a_id};
+        String sort = AlarmContract.ScheduledAlarm.TIME + " DESC";//NON-NLS
+        Cursor cursor = db.query(
+                AlarmContract.ScheduledAlarm.TABLE_NAME,
+                AlarmDbHelper.SCHEDULED_QUERY_COLUMNS,
+                AlarmDbHelper.SCHEDULED_ID_SELECTION,
+                selectionArgs,
+                null, null,
+                sort);
+
+        //first entry is oldest date
+        if (!cursor.moveToNext()) {
+            //No entry in DB : call schedule !
+            schedule(context, alarm);
+            cursor.close();
+            return;
+        }
+
+        long now = System.currentTimeMillis();
+        long scheduled_time = cursor.getLong(1);
+        long time = alarm.nextAlarm(now);
+        int request_id = cursor.getInt(0);
+        //check time
+        if (time != scheduled_time) {
+            Intent i = new Intent(context, AlarmReceiver.class);
+
+            i.putExtra(ALARM_ID, request_id);
+            PendingIntent pi = PendingIntent.getBroadcast(context, request_id, i, PendingIntent.FLAG_ONE_SHOT);
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+            // Reschedule alarm
+            alarmManager.set(AlarmManager.RTC_WAKEUP, time, pi);
+            ContentValues values = new ContentValues(1);
+            values.put(AlarmContract.ScheduledAlarm.TIME, time);
+            db.update(
+                    AlarmContract.ScheduledAlarm.TABLE_NAME,
+                    values,
+                    AlarmContract.ScheduledAlarm._ID + "=" + request_id,
+                    null);
+        } //else : nothing to update...
+
+        // Remove all other entries, if any
+        if (!cursor.isLast()) {
+            String where = AlarmContract.ScheduledAlarm.ALARM_ID + "=? AND NOT " + AlarmContract.ScheduledAlarm._ID + "=?";//NON-NLS
+            String[] whereArgs = {a_id, String.valueOf(request_id)};
+            db.delete(
+                    AlarmContract.ScheduledAlarm.TABLE_NAME,
+                    where,
+                    whereArgs);
+        }
+        cursor.close();
+    }
+
+
+    /**
+     * Return the list of alarms for this day : both scheduled, successfully done and failed
      *
      * @param now the day to consider
-     * @return the list of failed alarm for the day
+     * @return
      */
-    public Iterable<RecordedAlarm> getFailedAlarms(Date now) {
+    public Iterable<RecordedAlarm> getRecordedAlarms(Context context, Date now) {
+        LinkedList<RecordedAlarm> result = new LinkedList<RecordedAlarm>();
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);
         int day = cal.get(Calendar.DAY_OF_YEAR);
-        return failed_history.get(day);
+        int year = cal.get(Calendar.YEAR);
+
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        long d_begin = cal.getTimeInMillis();
+
+        cal.set(Calendar.HOUR_OF_DAY, 23);
+        cal.set(Calendar.MINUTE, 59);
+        cal.set(Calendar.SECOND, 59);
+        cal.set(Calendar.MILLISECOND, 999);
+        long d_end = cal.getTimeInMillis();
+        // Query DB with appropriate where clause
+        SQLiteDatabase db = getDb(context);
+
+        String[] whereArgs = {String.valueOf(d_begin), String.valueOf(d_end)};
+        Cursor cursor = db.rawQuery(
+                AlarmDbHelper.SQL_QUERY_SCHEDULED_ALARM,
+                whereArgs);
+        while (cursor.moveToNext()) {
+            RecordedAlarm r = new ScheduledAlarm(cursor);
+            result.add(r);
+        }
+        cursor.close();
+
+        String[] selectionArgs = {String.valueOf(day), String.valueOf(year)};
+        Cursor cursor2 = db.rawQuery(AlarmDbHelper.SQL_QUERY_PAST_ALARM, selectionArgs);
+        while (cursor2.moveToNext()) {
+            RecordedAlarm r = new PastAlarm(cursor2);
+            result.add(r);
+        }
+        cursor2.close();
+        return result;
     }
+
+
+    /**
+     * Report an alarm to have correctly been done, this current day, ANd re-schedule it.
+     *
+     * @param id the ID of the Alarm to set as done
+     */
+    private void setDone(Context context, long id, AlarmContract.ExecStatus status) {
+        Calendar cal = Calendar.getInstance();
+        //compute exec. date
+        PunchAlarmTime a = getAlarm(context, id);
+        Date off = a.getTime();
+        //RecordedAlarm rec = new RecordedAlarm(off, a.getConstraint());
+        cal.setTime(off);
+        int d = cal.get(Calendar.DAY_OF_YEAR);
+        int y = cal.get(Calendar.YEAR);
+        int t = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
+        // Insert in past alarm table
+
+        SQLiteDatabase db = getDb(context);
+        ContentValues values = new ContentValues(6);
+        values.put(AlarmContract.PastAlarm.REQUESTED_TIME, a.getTimeOfDay());
+        values.put(AlarmContract.PastAlarm.CONSTRAINT, a.getConstraint().ordinal());
+        values.put(AlarmContract.PastAlarm.EXEC_YEAR, y);
+        values.put(AlarmContract.PastAlarm.EXEC_DAY_OF_YEAR, d);
+        values.put(AlarmContract.PastAlarm.EXEC_TIME, t);
+        values.put(AlarmContract.PastAlarm.EXEC_STATUS, status.ordinal());
+        db.insert(AlarmContract.PastAlarm.TABLE_NAME, null, values);
+        // reschedule
+        reschedule(context, a);
+    }
+
 
     /**
      * Report an alarm to have correctly been done, this current day
      *
-     * @param a the alarm to set as done
+     * @param id the ID of the Alarm to set as done
      */
-    public void setDone(PunchAlarmTime a) {
-        Calendar cal = Calendar.getInstance();
-        // Fix bug, possible NPE when querying counter is impossible
-        if (a == null) {
-            return;
-        }
-        //compute exec. date
-        Date off = a.getTime();
-        RecordedAlarm rec = new RecordedAlarm(off, a.getType());
-        cal.setTime(off);
-        done_history.put(cal.get(Calendar.DAY_OF_YEAR), rec);
+    public void setSucessfull(Context context, long id) {
+        setDone(context, id, AlarmContract.ExecStatus.SUCCESS);
     }
+
 
     /**
      * Report an alarm to have failed, this current day
      *
-     * @param a the alarm to set as failed
+     * @param id the ID of the Alarm to set as done
      */
-    public void setFailed(@Nonnull PunchAlarmTime a) {
-        Calendar cal = Calendar.getInstance();
-        //compute exec. date
-        Date off = a.getTime();
-        RecordedAlarm rec = new RecordedAlarm(off, a.getType());
-        cal.setTime(off);
-        failed_history.put(cal.get(Calendar.DAY_OF_YEAR), rec);
+    public void setFailed(Context context, long id) {
+        setDone(context, id, AlarmContract.ExecStatus.FAILURE);
     }
 
 
+    /**
+     * Create a new alarm, and add it to the database
+     *
+     * @param context
+     * @param h
+     * @param m
+     * @return the ID of the alarm added
+     */
+    public long addAlarm(Context context, int h, int m) {
+        ContentValues values = new ContentValues();
+        values.put(AlarmContract.Alarm.HOUR, h);
+        values.put(AlarmContract.Alarm.MINUTE, m);
+        values.put(AlarmContract.Alarm.DAYS_OF_WEEK, 31);//five first days of week
+        values.put(AlarmContract.Alarm.ENABLED, 0);
+
+        SQLiteDatabase db = getDb(context);
+        long rowId = db.insert(AlarmContract.Alarm.TABLE_NAME, null, values);
+        if (rowId < 0) {
+            throw new SQLException("Failed to insert row DB ");
+        }
+        Log.v(MainActivity.LOG_TAG, "Added alarm rowId = " + rowId);//NON-NLS
+        return rowId;
+    }
 
 
+    /**
+     * Lookup alarm with given ID in the database.
+     *
+     * @param context
+     * @param alarmId the ID of the alarm to search
+     * @return a PunchAlarmTime if found, null of no alarm with ID exists
+     */
+    public PunchAlarmTime getAlarm(Context context, long alarmId) {
+        SQLiteDatabase db = getDb(context);
+        String[] projection = AlarmDbHelper.ALARM_QUERY_COLUMNS;
+        String sort = AlarmContract.Alarm.DEFAULT_SORT_ORDER;
+        String selection = AlarmContract.Alarm._ID + "=?";
+        String[] selectionArgs = {String.valueOf(alarmId)};
+        Cursor cursor = db.query(
+                AlarmContract.Alarm.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sort);
+        PunchAlarmTime alarm = null;
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                alarm = new PunchAlarmTime(cursor);
+            }
+            cursor.close();
+        }
+        return alarm;
+    }
 
 
-    //public for debugging purposes
-    public class ScheduledAlarm {
-        public PendingIntent intent;
-        public int finger_print;//This is also used as request code
-        public long time;
+    //TODO: who will close this DB ??
+    public Cursor getAlarmsCursor(Context context) {
+        SQLiteDatabase db = getDb(context);
+        String[] projection = AlarmDbHelper.ALARM_QUERY_COLUMNS;
+        String sort = AlarmContract.Alarm.DEFAULT_SORT_ORDER;
+        String selection = null;
+        String[] selectionArgs = {};
+        return db.query(
+                AlarmContract.Alarm.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sort);
+    }
 
-        ScheduledAlarm(PendingIntent intent, int finger_print, long time) {
-            this.intent = intent;
-            this.finger_print = finger_print;
-            this.time = time;
+
+    /**
+     * Unschedule and then remove alarm identified by alarmId
+     *
+     * @param context
+     * @param alarmId
+     */
+    public void remove(Context context, long alarmId) {
+        unschedule(context, String.valueOf(alarmId));
+        SQLiteDatabase db = getDb(context);
+        String selection = AlarmContract.Alarm._ID + "=?";
+        String[] selectionArgs = {String.valueOf(alarmId)};
+        db.delete(AlarmContract.Alarm.TABLE_NAME, selection, selectionArgs);
+    }
+
+
+    private void setAttribute(Context context, long id, ContentValues values) {
+        SQLiteDatabase db = getDb(context);
+        String where = AlarmContract.Alarm._ID + "=?";
+        String[] whereArgs = {String.valueOf(id)};
+        db.update(AlarmContract.Alarm.TABLE_NAME, values, where, whereArgs);
+    }
+
+
+    /**
+     * Enable/disable this alarm, schedule it accordingly
+     *
+     * @param context
+     * @param id
+     * @param b
+     */
+    public void setEnabled(Context context, long id, boolean b) {
+        ContentValues values = new ContentValues(1);
+        values.put(AlarmContract.Alarm.ENABLED, (b ? "1" : "0"));
+        setAttribute(context, id, values);
+        if (b) {
+            schedule(context, id);
+        } else {
+            unschedule(context, String.valueOf(id));
         }
     }
 
-    public class RecordedAlarm {
-        public Date date_executed;
-        public PunchAlarmTime.Type type;
 
-        public RecordedAlarm(Date date_executed, PunchAlarmTime.Type type) {
-            this.date_executed = date_executed;
-            this.type = type;
+    public void setDayOfWeek(Context context, long id, AlarmContract.Day d, boolean b) {
+        PunchAlarmTime a = getAlarm(context, id);
+        int dow = a.getDaysOfWeek();
+        if (b) {
+            dow = AlarmContract.Day.set(dow, d);
+        } else {
+            dow = AlarmContract.Day.unset(dow, d);
+        }
+        ContentValues values = new ContentValues(1);
+        values.put(AlarmContract.Alarm.DAYS_OF_WEEK, String.valueOf(dow));
+        setAttribute(context, id, values);
+        reschedule(context, a);
+    }
+
+
+    public void setConstraint(Context context, long id, AlarmContract.Constraint constraint) {
+        ContentValues values = new ContentValues(1);
+        values.put(AlarmContract.Alarm.CONSTRAINT, String.valueOf(constraint.ordinal()));
+        setAttribute(context, id, values);
+    }
+
+
+    public void setTime(Context context, long id, int hour, int minute) {
+        PunchAlarmTime a = getAlarm(context, id);
+        ContentValues values = new ContentValues(2);
+        values.put(AlarmContract.Alarm.HOUR, String.valueOf(hour));
+        values.put(AlarmContract.Alarm.MINUTE, String.valueOf(minute));
+        setAttribute(context, id, values);
+        reschedule(context, a);
+    }
+
+    /**
+     * Search the Alarm DB to get the corresponding Alarm ID (positive long)
+     * If no such data is found, return -1
+     *
+     * @param context
+     * @param schedule_id
+     * @return
+     */
+    public RecordedAlarm getIdFromSchedule(Context context, long schedule_id) {
+        SQLiteDatabase db = getDb(context);
+        String[] whereArgs = {String.valueOf(schedule_id)};
+        Cursor cursor = db.rawQuery(
+                AlarmDbHelper.SQL_QUERY_SCHEDULED_ALARM_BY_ID,
+                whereArgs);
+        if (cursor.moveToNext()) {
+            RecordedAlarm r = new ScheduledAlarm(cursor);
+            cursor.close();
+            return r;
+        }
+        return null;
+    }
+
+
+    public abstract class RecordedAlarm {
+
+        public long alarm_id;
+        public Date date;
+        public AlarmContract.Constraint constraint;
+        public AlarmContract.ExecStatus status;
+
+    }
+
+
+    private class PastAlarm extends RecordedAlarm {
+
+        PastAlarm(Cursor c) {
+            Calendar cal = Calendar.getInstance();
+
+            int t = c.getInt(2);
+            int h = t / 60;
+            int m = t - (h * 60);
+            int d = c.getInt(3);
+            int y = c.getInt(4);
+            cal.set(Calendar.YEAR, y);
+            cal.set(Calendar.DAY_OF_YEAR, d);
+            cal.set(Calendar.HOUR_OF_DAY, h);
+            cal.set(Calendar.MINUTE, m);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+            this.date = cal.getTime();
+            this.status = AlarmContract.ExecStatus.values()[c.getInt(5)];
+            this.constraint = AlarmContract.Constraint.values()[c.getInt(1)];
         }
     }
+
+
+    private class ScheduledAlarm extends RecordedAlarm {
+
+        ScheduledAlarm(Cursor c) {
+
+            this.alarm_id = c.getInt(0);
+            long time = c.getLong(1);
+            this.date = new Date(time);
+            this.constraint = AlarmContract.Constraint.values()[c.getInt(2)];
+            this.status = AlarmContract.ExecStatus.SCHEDULED;
+        }
+    }
+
+
 }

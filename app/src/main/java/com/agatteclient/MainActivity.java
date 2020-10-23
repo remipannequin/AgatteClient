@@ -59,7 +59,6 @@ import com.agatteclient.agatte.AgatteResultCode;
 import com.agatteclient.agatte.AgatteSession;
 import com.agatteclient.agatte.PunchService;
 import com.agatteclient.alarm.AlarmActivity;
-import com.agatteclient.alarm.AlarmList;
 import com.agatteclient.alarm.AlarmRegistry;
 import com.agatteclient.alarm.NetworkChangeRegistry;
 import com.agatteclient.card.CardBinder;
@@ -142,9 +141,7 @@ public class MainActivity extends ActionBarActivity {
         }
 
         //Update network authentication status
-        NetworkChangeRegistry.getInstance(getApplicationContext()).update(getApplicationContext());
-
-        AlarmList.getInstance(this);
+        NetworkChangeRegistry.getInstance(getBaseContext()).update(getApplicationContext());
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor editor = preferences.edit();
@@ -163,13 +160,17 @@ public class MainActivity extends ActionBarActivity {
         if (!preferences.contains(AUTO_QUERY_PREF)) {
             editor.putBoolean(AUTO_QUERY_PREF, false); // value to store
         }
-        editor.commit();
+        editor.apply();
 
         mScaleDetector = new ScaleGestureDetector(getApplicationContext(), new ScaleListener());
 
         setContentView(R.layout.activity_main);
 
         dc_view = (DayCardView) findViewById(R.id.day_card_view);
+        //
+
+        //String profile = preferences.getString(PROFILE_PREF, "1");
+        //int profile_n = Integer.decode(profile) - 1;
 
         day_progress = (ProgressBar) findViewById(R.id.day_progress);
         day_textView = (TextView) findViewById(R.id.day_textView);
@@ -206,7 +207,7 @@ public class MainActivity extends ActionBarActivity {
         super.onPostResume();
         cur_card = CardBinder.getInstance().getTodayCard();
         dc_view.setCard(cur_card);
-        dc_view.setAlarmRegistry(AlarmRegistry.getInstance());
+        dc_view.setAlarms(AlarmRegistry.getInstance().getRecordedAlarms(this, cur_card.getDay()));
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         boolean auto_query = preferences.getBoolean(AUTO_QUERY_PREF, true);
 
@@ -319,7 +320,8 @@ public class MainActivity extends ActionBarActivity {
         day_progress.setIndeterminate(false);
         day_progress.setProgress((int) (p * 100));
         day_progress.invalidate();
-        dc_view.invalidate();
+        // this does also trigger card invalidation (redraw)
+        dc_view.setAlarms(AlarmRegistry.getInstance().getRecordedAlarms(this, cur_card.getDay()));
 
         ActionBar ab = getSupportActionBar();
         SimpleDateFormat fmt1 = new SimpleDateFormat("EEEE");//NON-NLS
@@ -343,7 +345,7 @@ public class MainActivity extends ActionBarActivity {
             editor.putFloat(COUNTER_YEAR_PREF, global_hours);
             editor.putFloat(COUNTER_WEEK_PREF, week_hours);
             editor.putInt(COUNTER_LAST_UPDATE_PREF, cur_card.getDayOfYear() + cur_card.getYear() * 1000);
-            editor.commit();
+            editor.apply();
         } else {
             if (!preferences.contains(COUNTER_LAST_UPDATE_PREF)) {
                 // if old value does not exist AND counter are unavailable
@@ -352,7 +354,7 @@ public class MainActivity extends ActionBarActivity {
                 editor.putBoolean(AUTO_QUERY_PREF, false);
                 // and notify the user
                 Toast.makeText(getApplicationContext(), getString(R.string.conter_autoquery_descativated), Toast.LENGTH_LONG).show();
-                editor.commit();
+                editor.apply();
             }
             week_hours = preferences.getFloat(COUNTER_WEEK_PREF, 0);
             global_hours = preferences.getFloat(COUNTER_YEAR_PREF, 0);
@@ -467,15 +469,14 @@ public class MainActivity extends ActionBarActivity {
      * Update the alarms Scheduled in the alarm manager.
      */
     private void doAlarmUpdate() {
-        AlarmRegistry.getInstance().update(getApplicationContext());
+        //TODO: is this still required ? Possible performance problems ?...
+        AlarmRegistry.getInstance().check(getApplicationContext());
     }
-
 
 
     /**
      * Show confirmation dialog
      *
-
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void showPunchConfirm() {
@@ -542,6 +543,7 @@ public class MainActivity extends ActionBarActivity {
         startService(i);
         runRefresh();
     }
+
 
     private class AgatteResultReceiver extends ResultReceiver {
 

@@ -119,7 +119,7 @@ public class AgatteParser {
     /**
      * Search if counter are (said to be) unavailable
      *
-     * @param result  the HTML page to parse
+     * @param result the HTML page to parse
      * @return true if counter are *not* available
      */
     private boolean searchForCounterUnavailable(String result) {
@@ -132,7 +132,7 @@ public class AgatteParser {
     /**
      * Search for contract year
      *
-     * @param result  the HTML page to parse
+     * @param result the HTML page to parse
      * @return the year, or -1 if not found
      */
     private int searchForYearContract(String result) {
